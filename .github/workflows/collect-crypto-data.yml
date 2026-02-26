@@ -1,0 +1,42 @@
+name: Collect Crypto Data
+
+on:
+  schedule:
+    # Every hour at minute 5 (e.g. 00:05, 01:05, ...)
+    - cron: "5 * * * *"
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Allow pushing data files back to the repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install ccxt pandas
+
+      - name: Collect crypto market data
+        env:
+          CCXT_EXCHANGE: binance
+          CCXT_API_KEY: ""
+          CCXT_API_SECRET: ""
+        run: python scripts/collect_crypto_data.py
+
+      - name: Commit and push data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/crypto/
+          # Only commit if there are actual changes
+          git diff --cached --quiet || git commit -m "chore: collect crypto data $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
