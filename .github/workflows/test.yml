@@ -1,0 +1,113 @@
+name: Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  # -----------------------------------------------------------------------
+  # Job 1: core layer unit tests (no network, no LLM keys required)
+  # -----------------------------------------------------------------------
+  core-tests:
+    name: Core layer (objects / event / oms / gateway / strategy)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: pip install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: poetry-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run core unit tests
+        run: poetry run pytest tests/core/ -v --tb=short
+
+      - name: Run integration cycle tests
+        run: poetry run pytest tests/integration/ -v --tb=short
+
+  # -----------------------------------------------------------------------
+  # Job 2: backtesting unit tests (no network, fixture-based)
+  # -----------------------------------------------------------------------
+  backtest-tests:
+    name: Backtesting unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: pip install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: poetry-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run backtesting unit tests
+        run: poetry run pytest tests/backtesting/ --ignore=tests/backtesting/integration -v --tb=short
+
+  # -----------------------------------------------------------------------
+  # Job 3: all non-network tests combined (gates merges to main)
+  # -----------------------------------------------------------------------
+  all-offline-tests:
+    name: All offline tests
+    runs-on: ubuntu-latest
+    needs: [core-tests, backtest-tests]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: pip install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: poetry-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run all offline tests (exclude network-tagged tests)
+        run: |
+          poetry run pytest \
+            tests/core/ \
+            tests/integration/ \
+            tests/backtesting/ \
+            --ignore=tests/backtesting/integration \
+            -m "not network" \
+            -v --tb=short
