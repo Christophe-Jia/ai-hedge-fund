@@ -1,0 +1,37 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    # Every 4 hours
+    - cron: "0 */4 * * *"
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/virattt/ai-hedge-fund.git || true
+          git fetch upstream
+
+      - name: Rebase onto upstream main
+        run: |
+          git rebase upstream/main
+        # If rebase conflicts occur, the workflow will fail and notify you.
+        # You can then resolve conflicts locally and push manually.
+
+      - name: Push to origin
+        run: |
+          git push origin main
