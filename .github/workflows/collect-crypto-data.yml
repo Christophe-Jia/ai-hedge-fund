@@ -27,7 +27,8 @@ jobs:
 
       - name: Collect crypto market data
         env:
-          CCXT_EXCHANGE: binance
+          # Bybit has no US/region restrictions on public market data endpoints
+          CCXT_EXCHANGE: bybit
           CCXT_API_KEY: ""
           CCXT_API_SECRET: ""
         run: python scripts/collect_crypto_data.py

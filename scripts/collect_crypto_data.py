@@ -20,7 +20,13 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 SYMBOLS = ["BTC/USDT", "ETH/USDT", "SOL/USDT"]
-EXCHANGE_ID = os.environ.get("CCXT_EXCHANGE", "binance")
+# Fallback chain: try each exchange in order until one works.
+# Bybit and KuCoin have no US-IP restrictions on public endpoints.
+EXCHANGE_FALLBACK = [
+    os.environ.get("CCXT_EXCHANGE", "bybit"),
+    "kucoin",
+    "okx",
+]
 DATA_ROOT = Path(__file__).resolve().parents[1] / "data" / "crypto"
 
 
@@ -55,14 +61,25 @@ def get_exchange():
         print("ERROR: ccxt not installed", file=sys.stderr)
         sys.exit(1)
 
-    exchange_cls = getattr(ccxt, EXCHANGE_ID)
-    return exchange_cls(
-        {
-            "apiKey": os.environ.get("CCXT_API_KEY", ""),
-            "secret": os.environ.get("CCXT_API_SECRET", ""),
-            "enableRateLimit": True,
-        }
-    )
+    for exchange_id in EXCHANGE_FALLBACK:
+        try:
+            exchange_cls = getattr(ccxt, exchange_id)
+            exchange = exchange_cls(
+                {
+                    "apiKey": os.environ.get("CCXT_API_KEY", ""),
+                    "secret": os.environ.get("CCXT_API_SECRET", ""),
+                    "enableRateLimit": True,
+                }
+            )
+            # Quick connectivity check
+            exchange.fetch_ticker("BTC/USDT")
+            print(f"Using exchange: {exchange_id}")
+            return exchange
+        except Exception as e:
+            print(f"  [WARN] {exchange_id} not available: {e}", file=sys.stderr)
+
+    print("ERROR: all exchanges failed", file=sys.stderr)
+    sys.exit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +147,7 @@ def deduplicate_tickers(records: list, max_records: int = 10_000) -> list:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    print(f"Starting data collection — exchange: {EXCHANGE_ID}")
+    print(f"Starting data collection — fallback chain: {', '.join(EXCHANGE_FALLBACK)}")
     print(f"Symbols: {', '.join(SYMBOLS)}")
     print(f"Time: {datetime.now(tz=timezone.utc).isoformat()}")
     print()
