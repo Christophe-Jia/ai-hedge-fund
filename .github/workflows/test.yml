@@ -9,7 +9,8 @@ on:
 
 jobs:
   # -----------------------------------------------------------------------
-  # Job 1: core layer unit tests (no network, no LLM keys required)
+  # Job 1: core layer unit tests
+  # Only needs pytest – no heavy ML/exchange dependencies.
   # -----------------------------------------------------------------------
   core-tests:
     name: Core layer (objects / event / oms / gateway / strategy)
@@ -23,27 +24,18 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Poetry
-        run: pip install poetry==1.8.3
-
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: poetry-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
-          restore-keys: poetry-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
+      - name: Install test dependencies
+        run: pip install pytest
 
       - name: Run core unit tests
-        run: poetry run pytest tests/core/ -v --tb=short
+        run: pytest tests/core/ -v --tb=short
 
       - name: Run integration cycle tests
-        run: poetry run pytest tests/integration/ -v --tb=short
+        run: pytest tests/integration/ -v --tb=short
 
   # -----------------------------------------------------------------------
-  # Job 2: backtesting unit tests (no network, fixture-based)
+  # Job 2: backtesting unit tests
+  # Needs full poetry install (pandas, langchain, etc.)
   # -----------------------------------------------------------------------
   backtest-tests:
     name: Backtesting unit tests
@@ -58,7 +50,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install Poetry
-        run: pip install poetry==1.8.3
+        run: pip install "poetry==2.3.2"
 
       - name: Cache Poetry virtualenv
         uses: actions/cache@v4
@@ -74,7 +66,8 @@ jobs:
         run: poetry run pytest tests/backtesting/ --ignore=tests/backtesting/integration -v --tb=short
 
   # -----------------------------------------------------------------------
-  # Job 3: all non-network tests combined (gates merges to main)
+  # Job 3: all offline tests gate (depends on both jobs above)
+  # Re-runs core tests via pip (fast) to produce a single green gate.
   # -----------------------------------------------------------------------
   all-offline-tests:
     name: All offline tests
@@ -89,25 +82,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Poetry
-        run: pip install poetry==1.8.3
+      - name: Install test dependencies (core + pytest only)
+        run: pip install pytest
 
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: poetry-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
-          restore-keys: poetry-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Run all offline tests (exclude network-tagged tests)
+      - name: Run core + integration tests
         run: |
-          poetry run pytest \
+          pytest \
             tests/core/ \
             tests/integration/ \
-            tests/backtesting/ \
-            --ignore=tests/backtesting/integration \
-            -m "not network" \
             -v --tb=short
