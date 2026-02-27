@@ -35,8 +35,7 @@ jobs:
 
   # -----------------------------------------------------------------------
   # Job 2: backtesting unit tests
-  # src/backtesting needs: pandas, numpy, colorama, questionary, python-dateutil
-  # No torch / transformers / langchain required for these tests.
+  # Uses Poetry but skips torch/transformers (CPU-only, no GPU needed in CI).
   # -----------------------------------------------------------------------
   backtest-tests:
     name: Backtesting unit tests
@@ -50,11 +49,26 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install test dependencies
-        run: pip install pytest pandas numpy colorama questionary python-dateutil tabulate
+      - name: Install Poetry
+        run: pip install "poetry==2.3.2"
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-${{ runner.os }}-py3.11-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            poetry-${{ runner.os }}-py3.11-
+
+      - name: Install dependencies (CPU torch to avoid 2 GB GPU wheel)
+        run: |
+          poetry run pip install --upgrade pip
+          poetry install --no-interaction --no-root
+          # Reinstall torch as CPU-only to avoid downloading CUDA wheels
+          poetry run pip install torch --index-url https://download.pytorch.org/whl/cpu --upgrade
 
       - name: Run backtesting unit tests
-        run: pytest tests/backtesting/ --ignore=tests/backtesting/integration -v --tb=short
+        run: poetry run pytest tests/backtesting/ --ignore=tests/backtesting/integration -v --tb=short
 
   # -----------------------------------------------------------------------
   # Job 3: summary gate (depends on both jobs above passing)
@@ -72,14 +86,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install test dependencies
-        run: pip install pytest pandas numpy colorama questionary python-dateutil tabulate
+      - name: Install test dependencies (core only - no heavy deps needed)
+        run: pip install pytest
 
-      - name: Run all offline tests
+      - name: Run core + integration tests
         run: |
           pytest \
             tests/core/ \
             tests/integration/ \
-            tests/backtesting/ \
-            --ignore=tests/backtesting/integration \
             -v --tb=short
