@@ -202,8 +202,9 @@ class LiveTradingScheduler:
         self._strategy.on_signal(decisions)
 
         # Snapshot OMS positions for the order history log
+        from src.core.constant import Direction
         for symbol in decisions:
-            pos = self._oms.get_position_by_symbol(symbol)
+            pos = self._oms.get_position_by_symbol(symbol, Direction.LONG)
             if pos:
                 self._order_history.append({
                     "symbol": symbol,
