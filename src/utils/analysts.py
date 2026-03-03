@@ -19,6 +19,8 @@ from src.agents.rakesh_jhunjhunwala import rakesh_jhunjhunwala_agent
 from src.agents.mohnish_pabrai import mohnish_pabrai_agent
 from src.agents.news_sentiment import news_sentiment_agent
 from src.agents.growth_agent import growth_analyst_agent
+from src.agents.crypto.ob_signal_agent import ob_signal_agent
+from src.agents.crypto.polymarket_signal_agent import polymarket_signal_agent
 
 # Define analyst configuration - single source of truth
 ANALYST_CONFIG = {
@@ -165,6 +167,22 @@ ANALYST_CONFIG = {
         "agent_func": valuation_analyst_agent,
         "type": "analyst",
         "order": 16,
+    },
+    "ob_signal": {
+        "display_name": "OB Signal Agent",
+        "description": "Order Book Microstructure Analyst",
+        "investing_style": "Reads real-time bid-ask imbalance, trade flow direction, and large-order bias from order book tick data to detect short-term supply/demand pressure.",
+        "agent_func": ob_signal_agent,
+        "type": "analyst",
+        "order": 17,
+    },
+    "polymarket_signal": {
+        "display_name": "Polymarket Signal Agent",
+        "description": "Geopolitical Risk Analyst",
+        "investing_style": "Monitors prediction market probabilities for geopolitical and macro risk events to generate risk-off signals for crypto assets.",
+        "agent_func": polymarket_signal_agent,
+        "type": "analyst",
+        "order": 18,
     },
 }
 

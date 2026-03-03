@@ -129,6 +129,40 @@ Before every `git add` / `git commit`:
 
 ---
 
+## Testing Rules
+
+**Every plan must end with running actual tests. No exceptions.**
+
+### After every implementation:
+1. Run the existing test suite to check for regressions:
+   ```bash
+   PYTHONPATH=/Users/jeffryjia/Vibe/ai-hedge-fund poetry run pytest tests/backtesting/ --ignore=tests/backtesting/integration -q
+   ```
+2. Write and run inline smoke tests for every changed or new module using `poetry run python -c "..."`. Each test must:
+   - Actually execute the changed code path
+   - Assert the expected output/behavior (use `assert`)
+   - Print `PASS` on success so the result is unambiguous
+3. Tests must be run via `Bash` tool — not described, not delegated to an agent, **actually executed**.
+4. If any test fails, fix the issue before considering the task done.
+
+### Test command pattern
+```bash
+PYTHONPATH=/Users/jeffryjia/Vibe/ai-hedge-fund poetry run python -c "
+# import the changed module
+# exercise the changed code path
+# assert expected behavior
+print('PASS: <description>')
+"
+```
+
+### pytest invocation
+Always set `PYTHONPATH` — the project does not have a `conftest.py` at root that adds `src` to sys.path:
+```bash
+PYTHONPATH=/Users/jeffryjia/Vibe/ai-hedge-fund poetry run pytest tests/ -q
+```
+
+---
+
 ## Known Issues
 
 - **`calculate_adx()` in `src/agents/technicals.py` mutates its input DataFrame** — adds 10+ columns (`high_low`, `tr`, `+di`, `-di`, `adx`, etc.) as side effects.

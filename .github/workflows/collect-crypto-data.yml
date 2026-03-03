@@ -23,7 +23,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install ccxt pandas
+        run: pip install ccxt pandas yfinance
 
       - name: Collect crypto market data
         env:
@@ -33,11 +33,14 @@ jobs:
           CCXT_API_SECRET: ""
         run: python scripts/collect_crypto_data.py
 
+      - name: Collect macro market data
+        run: python scripts/collect_macro_data.py
+
       - name: Commit and push data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/crypto/
+          git add data/crypto/ data/macro/
           # Only commit if there are actual changes
-          git diff --cached --quiet || git commit -m "chore: collect crypto data $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git diff --cached --quiet || git commit -m "chore: collect crypto+macro data $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
