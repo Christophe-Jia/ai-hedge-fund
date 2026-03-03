@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -12,30 +13,15 @@ from app.backend.services.ollama_service import ollama_service
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="AI Hedge Fund API", description="Backend API for AI Hedge Fund", version="0.1.0")
 
-# Initialize database tables (this is safe to run multiple times)
-Base.metadata.create_all(bind=engine)
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # Frontend URLs
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Include all routes
-app.include_router(api_router)
-
-@app.on_event("startup")
-async def startup_event():
-    """Startup event to check Ollama availability."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan: startup and shutdown logic."""
+    # Startup
     try:
         logger.info("Checking Ollama availability...")
         status = await ollama_service.check_ollama_status()
-        
+
         if status["installed"]:
             if status["running"]:
                 logger.info(f"✓ Ollama is installed and running at {status['server_url']}")
@@ -49,7 +35,28 @@ async def startup_event():
         else:
             logger.info("ℹ Ollama is not installed. Install it to use local models.")
             logger.info("ℹ Visit https://ollama.com to download and install Ollama")
-            
+
     except Exception as e:
         logger.warning(f"Could not check Ollama status: {e}")
         logger.info("ℹ Ollama integration is available if you install it later")
+
+    yield
+    # Shutdown (nothing needed)
+
+
+app = FastAPI(title="AI Hedge Fund API", description="Backend API for AI Hedge Fund", version="0.1.0", lifespan=lifespan)
+
+# Initialize database tables (this is safe to run multiple times)
+Base.metadata.create_all(bind=engine)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],  # Frontend URLs
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include all routes
+app.include_router(api_router)
