@@ -50,6 +50,16 @@ By using this software, you agree to use it solely for learning purposes.
 - [Feature Requests](#feature-requests)
 - [License](#license)
 
+## 前端界面使用说明
+
+中文使用手册请参阅 **[docs/ui-guide.md](docs/ui-guide.md)**，涵盖：
+
+- 首次配置 API Key
+- 快速回测策略（美股 / 加密货币）
+- 可视化搭建 Agent 工作流
+- 本地数据采集
+- 常见问题排查
+
 ## How to Install
 
 Before you can run the AI Hedge Fund, you'll need to install it and set up your API keys. These steps are common to both the full-stack web application and command line interface.
