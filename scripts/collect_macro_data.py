@@ -26,7 +26,7 @@ from pathlib import Path
 
 # yfinance ticker → output filename stem
 MACRO_SYMBOLS = {
-    "^DXY": "DXY",
+    "DX-Y.NYB": "DXY",  # ICE US Dollar Index spot (^DXY delisted from yfinance)
     "GC=F": "GOLD",
     "^TNX": "TNX",
     "^VIX": "VIX",
