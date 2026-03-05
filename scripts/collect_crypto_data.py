@@ -24,9 +24,10 @@ from pathlib import Path
 SYMBOLS = ["BTC/USDT", "ETH/USDT", "SOL/USDT"]
 
 # Fallback chain: try each exchange in order until one works.
-# Bybit and KuCoin have no US-IP restrictions on public endpoints.
+# gate is reliable from most networks; bybit/kucoin/okx as further fallbacks.
 EXCHANGE_FALLBACK = [
-    os.environ.get("CCXT_EXCHANGE", "bybit"),
+    os.environ.get("CCXT_EXCHANGE", "gate"),
+    "bybit",
     "kucoin",
     "okx",
 ]
