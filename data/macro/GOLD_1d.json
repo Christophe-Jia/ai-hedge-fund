@@ -2,7 +2,7 @@
   "symbol": "GOLD",
   "yfinance_ticker": "GC=F",
   "timeframe": "1d",
-  "fetched_at": "2026-03-07T15:28:01.499648+00:00",
+  "fetched_at": "2026-03-07T16:33:38.853969+00:00",
   "candle_count": 251,
   "ohlcv": [
     {
