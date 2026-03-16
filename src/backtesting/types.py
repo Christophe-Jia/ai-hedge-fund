@@ -101,5 +101,45 @@ class PerformanceMetrics(TypedDict, total=False):
     long_short_ratio: Optional[float]
     gross_exposure: Optional[float]
     net_exposure: Optional[float]
+    # BTC cost-aware metrics
+    total_fees_paid: Optional[float]
+    total_funding_paid: Optional[float]
+    total_slippage_cost: Optional[float]
+    net_pnl_after_costs: Optional[float]
+    num_trades: Optional[int]
+    win_rate: Optional[float]
+    profit_factor: Optional[float]
+    calmar_ratio: Optional[float]
+
+
+class PerpPositionState(TypedDict):
+    """State of a single perpetual futures position (isolated margin)."""
+
+    symbol: str
+    side: Literal["long", "short"]
+    size: float               # in base currency (e.g. BTC)
+    entry_price: float        # average entry price in USD
+    leverage: float           # e.g. 5.0 for 5x
+    initial_margin: float     # USD locked as margin
+    unrealized_pnl: float     # mark-to-market PnL in USD
+    realized_pnl: float       # cumulative realized PnL in USD
+    cumulative_funding: float # net funding payments (negative = paid)
+    liquidation_price: float  # price at which position is force-closed
+    is_liquidated: bool       # True once the position has been liquidated
+
+
+class TradeRecord(TypedDict):
+    """Record of a single executed trade for cost reporting."""
+
+    timestamp: str        # ISO-8601 datetime string
+    symbol: str
+    market_type: str      # "spot" or "perp"
+    side: str             # "buy" or "sell"
+    quantity: float
+    price: float          # execution price (after slippage)
+    notional: float       # quantity * price
+    fee_usd: float
+    slippage_usd: float
+    total_cost_usd: float
 
 

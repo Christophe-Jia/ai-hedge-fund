@@ -1,0 +1,65 @@
+{
+  "ticker": "SPY",
+  "prices": [
+    {
+      "ticker": "SPY",
+      "open": 480.0,
+      "close": 486.92,
+      "high": 494.47,
+      "low": 472.56,
+      "volume": 30088966,
+      "time": "2024-03-01T05:00:00Z",
+      "time_milliseconds": 1709251200000
+    },
+    {
+      "ticker": "SPY",
+      "open": 486.92,
+      "close": 484.53,
+      "high": 500.48,
+      "low": 471.04,
+      "volume": 17824494,
+      "time": "2024-03-04T05:00:00Z",
+      "time_milliseconds": 1709510400000
+    },
+    {
+      "ticker": "SPY",
+      "open": 484.53,
+      "close": 494.15,
+      "high": 501.25,
+      "low": 477.57,
+      "volume": 55481975,
+      "time": "2024-03-05T05:00:00Z",
+      "time_milliseconds": 1709596800000
+    },
+    {
+      "ticker": "SPY",
+      "open": 494.15,
+      "close": 500.65,
+      "high": 512.16,
+      "low": 482.79,
+      "volume": 59044733,
+      "time": "2024-03-06T05:00:00Z",
+      "time_milliseconds": 1709683200000
+    },
+    {
+      "ticker": "SPY",
+      "open": 500.65,
+      "close": 489.86,
+      "high": 513.76,
+      "low": 477.03,
+      "volume": 10584888,
+      "time": "2024-03-07T05:00:00Z",
+      "time_milliseconds": 1709769600000
+    },
+    {
+      "ticker": "SPY",
+      "open": 489.86,
+      "close": 488.46,
+      "high": 498.09,
+      "low": 480.25,
+      "volume": 23993154,
+      "time": "2024-03-08T05:00:00Z",
+      "time_milliseconds": 1709856000000
+    }
+  ]
+}

@@ -15,6 +15,8 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { TopBar } from './layout/top-bar';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 // Create a LayoutContent component to access the FlowContext, TabsContext, and LayoutContext
 function LayoutContent({ children }: { children: ReactNode }) {
   const { reactFlowInstance } = useFlowContext();
@@ -30,13 +32,36 @@ function LayoutContent({ children }: { children: ReactNode }) {
     SidebarStorageService.loadRightSidebarState(false)
   );
 
-  // Track actual sidebar widths for dynamic positioning
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(280);
   const [rightSidebarWidth, setRightSidebarWidth] = useState(280);
   const [bottomPanelHeight, setBottomPanelHeight] = useState(300);
+  const [unreadAlerts, setUnreadAlerts] = useState(0);
+
+  // Poll unread alert count every 30s
+  useEffect(() => {
+    const fetchCount = () => {
+      fetch(`${API_BASE_URL}/alerts/unacknowledged-count`)
+        .then((r) => r.ok ? r.json() : { count: 0 })
+        .then((d) => setUnreadAlerts(d.count ?? 0))
+        .catch(() => {});
+    };
+    fetchCount();
+    const t = setInterval(fetchCount, 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   const handleSettingsClick = () => {
     const tabData = TabService.createSettingsTab();
+    openTab(tabData);
+  };
+
+  const handleWorkspaceClick = () => {
+    const tabData = TabService.createWorkspaceTab();
+    openTab(tabData);
+  };
+
+  const handleLiveTradingClick = () => {
+    const tabData = TabService.createLiveTradingTab();
     openTab(tabData);
   };
 
@@ -111,6 +136,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
         onToggleRight={() => setIsRightCollapsed(!isRightCollapsed)}
         onToggleBottom={toggleBottomPanel}
         onSettingsClick={handleSettingsClick}
+        onWorkspaceClick={handleWorkspaceClick}
+        onLiveTradingClick={handleLiveTradingClick}
+        liveAlertCount={unreadAlerts}
       />
 
       {/* Tab Bar - positioned absolutely like bottom panel */}

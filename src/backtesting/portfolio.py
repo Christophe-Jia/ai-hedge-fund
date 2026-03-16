@@ -79,12 +79,33 @@ class Portfolio:
     def get_realized_gains(self) -> Mapping[str, TickerRealizedGains]:
         return MappingProxyType(self._portfolio["realized_gains"])  # type: ignore[arg-type]
 
-    def apply_long_buy(self, ticker: str, quantity: int, price: float) -> int:
+    def deduct_fee(self, fee_usd: float) -> None:
+        """Deduct a trade fee from cash. Updates total_fees_paid if tracked."""
+        self._portfolio["cash"] -= fee_usd
+        if "total_fees_paid" in self._portfolio:
+            self._portfolio["total_fees_paid"] = (
+                self._portfolio.get("total_fees_paid", 0.0) + fee_usd
+            )
+
+    def apply_funding_payment(self, payment: float) -> None:
+        """
+        Apply a funding rate cash flow to the portfolio.
+
+        payment > 0: cash received (short receiving funding)
+        payment < 0: cash paid    (long paying funding)
+        """
+        self._portfolio["cash"] += payment
+        if "total_funding_paid" in self._portfolio:
+            self._portfolio["total_funding_paid"] = (
+                self._portfolio.get("total_funding_paid", 0.0) - payment
+            )
+
+    def apply_long_buy(self, ticker: str, quantity: float, price: float, slippage_pct: float = 0.0) -> float:
         if quantity <= 0:
             return 0
-        quantity = int(quantity)
+        execution_price = price * (1.0 + slippage_pct)
         position = self._portfolio["positions"][ticker]
-        cost = quantity * price
+        cost = quantity * execution_price
         if cost <= self._portfolio["cash"]:
             old_shares = position["long"]
             old_cost_basis = position["long_cost_basis"]
@@ -96,9 +117,10 @@ class Portfolio:
             position["long"] = old_shares + quantity
             self._portfolio["cash"] -= cost
             return quantity
-        max_quantity = int(self._portfolio["cash"] / price) if price > 0 else 0
+        # Buy as much as cash allows, respecting lot_size precision
+        max_quantity = self._portfolio["cash"] / execution_price if execution_price > 0 else 0
         if max_quantity > 0:
-            cost = max_quantity * price
+            cost = max_quantity * execution_price
             old_shares = position["long"]
             old_cost_basis = position["long_cost_basis"]
             total_shares = old_shares + max_quantity
@@ -111,24 +133,24 @@ class Portfolio:
             return max_quantity
         return 0
 
-    def apply_long_sell(self, ticker: str, quantity: int, price: float) -> int:
+    def apply_long_sell(self, ticker: str, quantity: float, price: float, slippage_pct: float = 0.0) -> float:
         position = self._portfolio["positions"][ticker]
-        quantity = min(int(quantity), position["long"]) if quantity > 0 else 0
+        quantity = min(quantity, position["long"]) if quantity > 0 else 0
         if quantity <= 0:
             return 0
+        execution_price = price * (1.0 - slippage_pct)
         avg_cost = position["long_cost_basis"] if position["long"] > 0 else 0.0
-        realized_gain = (price - avg_cost) * quantity
+        realized_gain = (execution_price - avg_cost) * quantity
         self._portfolio["realized_gains"][ticker]["long"] += realized_gain
         position["long"] -= quantity
-        self._portfolio["cash"] += quantity * price
+        self._portfolio["cash"] += quantity * execution_price
         if position["long"] == 0:
             position["long_cost_basis"] = 0.0
         return quantity
 
-    def apply_short_open(self, ticker: str, quantity: int, price: float) -> int:
+    def apply_short_open(self, ticker: str, quantity: float, price: float) -> float:
         if quantity <= 0:
             return 0
-        quantity = int(quantity)
         position = self._portfolio["positions"][ticker]
         proceeds = price * quantity
         margin_ratio = self._portfolio["margin_requirement"]
@@ -147,7 +169,7 @@ class Portfolio:
             self._portfolio["cash"] += proceeds
             self._portfolio["cash"] -= margin_required
             return quantity
-        max_quantity = int(self._portfolio["cash"] / (price * margin_ratio)) if margin_ratio > 0 and price > 0 else 0
+        max_quantity = self._portfolio["cash"] / (price * margin_ratio) if margin_ratio > 0 and price > 0 else 0
         if max_quantity > 0:
             proceeds = price * max_quantity
             margin_required = proceeds * margin_ratio
@@ -166,9 +188,9 @@ class Portfolio:
             return max_quantity
         return 0
 
-    def apply_short_cover(self, ticker: str, quantity: int, price: float) -> int:
+    def apply_short_cover(self, ticker: str, quantity: float, price: float) -> float:
         position = self._portfolio["positions"][ticker]
-        quantity = min(int(quantity), position["short"]) if quantity > 0 else 0
+        quantity = min(quantity, position["short"]) if quantity > 0 else 0
         if quantity <= 0:
             return 0
         cover_cost = quantity * price

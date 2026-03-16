@@ -76,4 +76,67 @@ class PerformanceMetricsCalculator:
             "max_drawdown_date": max_drawdown_date,
         }
 
+    def compute_calmar_ratio(
+        self, values: Sequence[PortfolioValuePoint]
+    ) -> float | None:
+        """
+        Calmar ratio = annualised return / abs(max drawdown %).
+
+        Returns None if max drawdown is zero or there are insufficient data.
+        """
+        import numpy as np
+
+        if not values or len(values) < 2:
+            return None
+
+        import pandas as pd
+        df = pd.DataFrame(values).set_index("Date")
+        pv = df["Portfolio Value"]
+
+        # Annualised return
+        total_return = pv.iloc[-1] / pv.iloc[0] - 1.0
+        n_days = (df.index[-1] - df.index[0]).days
+        if n_days <= 0:
+            return None
+        ann_return = (1.0 + total_return) ** (365.0 / n_days) - 1.0
+
+        # Max drawdown (as a positive percentage)
+        rolling_max = pv.cummax()
+        drawdown = (pv - rolling_max) / rolling_max
+        max_dd = float(drawdown.min())  # negative number
+        if abs(max_dd) < 1e-9:
+            return None
+
+        return float(ann_return / abs(max_dd))
+
+    def compute_trade_stats(
+        self, pnl_list: Sequence[float]
+    ) -> dict:
+        """
+        Compute win rate and profit factor from a list of per-trade PnL values.
+
+        Returns:
+            {
+              "win_rate": float in [0, 1],
+              "profit_factor": float (gross profit / gross loss),
+              "num_trades": int,
+            }
+        """
+        if not pnl_list:
+            return {"win_rate": None, "profit_factor": None, "num_trades": 0}
+
+        wins = [p for p in pnl_list if p > 0]
+        losses = [p for p in pnl_list if p < 0]
+
+        win_rate = len(wins) / len(pnl_list)
+        gross_profit = sum(wins)
+        gross_loss = abs(sum(losses))
+        profit_factor = (gross_profit / gross_loss) if gross_loss > 1e-9 else None
+
+        return {
+            "win_rate": win_rate,
+            "profit_factor": profit_factor,
+            "num_trades": len(pnl_list),
+        }
+
 

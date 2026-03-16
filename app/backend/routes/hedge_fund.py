@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 import asyncio
 
 from app.backend.database import get_db
+from app.backend.database.repositories import BacktestRunRepository
 from app.backend.models.schemas import ErrorResponse, HedgeFundRequest, BacktestRequest, BacktestDayResult, BacktestPerformanceMetrics
 from app.backend.models.events import StartEvent, ProgressUpdateEvent, ErrorEvent, CompleteEvent
 from app.backend.services.graph import create_graph, parse_hedge_fund_response, run_graph_async
@@ -300,6 +301,31 @@ async def backtest(request_data: BacktestRequest, request: Request, db: Session 
                 if not result:
                     yield ErrorEvent(message="Failed to complete backtest").to_sse()
                     return
+
+                # Persist backtest result to database
+                try:
+                    repo = BacktestRunRepository(db)
+                    portfolio_values = backtest_service.get_portfolio_values() if hasattr(backtest_service, 'get_portfolio_values') else []
+                    pv_serialized = []
+                    for pt in portfolio_values:
+                        d = dict(pt)
+                        if "Date" in d:
+                            d["Date"] = str(d["Date"])
+                        pv_serialized.append(d)
+                    repo.save(
+                        engine_type="stock",
+                        tickers=request_data.tickers,
+                        start_date=request_data.start_date,
+                        end_date=request_data.end_date,
+                        initial_capital=request_data.initial_capital,
+                        model_name=request_data.model_name,
+                        selected_analysts=[n.id for n in (request_data.graph_nodes or [])],
+                        performance_metrics=result.get("performance_metrics", {}),
+                        portfolio_value_series=pv_serialized,
+                        final_portfolio=result.get("final_portfolio"),
+                    )
+                except Exception as persist_err:
+                    print(f"[backtest] Warning: failed to persist result: {persist_err}")
 
                 # Send the final result
                 performance_metrics = BacktestPerformanceMetrics(**result["performance_metrics"])

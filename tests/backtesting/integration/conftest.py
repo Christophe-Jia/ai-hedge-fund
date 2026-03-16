@@ -11,10 +11,16 @@ NEWS_ROOT = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "api" /
 INSIDER_ROOT = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "api" / "insider_trades"
 
 
+def _safe_ticker(ticker: str) -> str:
+    """Sanitize ticker for use in filenames (e.g. BTC/USDT → BTC-USDT)."""
+    return ticker.replace("/", "-")
+
+
 def _find_price_fixture_file(ticker: str, start: str, end: str) -> Path | None:
     # Find a fixture whose filename date range overlaps [start, end]
-    # Filenames: {TICKER}_{START}_{END}.json
-    candidates = sorted(PRICES_ROOT.glob(f"{ticker}_*.json"))
+    # Filenames: {TICKER}_{START}_{END}.json  (ticker may use '-' instead of '/')
+    safe = _safe_ticker(ticker)
+    candidates = sorted(PRICES_ROOT.glob(f"{safe}_*.json"))
     for p in candidates:
         try:
             parts = p.stem.split("_")

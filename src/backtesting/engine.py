@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Sequence, Dict
+from typing import Sequence, Dict, Callable
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -30,6 +30,16 @@ class BacktestEngine:
     This implementation mirrors the semantics of src/backtester.py while
     avoiding any changes to that file. It orchestrates agent decisions,
     trade execution, valuation, exposures and performance metrics.
+
+    Args:
+        price_only: When True, skip fundamental data prefetch
+            (get_financial_metrics, get_insider_trades, get_company_news)
+            and skip the SPY benchmark prefetch. Suitable for crypto or
+            pure technical strategies where fundamental data is not needed.
+        lookback_months: Number of months of lookback window passed to the
+            agent on each backtest day. Defaults to 3 (was hardcoded at 1).
+        benchmark_ticker: Ticker used for benchmark comparison. Defaults to
+            "SPY". Set to None to disable benchmark tracking.
     """
 
     def __init__(
@@ -44,6 +54,10 @@ class BacktestEngine:
         model_provider: str,
         selected_analysts: list[str] | None,
         initial_margin_requirement: float,
+        price_only: bool = False,
+        lookback_months: int = 3,
+        benchmark_ticker: str | None = "SPY",
+        price_data_fn: Callable[[str, str, str], pd.DataFrame] | None = None,
     ) -> None:
         self._agent = agent
         self._tickers = tickers
@@ -53,6 +67,11 @@ class BacktestEngine:
         self._model_name = model_name
         self._model_provider = model_provider
         self._selected_analysts = selected_analysts
+        self._price_only = price_only
+        self._lookback_months = lookback_months
+        self._benchmark_ticker = benchmark_ticker
+        # Use provided price fetcher, or fall back to the default API-backed one
+        self._price_data_fn: Callable[[str, str, str], pd.DataFrame] = price_data_fn or get_price_data
 
         self._portfolio = Portfolio(
             tickers=tickers,
@@ -85,12 +104,14 @@ class BacktestEngine:
 
         for ticker in self._tickers:
             get_prices(ticker, start_date_str, self._end_date)
-            get_financial_metrics(ticker, self._end_date, limit=10)
-            get_insider_trades(ticker, self._end_date, start_date=self._start_date, limit=1000)
-            get_company_news(ticker, self._end_date, start_date=self._start_date, limit=1000)
-        
-        # Preload data for SPY for benchmark comparison
-        get_prices("SPY", self._start_date, self._end_date)
+            if not self._price_only:
+                get_financial_metrics(ticker, self._end_date, limit=10)
+                get_insider_trades(ticker, self._end_date, start_date=self._start_date, limit=1000)
+                get_company_news(ticker, self._end_date, start_date=self._start_date, limit=1000)
+
+        # Preload data for benchmark ticker
+        if self._benchmark_ticker:
+            get_prices(self._benchmark_ticker, self._start_date, self._end_date)
 
 
     def run_backtest(self) -> PerformanceMetrics:
@@ -105,7 +126,7 @@ class BacktestEngine:
             self._portfolio_values = []
 
         for current_date in dates:
-            lookback_start = (current_date - relativedelta(months=1)).strftime("%Y-%m-%d")
+            lookback_start = (current_date - relativedelta(months=self._lookback_months)).strftime("%Y-%m-%d")
             current_date_str = current_date.strftime("%Y-%m-%d")
             previous_date_str = (current_date - relativedelta(days=1)).strftime("%Y-%m-%d")
             if lookback_start == current_date_str:
@@ -116,7 +137,7 @@ class BacktestEngine:
                 missing_data = False
                 for ticker in self._tickers:
                     try:
-                        price_data = get_price_data(ticker, previous_date_str, current_date_str)
+                        price_data = self._price_data_fn(ticker, previous_date_str, current_date_str)
                         if price_data.empty:
                             missing_data = True
                             break
@@ -173,7 +194,7 @@ class BacktestEngine:
                 portfolio=self._portfolio,
                 performance_metrics=self._performance_metrics,
                 total_value=total_value,
-                benchmark_return_pct=self._benchmark.get_return_pct("SPY", self._start_date, current_date_str),
+                benchmark_return_pct=self._benchmark.get_return_pct(self._benchmark_ticker, self._start_date, current_date_str) if self._benchmark_ticker else None,
             )
             # Prepend today's rows to historical rows so latest day is on top
             self._table_rows = rows + self._table_rows

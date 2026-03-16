@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON, ForeignKey, Float
 from sqlalchemy.sql import func
 from .connection import Base
 
@@ -97,19 +97,60 @@ class HedgeFundFlowRunCycle(Base):
 class ApiKey(Base):
     """Table to store API keys for various services"""
     __tablename__ = "api_keys"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # API key details
     provider = Column(String(100), nullable=False, unique=True, index=True)  # e.g., "ANTHROPIC_API_KEY"
     key_value = Column(Text, nullable=False)  # The actual API key (encrypted in production)
     is_active = Column(Boolean, default=True)  # Enable/disable without deletion
-    
+
     # Optional metadata
     description = Column(Text, nullable=True)  # Human-readable description
     last_used = Column(DateTime(timezone=True), nullable=True)  # Track usage
 
 
- 
+class BacktestRun(Base):
+    """Table to store individual backtest run results for historical comparison."""
+    __tablename__ = "backtest_runs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # User-defined label
+    name = Column(String(200), nullable=True)
+
+    # Engine type: "stock" | "btc" | "optimization"
+    engine_type = Column(String(50), nullable=False, default="stock")
+
+    # Parameters
+    tickers = Column(JSON, nullable=True)               # list[str]
+    start_date = Column(String(20), nullable=True)
+    end_date = Column(String(20), nullable=True)
+    initial_capital = Column(Float, nullable=True)
+    model_name = Column(String(100), nullable=True)
+    selected_analysts = Column(JSON, nullable=True)     # list[str]
+    extra_params = Column(JSON, nullable=True)          # engine-specific params
+
+    # Results
+    performance_metrics = Column(JSON, nullable=True)   # PerformanceMetrics dict
+    portfolio_value_series = Column(JSON, nullable=True)  # list[PortfolioValuePoint]
+    trade_records = Column(JSON, nullable=True)         # list of trade dicts (BTC only)
+    final_portfolio = Column(JSON, nullable=True)
+
+
+class AlertRecord(Base):
+    """Table to store live-trading alert history."""
+    __tablename__ = "alert_records"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    triggered_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    session_id = Column(String(100), nullable=True, index=True)
+    rule_id = Column(String(100), nullable=False)
+    severity = Column(String(20), nullable=False)   # INFO | WARNING | CRITICAL
+    message = Column(Text, nullable=True)
+    snapshot = Column(JSON, nullable=True)          # monitor snapshot at trigger time
+    acknowledged = Column(Boolean, default=False, nullable=False)

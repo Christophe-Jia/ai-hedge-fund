@@ -54,10 +54,17 @@ const LLM_API_KEYS: ApiKey[] = [
   },
   {
     key: 'OPENAI_API_KEY',
-    label: 'OpenAI API',
-    description: 'For OpenAI models (gpt-4o, gpt-4o-mini, etc.)',
+    label: 'OpenAI / Moonshot (Kimi) API',
+    description: 'For OpenAI models (gpt-4o, etc.) or Moonshot/Kimi models. Set OPENAI_API_BASE=https://api.moonshot.cn/v1 in .env to use Kimi with model_provider=OpenAI.',
     url: 'https://platform.openai.com/',
-    placeholder: 'your-openai-api-key'
+    placeholder: 'your-openai-or-moonshot-api-key'
+  },
+  {
+    key: 'OPENAI_API_BASE',
+    label: 'OpenAI API Base URL (Moonshot/Kimi)',
+    description: 'Custom base URL for OpenAI-compatible APIs. Moonshot: https://api.moonshot.cn/v1 — leave empty to use official OpenAI endpoint.',
+    url: 'https://platform.moonshot.cn/',
+    placeholder: 'https://api.moonshot.cn/v1'
   },
   {
     key: 'OPENROUTER_API_KEY',

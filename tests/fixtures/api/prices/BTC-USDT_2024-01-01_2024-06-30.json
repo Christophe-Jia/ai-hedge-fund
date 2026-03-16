@@ -1,0 +1,1305 @@
+{
+  "ticker": "BTC-USDT",
+  "prices": [
+    {
+      "ticker": "BTC-USDT",
+      "open": 42000.0,
+      "close": 41840.24,
+      "high": 42299.27,
+      "low": 41573.62,
+      "volume": 21717,
+      "time": "2024-01-01T00:00:00Z",
+      "time_milliseconds": 1704067200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 41845.14,
+      "close": 40104.6,
+      "high": 42025.24,
+      "low": 39714.23,
+      "volume": 16952,
+      "time": "2024-01-02T00:00:00Z",
+      "time_milliseconds": 1704153600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 40138.03,
+      "close": 40494.88,
+      "high": 40977.75,
+      "low": 39679.71,
+      "volume": 42493,
+      "time": "2024-01-03T00:00:00Z",
+      "time_milliseconds": 1704240000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 40524.96,
+      "close": 41693.85,
+      "high": 42307.46,
+      "low": 40399.43,
+      "volume": 25463,
+      "time": "2024-01-04T00:00:00Z",
+      "time_milliseconds": 1704326400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 41708.44,
+      "close": 40915.62,
+      "high": 41930.84,
+      "low": 40191.64,
+      "volume": 37059,
+      "time": "2024-01-05T00:00:00Z",
+      "time_milliseconds": 1704412800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 40949.39,
+      "close": 41476.94,
+      "high": 41820.29,
+      "low": 40615.27,
+      "volume": 32335,
+      "time": "2024-01-08T00:00:00Z",
+      "time_milliseconds": 1704672000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 41504.79,
+      "close": 40121.87,
+      "high": 41963.14,
+      "low": 39391.52,
+      "volume": 39807,
+      "time": "2024-01-09T00:00:00Z",
+      "time_milliseconds": 1704758400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 40172.54,
+      "close": 40522.35,
+      "high": 41021.68,
+      "low": 39518.46,
+      "volume": 38700,
+      "time": "2024-01-10T00:00:00Z",
+      "time_milliseconds": 1704844800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 40569.51,
+      "close": 39918.46,
+      "high": 40719.1,
+      "low": 39658.07,
+      "volume": 33965,
+      "time": "2024-01-11T00:00:00Z",
+      "time_milliseconds": 1704931200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 39977.18,
+      "close": 39816.83,
+      "high": 40616.71,
+      "low": 39468.95,
+      "volume": 44714,
+      "time": "2024-01-12T00:00:00Z",
+      "time_milliseconds": 1705017600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 39884.58,
+      "close": 39255.12,
+      "high": 40225.7,
+      "low": 39010.12,
+      "volume": 32496,
+      "time": "2024-01-15T00:00:00Z",
+      "time_milliseconds": 1705276800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 39333.79,
+      "close": 38080.79,
+      "high": 39493.92,
+      "low": 37588.15,
+      "volume": 31043,
+      "time": "2024-01-16T00:00:00Z",
+      "time_milliseconds": 1705363200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 38179.58,
+      "close": 38881.63,
+      "high": 39562.86,
+      "low": 37698.52,
+      "volume": 29392,
+      "time": "2024-01-17T00:00:00Z",
+      "time_milliseconds": 1705449600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 38970.91,
+      "close": 37458.74,
+      "high": 39541.44,
+      "low": 37207.93,
+      "volume": 17103,
+      "time": "2024-01-18T00:00:00Z",
+      "time_milliseconds": 1705536000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37571.86,
+      "close": 36784.36,
+      "high": 37721.88,
+      "low": 36157.02,
+      "volume": 35622,
+      "time": "2024-01-19T00:00:00Z",
+      "time_milliseconds": 1705622400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36915.09,
+      "close": 37844.03,
+      "high": 38444.65,
+      "low": 36448.38,
+      "volume": 24363,
+      "time": "2024-01-22T00:00:00Z",
+      "time_milliseconds": 1705881600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37961.37,
+      "close": 38587.15,
+      "high": 39020.69,
+      "low": 37697.88,
+      "volume": 43077,
+      "time": "2024-01-23T00:00:00Z",
+      "time_milliseconds": 1705968000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 38695.84,
+      "close": 38181.09,
+      "high": 38939.23,
+      "low": 37485.99,
+      "volume": 48392,
+      "time": "2024-01-24T00:00:00Z",
+      "time_milliseconds": 1706054400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 38298.37,
+      "close": 38355.99,
+      "high": 38965.57,
+      "low": 38095.67,
+      "volume": 25484,
+      "time": "2024-01-25T00:00:00Z",
+      "time_milliseconds": 1706140800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 38473.15,
+      "close": 37617.48,
+      "high": 38625.23,
+      "low": 37281.83,
+      "volume": 45674,
+      "time": "2024-01-26T00:00:00Z",
+      "time_milliseconds": 1706227200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37753.22,
+      "close": 37351.01,
+      "high": 38353.94,
+      "low": 37231.25,
+      "volume": 22507,
+      "time": "2024-01-29T00:00:00Z",
+      "time_milliseconds": 1706486400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37493.24,
+      "close": 36562.44,
+      "high": 37755.78,
+      "low": 36089.48,
+      "volume": 22310,
+      "time": "2024-01-30T00:00:00Z",
+      "time_milliseconds": 1706572800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36719.0,
+      "close": 37175.43,
+      "high": 37287.37,
+      "low": 36211.13,
+      "volume": 32261,
+      "time": "2024-01-31T00:00:00Z",
+      "time_milliseconds": 1706659200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37330.56,
+      "close": 37086.06,
+      "high": 37726.83,
+      "low": 36914.48,
+      "volume": 34558,
+      "time": "2024-02-01T00:00:00Z",
+      "time_milliseconds": 1706745600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37250.29,
+      "close": 36432.1,
+      "high": 37473.18,
+      "low": 36111.42,
+      "volume": 25587,
+      "time": "2024-02-02T00:00:00Z",
+      "time_milliseconds": 1706832000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36629.41,
+      "close": 36286.67,
+      "high": 37030.7,
+      "low": 36176.47,
+      "volume": 36243,
+      "time": "2024-02-05T00:00:00Z",
+      "time_milliseconds": 1707091200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36493.92,
+      "close": 36521.89,
+      "high": 36830.07,
+      "low": 35845.06,
+      "volume": 35153,
+      "time": "2024-02-06T00:00:00Z",
+      "time_milliseconds": 1707177600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36733.37,
+      "close": 37332.02,
+      "high": 37754.83,
+      "low": 36579.77,
+      "volume": 46849,
+      "time": "2024-02-07T00:00:00Z",
+      "time_milliseconds": 1707264000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37539.11,
+      "close": 35451.09,
+      "high": 37951.69,
+      "low": 35267.66,
+      "volume": 46148,
+      "time": "2024-02-08T00:00:00Z",
+      "time_milliseconds": 1707350400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 35694.15,
+      "close": 35539.51,
+      "high": 36083.76,
+      "low": 35107.65,
+      "volume": 28880,
+      "time": "2024-02-09T00:00:00Z",
+      "time_milliseconds": 1707436800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 35804.52,
+      "close": 35233.64,
+      "high": 36282.44,
+      "low": 34743.32,
+      "volume": 41148,
+      "time": "2024-02-12T00:00:00Z",
+      "time_milliseconds": 1707696000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 35511.0,
+      "close": 35476.51,
+      "high": 35850.89,
+      "low": 35094.28,
+      "volume": 22930,
+      "time": "2024-02-13T00:00:00Z",
+      "time_milliseconds": 1707782400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 35757.98,
+      "close": 36044.13,
+      "high": 36162.69,
+      "low": 35353.6,
+      "volume": 29432,
+      "time": "2024-02-14T00:00:00Z",
+      "time_milliseconds": 1707868800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36324.85,
+      "close": 36381.47,
+      "high": 36522.52,
+      "low": 36179.15,
+      "volume": 17058,
+      "time": "2024-02-15T00:00:00Z",
+      "time_milliseconds": 1707955200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36664.89,
+      "close": 36426.16,
+      "high": 36905.78,
+      "low": 35948.25,
+      "volume": 29040,
+      "time": "2024-02-16T00:00:00Z",
+      "time_milliseconds": 1708041600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36732.18,
+      "close": 36416.05,
+      "high": 37328.55,
+      "low": 35988.37,
+      "volume": 30925,
+      "time": "2024-02-19T00:00:00Z",
+      "time_milliseconds": 1708300800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36729.98,
+      "close": 35297.68,
+      "high": 36945.08,
+      "low": 35134.09,
+      "volume": 43249,
+      "time": "2024-02-20T00:00:00Z",
+      "time_milliseconds": 1708387200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 35636.15,
+      "close": 36275.82,
+      "high": 36844.49,
+      "low": 35500.28,
+      "volume": 21449,
+      "time": "2024-02-21T00:00:00Z",
+      "time_milliseconds": 1708473600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 36607.37,
+      "close": 37090.57,
+      "high": 37640.01,
+      "low": 36437.55,
+      "volume": 27556,
+      "time": "2024-02-22T00:00:00Z",
+      "time_milliseconds": 1708560000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 37417.66,
+      "close": 38253.25,
+      "high": 38602.29,
+      "low": 37149.07,
+      "volume": 31371,
+      "time": "2024-02-23T00:00:00Z",
+      "time_milliseconds": 1708646400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 38586.18,
+      "close": 38347.76,
+      "high": 39169.62,
+      "low": 37736.57,
+      "volume": 21416,
+      "time": "2024-02-26T00:00:00Z",
+      "time_milliseconds": 1708905600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 38687.03,
+      "close": 39699.21,
+      "high": 40300.42,
+      "low": 38008.66,
+      "volume": 30491,
+      "time": "2024-02-27T00:00:00Z",
+      "time_milliseconds": 1708992000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 40025.96,
+      "close": 40904.18,
+      "high": 41152.59,
+      "low": 39665.1,
+      "volume": 18842,
+      "time": "2024-02-28T00:00:00Z",
+      "time_milliseconds": 1709078400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 41220.62,
+      "close": 41271.83,
+      "high": 41636.89,
+      "low": 40524.08,
+      "volume": 44819,
+      "time": "2024-02-29T00:00:00Z",
+      "time_milliseconds": 1709164800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 41594.54,
+      "close": 42973.32,
+      "high": 43553.88,
+      "low": 40981.0,
+      "volume": 46894,
+      "time": "2024-03-01T00:00:00Z",
+      "time_milliseconds": 1709251200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 43305.86,
+      "close": 43966.43,
+      "high": 44725.61,
+      "low": 42799.71,
+      "volume": 18994,
+      "time": "2024-03-04T00:00:00Z",
+      "time_milliseconds": 1709510400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 44295.86,
+      "close": 43961.52,
+      "high": 44816.9,
+      "low": 43494.52,
+      "volume": 49807,
+      "time": "2024-03-05T00:00:00Z",
+      "time_milliseconds": 1709596800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 44302.81,
+      "close": 46375.48,
+      "high": 46561.63,
+      "low": 44046.41,
+      "volume": 19453,
+      "time": "2024-03-06T00:00:00Z",
+      "time_milliseconds": 1709683200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 46692.35,
+      "close": 46021.62,
+      "high": 46916.39,
+      "low": 45258.0,
+      "volume": 31135,
+      "time": "2024-03-07T00:00:00Z",
+      "time_milliseconds": 1709769600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 46355.58,
+      "close": 46217.39,
+      "high": 46551.65,
+      "low": 45621.23,
+      "volume": 49261,
+      "time": "2024-03-08T00:00:00Z",
+      "time_milliseconds": 1709856000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 46583.77,
+      "close": 47312.16,
+      "high": 47919.89,
+      "low": 46224.48,
+      "volume": 32407,
+      "time": "2024-03-11T00:00:00Z",
+      "time_milliseconds": 1710115200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 47673.91,
+      "close": 48627.23,
+      "high": 48984.78,
+      "low": 47304.79,
+      "volume": 19754,
+      "time": "2024-03-12T00:00:00Z",
+      "time_milliseconds": 1710201600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 48981.04,
+      "close": 49068.87,
+      "high": 49629.45,
+      "low": 48760.64,
+      "volume": 28969,
+      "time": "2024-03-13T00:00:00Z",
+      "time_milliseconds": 1710288000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 49427.84,
+      "close": 49406.41,
+      "high": 49834.88,
+      "low": 49207.12,
+      "volume": 31009,
+      "time": "2024-03-14T00:00:00Z",
+      "time_milliseconds": 1710374400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 49757.67,
+      "close": 50226.56,
+      "high": 50998.11,
+      "low": 49083.3,
+      "volume": 49664,
+      "time": "2024-03-15T00:00:00Z",
+      "time_milliseconds": 1710460800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 50557.57,
+      "close": 50658.31,
+      "high": 51037.02,
+      "low": 49902.81,
+      "volume": 23800,
+      "time": "2024-03-18T00:00:00Z",
+      "time_milliseconds": 1710720000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 50980.2,
+      "close": 53325.59,
+      "high": 54046.26,
+      "low": 50708.39,
+      "volume": 33465,
+      "time": "2024-03-19T00:00:00Z",
+      "time_milliseconds": 1710806400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53604.82,
+      "close": 52456.95,
+      "high": 53929.34,
+      "low": 51786.16,
+      "volume": 32300,
+      "time": "2024-03-20T00:00:00Z",
+      "time_milliseconds": 1710892800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52746.57,
+      "close": 52716.58,
+      "high": 53623.34,
+      "low": 52518.15,
+      "volume": 42759,
+      "time": "2024-03-21T00:00:00Z",
+      "time_milliseconds": 1710979200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52999.65,
+      "close": 52692.13,
+      "high": 53423.82,
+      "low": 52429.13,
+      "volume": 32167,
+      "time": "2024-03-22T00:00:00Z",
+      "time_milliseconds": 1711065600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52967.63,
+      "close": 54036.79,
+      "high": 54756.36,
+      "low": 52363.08,
+      "volume": 22331,
+      "time": "2024-03-25T00:00:00Z",
+      "time_milliseconds": 1711324800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54289.47,
+      "close": 55416.33,
+      "high": 56315.31,
+      "low": 53682.3,
+      "volume": 39196,
+      "time": "2024-03-26T00:00:00Z",
+      "time_milliseconds": 1711411200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55645.67,
+      "close": 55302.22,
+      "high": 55918.98,
+      "low": 54877.98,
+      "volume": 17614,
+      "time": "2024-03-27T00:00:00Z",
+      "time_milliseconds": 1711497600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55530.63,
+      "close": 55032.91,
+      "high": 55905.07,
+      "low": 54780.7,
+      "volume": 41632,
+      "time": "2024-03-28T00:00:00Z",
+      "time_milliseconds": 1711584000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55262.71,
+      "close": 54931.67,
+      "high": 56195.9,
+      "low": 54569.64,
+      "volume": 25649,
+      "time": "2024-03-29T00:00:00Z",
+      "time_milliseconds": 1711670400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55153.69,
+      "close": 54823.91,
+      "high": 56048.35,
+      "low": 54637.94,
+      "volume": 36770,
+      "time": "2024-04-01T00:00:00Z",
+      "time_milliseconds": 1711929600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55043.55,
+      "close": 53821.89,
+      "high": 55761.79,
+      "low": 53049.86,
+      "volume": 31263,
+      "time": "2024-04-02T00:00:00Z",
+      "time_milliseconds": 1712016000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54052.56,
+      "close": 56133.43,
+      "high": 56383.23,
+      "low": 53183.26,
+      "volume": 45847,
+      "time": "2024-04-03T00:00:00Z",
+      "time_milliseconds": 1712102400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 56325.43,
+      "close": 58573.5,
+      "high": 59131.38,
+      "low": 55898.6,
+      "volume": 29915,
+      "time": "2024-04-04T00:00:00Z",
+      "time_milliseconds": 1712188800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 58724.9,
+      "close": 60595.31,
+      "high": 61122.48,
+      "low": 58303.31,
+      "volume": 19549,
+      "time": "2024-04-05T00:00:00Z",
+      "time_milliseconds": 1712275200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60704.38,
+      "close": 60481.21,
+      "high": 61470.6,
+      "low": 59935.16,
+      "volume": 36702,
+      "time": "2024-04-08T00:00:00Z",
+      "time_milliseconds": 1712534400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60587.99,
+      "close": 60342.12,
+      "high": 61651.67,
+      "low": 59998.07,
+      "volume": 32397,
+      "time": "2024-04-09T00:00:00Z",
+      "time_milliseconds": 1712620800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60446.99,
+      "close": 60873.57,
+      "high": 61368.35,
+      "low": 59552.59,
+      "volume": 43599,
+      "time": "2024-04-10T00:00:00Z",
+      "time_milliseconds": 1712707200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60966.47,
+      "close": 59972.95,
+      "high": 61501.63,
+      "low": 59262.76,
+      "volume": 31693,
+      "time": "2024-04-11T00:00:00Z",
+      "time_milliseconds": 1712793600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60075.36,
+      "close": 60464.78,
+      "high": 61113.52,
+      "low": 59168.36,
+      "volume": 27912,
+      "time": "2024-04-12T00:00:00Z",
+      "time_milliseconds": 1712880000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60547.81,
+      "close": 60930.04,
+      "high": 61714.96,
+      "low": 60066.27,
+      "volume": 35572,
+      "time": "2024-04-15T00:00:00Z",
+      "time_milliseconds": 1713139200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 61002.09,
+      "close": 60409.69,
+      "high": 62008.67,
+      "low": 59762.65,
+      "volume": 41764,
+      "time": "2024-04-16T00:00:00Z",
+      "time_milliseconds": 1713225600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60485.54,
+      "close": 62311.29,
+      "high": 62995.76,
+      "low": 60130.03,
+      "volume": 39847,
+      "time": "2024-04-17T00:00:00Z",
+      "time_milliseconds": 1713312000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 62354.62,
+      "close": 59696.18,
+      "high": 63117.39,
+      "low": 59227.63,
+      "volume": 15026,
+      "time": "2024-04-18T00:00:00Z",
+      "time_milliseconds": 1713398400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 59774.74,
+      "close": 60626.85,
+      "high": 61510.7,
+      "low": 59051.47,
+      "volume": 36118,
+      "time": "2024-04-19T00:00:00Z",
+      "time_milliseconds": 1713484800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60679.45,
+      "close": 60994.19,
+      "high": 61370.74,
+      "low": 60066.72,
+      "volume": 26120,
+      "time": "2024-04-22T00:00:00Z",
+      "time_milliseconds": 1713744000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 61037.28,
+      "close": 60115.21,
+      "high": 61828.19,
+      "low": 59365.13,
+      "volume": 21120,
+      "time": "2024-04-23T00:00:00Z",
+      "time_milliseconds": 1713830400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 60167.48,
+      "close": 58160.68,
+      "high": 60955.19,
+      "low": 57777.44,
+      "volume": 28050,
+      "time": "2024-04-24T00:00:00Z",
+      "time_milliseconds": 1713916800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 58238.27,
+      "close": 58553.24,
+      "high": 59587.5,
+      "low": 57529.56,
+      "volume": 19772,
+      "time": "2024-04-25T00:00:00Z",
+      "time_milliseconds": 1714003200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 58620.94,
+      "close": 59364.23,
+      "high": 60046.29,
+      "low": 57813.43,
+      "volume": 40164,
+      "time": "2024-04-26T00:00:00Z",
+      "time_milliseconds": 1714089600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 59407.77,
+      "close": 59442.3,
+      "high": 60205.15,
+      "low": 59224.61,
+      "volume": 21985,
+      "time": "2024-04-29T00:00:00Z",
+      "time_milliseconds": 1714348800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 59480.67,
+      "close": 58575.6,
+      "high": 60376.55,
+      "low": 57776.26,
+      "volume": 45444,
+      "time": "2024-04-30T00:00:00Z",
+      "time_milliseconds": 1714435200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 58629.39,
+      "close": 58932.44,
+      "high": 59854.39,
+      "low": 58052.07,
+      "volume": 45450,
+      "time": "2024-05-01T00:00:00Z",
+      "time_milliseconds": 1714521600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 58983.29,
+      "close": 55633.36,
+      "high": 59687.07,
+      "low": 54615.86,
+      "volume": 44004,
+      "time": "2024-05-02T00:00:00Z",
+      "time_milliseconds": 1714608000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55736.12,
+      "close": 54465.34,
+      "high": 56325.34,
+      "low": 53603.74,
+      "volume": 44223,
+      "time": "2024-05-03T00:00:00Z",
+      "time_milliseconds": 1714694400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54592.88,
+      "close": 53400.12,
+      "high": 55145.37,
+      "low": 53024.09,
+      "volume": 31203,
+      "time": "2024-05-06T00:00:00Z",
+      "time_milliseconds": 1714953600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53546.05,
+      "close": 52743.99,
+      "high": 54331.31,
+      "low": 52194.13,
+      "volume": 30679,
+      "time": "2024-05-07T00:00:00Z",
+      "time_milliseconds": 1715040000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52902.18,
+      "close": 53364.03,
+      "high": 53749.47,
+      "low": 52527.86,
+      "volume": 35952,
+      "time": "2024-05-08T00:00:00Z",
+      "time_milliseconds": 1715126400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53515.34,
+      "close": 53214.85,
+      "high": 53796.96,
+      "low": 52746.83,
+      "volume": 25014,
+      "time": "2024-05-09T00:00:00Z",
+      "time_milliseconds": 1715212800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53370.82,
+      "close": 52958.93,
+      "high": 53857.24,
+      "low": 52364.42,
+      "volume": 42248,
+      "time": "2024-05-10T00:00:00Z",
+      "time_milliseconds": 1715299200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53126.0,
+      "close": 53969.06,
+      "high": 54438.81,
+      "low": 52353.18,
+      "volume": 16280,
+      "time": "2024-05-13T00:00:00Z",
+      "time_milliseconds": 1715558400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54123.4,
+      "close": 52534.43,
+      "high": 54594.58,
+      "low": 52367.27,
+      "volume": 38052,
+      "time": "2024-05-14T00:00:00Z",
+      "time_milliseconds": 1715644800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52712.7,
+      "close": 53812.35,
+      "high": 54675.5,
+      "low": 51893.76,
+      "volume": 29453,
+      "time": "2024-05-15T00:00:00Z",
+      "time_milliseconds": 1715731200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53973.87,
+      "close": 54043.92,
+      "high": 54599.02,
+      "low": 53497.13,
+      "volume": 41497,
+      "time": "2024-05-16T00:00:00Z",
+      "time_milliseconds": 1715817600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54204.39,
+      "close": 51949.43,
+      "high": 55114.65,
+      "low": 50989.43,
+      "volume": 16767,
+      "time": "2024-05-17T00:00:00Z",
+      "time_milliseconds": 1715904000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52148.58,
+      "close": 51300.68,
+      "high": 52823.64,
+      "low": 51078.57,
+      "volume": 43089,
+      "time": "2024-05-20T00:00:00Z",
+      "time_milliseconds": 1716163200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 51511.98,
+      "close": 52461.73,
+      "high": 52655.12,
+      "low": 51064.52,
+      "volume": 28871,
+      "time": "2024-05-21T00:00:00Z",
+      "time_milliseconds": 1716249600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52658.03,
+      "close": 52953.23,
+      "high": 53806.01,
+      "low": 52280.27,
+      "volume": 42627,
+      "time": "2024-05-22T00:00:00Z",
+      "time_milliseconds": 1716336000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53144.58,
+      "close": 53627.89,
+      "high": 53802.78,
+      "low": 52555.14,
+      "volume": 37935,
+      "time": "2024-05-23T00:00:00Z",
+      "time_milliseconds": 1716422400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53811.54,
+      "close": 54252.08,
+      "high": 55186.21,
+      "low": 53617.61,
+      "volume": 17033,
+      "time": "2024-05-24T00:00:00Z",
+      "time_milliseconds": 1716508800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54433.62,
+      "close": 54184.99,
+      "high": 54613.56,
+      "low": 53897.27,
+      "volume": 23272,
+      "time": "2024-05-27T00:00:00Z",
+      "time_milliseconds": 1716768000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54369.96,
+      "close": 54467.45,
+      "high": 55403.5,
+      "low": 53827.59,
+      "volume": 31793,
+      "time": "2024-05-28T00:00:00Z",
+      "time_milliseconds": 1716854400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54650.6,
+      "close": 53926.0,
+      "high": 55312.35,
+      "low": 53148.93,
+      "volume": 22506,
+      "time": "2024-05-29T00:00:00Z",
+      "time_milliseconds": 1716940800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54119.69,
+      "close": 53418.43,
+      "high": 54534.55,
+      "low": 52786.3,
+      "volume": 35444,
+      "time": "2024-05-30T00:00:00Z",
+      "time_milliseconds": 1717027200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53622.15,
+      "close": 52440.67,
+      "high": 54084.89,
+      "low": 51522.55,
+      "volume": 27997,
+      "time": "2024-05-31T00:00:00Z",
+      "time_milliseconds": 1717113600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52653.81,
+      "close": 53469.25,
+      "high": 54122.61,
+      "low": 52415.37,
+      "volume": 34764,
+      "time": "2024-06-03T00:00:00Z",
+      "time_milliseconds": 1717372800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53665.21,
+      "close": 52373.2,
+      "high": 53923.65,
+      "low": 51420.23,
+      "volume": 17691,
+      "time": "2024-06-04T00:00:00Z",
+      "time_milliseconds": 1717459200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52583.85,
+      "close": 53586.16,
+      "high": 54036.2,
+      "low": 52027.02,
+      "volume": 37362,
+      "time": "2024-06-05T00:00:00Z",
+      "time_milliseconds": 1717545600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53776.87,
+      "close": 53874.94,
+      "high": 54431.69,
+      "low": 53265.84,
+      "volume": 38736,
+      "time": "2024-06-06T00:00:00Z",
+      "time_milliseconds": 1717632000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 54059.57,
+      "close": 52378.31,
+      "high": 54795.3,
+      "low": 51863.0,
+      "volume": 49193,
+      "time": "2024-06-07T00:00:00Z",
+      "time_milliseconds": 1717718400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52580.14,
+      "close": 52382.57,
+      "high": 53375.31,
+      "low": 51800.37,
+      "volume": 46686,
+      "time": "2024-06-10T00:00:00Z",
+      "time_milliseconds": 1717977600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52582.58,
+      "close": 53055.98,
+      "high": 53681.04,
+      "low": 52170.62,
+      "volume": 31088,
+      "time": "2024-06-11T00:00:00Z",
+      "time_milliseconds": 1718064000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53244.14,
+      "close": 52808.18,
+      "high": 54108.0,
+      "low": 52453.68,
+      "volume": 45455,
+      "time": "2024-06-12T00:00:00Z",
+      "time_milliseconds": 1718150400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52998.31,
+      "close": 52262.38,
+      "high": 53424.73,
+      "low": 51710.42,
+      "volume": 36300,
+      "time": "2024-06-13T00:00:00Z",
+      "time_milliseconds": 1718236800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 52458.94,
+      "close": 53183.9,
+      "high": 53969.08,
+      "low": 52033.76,
+      "volume": 33105,
+      "time": "2024-06-14T00:00:00Z",
+      "time_milliseconds": 1718323200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53361.39,
+      "close": 52875.28,
+      "high": 53674.4,
+      "low": 52522.01,
+      "volume": 41635,
+      "time": "2024-06-17T00:00:00Z",
+      "time_milliseconds": 1718582400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53055.65,
+      "close": 53196.67,
+      "high": 53905.45,
+      "low": 52382.45,
+      "volume": 47166,
+      "time": "2024-06-18T00:00:00Z",
+      "time_milliseconds": 1718668800000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53370.47,
+      "close": 53440.53,
+      "high": 53836.19,
+      "low": 52886.61,
+      "volume": 30945,
+      "time": "2024-06-19T00:00:00Z",
+      "time_milliseconds": 1718755200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 53608.92,
+      "close": 55069.66,
+      "high": 55611.05,
+      "low": 53021.16,
+      "volume": 42885,
+      "time": "2024-06-20T00:00:00Z",
+      "time_milliseconds": 1718841600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55211.87,
+      "close": 55179.37,
+      "high": 55668.87,
+      "low": 54637.95,
+      "volume": 35094,
+      "time": "2024-06-21T00:00:00Z",
+      "time_milliseconds": 1718928000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 55314.68,
+      "close": 55931.77,
+      "high": 56257.51,
+      "low": 55049.54,
+      "volume": 27133,
+      "time": "2024-06-24T00:00:00Z",
+      "time_milliseconds": 1719187200000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 56054.04,
+      "close": 57939.41,
+      "high": 58340.06,
+      "low": 55390.15,
+      "volume": 49382,
+      "time": "2024-06-25T00:00:00Z",
+      "time_milliseconds": 1719273600000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 58029.82,
+      "close": 55982.78,
+      "high": 58928.67,
+      "low": 55550.82,
+      "volume": 38650,
+      "time": "2024-06-26T00:00:00Z",
+      "time_milliseconds": 1719360000000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 56100.79,
+      "close": 56289.0,
+      "high": 56906.78,
+      "low": 55701.65,
+      "volume": 18573,
+      "time": "2024-06-27T00:00:00Z",
+      "time_milliseconds": 1719446400000
+    },
+    {
+      "ticker": "BTC-USDT",
+      "open": 56400.67,
+      "close": 55769.42,
+      "high": 56676.71,
+      "low": 54865.49,
+      "volume": 47170,
+      "time": "2024-06-28T00:00:00Z",
+      "time_milliseconds": 1719532800000
+    }
+  ]
+}

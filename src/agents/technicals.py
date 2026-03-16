@@ -161,6 +161,10 @@ def calculate_trend_signals(prices_df):
     """
     Advanced trend following strategy using multiple timeframes and indicators
     """
+    # Guard: need at least 55 data points for EMA-55
+    if len(prices_df) < 55:
+        return {"signal": "neutral", "confidence": 0, "metrics": {}}
+
     # Calculate EMAs for multiple timeframes
     ema_8 = calculate_ema(prices_df, 8)
     ema_21 = calculate_ema(prices_df, 21)
@@ -461,6 +465,8 @@ def calculate_adx(df: pd.DataFrame, period: int = 14) -> pd.DataFrame:
     Returns:
         DataFrame with ADX values
     """
+    # Work on a copy to avoid mutating the caller's DataFrame
+    df = df.copy()
     # Calculate True Range
     df["high_low"] = df["high"] - df["low"]
     df["high_close"] = abs(df["high"] - df["close"].shift())

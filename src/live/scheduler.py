@@ -65,6 +65,7 @@ class LiveTradingScheduler:
         exchange_id: str = None,
         on_order: Optional[Callable[[Order], None]] = None,
         use_new_stack: bool = False,
+        use_polymarket: bool = True,
     ):
         self.market = market
         self.tickers = tickers or ["BTC/USDT"]
@@ -72,6 +73,7 @@ class LiveTradingScheduler:
         self.paper = paper
         self.on_order = on_order
         self.use_new_stack = use_new_stack
+        self.use_polymarket = use_polymarket
         self._stop_event = threading.Event()
 
         self.executor = TradeExecutor(market=market, exchange_id=exchange_id, paper=paper)
@@ -242,6 +244,15 @@ class LiveTradingScheduler:
         # Sequential agent pipeline
         state = crypto_technical_agent(state)
         state = crypto_sentiment_agent(state)
+
+        # Optionally include Polymarket signal
+        if self.use_polymarket:
+            try:
+                from src.agents.crypto.polymarket_signal_agent import polymarket_signal_agent
+                state = polymarket_signal_agent(state)
+            except Exception as e:
+                print(f"[scheduler] polymarket_signal_agent error (skipped): {e}")
+
         state = crypto_risk_agent(state)
         state = portfolio_management_agent(state, agent_id="portfolio_manager")
 

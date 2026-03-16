@@ -1,0 +1,2625 @@
+{
+  "ticker": "TSLA",
+  "prices": [
+    {
+      "ticker": "TSLA",
+      "open": 200.0,
+      "close": 202.88,
+      "high": 206.02,
+      "low": 196.9,
+      "volume": 30088966,
+      "time": "2024-01-01T05:00:00Z",
+      "time_milliseconds": 1704067200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.88,
+      "close": 201.89,
+      "high": 208.53,
+      "low": 196.27,
+      "volume": 17824494,
+      "time": "2024-01-02T05:00:00Z",
+      "time_milliseconds": 1704153600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.89,
+      "close": 205.9,
+      "high": 208.86,
+      "low": 198.99,
+      "volume": 55481975,
+      "time": "2024-01-03T05:00:00Z",
+      "time_milliseconds": 1704240000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 205.9,
+      "close": 208.61,
+      "high": 213.41,
+      "low": 201.16,
+      "volume": 59044733,
+      "time": "2024-01-04T05:00:00Z",
+      "time_milliseconds": 1704326400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.61,
+      "close": 204.11,
+      "high": 214.07,
+      "low": 198.76,
+      "volume": 10584888,
+      "time": "2024-01-05T05:00:00Z",
+      "time_milliseconds": 1704412800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 204.11,
+      "close": 203.53,
+      "high": 207.54,
+      "low": 200.11,
+      "volume": 23993154,
+      "time": "2024-01-08T05:00:00Z",
+      "time_milliseconds": 1704672000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.53,
+      "close": 203.12,
+      "high": 205.94,
+      "low": 200.71,
+      "volume": 18704473,
+      "time": "2024-01-09T05:00:00Z",
+      "time_milliseconds": 1704758400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.12,
+      "close": 201.79,
+      "high": 208.43,
+      "low": 196.51,
+      "volume": 75675860,
+      "time": "2024-01-10T05:00:00Z",
+      "time_milliseconds": 1704844800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.79,
+      "close": 205.21,
+      "high": 208.82,
+      "low": 198.24,
+      "volume": 59683656,
+      "time": "2024-01-11T05:00:00Z",
+      "time_milliseconds": 1704931200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 205.21,
+      "close": 203.89,
+      "high": 210.8,
+      "low": 198.34,
+      "volume": 61961693,
+      "time": "2024-01-12T05:00:00Z",
+      "time_milliseconds": 1705017600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.89,
+      "close": 206.42,
+      "high": 209.43,
+      "low": 200.92,
+      "volume": 36044916,
+      "time": "2024-01-15T05:00:00Z",
+      "time_milliseconds": 1705276800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.42,
+      "close": 207.23,
+      "high": 209.72,
+      "low": 203.94,
+      "volume": 35017624,
+      "time": "2024-01-16T05:00:00Z",
+      "time_milliseconds": 1705363200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.23,
+      "close": 205.35,
+      "high": 210.84,
+      "low": 201.78,
+      "volume": 28855632,
+      "time": "2024-01-17T05:00:00Z",
+      "time_milliseconds": 1705449600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 205.35,
+      "close": 210.08,
+      "high": 214.9,
+      "low": 200.64,
+      "volume": 64821790,
+      "time": "2024-01-18T05:00:00Z",
+      "time_milliseconds": 1705536000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.08,
+      "close": 209.37,
+      "high": 212.87,
+      "low": 206.59,
+      "volume": 44150989,
+      "time": "2024-01-19T05:00:00Z",
+      "time_milliseconds": 1705622400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.37,
+      "close": 209.14,
+      "high": 213.8,
+      "low": 204.72,
+      "volume": 71615282,
+      "time": "2024-01-22T05:00:00Z",
+      "time_milliseconds": 1705881600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.14,
+      "close": 209.5,
+      "high": 212.55,
+      "low": 206.09,
+      "volume": 12889021,
+      "time": "2024-01-23T05:00:00Z",
+      "time_milliseconds": 1705968000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.5,
+      "close": 209.03,
+      "high": 212.48,
+      "low": 206.06,
+      "volume": 94861874,
+      "time": "2024-01-24T05:00:00Z",
+      "time_milliseconds": 1706054400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.03,
+      "close": 208.46,
+      "high": 213.86,
+      "low": 203.64,
+      "volume": 45606871,
+      "time": "2024-01-25T05:00:00Z",
+      "time_milliseconds": 1706140800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.46,
+      "close": 207.25,
+      "high": 211.65,
+      "low": 204.08,
+      "volume": 32196475,
+      "time": "2024-01-26T05:00:00Z",
+      "time_milliseconds": 1706227200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.25,
+      "close": 207.05,
+      "high": 211.75,
+      "low": 202.56,
+      "volume": 90804059,
+      "time": "2024-01-29T05:00:00Z",
+      "time_milliseconds": 1706486400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.05,
+      "close": 207.92,
+      "high": 214.15,
+      "low": 200.85,
+      "volume": 55857366,
+      "time": "2024-01-30T05:00:00Z",
+      "time_milliseconds": 1706572800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.92,
+      "close": 214.62,
+      "high": 217.24,
+      "low": 205.38,
+      "volume": 66470143,
+      "time": "2024-01-31T05:00:00Z",
+      "time_milliseconds": 1706659200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.62,
+      "close": 212.75,
+      "high": 217.04,
+      "low": 210.35,
+      "volume": 44345735,
+      "time": "2024-02-01T05:00:00Z",
+      "time_milliseconds": 1706745600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.75,
+      "close": 212.54,
+      "high": 219.01,
+      "low": 206.29,
+      "volume": 87470173,
+      "time": "2024-02-02T05:00:00Z",
+      "time_milliseconds": 1706832000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.54,
+      "close": 210.87,
+      "high": 217.56,
+      "low": 205.89,
+      "volume": 58327329,
+      "time": "2024-02-05T05:00:00Z",
+      "time_milliseconds": 1707091200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.87,
+      "close": 207.7,
+      "high": 213.45,
+      "low": 205.16,
+      "volume": 49128872,
+      "time": "2024-02-06T05:00:00Z",
+      "time_milliseconds": 1707177600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.7,
+      "close": 211.55,
+      "high": 217.37,
+      "low": 201.98,
+      "volume": 33705014,
+      "time": "2024-02-07T05:00:00Z",
+      "time_milliseconds": 1707264000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.55,
+      "close": 213.24,
+      "high": 219.26,
+      "low": 205.57,
+      "volume": 88346671,
+      "time": "2024-02-08T05:00:00Z",
+      "time_milliseconds": 1707350400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.24,
+      "close": 210.13,
+      "high": 217.97,
+      "low": 205.47,
+      "volume": 23755534,
+      "time": "2024-02-09T05:00:00Z",
+      "time_milliseconds": 1707436800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.13,
+      "close": 207.95,
+      "high": 215.5,
+      "low": 202.63,
+      "volume": 57731830,
+      "time": "2024-02-12T05:00:00Z",
+      "time_milliseconds": 1707696000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.95,
+      "close": 202.67,
+      "high": 210.11,
+      "low": 200.56,
+      "volume": 93618875,
+      "time": "2024-02-13T05:00:00Z",
+      "time_milliseconds": 1707782400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.67,
+      "close": 203.49,
+      "high": 206.78,
+      "low": 199.4,
+      "volume": 15213264,
+      "time": "2024-02-14T05:00:00Z",
+      "time_milliseconds": 1707868800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.49,
+      "close": 205.03,
+      "high": 207.43,
+      "low": 201.11,
+      "volume": 53739141,
+      "time": "2024-02-15T05:00:00Z",
+      "time_milliseconds": 1707955200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 205.03,
+      "close": 205.57,
+      "high": 210.77,
+      "low": 199.84,
+      "volume": 21555231,
+      "time": "2024-02-16T05:00:00Z",
+      "time_milliseconds": 1708041600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 205.57,
+      "close": 202.08,
+      "high": 208.72,
+      "low": 198.99,
+      "volume": 88518973,
+      "time": "2024-02-19T05:00:00Z",
+      "time_milliseconds": 1708300800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.08,
+      "close": 203.09,
+      "high": 207.31,
+      "low": 197.88,
+      "volume": 75693796,
+      "time": "2024-02-20T05:00:00Z",
+      "time_milliseconds": 1708387200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.09,
+      "close": 201.1,
+      "high": 209.16,
+      "low": 195.09,
+      "volume": 68489025,
+      "time": "2024-02-21T05:00:00Z",
+      "time_milliseconds": 1708473600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.1,
+      "close": 197.34,
+      "high": 203.6,
+      "low": 194.89,
+      "volume": 30222760,
+      "time": "2024-02-22T05:00:00Z",
+      "time_milliseconds": 1708560000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 197.34,
+      "close": 193.73,
+      "high": 200.22,
+      "low": 190.9,
+      "volume": 29819564,
+      "time": "2024-02-23T05:00:00Z",
+      "time_milliseconds": 1708646400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 193.73,
+      "close": 189.3,
+      "high": 196.55,
+      "low": 186.54,
+      "volume": 91487801,
+      "time": "2024-02-26T05:00:00Z",
+      "time_milliseconds": 1708905600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 189.3,
+      "close": 190.77,
+      "high": 193.59,
+      "low": 186.51,
+      "volume": 70208000,
+      "time": "2024-02-27T05:00:00Z",
+      "time_milliseconds": 1708992000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 190.77,
+      "close": 194.24,
+      "high": 199.82,
+      "low": 185.29,
+      "volume": 61393878,
+      "time": "2024-02-28T05:00:00Z",
+      "time_milliseconds": 1709078400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 194.24,
+      "close": 195.07,
+      "high": 200.17,
+      "low": 189.16,
+      "volume": 27136892,
+      "time": "2024-02-29T05:00:00Z",
+      "time_milliseconds": 1709164800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 195.07,
+      "close": 189.47,
+      "high": 198.67,
+      "low": 185.97,
+      "volume": 52032220,
+      "time": "2024-03-01T05:00:00Z",
+      "time_milliseconds": 1709251200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 189.47,
+      "close": 188.48,
+      "high": 195.09,
+      "low": 182.89,
+      "volume": 18857608,
+      "time": "2024-03-04T05:00:00Z",
+      "time_milliseconds": 1709510400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 188.48,
+      "close": 186.52,
+      "high": 193.61,
+      "low": 181.44,
+      "volume": 32379070,
+      "time": "2024-03-05T05:00:00Z",
+      "time_milliseconds": 1709596800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 186.52,
+      "close": 181.8,
+      "high": 189.96,
+      "low": 178.45,
+      "volume": 35069063,
+      "time": "2024-03-06T05:00:00Z",
+      "time_milliseconds": 1709683200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 181.8,
+      "close": 185.92,
+      "high": 189.43,
+      "low": 178.37,
+      "volume": 87521419,
+      "time": "2024-03-07T05:00:00Z",
+      "time_milliseconds": 1709769600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 185.92,
+      "close": 188.89,
+      "high": 194.55,
+      "low": 180.35,
+      "volume": 85242482,
+      "time": "2024-03-08T05:00:00Z",
+      "time_milliseconds": 1709856000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 188.89,
+      "close": 189.58,
+      "high": 194.69,
+      "low": 183.79,
+      "volume": 24967999,
+      "time": "2024-03-11T05:00:00Z",
+      "time_milliseconds": 1710115200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 189.58,
+      "close": 190.41,
+      "high": 193.84,
+      "low": 186.16,
+      "volume": 15277185,
+      "time": "2024-03-12T05:00:00Z",
+      "time_milliseconds": 1710201600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 190.41,
+      "close": 194.47,
+      "high": 197.45,
+      "low": 187.5,
+      "volume": 80566354,
+      "time": "2024-03-13T05:00:00Z",
+      "time_milliseconds": 1710288000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 194.47,
+      "close": 191.31,
+      "high": 200.14,
+      "low": 185.73,
+      "volume": 99588042,
+      "time": "2024-03-14T05:00:00Z",
+      "time_milliseconds": 1710374400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 191.31,
+      "close": 190.75,
+      "high": 193.82,
+      "low": 188.25,
+      "volume": 36703704,
+      "time": "2024-03-15T05:00:00Z",
+      "time_milliseconds": 1710460800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 190.75,
+      "close": 190.17,
+      "high": 194.73,
+      "low": 186.21,
+      "volume": 77317800,
+      "time": "2024-03-18T05:00:00Z",
+      "time_milliseconds": 1710720000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 190.17,
+      "close": 184.42,
+      "high": 193.98,
+      "low": 180.72,
+      "volume": 86744790,
+      "time": "2024-03-19T05:00:00Z",
+      "time_milliseconds": 1710806400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 184.42,
+      "close": 189.71,
+      "high": 191.91,
+      "low": 182.28,
+      "volume": 26724246,
+      "time": "2024-03-20T05:00:00Z",
+      "time_milliseconds": 1710892800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 189.71,
+      "close": 188.46,
+      "high": 192.5,
+      "low": 185.69,
+      "volume": 20789795,
+      "time": "2024-03-21T05:00:00Z",
+      "time_milliseconds": 1710979200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 188.46,
+      "close": 188.55,
+      "high": 192.68,
+      "low": 184.33,
+      "volume": 65744335,
+      "time": "2024-03-22T05:00:00Z",
+      "time_milliseconds": 1711065600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 188.55,
+      "close": 185.41,
+      "high": 192.41,
+      "low": 181.62,
+      "volume": 94123563,
+      "time": "2024-03-25T05:00:00Z",
+      "time_milliseconds": 1711324800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 185.41,
+      "close": 184.42,
+      "high": 188.15,
+      "low": 181.7,
+      "volume": 45620726,
+      "time": "2024-03-26T05:00:00Z",
+      "time_milliseconds": 1711411200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 184.42,
+      "close": 183.71,
+      "high": 187.43,
+      "low": 180.71,
+      "volume": 77667804,
+      "time": "2024-03-27T05:00:00Z",
+      "time_milliseconds": 1711497600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 183.71,
+      "close": 177.77,
+      "high": 189.22,
+      "low": 172.44,
+      "volume": 99648680,
+      "time": "2024-03-28T05:00:00Z",
+      "time_milliseconds": 1711584000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 177.77,
+      "close": 179.23,
+      "high": 181.97,
+      "low": 175.05,
+      "volume": 93993344,
+      "time": "2024-03-29T05:00:00Z",
+      "time_milliseconds": 1711670400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 179.23,
+      "close": 180.27,
+      "high": 183.4,
+      "low": 176.11,
+      "volume": 24197214,
+      "time": "2024-04-01T05:00:00Z",
+      "time_milliseconds": 1711929600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 180.27,
+      "close": 179.86,
+      "high": 184.28,
+      "low": 175.86,
+      "volume": 98850975,
+      "time": "2024-04-02T05:00:00Z",
+      "time_milliseconds": 1712016000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 179.86,
+      "close": 182.42,
+      "high": 187.23,
+      "low": 175.12,
+      "volume": 36944087,
+      "time": "2024-04-03T05:00:00Z",
+      "time_milliseconds": 1712102400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 182.42,
+      "close": 184.79,
+      "high": 187.13,
+      "low": 180.11,
+      "volume": 20388580,
+      "time": "2024-04-04T05:00:00Z",
+      "time_milliseconds": 1712188800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 184.79,
+      "close": 179.39,
+      "high": 187.64,
+      "low": 176.62,
+      "volume": 64434684,
+      "time": "2024-04-05T05:00:00Z",
+      "time_milliseconds": 1712275200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 179.39,
+      "close": 180.08,
+      "high": 184.17,
+      "low": 175.32,
+      "volume": 33758551,
+      "time": "2024-04-08T05:00:00Z",
+      "time_milliseconds": 1712534400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 180.08,
+      "close": 182.83,
+      "high": 187.75,
+      "low": 175.23,
+      "volume": 18306862,
+      "time": "2024-04-09T05:00:00Z",
+      "time_milliseconds": 1712620800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 182.83,
+      "close": 182.29,
+      "high": 184.67,
+      "low": 180.45,
+      "volume": 79400730,
+      "time": "2024-04-10T05:00:00Z",
+      "time_milliseconds": 1712707200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 182.29,
+      "close": 182.15,
+      "high": 186.82,
+      "low": 177.63,
+      "volume": 59651237,
+      "time": "2024-04-11T05:00:00Z",
+      "time_milliseconds": 1712793600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 182.15,
+      "close": 185.8,
+      "high": 187.94,
+      "low": 180.05,
+      "volume": 89479575,
+      "time": "2024-04-12T05:00:00Z",
+      "time_milliseconds": 1712880000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 185.8,
+      "close": 184.66,
+      "high": 190.76,
+      "low": 179.73,
+      "volume": 62425860,
+      "time": "2024-04-15T05:00:00Z",
+      "time_milliseconds": 1713139200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 184.66,
+      "close": 188.52,
+      "high": 191.57,
+      "low": 181.67,
+      "volume": 90908333,
+      "time": "2024-04-16T05:00:00Z",
+      "time_milliseconds": 1713225600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 188.52,
+      "close": 189.8,
+      "high": 195.11,
+      "low": 183.25,
+      "volume": 28906888,
+      "time": "2024-04-17T05:00:00Z",
+      "time_milliseconds": 1713312000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 189.8,
+      "close": 193.68,
+      "high": 198.64,
+      "low": 184.94,
+      "volume": 89572123,
+      "time": "2024-04-18T05:00:00Z",
+      "time_milliseconds": 1713398400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 193.68,
+      "close": 190.93,
+      "high": 196.22,
+      "low": 188.43,
+      "volume": 93689291,
+      "time": "2024-04-19T05:00:00Z",
+      "time_milliseconds": 1713484800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 190.93,
+      "close": 192.52,
+      "high": 197.57,
+      "low": 185.92,
+      "volume": 89327458,
+      "time": "2024-04-22T05:00:00Z",
+      "time_milliseconds": 1713744000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 192.52,
+      "close": 191.92,
+      "high": 195.72,
+      "low": 188.73,
+      "volume": 93773429,
+      "time": "2024-04-23T05:00:00Z",
+      "time_milliseconds": 1713830400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 191.92,
+      "close": 193.24,
+      "high": 198.31,
+      "low": 186.89,
+      "volume": 34012513,
+      "time": "2024-04-24T05:00:00Z",
+      "time_milliseconds": 1713916800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 193.24,
+      "close": 194.86,
+      "high": 200.21,
+      "low": 187.94,
+      "volume": 87273392,
+      "time": "2024-04-25T05:00:00Z",
+      "time_milliseconds": 1714003200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 194.86,
+      "close": 196.99,
+      "high": 200.77,
+      "low": 191.12,
+      "volume": 37467178,
+      "time": "2024-04-26T05:00:00Z",
+      "time_milliseconds": 1714089600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 196.99,
+      "close": 197.33,
+      "high": 199.4,
+      "low": 194.93,
+      "volume": 27381680,
+      "time": "2024-04-29T05:00:00Z",
+      "time_milliseconds": 1714348800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 197.33,
+      "close": 200.32,
+      "high": 206.2,
+      "low": 191.54,
+      "volume": 35121249,
+      "time": "2024-04-30T05:00:00Z",
+      "time_milliseconds": 1714435200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 200.32,
+      "close": 198.11,
+      "high": 206.25,
+      "low": 192.24,
+      "volume": 58259415,
+      "time": "2024-05-01T05:00:00Z",
+      "time_milliseconds": 1714521600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 198.11,
+      "close": 198.96,
+      "high": 204.81,
+      "low": 192.28,
+      "volume": 26071103,
+      "time": "2024-05-02T05:00:00Z",
+      "time_milliseconds": 1714608000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 198.96,
+      "close": 198.94,
+      "high": 201.38,
+      "low": 196.52,
+      "volume": 49110738,
+      "time": "2024-05-03T05:00:00Z",
+      "time_milliseconds": 1714694400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 198.94,
+      "close": 198.08,
+      "high": 203.34,
+      "low": 193.7,
+      "volume": 56028075,
+      "time": "2024-05-06T05:00:00Z",
+      "time_milliseconds": 1714953600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 198.08,
+      "close": 194.53,
+      "high": 201.07,
+      "low": 191.59,
+      "volume": 73790675,
+      "time": "2024-05-07T05:00:00Z",
+      "time_milliseconds": 1715040000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 194.53,
+      "close": 204.12,
+      "high": 208.36,
+      "low": 190.49,
+      "volume": 74748699,
+      "time": "2024-05-08T05:00:00Z",
+      "time_milliseconds": 1715126400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 204.12,
+      "close": 203.05,
+      "high": 207.65,
+      "low": 199.54,
+      "volume": 16297643,
+      "time": "2024-05-09T05:00:00Z",
+      "time_milliseconds": 1715212800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.05,
+      "close": 201.78,
+      "high": 206.36,
+      "low": 198.5,
+      "volume": 86321375,
+      "time": "2024-05-10T05:00:00Z",
+      "time_milliseconds": 1715299200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.78,
+      "close": 201.08,
+      "high": 205.05,
+      "low": 197.83,
+      "volume": 46755361,
+      "time": "2024-05-13T05:00:00Z",
+      "time_milliseconds": 1715558400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.08,
+      "close": 199.99,
+      "high": 203.6,
+      "low": 197.48,
+      "volume": 47840170,
+      "time": "2024-05-14T05:00:00Z",
+      "time_milliseconds": 1715644800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 199.99,
+      "close": 199.59,
+      "high": 205.6,
+      "low": 193.99,
+      "volume": 65396342,
+      "time": "2024-05-15T05:00:00Z",
+      "time_milliseconds": 1715731200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 199.59,
+      "close": 195.27,
+      "high": 201.59,
+      "low": 193.32,
+      "volume": 35822234,
+      "time": "2024-05-16T05:00:00Z",
+      "time_milliseconds": 1715817600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 195.27,
+      "close": 192.02,
+      "high": 199.78,
+      "low": 187.59,
+      "volume": 51848937,
+      "time": "2024-05-17T05:00:00Z",
+      "time_milliseconds": 1715904000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 192.02,
+      "close": 192.91,
+      "high": 196.66,
+      "low": 188.28,
+      "volume": 91106274,
+      "time": "2024-05-20T05:00:00Z",
+      "time_milliseconds": 1716163200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 192.91,
+      "close": 193.92,
+      "high": 196.19,
+      "low": 190.65,
+      "volume": 56390680,
+      "time": "2024-05-21T05:00:00Z",
+      "time_milliseconds": 1716249600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 193.92,
+      "close": 192.56,
+      "high": 199.03,
+      "low": 187.48,
+      "volume": 77602432,
+      "time": "2024-05-22T05:00:00Z",
+      "time_milliseconds": 1716336000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 192.56,
+      "close": 193.03,
+      "high": 195.73,
+      "low": 189.87,
+      "volume": 12198284,
+      "time": "2024-05-23T05:00:00Z",
+      "time_milliseconds": 1716422400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 193.03,
+      "close": 188.35,
+      "high": 198.24,
+      "low": 183.27,
+      "volume": 16554540,
+      "time": "2024-05-24T05:00:00Z",
+      "time_milliseconds": 1716508800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 188.35,
+      "close": 185.85,
+      "high": 190.97,
+      "low": 183.27,
+      "volume": 72671882,
+      "time": "2024-05-27T05:00:00Z",
+      "time_milliseconds": 1716768000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 185.85,
+      "close": 186.03,
+      "high": 190.33,
+      "low": 181.55,
+      "volume": 10499033,
+      "time": "2024-05-28T05:00:00Z",
+      "time_milliseconds": 1716854400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 186.03,
+      "close": 186.35,
+      "high": 188.61,
+      "low": 183.77,
+      "volume": 48263157,
+      "time": "2024-05-29T05:00:00Z",
+      "time_milliseconds": 1716940800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 186.35,
+      "close": 191.51,
+      "high": 195.41,
+      "low": 182.56,
+      "volume": 14519654,
+      "time": "2024-05-30T05:00:00Z",
+      "time_milliseconds": 1717027200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 191.51,
+      "close": 194.36,
+      "high": 198.08,
+      "low": 187.85,
+      "volume": 82127494,
+      "time": "2024-05-31T05:00:00Z",
+      "time_milliseconds": 1717113600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 194.36,
+      "close": 197.05,
+      "high": 201.37,
+      "low": 190.1,
+      "volume": 95503564,
+      "time": "2024-06-03T05:00:00Z",
+      "time_milliseconds": 1717372800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 197.05,
+      "close": 196.04,
+      "high": 201.86,
+      "low": 191.26,
+      "volume": 55430034,
+      "time": "2024-06-04T05:00:00Z",
+      "time_milliseconds": 1717459200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 196.04,
+      "close": 194.39,
+      "high": 201.52,
+      "low": 188.96,
+      "volume": 76928989,
+      "time": "2024-06-05T05:00:00Z",
+      "time_milliseconds": 1717545600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 194.39,
+      "close": 194.24,
+      "high": 197.3,
+      "low": 191.34,
+      "volume": 67389529,
+      "time": "2024-06-06T05:00:00Z",
+      "time_milliseconds": 1717632000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 194.24,
+      "close": 192.2,
+      "high": 198.62,
+      "low": 187.87,
+      "volume": 34713770,
+      "time": "2024-06-07T05:00:00Z",
+      "time_milliseconds": 1717718400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 192.2,
+      "close": 190.81,
+      "high": 195.17,
+      "low": 187.86,
+      "volume": 38773861,
+      "time": "2024-06-10T05:00:00Z",
+      "time_milliseconds": 1717977600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 190.81,
+      "close": 192.93,
+      "high": 195.75,
+      "low": 188.02,
+      "volume": 72455483,
+      "time": "2024-06-11T05:00:00Z",
+      "time_milliseconds": 1718064000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 192.93,
+      "close": 195.22,
+      "high": 198.76,
+      "low": 189.43,
+      "volume": 58835002,
+      "time": "2024-06-12T05:00:00Z",
+      "time_milliseconds": 1718150400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 195.22,
+      "close": 196.32,
+      "high": 199.93,
+      "low": 191.63,
+      "volume": 91435463,
+      "time": "2024-06-13T05:00:00Z",
+      "time_milliseconds": 1718236800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 196.32,
+      "close": 195.36,
+      "high": 201.65,
+      "low": 190.06,
+      "volume": 78903511,
+      "time": "2024-06-14T05:00:00Z",
+      "time_milliseconds": 1718323200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 195.36,
+      "close": 199.53,
+      "high": 202.93,
+      "low": 192.03,
+      "volume": 77812761,
+      "time": "2024-06-17T05:00:00Z",
+      "time_milliseconds": 1718582400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 199.53,
+      "close": 201.21,
+      "high": 204.91,
+      "low": 195.86,
+      "volume": 77276410,
+      "time": "2024-06-18T05:00:00Z",
+      "time_milliseconds": 1718668800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.21,
+      "close": 198.64,
+      "high": 204.11,
+      "low": 195.78,
+      "volume": 29747947,
+      "time": "2024-06-19T05:00:00Z",
+      "time_milliseconds": 1718755200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 198.64,
+      "close": 202.51,
+      "high": 205.9,
+      "low": 195.32,
+      "volume": 71122769,
+      "time": "2024-06-20T05:00:00Z",
+      "time_milliseconds": 1718841600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.51,
+      "close": 204.66,
+      "high": 208.62,
+      "low": 198.59,
+      "volume": 21486501,
+      "time": "2024-06-21T05:00:00Z",
+      "time_milliseconds": 1718928000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 204.66,
+      "close": 207.69,
+      "high": 211.4,
+      "low": 201.0,
+      "volume": 60795278,
+      "time": "2024-06-24T05:00:00Z",
+      "time_milliseconds": 1719187200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.69,
+      "close": 202.59,
+      "high": 210.33,
+      "low": 200.01,
+      "volume": 51552859,
+      "time": "2024-06-25T05:00:00Z",
+      "time_milliseconds": 1719273600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.59,
+      "close": 197.33,
+      "high": 205.47,
+      "low": 194.52,
+      "volume": 39416122,
+      "time": "2024-06-26T05:00:00Z",
+      "time_milliseconds": 1719360000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 197.33,
+      "close": 195.81,
+      "high": 202.27,
+      "low": 190.91,
+      "volume": 84873185,
+      "time": "2024-06-27T05:00:00Z",
+      "time_milliseconds": 1719446400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 195.81,
+      "close": 200.16,
+      "high": 202.24,
+      "low": 193.78,
+      "volume": 58547714,
+      "time": "2024-06-28T05:00:00Z",
+      "time_milliseconds": 1719532800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 200.16,
+      "close": 200.2,
+      "high": 204.81,
+      "low": 195.56,
+      "volume": 80310974,
+      "time": "2024-07-01T05:00:00Z",
+      "time_milliseconds": 1719792000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 200.2,
+      "close": 200.33,
+      "high": 206.14,
+      "low": 194.4,
+      "volume": 27942461,
+      "time": "2024-07-02T05:00:00Z",
+      "time_milliseconds": 1719878400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 200.33,
+      "close": 205.28,
+      "high": 207.85,
+      "low": 197.82,
+      "volume": 70251296,
+      "time": "2024-07-03T05:00:00Z",
+      "time_milliseconds": 1719964800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 205.28,
+      "close": 206.0,
+      "high": 210.94,
+      "low": 200.36,
+      "volume": 79020828,
+      "time": "2024-07-04T05:00:00Z",
+      "time_milliseconds": 1720051200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.0,
+      "close": 201.55,
+      "high": 211.14,
+      "low": 196.52,
+      "volume": 20307958,
+      "time": "2024-07-05T05:00:00Z",
+      "time_milliseconds": 1720137600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.55,
+      "close": 203.48,
+      "high": 205.95,
+      "low": 199.1,
+      "volume": 12311058,
+      "time": "2024-07-08T05:00:00Z",
+      "time_milliseconds": 1720396800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.48,
+      "close": 201.5,
+      "high": 209.41,
+      "low": 195.62,
+      "volume": 45698899,
+      "time": "2024-07-09T05:00:00Z",
+      "time_milliseconds": 1720483200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.5,
+      "close": 203.77,
+      "high": 208.62,
+      "low": 196.7,
+      "volume": 66451815,
+      "time": "2024-07-10T05:00:00Z",
+      "time_milliseconds": 1720569600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.77,
+      "close": 204.75,
+      "high": 210.28,
+      "low": 198.27,
+      "volume": 64037045,
+      "time": "2024-07-11T05:00:00Z",
+      "time_milliseconds": 1720656000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 204.75,
+      "close": 211.19,
+      "high": 216.61,
+      "low": 199.5,
+      "volume": 41248338,
+      "time": "2024-07-12T05:00:00Z",
+      "time_milliseconds": 1720742400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.19,
+      "close": 208.44,
+      "high": 215.44,
+      "low": 204.25,
+      "volume": 40710805,
+      "time": "2024-07-15T05:00:00Z",
+      "time_milliseconds": 1721001600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.44,
+      "close": 209.29,
+      "high": 211.82,
+      "low": 205.92,
+      "volume": 96470881,
+      "time": "2024-07-16T05:00:00Z",
+      "time_milliseconds": 1721088000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.29,
+      "close": 210.78,
+      "high": 215.87,
+      "low": 204.24,
+      "volume": 49193843,
+      "time": "2024-07-17T05:00:00Z",
+      "time_milliseconds": 1721174400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.78,
+      "close": 213.29,
+      "high": 216.58,
+      "low": 207.53,
+      "volume": 82737929,
+      "time": "2024-07-18T05:00:00Z",
+      "time_milliseconds": 1721260800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.29,
+      "close": 209.84,
+      "high": 217.28,
+      "low": 205.91,
+      "volume": 75792359,
+      "time": "2024-07-19T05:00:00Z",
+      "time_milliseconds": 1721347200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.84,
+      "close": 212.97,
+      "high": 218.64,
+      "low": 204.26,
+      "volume": 17799660,
+      "time": "2024-07-22T05:00:00Z",
+      "time_milliseconds": 1721606400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.97,
+      "close": 213.1,
+      "high": 217.21,
+      "low": 208.86,
+      "volume": 64929853,
+      "time": "2024-07-23T05:00:00Z",
+      "time_milliseconds": 1721692800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.1,
+      "close": 217.59,
+      "high": 223.47,
+      "low": 207.34,
+      "volume": 26365587,
+      "time": "2024-07-24T05:00:00Z",
+      "time_milliseconds": 1721779200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 217.59,
+      "close": 219.36,
+      "high": 223.05,
+      "low": 213.93,
+      "volume": 89228798,
+      "time": "2024-07-25T05:00:00Z",
+      "time_milliseconds": 1721865600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 219.36,
+      "close": 218.97,
+      "high": 221.6,
+      "low": 216.74,
+      "volume": 95325631,
+      "time": "2024-07-26T05:00:00Z",
+      "time_milliseconds": 1721952000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 218.97,
+      "close": 217.68,
+      "high": 223.3,
+      "low": 213.38,
+      "volume": 78234818,
+      "time": "2024-07-29T05:00:00Z",
+      "time_milliseconds": 1722211200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 217.68,
+      "close": 216.04,
+      "high": 221.99,
+      "low": 211.76,
+      "volume": 81363958,
+      "time": "2024-07-30T05:00:00Z",
+      "time_milliseconds": 1722297600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 216.04,
+      "close": 217.36,
+      "high": 222.54,
+      "low": 210.89,
+      "volume": 37558542,
+      "time": "2024-07-31T05:00:00Z",
+      "time_milliseconds": 1722384000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 217.36,
+      "close": 214.1,
+      "high": 221.84,
+      "low": 209.69,
+      "volume": 48295343,
+      "time": "2024-08-01T05:00:00Z",
+      "time_milliseconds": 1722470400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.1,
+      "close": 212.97,
+      "high": 219.25,
+      "low": 207.85,
+      "volume": 34382478,
+      "time": "2024-08-02T05:00:00Z",
+      "time_milliseconds": 1722556800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.97,
+      "close": 216.92,
+      "high": 219.92,
+      "low": 210.02,
+      "volume": 20759926,
+      "time": "2024-08-05T05:00:00Z",
+      "time_milliseconds": 1722816000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 216.92,
+      "close": 217.26,
+      "high": 220.24,
+      "low": 213.95,
+      "volume": 29474617,
+      "time": "2024-08-06T05:00:00Z",
+      "time_milliseconds": 1722902400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 217.26,
+      "close": 216.7,
+      "high": 223.68,
+      "low": 210.3,
+      "volume": 57217318,
+      "time": "2024-08-07T05:00:00Z",
+      "time_milliseconds": 1722988800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 216.7,
+      "close": 220.97,
+      "high": 224.04,
+      "low": 213.69,
+      "volume": 30473484,
+      "time": "2024-08-08T05:00:00Z",
+      "time_milliseconds": 1723075200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 220.97,
+      "close": 227.24,
+      "high": 231.94,
+      "low": 216.4,
+      "volume": 34688019,
+      "time": "2024-08-09T05:00:00Z",
+      "time_milliseconds": 1723161600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 227.24,
+      "close": 226.57,
+      "high": 232.68,
+      "low": 221.14,
+      "volume": 21365154,
+      "time": "2024-08-12T05:00:00Z",
+      "time_milliseconds": 1723420800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 226.57,
+      "close": 224.84,
+      "high": 232.79,
+      "low": 218.67,
+      "volume": 61665779,
+      "time": "2024-08-13T05:00:00Z",
+      "time_milliseconds": 1723507200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 224.84,
+      "close": 221.08,
+      "high": 227.92,
+      "low": 218.05,
+      "volume": 14623904,
+      "time": "2024-08-14T05:00:00Z",
+      "time_milliseconds": 1723593600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 221.08,
+      "close": 220.0,
+      "high": 226.93,
+      "low": 214.18,
+      "volume": 46063669,
+      "time": "2024-08-15T05:00:00Z",
+      "time_milliseconds": 1723680000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 220.0,
+      "close": 214.95,
+      "high": 222.44,
+      "low": 212.57,
+      "volume": 23427782,
+      "time": "2024-08-16T05:00:00Z",
+      "time_milliseconds": 1723766400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.95,
+      "close": 213.87,
+      "high": 221.37,
+      "low": 207.48,
+      "volume": 20660640,
+      "time": "2024-08-19T05:00:00Z",
+      "time_milliseconds": 1724025600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.87,
+      "close": 212.1,
+      "high": 219.39,
+      "low": 206.62,
+      "volume": 30311842,
+      "time": "2024-08-20T05:00:00Z",
+      "time_milliseconds": 1724112000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.1,
+      "close": 208.74,
+      "high": 216.1,
+      "low": 204.8,
+      "volume": 87414999,
+      "time": "2024-08-21T05:00:00Z",
+      "time_milliseconds": 1724198400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.74,
+      "close": 208.65,
+      "high": 213.42,
+      "low": 203.97,
+      "volume": 64866782,
+      "time": "2024-08-22T05:00:00Z",
+      "time_milliseconds": 1724284800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.65,
+      "close": 211.02,
+      "high": 214.01,
+      "low": 205.7,
+      "volume": 28992267,
+      "time": "2024-08-23T05:00:00Z",
+      "time_milliseconds": 1724371200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.02,
+      "close": 212.68,
+      "high": 215.55,
+      "low": 208.18,
+      "volume": 16755838,
+      "time": "2024-08-26T05:00:00Z",
+      "time_milliseconds": 1724630400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.68,
+      "close": 202.54,
+      "high": 217.33,
+      "low": 198.11,
+      "volume": 36213336,
+      "time": "2024-08-27T05:00:00Z",
+      "time_milliseconds": 1724716800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.54,
+      "close": 201.22,
+      "high": 207.41,
+      "low": 196.38,
+      "volume": 50862819,
+      "time": "2024-08-28T05:00:00Z",
+      "time_milliseconds": 1724803200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.22,
+      "close": 203.61,
+      "high": 208.85,
+      "low": 196.04,
+      "volume": 66255220,
+      "time": "2024-08-29T05:00:00Z",
+      "time_milliseconds": 1724889600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.61,
+      "close": 206.23,
+      "high": 210.05,
+      "low": 199.84,
+      "volume": 59010614,
+      "time": "2024-08-30T05:00:00Z",
+      "time_milliseconds": 1724976000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.23,
+      "close": 208.73,
+      "high": 214.27,
+      "low": 200.76,
+      "volume": 16426885,
+      "time": "2024-09-02T05:00:00Z",
+      "time_milliseconds": 1725235200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.73,
+      "close": 206.7,
+      "high": 213.94,
+      "low": 201.54,
+      "volume": 61228634,
+      "time": "2024-09-03T05:00:00Z",
+      "time_milliseconds": 1725321600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.7,
+      "close": 210.26,
+      "high": 215.26,
+      "low": 201.79,
+      "volume": 72976031,
+      "time": "2024-09-04T05:00:00Z",
+      "time_milliseconds": 1725408000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.26,
+      "close": 209.24,
+      "high": 214.44,
+      "low": 205.08,
+      "volume": 17239766,
+      "time": "2024-09-05T05:00:00Z",
+      "time_milliseconds": 1725494400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.24,
+      "close": 202.17,
+      "high": 212.68,
+      "low": 198.85,
+      "volume": 32533111,
+      "time": "2024-09-06T05:00:00Z",
+      "time_milliseconds": 1725580800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.17,
+      "close": 208.78,
+      "high": 214.36,
+      "low": 196.77,
+      "volume": 61767919,
+      "time": "2024-09-09T05:00:00Z",
+      "time_milliseconds": 1725840000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.78,
+      "close": 209.84,
+      "high": 214.76,
+      "low": 203.89,
+      "volume": 34255992,
+      "time": "2024-09-10T05:00:00Z",
+      "time_milliseconds": 1725926400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.84,
+      "close": 210.22,
+      "high": 214.3,
+      "low": 205.77,
+      "volume": 68635854,
+      "time": "2024-09-11T05:00:00Z",
+      "time_milliseconds": 1726012800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.22,
+      "close": 210.83,
+      "high": 215.41,
+      "low": 205.66,
+      "volume": 67130624,
+      "time": "2024-09-12T05:00:00Z",
+      "time_milliseconds": 1726099200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.83,
+      "close": 214.08,
+      "high": 217.71,
+      "low": 207.25,
+      "volume": 39997755,
+      "time": "2024-09-13T05:00:00Z",
+      "time_milliseconds": 1726185600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.08,
+      "close": 215.95,
+      "high": 219.53,
+      "low": 210.53,
+      "volume": 72430630,
+      "time": "2024-09-16T05:00:00Z",
+      "time_milliseconds": 1726444800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 215.95,
+      "close": 220.88,
+      "high": 226.68,
+      "low": 210.28,
+      "volume": 59508694,
+      "time": "2024-09-17T05:00:00Z",
+      "time_milliseconds": 1726531200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 220.88,
+      "close": 219.31,
+      "high": 224.52,
+      "low": 215.7,
+      "volume": 97316625,
+      "time": "2024-09-18T05:00:00Z",
+      "time_milliseconds": 1726617600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 219.31,
+      "close": 215.01,
+      "high": 225.84,
+      "low": 208.61,
+      "volume": 69189434,
+      "time": "2024-09-19T05:00:00Z",
+      "time_milliseconds": 1726704000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 215.01,
+      "close": 212.05,
+      "high": 217.97,
+      "low": 209.13,
+      "volume": 42560142,
+      "time": "2024-09-20T05:00:00Z",
+      "time_milliseconds": 1726790400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.05,
+      "close": 210.44,
+      "high": 217.39,
+      "low": 205.14,
+      "volume": 28320241,
+      "time": "2024-09-23T05:00:00Z",
+      "time_milliseconds": 1727049600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.44,
+      "close": 213.63,
+      "high": 217.64,
+      "low": 206.49,
+      "volume": 72842502,
+      "time": "2024-09-24T05:00:00Z",
+      "time_milliseconds": 1727136000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.63,
+      "close": 220.28,
+      "high": 225.17,
+      "low": 208.89,
+      "volume": 31536771,
+      "time": "2024-09-25T05:00:00Z",
+      "time_milliseconds": 1727222400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 220.28,
+      "close": 214.4,
+      "high": 224.92,
+      "low": 209.89,
+      "volume": 18388828,
+      "time": "2024-09-26T05:00:00Z",
+      "time_milliseconds": 1727308800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.4,
+      "close": 214.81,
+      "high": 218.94,
+      "low": 210.28,
+      "volume": 20571953,
+      "time": "2024-09-27T05:00:00Z",
+      "time_milliseconds": 1727395200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.81,
+      "close": 212.93,
+      "high": 220.04,
+      "low": 207.75,
+      "volume": 55798481,
+      "time": "2024-09-30T05:00:00Z",
+      "time_milliseconds": 1727654400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.93,
+      "close": 215.62,
+      "high": 222.0,
+      "low": 206.63,
+      "volume": 31935781,
+      "time": "2024-10-01T05:00:00Z",
+      "time_milliseconds": 1727740800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 215.62,
+      "close": 213.07,
+      "high": 221.75,
+      "low": 207.01,
+      "volume": 55741680,
+      "time": "2024-10-02T05:00:00Z",
+      "time_milliseconds": 1727827200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.07,
+      "close": 214.2,
+      "high": 217.53,
+      "low": 209.76,
+      "volume": 81100556,
+      "time": "2024-10-03T05:00:00Z",
+      "time_milliseconds": 1727913600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.2,
+      "close": 218.2,
+      "high": 222.6,
+      "low": 209.88,
+      "volume": 83849452,
+      "time": "2024-10-04T05:00:00Z",
+      "time_milliseconds": 1728000000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 218.2,
+      "close": 216.71,
+      "high": 222.94,
+      "low": 212.0,
+      "volume": 99901209,
+      "time": "2024-10-07T05:00:00Z",
+      "time_milliseconds": 1728259200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 216.71,
+      "close": 219.1,
+      "high": 223.65,
+      "low": 212.21,
+      "volume": 41061154,
+      "time": "2024-10-08T05:00:00Z",
+      "time_milliseconds": 1728345600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 219.1,
+      "close": 215.74,
+      "high": 223.29,
+      "low": 211.62,
+      "volume": 38959961,
+      "time": "2024-10-09T05:00:00Z",
+      "time_milliseconds": 1728432000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 215.74,
+      "close": 213.9,
+      "high": 220.36,
+      "low": 209.31,
+      "volume": 31020620,
+      "time": "2024-10-10T05:00:00Z",
+      "time_milliseconds": 1728518400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.9,
+      "close": 216.18,
+      "high": 221.56,
+      "low": 208.58,
+      "volume": 73470509,
+      "time": "2024-10-11T05:00:00Z",
+      "time_milliseconds": 1728604800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 216.18,
+      "close": 214.67,
+      "high": 221.21,
+      "low": 209.67,
+      "volume": 83867279,
+      "time": "2024-10-14T05:00:00Z",
+      "time_milliseconds": 1728864000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.67,
+      "close": 214.1,
+      "high": 216.98,
+      "low": 211.8,
+      "volume": 55206203,
+      "time": "2024-10-15T05:00:00Z",
+      "time_milliseconds": 1728950400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.1,
+      "close": 216.43,
+      "high": 222.38,
+      "low": 208.22,
+      "volume": 49627558,
+      "time": "2024-10-16T05:00:00Z",
+      "time_milliseconds": 1729036800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 216.43,
+      "close": 212.98,
+      "high": 221.72,
+      "low": 207.77,
+      "volume": 46898075,
+      "time": "2024-10-17T05:00:00Z",
+      "time_milliseconds": 1729123200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.98,
+      "close": 214.71,
+      "high": 218.87,
+      "low": 208.85,
+      "volume": 97228326,
+      "time": "2024-10-18T05:00:00Z",
+      "time_milliseconds": 1729209600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.71,
+      "close": 213.11,
+      "high": 219.65,
+      "low": 208.21,
+      "volume": 86658876,
+      "time": "2024-10-21T05:00:00Z",
+      "time_milliseconds": 1729468800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 213.11,
+      "close": 214.32,
+      "high": 218.09,
+      "low": 209.36,
+      "volume": 38499503,
+      "time": "2024-10-22T05:00:00Z",
+      "time_milliseconds": 1729555200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.32,
+      "close": 214.54,
+      "high": 220.43,
+      "low": 208.44,
+      "volume": 13230918,
+      "time": "2024-10-23T05:00:00Z",
+      "time_milliseconds": 1729641600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 214.54,
+      "close": 209.6,
+      "high": 220.64,
+      "low": 203.64,
+      "volume": 99768333,
+      "time": "2024-10-24T05:00:00Z",
+      "time_milliseconds": 1729728000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.6,
+      "close": 207.47,
+      "high": 212.11,
+      "low": 204.99,
+      "volume": 67037304,
+      "time": "2024-10-25T05:00:00Z",
+      "time_milliseconds": 1729814400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.47,
+      "close": 206.01,
+      "high": 212.42,
+      "low": 201.09,
+      "volume": 91308165,
+      "time": "2024-10-28T05:00:00Z",
+      "time_milliseconds": 1730073600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.01,
+      "close": 208.28,
+      "high": 211.58,
+      "low": 202.74,
+      "volume": 43735698,
+      "time": "2024-10-29T05:00:00Z",
+      "time_milliseconds": 1730160000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 208.28,
+      "close": 202.41,
+      "high": 212.72,
+      "low": 198.09,
+      "volume": 81326752,
+      "time": "2024-10-30T05:00:00Z",
+      "time_milliseconds": 1730246400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.41,
+      "close": 207.56,
+      "high": 213.25,
+      "low": 196.86,
+      "volume": 65773933,
+      "time": "2024-10-31T05:00:00Z",
+      "time_milliseconds": 1730332800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.56,
+      "close": 212.16,
+      "high": 214.89,
+      "low": 204.89,
+      "volume": 51503492,
+      "time": "2024-11-01T05:00:00Z",
+      "time_milliseconds": 1730419200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.16,
+      "close": 212.05,
+      "high": 214.32,
+      "low": 209.89,
+      "volume": 82416976,
+      "time": "2024-11-04T05:00:00Z",
+      "time_milliseconds": 1730678400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.05,
+      "close": 211.48,
+      "high": 214.84,
+      "low": 208.7,
+      "volume": 49755680,
+      "time": "2024-11-05T05:00:00Z",
+      "time_milliseconds": 1730764800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.48,
+      "close": 207.64,
+      "high": 216.3,
+      "low": 202.91,
+      "volume": 48187804,
+      "time": "2024-11-06T05:00:00Z",
+      "time_milliseconds": 1730851200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.64,
+      "close": 210.65,
+      "high": 213.6,
+      "low": 204.74,
+      "volume": 44622392,
+      "time": "2024-11-07T05:00:00Z",
+      "time_milliseconds": 1730937600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.65,
+      "close": 211.02,
+      "high": 215.54,
+      "low": 206.13,
+      "volume": 61733073,
+      "time": "2024-11-08T05:00:00Z",
+      "time_milliseconds": 1731024000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.02,
+      "close": 210.98,
+      "high": 217.26,
+      "low": 204.74,
+      "volume": 69240683,
+      "time": "2024-11-11T05:00:00Z",
+      "time_milliseconds": 1731283200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.98,
+      "close": 206.43,
+      "high": 215.98,
+      "low": 201.53,
+      "volume": 77020195,
+      "time": "2024-11-12T05:00:00Z",
+      "time_milliseconds": 1731369600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.43,
+      "close": 200.61,
+      "high": 210.55,
+      "low": 196.61,
+      "volume": 91373976,
+      "time": "2024-11-13T05:00:00Z",
+      "time_milliseconds": 1731456000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 200.61,
+      "close": 202.11,
+      "high": 206.58,
+      "low": 196.17,
+      "volume": 41708886,
+      "time": "2024-11-14T05:00:00Z",
+      "time_milliseconds": 1731542400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.11,
+      "close": 200.09,
+      "high": 206.87,
+      "low": 195.38,
+      "volume": 74883553,
+      "time": "2024-11-15T05:00:00Z",
+      "time_milliseconds": 1731628800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 200.09,
+      "close": 201.6,
+      "high": 206.15,
+      "low": 195.57,
+      "volume": 91306333,
+      "time": "2024-11-18T05:00:00Z",
+      "time_milliseconds": 1731888000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.6,
+      "close": 200.64,
+      "high": 205.39,
+      "low": 196.86,
+      "volume": 62161642,
+      "time": "2024-11-19T05:00:00Z",
+      "time_milliseconds": 1731974400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 200.64,
+      "close": 202.72,
+      "high": 205.94,
+      "low": 197.45,
+      "volume": 77273277,
+      "time": "2024-11-20T05:00:00Z",
+      "time_milliseconds": 1732060800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.72,
+      "close": 206.64,
+      "high": 210.94,
+      "low": 198.51,
+      "volume": 97434062,
+      "time": "2024-11-21T05:00:00Z",
+      "time_milliseconds": 1732147200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.64,
+      "close": 209.71,
+      "high": 215.29,
+      "low": 201.14,
+      "volume": 33127307,
+      "time": "2024-11-22T05:00:00Z",
+      "time_milliseconds": 1732233600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.71,
+      "close": 207.84,
+      "high": 215.19,
+      "low": 202.41,
+      "volume": 77190341,
+      "time": "2024-11-25T05:00:00Z",
+      "time_milliseconds": 1732492800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.84,
+      "close": 211.37,
+      "high": 217.55,
+      "low": 201.76,
+      "volume": 22668131,
+      "time": "2024-11-26T05:00:00Z",
+      "time_milliseconds": 1732579200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.37,
+      "close": 211.96,
+      "high": 217.15,
+      "low": 206.19,
+      "volume": 98194801,
+      "time": "2024-11-27T05:00:00Z",
+      "time_milliseconds": 1732665600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.96,
+      "close": 212.3,
+      "high": 215.98,
+      "low": 208.29,
+      "volume": 81161377,
+      "time": "2024-11-28T05:00:00Z",
+      "time_milliseconds": 1732752000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.3,
+      "close": 203.49,
+      "high": 216.35,
+      "low": 199.6,
+      "volume": 70554554,
+      "time": "2024-11-29T05:00:00Z",
+      "time_milliseconds": 1732838400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 203.49,
+      "close": 201.22,
+      "high": 208.87,
+      "low": 195.9,
+      "volume": 94626270,
+      "time": "2024-12-02T05:00:00Z",
+      "time_milliseconds": 1733097600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.22,
+      "close": 201.93,
+      "high": 204.05,
+      "low": 199.11,
+      "volume": 89581136,
+      "time": "2024-12-03T05:00:00Z",
+      "time_milliseconds": 1733184000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.93,
+      "close": 204.82,
+      "high": 207.78,
+      "low": 199.02,
+      "volume": 15689533,
+      "time": "2024-12-04T05:00:00Z",
+      "time_milliseconds": 1733270400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 204.82,
+      "close": 206.5,
+      "high": 209.81,
+      "low": 201.53,
+      "volume": 46746627,
+      "time": "2024-12-05T05:00:00Z",
+      "time_milliseconds": 1733356800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 206.5,
+      "close": 212.44,
+      "high": 215.86,
+      "low": 203.18,
+      "volume": 54336215,
+      "time": "2024-12-06T05:00:00Z",
+      "time_milliseconds": 1733443200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.44,
+      "close": 217.8,
+      "high": 220.57,
+      "low": 209.74,
+      "volume": 50827938,
+      "time": "2024-12-09T05:00:00Z",
+      "time_milliseconds": 1733702400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 217.8,
+      "close": 217.74,
+      "high": 224.1,
+      "low": 211.44,
+      "volume": 47721407,
+      "time": "2024-12-10T05:00:00Z",
+      "time_milliseconds": 1733788800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 217.74,
+      "close": 219.23,
+      "high": 223.24,
+      "low": 213.76,
+      "volume": 18911947,
+      "time": "2024-12-11T05:00:00Z",
+      "time_milliseconds": 1733875200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 219.23,
+      "close": 216.03,
+      "high": 225.59,
+      "low": 209.76,
+      "volume": 12944465,
+      "time": "2024-12-12T05:00:00Z",
+      "time_milliseconds": 1733961600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 216.03,
+      "close": 211.86,
+      "high": 222.3,
+      "low": 205.71,
+      "volume": 86990517,
+      "time": "2024-12-13T05:00:00Z",
+      "time_milliseconds": 1734048000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 211.86,
+      "close": 209.25,
+      "high": 216.29,
+      "low": 204.88,
+      "volume": 98005827,
+      "time": "2024-12-16T05:00:00Z",
+      "time_milliseconds": 1734307200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 209.25,
+      "close": 205.74,
+      "high": 212.14,
+      "low": 202.9,
+      "volume": 20994374,
+      "time": "2024-12-17T05:00:00Z",
+      "time_milliseconds": 1734393600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 205.74,
+      "close": 204.11,
+      "high": 210.52,
+      "low": 199.36,
+      "volume": 67753402,
+      "time": "2024-12-18T05:00:00Z",
+      "time_milliseconds": 1734480000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 204.11,
+      "close": 207.28,
+      "high": 212.61,
+      "low": 198.86,
+      "volume": 31921200,
+      "time": "2024-12-19T05:00:00Z",
+      "time_milliseconds": 1734566400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.28,
+      "close": 201.61,
+      "high": 209.64,
+      "low": 199.32,
+      "volume": 78864163,
+      "time": "2024-12-20T05:00:00Z",
+      "time_milliseconds": 1734652800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 201.61,
+      "close": 202.81,
+      "high": 208.37,
+      "low": 196.09,
+      "volume": 39570359,
+      "time": "2024-12-23T05:00:00Z",
+      "time_milliseconds": 1734912000000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 202.81,
+      "close": 207.76,
+      "high": 209.85,
+      "low": 200.77,
+      "volume": 87256551,
+      "time": "2024-12-24T05:00:00Z",
+      "time_milliseconds": 1734998400000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 207.76,
+      "close": 212.06,
+      "high": 215.24,
+      "low": 204.64,
+      "volume": 25704740,
+      "time": "2024-12-25T05:00:00Z",
+      "time_milliseconds": 1735084800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.06,
+      "close": 215.0,
+      "high": 217.21,
+      "low": 209.88,
+      "volume": 81098619,
+      "time": "2024-12-26T05:00:00Z",
+      "time_milliseconds": 1735171200000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 215.0,
+      "close": 212.63,
+      "high": 217.9,
+      "low": 209.76,
+      "volume": 14715911,
+      "time": "2024-12-27T05:00:00Z",
+      "time_milliseconds": 1735257600000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 212.63,
+      "close": 210.27,
+      "high": 217.93,
+      "low": 205.03,
+      "volume": 52862136,
+      "time": "2024-12-30T05:00:00Z",
+      "time_milliseconds": 1735516800000
+    },
+    {
+      "ticker": "TSLA",
+      "open": 210.27,
+      "close": 208.12,
+      "high": 212.83,
+      "low": 205.58,
+      "volume": 55345482,
+      "time": "2024-12-31T05:00:00Z",
+      "time_milliseconds": 1735603200000
+    }
+  ]
+}

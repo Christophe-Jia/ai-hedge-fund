@@ -146,7 +146,7 @@ def get_model(model_name: str, model_provider: ModelProvider, api_keys: dict = N
     elif model_provider == ModelProvider.OPENAI:
         # Get and validate API key
         api_key = (api_keys or {}).get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
-        base_url = os.getenv("OPENAI_API_BASE")
+        base_url = (api_keys or {}).get("OPENAI_API_BASE") or os.getenv("OPENAI_API_BASE")
         if not api_key:
             # Print error to console
             print(f"API Key Error: Please make sure OPENAI_API_KEY is set in your .env file or provided via API keys.")

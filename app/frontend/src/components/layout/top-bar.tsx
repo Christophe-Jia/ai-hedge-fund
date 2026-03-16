@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { PanelBottom, PanelLeft, PanelRight, Settings } from 'lucide-react';
+import { Activity, LayoutDashboard, PanelBottom, PanelLeft, PanelRight, Settings } from 'lucide-react';
 
 interface TopBarProps {
   isLeftCollapsed: boolean;
@@ -10,6 +10,9 @@ interface TopBarProps {
   onToggleRight: () => void;
   onToggleBottom: () => void;
   onSettingsClick: () => void;
+  onWorkspaceClick: () => void;
+  onLiveTradingClick?: () => void;
+  liveAlertCount?: number;
 }
 
 export function TopBar({
@@ -20,6 +23,9 @@ export function TopBar({
   onToggleRight,
   onToggleBottom,
   onSettingsClick,
+  onWorkspaceClick,
+  onLiveTradingClick,
+  liveAlertCount = 0,
 }: TopBarProps) {
   return (
     <div className="absolute top-0 right-0 z-40 flex items-center gap-0 py-1 px-2 bg-panel/80">
@@ -82,6 +88,39 @@ export function TopBar({
       >
         <Settings size={16} />
       </Button>
+
+      {/* Workspace */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onWorkspaceClick}
+        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-ramp-grey-700 transition-colors"
+        aria-label="Open workspace"
+        title="Workspace"
+      >
+        <LayoutDashboard size={16} />
+      </Button>
+
+      {/* Live Trading */}
+      {onLiveTradingClick && (
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onLiveTradingClick}
+            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-ramp-grey-700 transition-colors"
+            aria-label="Live Trading"
+            title="Live Trading"
+          >
+            <Activity size={16} />
+          </Button>
+          {liveAlertCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-bold leading-none">
+              {liveAlertCount > 9 ? '9+' : liveAlertCount}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
-} 
+}
