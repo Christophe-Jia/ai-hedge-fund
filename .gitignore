@@ -57,6 +57,11 @@ node_modules
 # Outputs
 outputs/
 
+# Runtime data (auto-collected market data, logs, third-party libs)
+data/
+logs/
+vnpy/
+
 # Database files (users will have their own local databases)
 *.db
 *.db-journal
