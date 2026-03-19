@@ -2196,39 +2196,291 @@
     "change_pct_24h": 6.97
   },
   {
-    "timestamp": "2026-03-18T02:37:04.297524+00:00",
+    "timestamp": "2026-03-17T03:00:10.193289+00:00",
     "symbol": "SOL/USDT",
-    "last": 94.92,
-    "bid": 94.92,
-    "ask": 94.93,
-    "volume_24h": 749893.5497464,
-    "change_pct_24h": -0.45
+    "last": 95.17,
+    "bid": 95.17,
+    "ask": 95.18,
+    "volume_24h": 953775.745,
+    "change_pct_24h": 4.11
   },
   {
-    "timestamp": "2026-03-18T22:36:27.314681+00:00",
+    "timestamp": "2026-03-17T04:00:09.552766+00:00",
     "symbol": "SOL/USDT",
-    "last": 90.43,
-    "bid": 90.42,
-    "ask": 90.43,
-    "volume_24h": 833157.80300554,
-    "change_pct_24h": -4.83
+    "last": 94.12,
+    "bid": 94.11,
+    "ask": 94.12,
+    "volume_24h": 941767.646,
+    "change_pct_24h": 0.86
   },
   {
-    "timestamp": "2026-03-18T23:34:17.498000+00:00",
+    "timestamp": "2026-03-17T05:00:10.958164+00:00",
     "symbol": "SOL/USDT",
-    "last": 90.11,
-    "bid": 90.1,
-    "ask": 90.11,
-    "volume_24h": 825489.26900554,
-    "change_pct_24h": -4.93
+    "last": 93.8,
+    "bid": 93.76,
+    "ask": 93.77,
+    "volume_24h": 933295.826,
+    "change_pct_24h": 0.13
   },
   {
-    "timestamp": "2026-03-19T02:38:16.982888+00:00",
+    "timestamp": "2026-03-17T06:00:29.590414+00:00",
     "symbol": "SOL/USDT",
-    "last": 90.3,
-    "bid": 90.3,
-    "ask": 90.31,
-    "volume_24h": 803927.11498126,
-    "change_pct_24h": -4.88
+    "last": 93.78,
+    "bid": 93.78,
+    "ask": 93.79,
+    "volume_24h": 924149.481,
+    "change_pct_24h": -0.24
+  },
+  {
+    "timestamp": "2026-03-17T07:00:12.373673+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.89,
+    "bid": 93.86,
+    "ask": 93.87,
+    "volume_24h": 917471.461,
+    "change_pct_24h": 0.57
+  },
+  {
+    "timestamp": "2026-03-17T08:00:09.141892+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.46,
+    "bid": 94.45,
+    "ask": 94.46,
+    "volume_24h": 908983.374,
+    "change_pct_24h": 0.86
+  },
+  {
+    "timestamp": "2026-03-17T09:00:11.101328+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.35,
+    "bid": 94.34,
+    "ask": 94.35,
+    "volume_24h": 901299.269,
+    "change_pct_24h": 1.58
+  },
+  {
+    "timestamp": "2026-03-17T10:00:10.307150+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.91,
+    "bid": 93.92,
+    "ask": 93.93,
+    "volume_24h": 913297.168,
+    "change_pct_24h": 0.64
+  },
+  {
+    "timestamp": "2026-03-17T12:03:09.990871+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.73,
+    "bid": 93.72,
+    "ask": 93.73,
+    "volume_24h": 929170.243,
+    "change_pct_24h": -0.08
+  },
+  {
+    "timestamp": "2026-03-17T13:00:09.865254+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.4,
+    "bid": 93.39,
+    "ask": 93.4,
+    "volume_24h": 923600.502,
+    "change_pct_24h": -0.42
+  },
+  {
+    "timestamp": "2026-03-17T14:00:19.392722+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.85,
+    "bid": 93.84,
+    "ask": 93.85,
+    "volume_24h": 912659.896,
+    "change_pct_24h": 0.27
+  },
+  {
+    "timestamp": "2026-03-17T15:00:11.866701+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.54,
+    "bid": 94.53,
+    "ask": 94.54,
+    "volume_24h": 897897.751,
+    "change_pct_24h": 0.97
+  },
+  {
+    "timestamp": "2026-03-17T16:01:42.064134+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.84,
+    "bid": 93.83,
+    "ask": 93.84,
+    "volume_24h": 898594.115,
+    "change_pct_24h": 0.64
+  },
+  {
+    "timestamp": "2026-03-17T17:00:11.100487+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.43,
+    "bid": 94.42,
+    "ask": 94.43,
+    "volume_24h": 886464.969,
+    "change_pct_24h": 0.66
+  },
+  {
+    "timestamp": "2026-03-17T18:00:51.091356+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.5,
+    "bid": 94.5,
+    "ask": 94.51,
+    "volume_24h": 873782.983,
+    "change_pct_24h": 0.41
+  },
+  {
+    "timestamp": "2026-03-17T19:01:47.055476+00:00",
+    "symbol": "SOL/USDT",
+    "last": 95.4,
+    "bid": 95.39,
+    "ask": 95.4,
+    "volume_24h": 859668.742,
+    "change_pct_24h": 1.11
+  },
+  {
+    "timestamp": "2026-03-17T20:03:12.694953+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.79,
+    "bid": 94.78,
+    "ask": 94.79,
+    "volume_24h": 847961.768,
+    "change_pct_24h": -0.36
+  },
+  {
+    "timestamp": "2026-03-18T00:00:25.604970+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.63,
+    "bid": 94.62,
+    "ask": 94.63,
+    "volume_24h": 774813.048,
+    "change_pct_24h": -1.48
+  },
+  {
+    "timestamp": "2026-03-18T02:02:38.183264+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.47,
+    "bid": 94.46,
+    "ask": 94.47,
+    "volume_24h": 730938.49,
+    "change_pct_24h": -1.32
+  },
+  {
+    "timestamp": "2026-03-18T03:03:18.215149+00:00",
+    "symbol": "SOL/USDT",
+    "last": 95.0,
+    "bid": 95.0,
+    "ask": 95.01,
+    "volume_24h": 714081.175,
+    "change_pct_24h": -0.24
+  },
+  {
+    "timestamp": "2026-03-18T04:00:32.113958+00:00",
+    "symbol": "SOL/USDT",
+    "last": 95.1,
+    "bid": 95.1,
+    "ask": 95.11,
+    "volume_24h": 689063.697,
+    "change_pct_24h": 0.92
+  },
+  {
+    "timestamp": "2026-03-18T06:00:10.770142+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.93,
+    "bid": 93.93,
+    "ask": 93.94,
+    "volume_24h": 673744.017,
+    "change_pct_24h": 0.08
+  },
+  {
+    "timestamp": "2026-03-18T07:00:09.805830+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.22,
+    "bid": 94.21,
+    "ask": 94.22,
+    "volume_24h": 665080.466,
+    "change_pct_24h": 0.35
+  },
+  {
+    "timestamp": "2026-03-18T08:00:11.966240+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.96,
+    "bid": 93.94,
+    "ask": 93.95,
+    "volume_24h": 660040.57197327,
+    "change_pct_24h": -0.53
+  },
+  {
+    "timestamp": "2026-03-18T09:00:09.838865+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.02,
+    "bid": 94.0,
+    "ask": 94.01,
+    "volume_24h": 659117.87897327,
+    "change_pct_24h": -0.34
+  },
+  {
+    "timestamp": "2026-03-18T10:00:16.304319+00:00",
+    "symbol": "SOL/USDT",
+    "last": 94.28,
+    "bid": 94.27,
+    "ask": 94.28,
+    "volume_24h": 640259.65097327,
+    "change_pct_24h": 0.38
+  },
+  {
+    "timestamp": "2026-03-18T11:00:10.626172+00:00",
+    "symbol": "SOL/USDT",
+    "last": 93.8,
+    "bid": 93.82,
+    "ask": 93.83,
+    "volume_24h": 624822.06597327,
+    "change_pct_24h": 0.25
+  },
+  {
+    "timestamp": "2026-03-18T12:00:09.651551+00:00",
+    "symbol": "SOL/USDT",
+    "last": 91.82,
+    "bid": 91.86,
+    "ask": 91.87,
+    "volume_24h": 636848.80597327,
+    "change_pct_24h": -1.96
+  },
+  {
+    "timestamp": "2026-03-18T13:00:10.790482+00:00",
+    "symbol": "SOL/USDT",
+    "last": 90.37,
+    "bid": 90.43,
+    "ask": 90.44,
+    "volume_24h": 659038.93197327,
+    "change_pct_24h": -3.23
+  },
+  {
+    "timestamp": "2026-03-19T01:01:11.058880+00:00",
+    "symbol": "SOL/USDT",
+    "last": 90.22,
+    "bid": 90.23,
+    "ask": 90.24,
+    "volume_24h": 687807.77897327,
+    "change_pct_24h": -4.67
+  },
+  {
+    "timestamp": "2026-03-19T03:00:09.896097+00:00",
+    "symbol": "SOL/USDT",
+    "last": 89.99,
+    "bid": 89.98,
+    "ask": 89.99,
+    "volume_24h": 680209.36486227,
+    "change_pct_24h": -5.22
+  },
+  {
+    "timestamp": "2026-03-19T04:00:11.700957+00:00",
+    "symbol": "SOL/USDT",
+    "last": 90.62,
+    "bid": 90.72,
+    "ask": 90.73,
+    "volume_24h": 691028.28686227,
+    "change_pct_24h": -4.69
   }
 ]
