@@ -29,3 +29,5 @@ jobs:
 
       - name: Run core unit tests
         run: pytest tests/core/ tests/integration/ -v --tb=short
+        env:
+          PYTHONPATH: ${{ github.workspace }}
