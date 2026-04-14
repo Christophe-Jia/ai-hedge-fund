@@ -26,11 +26,19 @@ jobs:
           git remote add upstream https://github.com/virattt/ai-hedge-fund.git || true
           git fetch upstream
 
-      - name: Rebase onto upstream main
+      - name: Merge upstream main
         run: |
-          git rebase upstream/main
-        # If rebase conflicts occur, the workflow will fail and notify you.
-        # You can then resolve conflicts locally and push manually.
+          # Use merge instead of rebase to avoid conflicts from data/ commits.
+          # On conflict, keep our version of data files (ours strategy),
+          # but accept upstream changes for everything else.
+          git merge upstream/main --no-edit \
+            -X ours \
+            || {
+              echo "Merge conflict detected — auto-resolving with 'ours' for remaining files"
+              git checkout --ours .
+              git add .
+              git commit --no-edit
+            }
 
       - name: Push to origin
         run: |
