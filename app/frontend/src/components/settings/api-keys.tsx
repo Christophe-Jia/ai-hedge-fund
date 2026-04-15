@@ -67,6 +67,13 @@ const LLM_API_KEYS: ApiKey[] = [
     placeholder: 'https://api.moonshot.cn/v1'
   },
   {
+    key: 'MOONSHOT_API_KEY',
+    label: 'Moonshot (Kimi) API',
+    description: 'For Kimi / Moonshot models (kimi-k2, kimi-latest, moonshot-v1-*)',
+    url: 'https://platform.moonshot.ai/',
+    placeholder: 'your-moonshot-api-key'
+  },
+  {
     key: 'OPENROUTER_API_KEY',
     label: 'OpenRouter API',
     description: 'For OpenRouter models (gpt-4o, gpt-4o-mini, etc.)',
