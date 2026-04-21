@@ -2,18 +2,9 @@
   "symbol": "VIX",
   "yfinance_ticker": "^VIX",
   "timeframe": "1d",
-  "fetched_at": "2026-04-21T02:56:05.403046+00:00",
-  "candle_count": 251,
+  "fetched_at": "2026-04-21T05:31:28.893634+00:00",
+  "candle_count": 250,
   "ohlcv": [
-    {
-      "timestamp": 1745211600000,
-      "datetime": "2025-04-21T05:00:00+00:00",
-      "open": 32.75,
-      "high": 35.75,
-      "low": 31.790000915527344,
-      "close": 33.81999969482422,
-      "volume": 0.0
-    },
     {
       "timestamp": 1745298000000,
       "datetime": "2025-04-22T05:00:00+00:00",
