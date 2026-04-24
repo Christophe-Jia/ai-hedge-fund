@@ -57,6 +57,7 @@ node_modules
 
 # Outputs
 outputs/
+/scratchpad/
 
 # Runtime data (auto-collected market data, logs, third-party libs)
 data/
