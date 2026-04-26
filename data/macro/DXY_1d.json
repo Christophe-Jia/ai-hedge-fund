@@ -2,7 +2,7 @@
   "symbol": "DXY",
   "yfinance_ticker": "DX-Y.NYB",
   "timeframe": "1d",
-  "fetched_at": "2026-04-25T23:42:43.179835+00:00",
+  "fetched_at": "2026-04-26T03:25:54.592903+00:00",
   "candle_count": 252,
   "ohlcv": [
     {
