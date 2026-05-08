@@ -2,7 +2,6 @@
 
 from v2.data.client import FDClient
 from v2.data.models import (
-    AnalystEstimate,
     CompanyFacts,
     CompanyNews,
     Earnings,
@@ -16,7 +15,6 @@ from v2.data.models import (
 from v2.data.protocol import DataClient
 
 __all__ = [
-    "AnalystEstimate",
     "CompanyFacts",
     "CompanyNews",
     "DataClient",

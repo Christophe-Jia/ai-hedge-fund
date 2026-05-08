@@ -268,18 +268,3 @@ class Filing(BaseModel):
     document_count: int | None = None
     is_xbrl: bool | None = None
     url: str | None = None
-
-
-# ---------------------------------------------------------------------------
-# Analyst Estimates
-# ---------------------------------------------------------------------------
-
-class AnalystEstimate(BaseModel):
-    """Single analyst estimate from /analyst-estimates."""
-
-    model_config = _IGNORE
-
-    fiscal_period: str | None = None
-    period: str | None = None
-    revenue: int | None = None
-    earnings_per_share: float | None = None
