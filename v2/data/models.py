@@ -239,7 +239,7 @@ class EarningsRecord(BaseModel):
     ticker: str
     report_period: str
     source_type: str
-    filing_date: str
+    filing_date: str | None = None
     filing_datetime: str | None = None
     filing_window: str | None = None
     fiscal_period: str | None = None
