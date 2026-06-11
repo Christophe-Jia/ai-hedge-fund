@@ -2,7 +2,7 @@
   "symbol": "TNX",
   "yfinance_ticker": "^TNX",
   "timeframe": "1d",
-  "fetched_at": "2026-06-11T21:24:14.014872+00:00",
+  "fetched_at": "2026-06-11T23:26:37.274818+00:00",
   "candle_count": 251,
   "ohlcv": [
     {
