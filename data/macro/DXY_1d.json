@@ -2,18 +2,9 @@
   "symbol": "DXY",
   "yfinance_ticker": "DX-Y.NYB",
   "timeframe": "1d",
-  "fetched_at": "2026-06-20T00:12:47.165476+00:00",
-  "candle_count": 262,
+  "fetched_at": "2026-06-20T05:18:31.434319+00:00",
+  "candle_count": 261,
   "ohlcv": [
-    {
-      "timestamp": 1750392000000,
-      "datetime": "2025-06-20T04:00:00+00:00",
-      "open": 98.66999816894531,
-      "high": 98.88999938964844,
-      "low": 98.54000091552734,
-      "close": 98.70999908447266,
-      "volume": 0.0
-    },
     {
       "timestamp": 1750651200000,
       "datetime": "2025-06-23T04:00:00+00:00",
