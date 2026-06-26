@@ -2,18 +2,9 @@
   "symbol": "TNX",
   "yfinance_ticker": "^TNX",
   "timeframe": "1d",
-  "fetched_at": "2026-06-26T04:03:42.559219+00:00",
-  "candle_count": 251,
+  "fetched_at": "2026-06-26T07:59:47.150346+00:00",
+  "candle_count": 250,
   "ohlcv": [
-    {
-      "timestamp": 1750914000000,
-      "datetime": "2025-06-26T05:00:00+00:00",
-      "open": 4.2769999504089355,
-      "high": 4.293000221252441,
-      "low": 4.25,
-      "close": 4.252999782562256,
-      "volume": 0.0
-    },
     {
       "timestamp": 1751000400000,
       "datetime": "2025-06-27T05:00:00+00:00",
