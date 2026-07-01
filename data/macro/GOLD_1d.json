@@ -2,7 +2,7 @@
   "symbol": "GOLD",
   "yfinance_ticker": "GC=F",
   "timeframe": "1d",
-  "fetched_at": "2026-07-01T15:45:41.160715+00:00",
+  "fetched_at": "2026-07-01T18:00:44.028271+00:00",
   "candle_count": 265,
   "ohlcv": [
     {
@@ -2387,8 +2387,8 @@
       "open": 4025.0,
       "high": 4131.0,
       "low": 3973.0,
-      "close": 4092.800048828125,
-      "volume": 116542.0
+      "close": 4085.60009765625,
+      "volume": 127984.0
     }
   ]
 }
