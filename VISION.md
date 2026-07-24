@@ -85,9 +85,10 @@ clock and the broker:**
 ```
 
 Because it's **one code path by design**, what you backtest is what trades — no
-separate "research" implementation that quietly diverges from production. (Today the
-backtester is a separate harness; converging it onto `run_cycle` is a core roadmap
-item.)
+separate "research" implementation that quietly diverges from production. (The fund
+backtester is exactly this today: `run_cycle` looped over history with a simulated
+broker, so PIT, fail-loud, and master risk hold for every tick by construction. An
+older per-model harness remains for single-model studies.)
 
 ### One cycle
 

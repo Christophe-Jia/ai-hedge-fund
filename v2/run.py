@@ -22,6 +22,7 @@ the engine reads one thing.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import termios
 import threading
@@ -75,6 +76,17 @@ DISPLAY_NAMES = {
     "pead": "post-earnings drift",
 }
 
+# The LLM the investor agents reason with. Picked once, upfront; AnthropicLLM
+# reads V2_LLM_MODEL (v2/llm/client.py) as its override, so setting that env
+# var steers every agent instance — the roster preview AND the Fund — with no
+# threading. Quant models (PEAD) carry no LLM and ignore it. Ordered most→least
+# capable; the default is the balanced middle, not the priciest.
+_MODELS = [
+    ("Opus 5", "claude-opus-5"),
+    ("Sonnet 5", "claude-sonnet-5"),
+]
+_DEFAULT_MODEL_LABEL = "Opus 5"
+
 VERSION = "2.0.0"  # keep in sync with pyproject.toml
 
 DEFAULT_RISK = {"max_position_pct": 0.25, "max_gross_exposure": 1.0}
@@ -93,6 +105,13 @@ _CHECKBOX_STYLE = questionary.Style([
     ("selected", "fg:green noinherit"),
     ("highlighted", "noinherit"),
     ("pointer", "noinherit"),
+])
+# Same philosophy for single-choice selects: kill the default colored
+# highlight bar; the pointed row goes green, matching the checkbox look.
+_SELECT_STYLE = questionary.Style([
+    ("highlighted", "fg:green noinherit"),
+    ("pointer", "fg:green noinherit"),
+    ("selected", "fg:green noinherit"),
 ])
 _CHECKBOX_INSTRUCTION = (
     "\n\nInstructions:\n"
@@ -133,8 +152,17 @@ def main() -> None:
         help=f"backtest start date YYYY-MM-DD (default: {_BACKTEST_WEEKS} weeks "
         "before --date)",
     )
+    parser.add_argument(
+        "--model",
+        help="LLM the investor agents reason with, e.g. claude-opus-5 "
+        "(default: V2_LLM_MODEL env, else the built-in default); quant models "
+        "ignore it",
+    )
     parser.add_argument("--out", help="also write the record JSON to this file")
     args = parser.parse_args()
+
+    if args.model:
+        os.environ["V2_LLM_MODEL"] = args.model
 
     if args.mandate is None:
         _interactive()
@@ -206,6 +234,33 @@ def main() -> None:
 # The interactive experience (no arguments)
 # ---------------------------------------------------------------------------
 
+def _pick_model(console: Console) -> bool:
+    """Ask which LLM the investor agents reason with, before anything else.
+
+    Sets V2_LLM_MODEL so every LLMAgent built downstream (roster preview and
+    Fund) uses it — AnthropicLLM's designed override seam. Returns False if the
+    user pressed Esc/Ctrl-C at this first prompt, meaning "leave".
+    """
+    # Preselect whatever V2_LLM_MODEL already names (set by --model or the
+    # shell), else the balanced default.
+    preset = os.environ.get("V2_LLM_MODEL")
+    default_label = next(
+        (label for label, mid in _MODELS if mid == preset), _DEFAULT_MODEL_LABEL
+    )
+    choice = _ask(questionary.select(
+        "Which model should the investor agents reason with?",
+        choices=[label for label, _ in _MODELS],
+        default=default_label,
+        style=_SELECT_STYLE,
+    ))
+    if choice is None or choice is _BACK:
+        return False
+    model_id = dict(_MODELS)[choice]
+    os.environ["V2_LLM_MODEL"] = model_id
+    console.print(f"\n  Agents will reason with [green]{model_id}[/]\n")
+    return True
+
+
 def _interactive() -> None:
     console = Console()
     console.print(Panel(
@@ -213,12 +268,16 @@ def _interactive() -> None:
         border_style="cyan",
     ))
 
+    if not _pick_model(console):
+        return
+
     # Two verbs, one fund: production and the research lab, side by side
     # (VISION.md). Esc at the menu leaves; Esc inside a flow returns here.
     while True:
         action = _ask(questionary.select(
             "What do you want to do?",
             choices=["Build a fund", "Backtest a fund"],
+            style=_SELECT_STYLE,
         ))
         if action is None or action is _BACK:
             return
@@ -316,6 +375,7 @@ def _step_pick_fund(specs):
         choice = _ask(questionary.select(
             "Which fund?",
             choices=[questionary.Choice(_fund_label(s), value=s) for s in specs],
+            style=_SELECT_STYLE,
         ))
         if choice is None:
             sys.exit(1)  # ctrl-c
@@ -507,6 +567,7 @@ def _step_cadence(console: Console, state: dict):
         "Rebalance cadence:",
         choices=["daily", "weekly", "monthly"],
         default=state.get("rebalance", "weekly"),
+        style=_SELECT_STYLE,
     ))
     if cadence is None:
         sys.exit(1)
