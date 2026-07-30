@@ -14,6 +14,11 @@ STRATEGY  =  a blend policy over MODELS       (a "pod")
 MODEL     =  an alpha model → a Signal        (conviction in [-1,+1] + thesis)
 ```
 
+A fund is the **desk**, not a watchlist: the mandate names no tickers. Which
+names to trade is supplied per run (`--tickers`, or the app's ticker prompt)
+and recorded on every `CycleRecord` — so one fund can be pointed at anything,
+and every run remembers what it traded.
+
 A fund runs two kinds of pods, like a real shop. **Discretionary** strategies
 are staffed by **agents** — LLM investor personas (Warren Buffett, Charlie
 Munger, Benjamin Graham, Peter Lynch, Stanley Druckenmiller) whose judgment
@@ -37,19 +42,19 @@ poetry install                          # dependencies
 #   FINANCIAL_DATASETS_API_KEY=...      # market/fundamentals data
 #   ANTHROPIC_API_KEY=...               # only for LLM agents (Buffett)
 
-# THE command. No arguments: build a fund interactively — pick stocks,
-# strategies, rebalance cadence — and watch it run its first cycle; or
-# backtest a saved fund through the last 18 months, equity curve vs its
-# benchmark.
-poetry run python -m v2.run
+# THE command. No arguments: launch the interactive app (a Textual TUI).
+# Build a fund — pick stocks, strategies, rebalance cadence — or backtest a
+# saved fund and watch its equity curve draw against its benchmark.
+poetry run python -m v2.run       # or, equivalently: python -m v2.tui
 
 # With a mandate: run one cycle non-interactively (data → strategies →
-# netting → risk → execution), full CycleRecord as JSON on stdout.
-poetry run python -m v2.run v2/funds/example.yaml
+# netting → risk → execution), full CycleRecord as JSON on stdout. A mandate
+# carries no tickers — --tickers says what to point the fund at this run.
+poetry run python -m v2.run v2/funds/example.yaml --tickers AAPL,MSFT,NVDA
 
 # Backtest a mandate: the same run_cycle looped over history at the
 # mandate's rebalance cadence, full result JSON (every CycleRecord) on stdout.
-poetry run python -m v2.run v2/funds/example.yaml --backtest
+poetry run python -m v2.run v2/funds/example.yaml --tickers AAPL,MSFT --backtest
 
 # Tests
 poetry run pytest v2/
@@ -79,6 +84,7 @@ Data (point-in-time) → Alpha models → Portfolio → Risk → Execution → L
 | `backtesting/` | `backtest_fund` — the whole fund over history on `run_cycle` — plus the per-model engine | ✅ |
 | `event_study/` | Market-model abnormal returns (CARs) | ✅ |
 | `validation/` | Combinatorial purged CV (CPCV), backtest-overfitting prob (PBO) | ⬜ |
+| `tui/` | The interactive app (Textual): fund builder + live backtest board | ✅ |
 
 ✅ built · ◐ partial · ⬜ planned
 
