@@ -2,7 +2,7 @@
   "symbol": "VIX",
   "yfinance_ticker": "^VIX",
   "timeframe": "1d",
-  "fetched_at": "2026-08-09T07:55:22.147689+00:00",
+  "fetched_at": "2026-08-09T08:47:20.331177+00:00",
   "candle_count": 484,
   "ohlcv": [
     {
