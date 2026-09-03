@@ -73,7 +73,9 @@ def test_kimi_accepts_moonshot_key(monkeypatch):
 
 def test_provider_for_reads_the_registry():
     assert provider_for("claude-opus-5") == "Anthropic"
+    assert provider_for("claude-fable-5-1") == "Anthropic"
     assert provider_for("gpt-5.5") == "OpenAI"
+    assert provider_for("gpt-6-astra") == "OpenAI"
     assert provider_for("not-a-model") is None
 
 
