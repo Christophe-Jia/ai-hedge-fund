@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.data.etf_store import EtfDailyStore
+from src.data.nasdaq_store import NasdaqDailyStore as EtfDailyStore
 
 DEFAULT_SYMBOLS = ["QQQ", "VOO", "SPY"]
 
