@@ -1,15 +1,26 @@
 """
-Backfill BTC/USDT:USDT perpetual futures 1h OHLCV and funding rates
-from Gate.io via CCXT REST API.
+Backfill perp/spot OHLCV and funding rates via CCXT REST API.
 
-Fills the gap between the last stored timestamp and now for:
-  - Perpetual 1h OHLCV → btc_history.db / ohlcv table
-  - Funding rates       → btc_history.db / funding_rates table
+Supports multiple symbols, timeframes and market types, with incremental
+resume (fetches only from the last stored timestamp).
 
-Usage:
-    poetry run python scripts/backfill_perp_ohlcv.py
-    poetry run python scripts/backfill_perp_ohlcv.py --exchange gate --timeframe 1h
-    poetry run python scripts/backfill_perp_ohlcv.py --dry-run
+Data sources:
+  - gate (default): perp OHLCV (4h/1d deep history; 15m/1h limited to the
+    most recent 10,000 candles) + funding rates (180-day lookback limit).
+  - binance + --hostname data-api.binance.vision: deep spot OHLCV history
+    (public market-data mirror, reachable where api.binance.com is blocked).
+
+Examples:
+    # Gate perp 4h/1d, 3 years, multiple symbols
+    poetry run python scripts/backfill_perp_ohlcv.py \\
+        --symbol "BTC/USDT:USDT,ETH/USDT:USDT,SOL/USDT:USDT" \\
+        --timeframe "4h,1d" --years 3
+
+    # Binance mirror spot 15m/1h, 3 years (no funding on mirror)
+    poetry run python scripts/backfill_perp_ohlcv.py \\
+        --exchange binance --hostname data-api.binance.vision \\
+        --market spot --symbol "BTC/USDT,ETH/USDT,SOL/USDT" \\
+        --timeframe "15m,1h" --years 3 --skip-funding
 """
 
 from __future__ import annotations
@@ -45,7 +56,16 @@ _EXCHANGE_KWARGS = {
 }
 
 
-def make_exchange(exchange_id: str) -> ccxt.Exchange:
+def make_exchange(exchange_id: str, hostname: str | None = None) -> ccxt.Exchange:
+    if hostname:
+        # Mirror mode (e.g. data-api.binance.vision): spot market data only.
+        # Ignore defaultType overrides — the mirror serves no futures endpoints.
+        cls = getattr(ccxt, exchange_id)
+        ex = cls({"enableRateLimit": True, "options": {"fetchMarkets": ["spot"]}})
+        for k, v in list(ex.urls["api"].items()):
+            if isinstance(v, str) and "api.binance.com" in v:
+                ex.urls["api"][k] = v.replace("api.binance.com", hostname)
+        return ex
     kwargs = _EXCHANGE_KWARGS.get(exchange_id, {})
     cls = getattr(ccxt, exchange_id)
     return cls({"enableRateLimit": True, "options": kwargs})
@@ -57,12 +77,14 @@ def backfill_ohlcv(
     symbol: str,
     timeframe: str,
     dry_run: bool,
+    years: float = 2.0,
+    market_type: str = "perp",
 ) -> int:
     """Fetch and store OHLCV candles from the last stored ts to now."""
-    last_ts = store.get_latest_ts(symbol, "perp", timeframe)
+    last_ts = store.get_latest_ts(symbol, market_type, timeframe)
     if last_ts is None:
-        # Start from 2 years ago if DB is empty
-        since_ms = int((datetime.now(timezone.utc).timestamp() - 2 * 365 * 24 * 3600) * 1000)
+        # Start from `years` ago if DB is empty
+        since_ms = int((datetime.now(timezone.utc).timestamp() - years * 365 * 24 * 3600) * 1000)
         print(f"  No existing data — starting from {datetime.fromtimestamp(since_ms / 1000, tz=timezone.utc)}")
     else:
         # Resume from the candle after the last stored one
@@ -109,7 +131,7 @@ def backfill_ohlcv(
         newest_ts = candles[-1][0]
 
         if not dry_run:
-            n = store.upsert_ohlcv(symbol, "perp", timeframe, candles)
+            n = store.upsert_ohlcv(symbol, market_type, timeframe, candles)
             total_written += n
 
         print(
@@ -137,11 +159,12 @@ def backfill_funding_rates(
     store: FundingRateStore,
     symbol: str,
     dry_run: bool,
+    years: float = 2.0,
 ) -> int:
     """Fetch and store funding rates from the last stored ts to now."""
     last_ts = store.get_latest_ts(symbol)
     if last_ts is None:
-        since_ms = int((datetime.now(timezone.utc).timestamp() - 365 * 24 * 3600) * 1000)
+        since_ms = int((datetime.now(timezone.utc).timestamp() - years * 365 * 24 * 3600) * 1000)
         print(f"  No existing funding data — starting from {datetime.fromtimestamp(since_ms / 1000, tz=timezone.utc)}")
     else:
         since_ms = last_ts + 1
@@ -219,7 +242,7 @@ def backfill_funding_rates(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Backfill BTC perp OHLCV + funding rates via Gate.io"
+        description="Backfill perp OHLCV + funding rates (Gate.io default)"
     )
     parser.add_argument(
         "--exchange",
@@ -227,14 +250,34 @@ def main() -> None:
         help="CCXT exchange ID with perp/swap support (default: gate)",
     )
     parser.add_argument(
-        "--timeframe",
-        default="1h",
-        help="OHLCV timeframe (default: 1h)",
-    )
-    parser.add_argument(
         "--symbol",
         default=SYMBOL_PERP,
-        help=f"Perpetual symbol (default: {SYMBOL_PERP})",
+        help=(
+            "Perpetual symbol, or comma-separated list "
+            f"(default: {SYMBOL_PERP}; e.g. 'ETH/USDT:USDT,SOL/USDT:USDT')"
+        ),
+    )
+    parser.add_argument(
+        "--timeframe",
+        default="1h",
+        help="OHLCV timeframe, or comma-separated list (default: 1h; e.g. '15m,1h,4h,1d')",
+    )
+    parser.add_argument(
+        "--years",
+        type=float,
+        default=2.0,
+        help="How far back to start when no existing data (default: 2)",
+    )
+    parser.add_argument(
+        "--market",
+        default="perp",
+        choices=["perp", "spot"],
+        help="Market type for OHLCV storage (default: perp)",
+    )
+    parser.add_argument(
+        "--hostname",
+        default=None,
+        help="Override exchange hostname (e.g. data-api.binance.vision)",
     )
     parser.add_argument(
         "--db",
@@ -253,32 +296,47 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    symbols = [s.strip() for s in args.symbol.split(",") if s.strip()]
+    timeframes = [t.strip() for t in args.timeframe.split(",") if t.strip()]
+
     db_path_kwarg = {"db_path": args.db} if args.db else {}
 
     ohlcv_store = HistoricalOHLCVStore(**db_path_kwarg, exchange_id=args.exchange)
     funding_store = FundingRateStore(**db_path_kwarg, exchange_id=args.exchange)
 
-    print(f"\n=== BTC Perp Backfill ===")
+    print(f"\n=== Perp Backfill ===")
     print(f"  Exchange  : {args.exchange}")
-    print(f"  Symbol    : {args.symbol}")
-    print(f"  Timeframe : {args.timeframe}")
+    print(f"  Symbols   : {symbols}")
+    print(f"  Timeframes: {timeframes}")
+    print(f"  Years     : {args.years}")
     print(f"  Dry run   : {args.dry_run}")
     print(f"  Started   : {datetime.now(tz=timezone.utc).isoformat()}\n")
 
-    exchange = make_exchange(args.exchange)
+    exchange = make_exchange(args.exchange, hostname=args.hostname)
 
-    # 1. Backfill OHLCV
-    print("[1/2] OHLCV backfill ...")
-    n_ohlcv = backfill_ohlcv(exchange, ohlcv_store, args.symbol, args.timeframe, args.dry_run)
-    print(f"  Total OHLCV rows written: {n_ohlcv}\n")
+    total_ohlcv = 0
+    total_funding = 0
 
-    # 2. Backfill funding rates
-    if not args.skip_funding:
-        print("[2/2] Funding rate backfill ...")
-        n_funding = backfill_funding_rates(exchange, funding_store, args.symbol, args.dry_run)
-        print(f"  Total funding rows written: {n_funding}\n")
+    # 1. Backfill OHLCV for every symbol × timeframe
+    for sym in symbols:
+        for tf in timeframes:
+            print(f"[OHLCV] {sym} {tf} ({args.market}) ...")
+            total_ohlcv += backfill_ohlcv(
+                exchange, ohlcv_store, sym, tf, args.dry_run,
+                years=args.years, market_type=args.market,
+            )
+    print(f"  Total OHLCV rows written: {total_ohlcv}\n")
+
+    # 2. Backfill funding rates once per symbol (perp only)
+    if not args.skip_funding and args.market == "perp":
+        for sym in symbols:
+            print(f"[FUNDING] {sym} ...")
+            total_funding += backfill_funding_rates(
+                exchange, funding_store, sym, args.dry_run, years=args.years
+            )
+        print(f"  Total funding rows written: {total_funding}\n")
     else:
-        print("[2/2] Skipping funding rates (--skip-funding)\n")
+        print("[FUNDING] Skipping funding rates (--skip-funding)\n")
 
     print("Done.")
 
