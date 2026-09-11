@@ -16,7 +16,7 @@ from typing import Literal
 import pandas as pd
 import sqlalchemy as sa
 
-MarketType = Literal["spot", "perp"]
+MarketType = Literal["spot", "perp", "etf"]
 
 _DEFAULT_DB_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "data", "btc_history.db"
