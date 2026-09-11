@@ -1,28 +1,34 @@
 """
-US ETF daily price data via Nasdaq's public quote API.
+US daily price data via Nasdaq's public quote API (ETFs AND stocks).
 
 The endpoint (https://api.nasdaq.com/api/quote/{sym}/historical) serves
-true ETF daily OHLCV — no registration, no key — and is reachable from
+true daily OHLCV — no registration, no key — and is reachable from
 mainland China corporate networks where Yahoo (429) and Stooq (IP-blocked)
 fail. History depth: ~10 years per request window.
 
 Data notes:
 - Closes are raw exchange closes (unadjusted). For the supported ETFs there
-  have been no splits in the past decade, so prices are split-consistent.
+  have been no splits in the past decade, so prices are split-consistent;
+  individual STOCKS can and do split — cross-sectional price momentum is
+  robust to this, but absolute price levels are not split-adjusted.
 - Dividends are NOT reinvested: pass `div_yield_annual` to
   `get_close_series()` for an approximate total-return series
   (VOO ~1.3%/yr, QQQ ~0.6%/yr as of 2026).
-- Volume strings arrive with thousands separators ("31,414,410").
+- Volume strings arrive with thousands separators ("31,414,410"); stock
+  prices arrive with a leading "$" ("$326.57").
 
 Usage:
-    store = EtfDailyStore()
-    store.fetch_and_store("QQQ")            # ~10y history -> SQLite
-    s = store.get_close_series("QQQ", "2020-01-01", "2026-09-01")
+    etf = NasdaqDailyStore()                       # ETFs (assetclass=etf)
+    etf.fetch_and_store("QQQ")
+    stocks = NasdaqDailyStore(assetclass="stocks")
+    stocks.fetch_and_store("AAPL")
+    s = stocks.get_close_series("AAPL", "2020-01-01", "2026-09-01")
 """
 
 from __future__ import annotations
 
 import json
+import re
 import time
 import urllib.request
 from datetime import datetime, timezone
@@ -34,7 +40,7 @@ from .historical_store import HistoricalOHLCVStore
 
 _NASDAQ_URL = (
     "https://api.nasdaq.com/api/quote/{symbol}/historical"
-    "?assetclass=etf&fromdate={from_date}&todate={to_date}&limit=9999"
+    "?assetclass={assetclass}&fromdate={from_date}&todate={to_date}&limit=9999"
 )
 _HEADERS = {
     "User-Agent": (
@@ -50,6 +56,9 @@ _HEADERS = {
 # and keep whatever comes back.
 _DEFAULT_FROM = "2014-01-01"
 
+# ETF whitelist (assetclass=etf). Stocks accept any valid ticker symbol.
+_ETF_SUPPORTED = {"QQQ", "VOO", "SPY", "TQQQ", "IWM", "DIA", "GLD", "TLT"}
+
 # Approximate trailing dividend yields (for total-return adjustment only).
 _APPROX_DIV_YIELDS: dict[str, float] = {
     "QQQ": 0.006,
@@ -62,28 +71,40 @@ _APPROX_DIV_YIELDS: dict[str, float] = {
     "TLT": 0.038,
 }
 
-_SUPPORTED = {"QQQ", "VOO", "SPY", "TQQQ", "IWM", "DIA", "GLD", "TLT"}
+_TICKER_RE = re.compile(r"^[A-Z][A-Z0-9.\-]{0,9}$")
 
 
-class EtfDailyStore:
-    """Download-and-cache wrapper around Nasdaq's public ETF history API.
+def _num(x) -> float:
+    """Parse a Nasdaq numeric string: strips '$', commas, 'N/A' -> raises."""
+    return float(str(x).replace("$", "").replace(",", "").strip())
+
+
+class NasdaqDailyStore:
+    """Download-and-cache wrapper around Nasdaq's public history API.
 
     Args:
-        db_path: SQLite path (defaults to the shared data/btc_history.db).
-        timeout: HTTP timeout in seconds.
+        db_path:     SQLite path (defaults to the shared data/btc_history.db).
+        assetclass:  "etf" or "stocks" — selects the Nasdaq API asset class
+                     and the market_type used in the local store.
+        timeout:     HTTP timeout in seconds.
         politeness_s: sleep between consecutive HTTP fetches (Nasdaq
-            throttles rapid-fire requests).
+                     throttles rapid-fire requests).
     """
 
     def __init__(
         self,
         db_path: Optional[str] = None,
+        assetclass: str = "etf",
         timeout: float = 30.0,
         politeness_s: float = 1.5,
     ) -> None:
+        if assetclass not in ("etf", "stocks"):
+            raise ValueError(f"assetclass must be 'etf' or 'stocks', got {assetclass!r}")
+        self._assetclass = assetclass
+        self._market_type = assetclass  # "etf" | "stocks" in the shared store
         self._store = HistoricalOHLCVStore(
             **({"db_path": db_path} if db_path else {}),
-            allow_fetch=False,  # never CCXT-fetch for ETF symbols
+            allow_fetch=False,  # never CCXT-fetch for US symbols
         )
         self._timeout = timeout
         self._politeness_s = politeness_s
@@ -100,10 +121,14 @@ class EtfDailyStore:
         Returns the number of rows written.
         """
         sym = symbol.upper()
-        if sym not in _SUPPORTED:
-            raise ValueError(
-                f"Unsupported ETF {symbol!r}. Known: {sorted(_SUPPORTED)}"
-            )
+        if self._assetclass == "etf":
+            if sym not in _ETF_SUPPORTED:
+                raise ValueError(
+                    f"Unsupported ETF {symbol!r}. Known: {sorted(_ETF_SUPPORTED)}"
+                )
+        else:
+            if not _TICKER_RE.match(sym):
+                raise ValueError(f"Invalid ticker symbol {symbol!r}")
         to_date = to_date or datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
 
         payload = self._http_get_json(sym, from_date, to_date)
@@ -114,10 +139,12 @@ class EtfDailyStore:
                 f"[{from_date}, {to_date}] (message: "
                 f"{(payload or {}).get('message')!r})"
             )
-        return self._store.upsert_ohlcv(sym, "etf", "1d", rows)
+        return self._store.upsert_ohlcv(sym, self._market_type, "1d", rows)
 
     def _http_get_json(self, sym: str, from_date: str, to_date: str) -> dict | None:
-        url = _NASDAQ_URL.format(symbol=sym, from_date=from_date, to_date=to_date)
+        url = _NASDAQ_URL.format(
+            symbol=sym, assetclass=self._assetclass, from_date=from_date, to_date=to_date
+        )
         last_err: Exception | None = None
         for attempt in range(3):
             try:
@@ -138,9 +165,9 @@ class EtfDailyStore:
     def _parse_payload(payload: dict | None) -> list[list]:
         """Parse Nasdaq historical payload into upsert_ohlcv rows.
 
-        Rows arrive newest-first with MM/DD/YYYY dates and comma-formatted
-        numbers; returned rows are oldest-first (store ordering is by ts
-        anyway, but deterministic input helps tests).
+        Rows arrive newest-first with MM/DD/YYYY dates, comma-formatted
+        numbers, and (for stocks) a leading '$' on prices; returned rows
+        are oldest-first.
         """
         if not payload:
             return []
@@ -153,15 +180,15 @@ class EtfDailyStore:
                     tzinfo=timezone.utc
                 )
                 ts = int(dt.timestamp() * 1000)
-                o = float(rec["open"].replace(",", ""))
-                h = float(rec["high"].replace(",", ""))
-                low = float(rec["low"].replace(",", ""))
-                c = float(rec["close"].replace(",", ""))
+                o = _num(rec["open"])
+                h = _num(rec["high"])
+                low = _num(rec["low"])
+                c = _num(rec["close"])
             except (KeyError, ValueError, AttributeError):
                 continue  # skip rows with bad prices/dates
             # volume may be N/A — keep the row with zero volume
             try:
-                v = float(rec.get("volume", "0").replace(",", "") or 0)
+                v = _num(rec.get("volume", "0")) if rec.get("volume") else 0.0
             except (ValueError, AttributeError):
                 v = 0.0
             if o > 0 and c > 0 and h >= low > 0:
@@ -181,7 +208,7 @@ class EtfDailyStore:
         end_ts = int(
             datetime.fromisoformat(end).replace(tzinfo=timezone.utc).timestamp() * 1000
         )
-        df = self._store.get_ohlcv(symbol.upper(), "etf", "1d", start_ts, end_ts)
+        df = self._store.get_ohlcv(symbol.upper(), self._market_type, "1d", start_ts, end_ts)
         if df.empty:
             return df
         out = df.set_index(pd.to_datetime(df["ts"], unit="ms", utc=True))
@@ -200,7 +227,7 @@ class EtfDailyStore:
             div_yield_annual: if given, accrues a daily dividend yield so the
                 series approximates TOTAL RETURN (Nasdaq closes are
                 price-only). Defaults to the built-in estimate for known
-                ETFs; pass 0.0 to disable.
+                ETFs, 0.0 for stocks; pass a number to override.
         """
         df = self.get_daily(symbol, start, end)
         if df.empty:
@@ -222,11 +249,15 @@ class EtfDailyStore:
             row = conn.execute(
                 sa.text(
                     "SELECT MIN(ts), MAX(ts), COUNT(*) FROM ohlcv "
-                    "WHERE symbol = :s AND market_type = 'etf' AND timeframe = '1d'"
+                    "WHERE symbol = :s AND market_type = :m AND timeframe = '1d'"
                 ),
-                {"s": symbol.upper()},
+                {"s": symbol.upper(), "m": self._market_type},
             ).fetchone()
         if not row or row[0] is None:
             return None, None, 0
         fmt = lambda ts: datetime.fromtimestamp(ts / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
         return fmt(row[0]), fmt(row[1]), int(row[2])
+
+
+# Backward-compatible alias: the ETF-specialised name used at import sites.
+EtfDailyStore = NasdaqDailyStore
