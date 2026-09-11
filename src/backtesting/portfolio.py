@@ -27,8 +27,8 @@ class Portfolio:
             "margin_requirement": float(margin_requirement),
             "positions": {
                 ticker: {
-                    "long": 0,
-                    "short": 0,
+                    "long": 0.0,
+                    "short": 0.0,
                     "long_cost_basis": 0.0,
                     "short_cost_basis": 0.0,
                     "short_margin_used": 0.0,
@@ -39,7 +39,11 @@ class Portfolio:
                 ticker: {"long": 0.0, "short": 0.0}
                 for ticker in tickers
             },
+            "total_fees_paid": 0.0,
+            "total_funding_paid": 0.0,
         }
+        # Per-round-trip-chunk realized PnL ledger (for win rate / profit factor).
+        self.trade_pnl: list[float] = []
 
     def get_snapshot(self) -> PortfolioSnapshot:
         positions_copy: Dict[str, PositionState] = {
@@ -62,7 +66,16 @@ class Portfolio:
             "margin_requirement": float(self._portfolio["margin_requirement"]),
             "positions": positions_copy,
             "realized_gains": gains_copy,
+            "total_fees_paid": float(self._portfolio.get("total_fees_paid", 0.0)),
+            "total_funding_paid": float(self._portfolio.get("total_funding_paid", 0.0)),
         }
+
+    def get_total_fees_paid(self) -> float:
+        return float(self._portfolio.get("total_fees_paid", 0.0))
+
+    def get_total_funding_paid(self) -> float:
+        """Net funding paid (positive = paid out, negative = received)."""
+        return float(self._portfolio.get("total_funding_paid", 0.0))
 
     def get_cash(self) -> float:
         return float(self._portfolio["cash"])
@@ -86,6 +99,16 @@ class Portfolio:
             self._portfolio["total_fees_paid"] = (
                 self._portfolio.get("total_fees_paid", 0.0) + fee_usd
             )
+
+    def debit_cash(self, amount: float) -> None:
+        """Withdraw cash without classifying it as a fee (e.g. perp margin lock)."""
+        if amount:
+            self._portfolio["cash"] -= amount
+
+    def credit_cash(self, amount: float) -> None:
+        """Add cash without classification (e.g. perp margin release + PnL)."""
+        if amount:
+            self._portfolio["cash"] += amount
 
     def apply_funding_payment(self, payment: float) -> None:
         """
@@ -142,6 +165,7 @@ class Portfolio:
         avg_cost = position["long_cost_basis"] if position["long"] > 0 else 0.0
         realized_gain = (execution_price - avg_cost) * quantity
         self._portfolio["realized_gains"][ticker]["long"] += realized_gain
+        self.trade_pnl.append(realized_gain)
         position["long"] -= quantity
         self._portfolio["cash"] += quantity * execution_price
         if position["long"] == 0:
@@ -207,6 +231,7 @@ class Portfolio:
         self._portfolio["cash"] += margin_to_release
         self._portfolio["cash"] -= cover_cost
         self._portfolio["realized_gains"][ticker]["short"] += realized_gain
+        self.trade_pnl.append(realized_gain)
         if position["short"] == 0:
             position["short_cost_basis"] = 0.0
             position["short_margin_used"] = 0.0

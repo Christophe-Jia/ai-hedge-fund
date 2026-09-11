@@ -1,16 +1,23 @@
 """
-Trade cost model for BTC backtesting.
+Trade cost model for crypto backtesting.
 
 Models Binance fee tiers for both spot and USDT-M perpetual futures,
-plus a market-impact-based dynamic slippage model calibrated to BTC
-retail order sizes.
+plus a per-symbol square-root market-impact slippage model.
+
+Slippage model:
+    impact_bps = impact_factor * 10_000 * sqrt(notional / adv_usd)
+    total_bps  = base_spread_bps + impact_bps
+
+Calibrated so (impact_factor=0.01, BTC ADV $15B):
+    $100k order  -> ~0.26 bps impact (negligible retail)
+    $10M order   -> ~2.58 bps impact (institutional-scale impact)
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Literal
+from typing import Literal, Mapping
 
 MarketType = Literal["spot", "perp"]
 
@@ -45,49 +52,79 @@ _BINANCE_PERP_FEES: dict[VipTier, tuple[float, float]] = {
 # BNB discount factor applied to the total fee (25% discount)
 _BNB_DISCOUNT = 0.75
 
+
 # ---------------------------------------------------------------------------
-# Slippage model parameters
+# Per-symbol slippage configuration
 # ---------------------------------------------------------------------------
 
-# Base bid-ask spread in basis points (1 bps = 0.01%)
-# BTC spot on Binance typically has ~1-2 bps spread; we use 2 bps conservatively.
-_BASE_SPREAD_BPS = 2.0
 
-# BTC approximate Average Daily Volume in USD ($15 billion)
-_DEFAULT_ADV_USD = 15_000_000_000.0
+@dataclass(frozen=True)
+class SymbolCostConfig:
+    """Slippage parameters for one trading symbol.
 
-# Market-impact factor: how many bps of impact per unit of ADV participation
-# Calibrated so $100k order → ~0.007 bps (negligible retail impact),
-# $10M order → ~0.67 bps (institutional-scale impact starts showing).
-_IMPACT_FACTOR = 1.0
+    Args:
+        adv_usd:         Approximate average daily notional volume (USD).
+        base_spread_bps: Bid-ask half-spread in basis points.
+        impact_factor:   Sqrt-impact scaling (see module docstring).
+    """
+
+    adv_usd: float
+    base_spread_bps: float
+    impact_factor: float = 0.01
+
+
+# Rough 2026-era ADV / spread assumptions for the symbols we backtest.
+# These are order-of-magnitude inputs — the sqrt model is deliberately
+# insensitive to small errors in ADV (impact scales with sqrt(1/ADV)).
+DEFAULT_SYMBOL_COSTS: dict[str, SymbolCostConfig] = {
+    "BTC/USDT": SymbolCostConfig(adv_usd=15e9, base_spread_bps=2.0),
+    "BTC/USDT:USDT": SymbolCostConfig(adv_usd=20e9, base_spread_bps=1.5),
+    "ETH/USDT": SymbolCostConfig(adv_usd=8e9, base_spread_bps=2.0),
+    "ETH/USDT:USDT": SymbolCostConfig(adv_usd=10e9, base_spread_bps=1.5),
+    "SOL/USDT": SymbolCostConfig(adv_usd=2e9, base_spread_bps=4.0),
+    "SOL/USDT:USDT": SymbolCostConfig(adv_usd=3e9, base_spread_bps=3.0),
+}
+
+# Fallback for symbols not in the table (conservative small-cap assumptions).
+DEFAULT_COST_CONFIG = SymbolCostConfig(adv_usd=2e9, base_spread_bps=5.0)
 
 
 @dataclass
 class CostModel:
     """
-    Compute realistic trade costs (fees + slippage) for BTC backtests.
+    Compute realistic trade costs (fees + slippage) for crypto backtests.
 
     All costs are returned in USD.
 
     Args:
-        vip_tier:     Binance VIP fee tier (default VIP0 — retail).
-        bnb_discount: Whether BNB holdings provide a 25% fee discount.
-        adv_usd:      Assumed average daily volume for market impact calc.
-        base_spread_bps: Half-spread assumption in basis points.
-        impact_factor:   Scaling factor for market impact (dimensionless).
+        vip_tier:       Binance VIP fee tier (default VIP0 — retail).
+        bnb_discount:   Whether BNB holdings provide a 25% fee discount.
+        symbol_configs: Per-symbol slippage parameters; looked up by the
+                        `symbol` argument of the cost methods.
+        default_config: Slippage parameters used when `symbol` is empty or
+                        unknown to `symbol_configs`.
     """
 
     vip_tier: VipTier = VipTier.VIP0
     bnb_discount: bool = False
-    adv_usd: float = _DEFAULT_ADV_USD
-    base_spread_bps: float = _BASE_SPREAD_BPS
-    impact_factor: float = _IMPACT_FACTOR
+    symbol_configs: Mapping[str, SymbolCostConfig] = field(
+        default_factory=lambda: DEFAULT_SYMBOL_COSTS
+    )
+    default_config: SymbolCostConfig = DEFAULT_COST_CONFIG
+
+    def _config_for(self, symbol: str) -> SymbolCostConfig:
+        if symbol:
+            cfg = self.symbol_configs.get(symbol)
+            if cfg is not None:
+                return cfg
+        return self.default_config
 
     def compute_trade_cost(
         self,
         notional_usd: float,
         market_type: MarketType,
         is_maker: bool = False,
+        symbol: str = "",
     ) -> float:
         """
         Compute the exchange fee for a single trade.
@@ -109,15 +146,15 @@ class CostModel:
         discount = _BNB_DISCOUNT if self.bnb_discount else 1.0
         return notional_usd * rate * discount
 
-    def compute_slippage_only(self, notional_usd: float) -> float:
+    def compute_slippage_only(self, notional_usd: float, symbol: str = "") -> float:
         """
         Compute price slippage cost for a single trade.
 
-        Uses a square-root market-impact model:
+        Square-root market-impact model per symbol:
           - base_spread_bps covers the bid-ask half-spread
-          - market_impact_bps scales with order size relative to ADV
+          - impact_bps scales with sqrt(order size / symbol ADV)
 
-        At typical retail sizes (<$100k), slippage is near-zero.
+        At typical retail sizes (<$100k), slippage is dominated by the spread.
         At institutional sizes ($10M+), market impact becomes significant.
 
         Returns slippage cost in USD.
@@ -125,9 +162,9 @@ class CostModel:
         if notional_usd <= 0:
             return 0.0
 
-        participation = notional_usd / self.adv_usd
-        market_impact_bps = participation * self.impact_factor * 10_000
-        total_bps = self.base_spread_bps + market_impact_bps
+        cfg = self._config_for(symbol)
+        impact_bps = cfg.impact_factor * 10_000 * (notional_usd / cfg.adv_usd) ** 0.5
+        total_bps = cfg.base_spread_bps + impact_bps
         return notional_usd * total_bps / 10_000
 
     def compute_total_cost(
@@ -135,6 +172,7 @@ class CostModel:
         notional_usd: float,
         market_type: MarketType,
         is_maker: bool = False,
+        symbol: str = "",
     ) -> tuple[float, float, float]:
         """
         Compute fee + slippage together.
@@ -142,15 +180,15 @@ class CostModel:
         Returns:
             (fee_usd, slippage_usd, total_cost_usd)
         """
-        fee = self.compute_trade_cost(notional_usd, market_type, is_maker)
-        slippage = self.compute_slippage_only(notional_usd)
+        fee = self.compute_trade_cost(notional_usd, market_type, is_maker, symbol)
+        slippage = self.compute_slippage_only(notional_usd, symbol)
         return fee, slippage, fee + slippage
 
-    def slippage_as_pct(self, notional_usd: float) -> float:
+    def slippage_as_pct(self, notional_usd: float, symbol: str = "") -> float:
         """
         Return slippage as a fraction of notional (for passing to portfolio
         methods as `slippage_pct`).
         """
         if notional_usd <= 0:
             return 0.0
-        return self.compute_slippage_only(notional_usd) / notional_usd
+        return self.compute_slippage_only(notional_usd, symbol) / notional_usd

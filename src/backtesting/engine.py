@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from datetime import datetime
 from typing import Sequence, Dict, Callable
 
@@ -10,7 +11,7 @@ from .controller import AgentController
 from .trader import TradeExecutor
 from .metrics import PerformanceMetricsCalculator
 from .portfolio import Portfolio
-from .types import PerformanceMetrics, PortfolioValuePoint
+from .types import DataGapError, PerformanceMetrics, PortfolioValuePoint
 from .valuation import calculate_portfolio_value, compute_exposures
 from .output import OutputBuilder
 from .benchmarks import BenchmarkCalculator
@@ -22,6 +23,9 @@ from src.tools.api import (
     get_financial_metrics,
     get_insider_trades,
 )
+
+# Consecutive days of missing price data tolerated before aborting the run.
+_MAX_CONSECUTIVE_DATA_GAPS = 5
 
 
 class BacktestEngine:
@@ -58,6 +62,7 @@ class BacktestEngine:
         lookback_months: int = 3,
         benchmark_ticker: str | None = "SPY",
         price_data_fn: Callable[[str, str, str], pd.DataFrame] | None = None,
+        verbose: bool = True,
     ) -> None:
         self._agent = agent
         self._tickers = tickers
@@ -70,6 +75,7 @@ class BacktestEngine:
         self._price_only = price_only
         self._lookback_months = lookback_months
         self._benchmark_ticker = benchmark_ticker
+        self._verbose = verbose
         # Use provided price fetcher, or fall back to the default API-backed one
         self._price_data_fn: Callable[[str, str, str], pd.DataFrame] = price_data_fn or get_price_data
 
@@ -125,6 +131,7 @@ class BacktestEngine:
         else:
             self._portfolio_values = []
 
+        consecutive_gaps = 0
         for current_date in dates:
             lookback_start = (current_date - relativedelta(months=self._lookback_months)).strftime("%Y-%m-%d")
             current_date_str = current_date.strftime("%Y-%m-%d")
@@ -142,12 +149,27 @@ class BacktestEngine:
                             missing_data = True
                             break
                         current_prices[ticker] = float(price_data.iloc[-1]["close"])
-                    except Exception:
+                    except (KeyError, ValueError) as exc:
+                        warnings.warn(
+                            f"Bad price data for {ticker} on {current_date_str}: {exc}",
+                            stacklevel=2,
+                        )
                         missing_data = True
                         break
                 if missing_data:
+                    consecutive_gaps += 1
+                    if consecutive_gaps > _MAX_CONSECUTIVE_DATA_GAPS:
+                        raise DataGapError(
+                            f"{consecutive_gaps} consecutive days of missing price data "
+                            f"ending {current_date_str} — aborting to avoid a distorted "
+                            f"equity curve. Check the data source/backfill."
+                        )
                     continue
-            except Exception:
+                consecutive_gaps = 0
+            except DataGapError:
+                raise
+            except (KeyError, ValueError) as exc:
+                warnings.warn(f"Price fetch failed on {current_date_str}: {exc}", stacklevel=2)
                 continue
 
             agent_output = self._agent_controller.run_agent(
@@ -183,29 +205,43 @@ class BacktestEngine:
                 "Long/Short Ratio": exposures["Long/Short Ratio"],
             }
             self._portfolio_values.append(point)
-            
-            # Build daily rows (stateless usage)
-            rows = self._results.build_day_rows(
-                date_str=current_date_str,
-                tickers=self._tickers,
-                agent_output=agent_output,
-                executed_trades=executed_trades,
-                current_prices=current_prices,
-                portfolio=self._portfolio,
-                performance_metrics=self._performance_metrics,
-                total_value=total_value,
-                benchmark_return_pct=self._benchmark.get_return_pct(self._benchmark_ticker, self._start_date, current_date_str) if self._benchmark_ticker else None,
-            )
-            # Prepend today's rows to historical rows so latest day is on top
-            self._table_rows = rows + self._table_rows
-            # Print full history with latest day first (matches backtester.py behavior)
-            self._results.print_rows(self._table_rows)
+
+            if self._verbose:
+                # Build daily rows (stateless usage)
+                rows = self._results.build_day_rows(
+                    date_str=current_date_str,
+                    tickers=self._tickers,
+                    agent_output=agent_output,
+                    executed_trades=executed_trades,
+                    current_prices=current_prices,
+                    portfolio=self._portfolio,
+                    performance_metrics=self._performance_metrics,
+                    total_value=total_value,
+                    benchmark_return_pct=self._benchmark.get_return_pct(self._benchmark_ticker, self._start_date, current_date_str) if self._benchmark_ticker else None,
+                )
+                # Prepend today's rows to historical rows so latest day is on top
+                self._table_rows = rows + self._table_rows
+                # Print full history with latest day first (matches backtester.py behavior)
+                self._results.print_rows(self._table_rows)
 
             # Update performance metrics after printing (match original timing)
             if len(self._portfolio_values) > 3:
                 computed = self._perf.compute_metrics(self._portfolio_values)
                 if computed:
                     self._performance_metrics.update(computed)
+
+        # Final metrics enrichment: total return, live exposures, trade stats
+        if self._portfolio_values:
+            final_point = self._portfolio_values[-1]
+            self._performance_metrics["total_return"] = (
+                final_point["Portfolio Value"] / self._initial_capital - 1.0
+            ) * 100.0
+            self._performance_metrics["long_short_ratio"] = final_point.get("Long/Short Ratio")
+            self._performance_metrics["gross_exposure"] = final_point.get("Gross Exposure")
+            self._performance_metrics["net_exposure"] = final_point.get("Net Exposure")
+        self._performance_metrics.update(
+            self._perf.compute_trade_stats(self._portfolio.trade_pnl)
+        )
 
         return self._performance_metrics
 

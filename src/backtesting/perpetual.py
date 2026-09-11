@@ -104,11 +104,34 @@ class PerpPosition:
         else:
             return mark_price >= self.liquidation_price
 
-    def liquidate(self) -> None:
-        """Mark position as liquidated — all initial margin is lost."""
+    def check_liquidation_wick(self, bar_low: float, bar_high: float) -> bool:
+        """
+        Return True if this position would have been liquidated at any point
+        inside a bar (intraday wick detection).
+
+        Long:  liquidated if the bar's low touched/crossed the liquidation price.
+        Short: liquidated if the bar's high touched/crossed the liquidation price.
+        """
+        if self.is_liquidated:
+            return True
+        if self.side == "long":
+            return bar_low <= self.liquidation_price
+        else:
+            return bar_high >= self.liquidation_price
+
+    def liquidate(self, liq_fee_bps: float = 1.25) -> float:
+        """
+        Mark position as liquidated — all initial margin is lost.
+
+        Returns the total realized loss (margin forfeiture). A liquidation
+        penalty of `liq_fee_bps` of notional is informational: under isolated
+        margin the entire initial margin is forfeited to the exchange, which
+        is the conservative upper bound on liquidation cost.
+        """
         self.is_liquidated = True
         self.realized_pnl += -self.initial_margin  # margin forfeiture
         self.unrealized_pnl = 0.0
+        return -self.initial_margin
 
     # ------------------------------------------------------------------
     # Funding
@@ -186,6 +209,10 @@ class PerpPortfolio:
     def __init__(self) -> None:
         self._positions: Dict[str, PerpPosition] = {}
         self._trade_records: List[TradeRecord] = []
+        self._realized_liquidation_losses: float = 0.0
+        self._num_liquidations: int = 0
+        # Per-round-trip realized PnL ledger (for win rate / profit factor).
+        self.realized_pnl_ledger: List[float] = []
 
     # ------------------------------------------------------------------
     # Position management
@@ -250,13 +277,82 @@ class PerpPortfolio:
             market_type="perp",
             side="buy" if side == "long" else "sell",
             quantity=size,
-            price=entry_price + (slippage_usd / size if size > 0 else 0),
+            # side-aware slippage: opening a long pays up, opening a short sells down
+            price=(
+                entry_price + (slippage_usd / size if size > 0 else 0)
+                if side == "long"
+                else entry_price - (slippage_usd / size if size > 0 else 0)
+            ),
             notional=notional,
             fee_usd=fee_usd,
             slippage_usd=slippage_usd,
         )
 
         return self._positions[symbol], total_cash_needed
+
+    def reduce_position(
+        self,
+        symbol: str,
+        quantity: float,
+        close_price: float,
+        timestamp: str = "",
+        fee_usd: float = 0.0,
+        slippage_usd: float = 0.0,
+    ) -> Tuple[float, float]:
+        """
+        Partially close an existing position.
+
+        Returns:
+            (realized_pnl, cash_returned)
+
+        cash_returned is the pro-rata margin + realized PnL for the closed
+        chunk, minus fees. Closing the entire position degenerates to
+        close_position semantics.
+        """
+        pos = self._positions.get(symbol)
+        if pos is None or pos.is_liquidated or quantity <= 0:
+            return 0.0, 0.0
+
+        qty = min(quantity, pos.size)
+        pos.update_unrealized_pnl(close_price)
+        price_per_unit_pnl = (
+            (close_price - pos.entry_price) if pos.side == "long" else (pos.entry_price - close_price)
+        )
+        realized = price_per_unit_pnl * qty
+        margin_released = pos.initial_margin * (qty / pos.size)
+
+        pos.realized_pnl += realized
+        self.realized_pnl_ledger.append(realized)
+        pos.size -= qty
+        pos.initial_margin -= margin_released
+        if pos.size <= 1e-12:
+            pos.size = 0.0
+            pos.unrealized_pnl = 0.0
+            del self._positions[symbol]
+        else:
+            pos.unrealized_pnl = (
+                (close_price - pos.entry_price) if pos.side == "long" else (pos.entry_price - close_price)
+            ) * pos.size
+
+        cash_returned = margin_released + realized - fee_usd - slippage_usd
+
+        self._record_trade(
+            timestamp=timestamp,
+            symbol=symbol,
+            market_type="perp",
+            side="sell" if pos.side == "long" else "buy",
+            quantity=qty,
+            # closing a long sells down into slippage; closing a short buys up
+            price=(
+                close_price - (slippage_usd / qty if qty > 0 else 0)
+                if pos.side == "long"
+                else close_price + (slippage_usd / qty if qty > 0 else 0)
+            ),
+            notional=qty * close_price,
+            fee_usd=fee_usd,
+            slippage_usd=slippage_usd,
+        )
+        return realized, cash_returned
 
     def close_position(
         self,
@@ -279,28 +375,9 @@ class PerpPortfolio:
         if pos is None or pos.is_liquidated:
             return 0.0, 0.0
 
-        pos.update_unrealized_pnl(close_price)
-        realized = pos.unrealized_pnl
-        pos.realized_pnl += realized
-        pos.unrealized_pnl = 0.0
-
-        cash_returned = pos.initial_margin + realized - fee_usd - slippage_usd
-
-        notional = pos.size * close_price
-        self._record_trade(
-            timestamp=timestamp,
-            symbol=symbol,
-            market_type="perp",
-            side="sell" if pos.side == "long" else "buy",
-            quantity=pos.size,
-            price=close_price - (slippage_usd / pos.size if pos.size > 0 else 0),
-            notional=notional,
-            fee_usd=fee_usd,
-            slippage_usd=slippage_usd,
+        return self.reduce_position(
+            symbol, pos.size, close_price, timestamp, fee_usd, slippage_usd
         )
-
-        del self._positions[symbol]
-        return realized, cash_returned
 
     # ------------------------------------------------------------------
     # Liquidation
@@ -312,20 +389,75 @@ class PerpPortfolio:
         """
         Check all open positions for liquidation at the given mark prices.
 
+        Kept for backward compatibility (mark-price check). Prefer
+        `check_liquidations_bars` for intraday-wick-aware detection.
+
         Returns a list of symbols that were liquidated. Liquidated positions
         lose all initial margin — no cash is returned.
         """
-        liquidated: List[str] = []
+        bars = {
+            symbol: (mark, mark)
+            for symbol, mark in prices.items()
+        }
+        events = self.check_liquidations_bars(bars)
+        return [symbol for symbol, _loss in events]
+
+    def check_liquidations_bars(
+        self,
+        bars: Dict[str, Tuple[float, float]],
+        timestamp: str = "",
+        liq_fee_bps: float = 1.25,
+    ) -> List[Tuple[str, float]]:
+        """
+        Check all open positions for liquidation using bar low/high.
+
+        Args:
+            bars: {symbol: (bar_low, bar_high)} — e.g. from the day's 1h or
+                  daily candle range.
+            timestamp: stamped on the liquidation trade record.
+
+        Returns:
+            List of (symbol, realized_loss_usd). Liquidated positions are
+            REMOVED from the portfolio; their entire initial margin is
+            forfeited (no cash returns to the spot book).
+        """
+        events: List[Tuple[str, float]] = []
         for symbol, pos in list(self._positions.items()):
             if pos.is_liquidated:
                 continue
-            mark_price = prices.get(symbol)
-            if mark_price is None:
+            rng = bars.get(symbol)
+            if rng is None:
                 continue
-            if pos.check_liquidation(mark_price):
-                pos.liquidate()
-                liquidated.append(symbol)
-        return liquidated
+            bar_low, bar_high = rng
+            if not pos.check_liquidation_wick(bar_low, bar_high):
+                continue
+
+            loss = pos.liquidate(liq_fee_bps)
+            notional = pos.size * pos.entry_price
+            self._record_trade(
+                timestamp=timestamp,
+                symbol=symbol,
+                market_type="perp",
+                side="sell" if pos.side == "long" else "buy",
+                quantity=pos.size,
+                price=pos.liquidation_price,
+                notional=notional,
+                fee_usd=notional * liq_fee_bps / 10_000,
+                slippage_usd=0.0,
+                event="liquidation",
+            )
+            self._realized_liquidation_losses += -loss
+            self._num_liquidations += 1
+            del self._positions[symbol]
+            events.append((symbol, loss))
+        return events
+
+    def get_realized_liquidation_losses(self) -> float:
+        """Cumulative realized USD losses from liquidations (positive number)."""
+        return self._realized_liquidation_losses
+
+    def get_num_liquidations(self) -> int:
+        return self._num_liquidations
 
     # ------------------------------------------------------------------
     # Funding rate application
@@ -405,18 +537,20 @@ class PerpPortfolio:
         notional: float,
         fee_usd: float,
         slippage_usd: float,
+        event: str = "",
     ) -> None:
-        self._trade_records.append(
-            {
-                "timestamp": timestamp,
-                "symbol": symbol,
-                "market_type": market_type,
-                "side": side,
-                "quantity": quantity,
-                "price": price,
-                "notional": notional,
-                "fee_usd": fee_usd,
-                "slippage_usd": slippage_usd,
-                "total_cost_usd": fee_usd + slippage_usd,
-            }
-        )
+        record: TradeRecord = {
+            "timestamp": timestamp,
+            "symbol": symbol,
+            "market_type": market_type,
+            "side": side,
+            "quantity": quantity,
+            "price": price,
+            "notional": notional,
+            "fee_usd": fee_usd,
+            "slippage_usd": slippage_usd,
+            "total_cost_usd": fee_usd + slippage_usd,
+        }
+        if event:
+            record["event"] = event
+        self._trade_records.append(record)

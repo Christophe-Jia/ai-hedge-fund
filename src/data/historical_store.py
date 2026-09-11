@@ -134,9 +134,19 @@ class HistoricalOHLCVStore:
         self,
         db_path: str = _DEFAULT_DB_PATH,
         exchange_id: str = "binance",
+        allow_fetch: bool = True,
     ) -> None:
+        """
+        Args:
+            allow_fetch: When False, never fall back to CCXT on low coverage —
+                just return whatever is cached. Use in tests and optimizer
+                worker processes to avoid network calls and SQLite write
+                contention (missing data then surfaces as an engine
+                DataGapError instead of a hang).
+        """
         self._engine = _make_engine(db_path)
         self._exchange_id = exchange_id
+        self._allow_fetch = allow_fetch
 
     # ------------------------------------------------------------------
     # Public API
@@ -164,7 +174,7 @@ class HistoricalOHLCVStore:
         expected = _expected_bars(timeframe, start_ts_ms, end_ts_ms)
         coverage = len(cached) / expected if expected > 0 else 0.0
 
-        if coverage < _MIN_COVERAGE:
+        if coverage < _MIN_COVERAGE and self._allow_fetch:
             raw = _fetch_ccxt(
                 symbol, market_type, timeframe, start_ts_ms, end_ts_ms, self._exchange_id
             )

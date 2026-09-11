@@ -122,3 +122,53 @@ def test_zero_or_negative_quantity_is_noop(portfolio: Portfolio, action: str) ->
     assert after == before
 
 
+
+
+# ---------------------------------------------------------------------------
+# P1C: fee / funding tracking + trade_pnl ledger
+# ---------------------------------------------------------------------------
+
+def test_fee_and_funding_accumulators_track() -> None:
+    p = Portfolio(tickers=["BTC/USDT"], initial_cash=100_000.0, margin_requirement=0.5)
+    assert p.get_total_fees_paid() == 0.0
+    assert p.get_total_funding_paid() == 0.0
+
+    p.deduct_fee(12.5)
+    p.deduct_fee(7.5)
+    assert p.get_total_fees_paid() == pytest.approx(20.0)
+    assert p.get_cash() == pytest.approx(99_980.0)
+
+    p.apply_funding_payment(-3.0)   # long pays
+    p.apply_funding_payment(1.0)    # short receives
+    assert p.get_total_funding_paid() == pytest.approx(2.0)  # net paid
+    assert p.get_cash() == pytest.approx(99_978.0)
+
+    snap = p.get_snapshot()
+    assert snap["total_fees_paid"] == pytest.approx(20.0)
+    assert snap["total_funding_paid"] == pytest.approx(2.0)
+
+
+def test_trade_pnl_ledger_round_trip() -> None:
+    p = Portfolio(tickers=["BTC/USDT"], initial_cash=100_000.0, margin_requirement=0.5)
+    p.apply_long_buy("BTC/USDT", 2.0, 50_000.0)
+    assert p.trade_pnl == []
+
+    p.apply_long_sell("BTC/USDT", 1.0, 55_000.0)
+    assert p.trade_pnl == [pytest.approx(5_000.0)]
+
+    p.apply_long_sell("BTC/USDT", 1.0, 48_000.0)
+    assert p.trade_pnl == [pytest.approx(5_000.0), pytest.approx(-2_000.0)]
+
+
+def test_trade_pnl_ledger_short_round_trip() -> None:
+    p = Portfolio(tickers=["BTC/USDT"], initial_cash=100_000.0, margin_requirement=0.5)
+    p.apply_short_open("BTC/USDT", 1.0, 50_000.0)
+    p.apply_short_cover("BTC/USDT", 1.0, 47_000.0)
+    assert p.trade_pnl == [pytest.approx(3_000.0)]
+
+
+def test_fractional_positions_preserved() -> None:
+    p = Portfolio(tickers=["BTC/USDT"], initial_cash=100_000.0, margin_requirement=0.5)
+    p.apply_long_buy("BTC/USDT", 0.123456, 50_000.0)
+    snap = p.get_snapshot()
+    assert snap["positions"]["BTC/USDT"]["long"] == pytest.approx(0.123456)

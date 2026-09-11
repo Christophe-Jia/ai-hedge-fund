@@ -13,19 +13,20 @@ Extends BacktestEngine with:
 
 from __future__ import annotations
 
+import warnings
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Sequence
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 
-from .engine import BacktestEngine
+from .engine import BacktestEngine, _MAX_CONSECUTIVE_DATA_GAPS
 from .cost_model import CostModel, VipTier
 from .perpetual import PerpPortfolio
 from .portfolio import Portfolio
 from .trader import TradeExecutor
 from .metrics import PerformanceMetricsCalculator
-from .types import PerformanceMetrics, PortfolioValuePoint, TradeRecord
+from .types import DataGapError, PerformanceMetrics, PortfolioValuePoint, TradeRecord
 from .valuation import calculate_portfolio_value, compute_exposures
 from .output import OutputBuilder
 from .benchmarks import BenchmarkCalculator
@@ -84,6 +85,9 @@ class BtcBacktestEngine(BacktestEngine):
         bnb_discount: bool = False,
         db_path: str | None = None,
         annual_trading_days: int = 365,
+        annual_rf_rate: float = 0.0,
+        verbose: bool = True,
+        allow_fetch: bool = True,
     ) -> None:
         self._perp_tickers: list[str] = perp_tickers or []
         self._leverage = leverage
@@ -94,7 +98,7 @@ class BtcBacktestEngine(BacktestEngine):
 
         # Data stores
         _db_kw = {"db_path": db_path} if db_path else {}
-        self._ohlcv_store = HistoricalOHLCVStore(**_db_kw)
+        self._ohlcv_store = HistoricalOHLCVStore(**_db_kw, allow_fetch=allow_fetch)
         self._funding_store = FundingRateStore(**_db_kw)
 
         # Perpetual portfolio
@@ -122,14 +126,21 @@ class BtcBacktestEngine(BacktestEngine):
             lookback_months=lookback_months,
             benchmark_ticker=benchmark_ticker,
             price_data_fn=self._btc_price_data_fn,
+            verbose=verbose,
         )
 
-        # Replace the no-cost executor with a cost-aware one
-        self._executor = TradeExecutor(cost_model=self._cost_model)
+        # Cost-aware executor wired to the perp portfolio (P1D fix):
+        # perp decisions now actually open/close PerpPortfolio positions.
+        self._executor = TradeExecutor(
+            cost_model=self._cost_model,
+            perp_portfolio=self._perp_portfolio,
+            leverage=leverage,
+        )
 
-        # Override metrics calculator with BTC-appropriate trading days
+        # Override metrics calculator with BTC-appropriate trading days / rf
         self._perf = PerformanceMetricsCalculator(
-            annual_trading_days=annual_trading_days
+            annual_trading_days=annual_trading_days,
+            annual_rf_rate=annual_rf_rate,
         )
 
     # ------------------------------------------------------------------
@@ -197,6 +208,7 @@ class BtcBacktestEngine(BacktestEngine):
         else:
             self._portfolio_values = []
 
+        consecutive_gaps = 0
         for current_date in dates:
             lookback_start = (
                 current_date - relativedelta(months=self._lookback_months)
@@ -205,36 +217,60 @@ class BtcBacktestEngine(BacktestEngine):
             previous_date_str = (current_date - relativedelta(days=1)).strftime(
                 "%Y-%m-%d"
             )
+            # Window for EXECUTION prices: [today, tomorrow) — exclusive end
+            # means this is exactly TODAY's bar (open/high/low/close).
+            next_date_str = (current_date + relativedelta(days=1)).strftime(
+                "%Y-%m-%d"
+            )
             if lookback_start == current_date_str:
                 continue
 
             # ----------------------------------------------------------
-            # Step a: Get opening prices (look-ahead safe)
-            # previous_date_str..current_date_str window gives us
-            # the bars that closed before today's open
+            # Step a: Fetch TODAY's bar for execution/valuation.
+            # (The agent's information window remains [lookback, today)
+            # via the controller — decide on yesterday's close, fill at
+            # today's open. No look-ahead.)
             # ----------------------------------------------------------
             try:
                 current_prices: Dict[str, float] = {}
+                bar_low_high: Dict[str, tuple] = {}
                 missing_data = False
                 for ticker in self._tickers:
                     try:
                         price_data = self._price_data_fn(
-                            ticker, previous_date_str, current_date_str
+                            ticker, current_date_str, next_date_str
                         )
                         if price_data.empty:
                             missing_data = True
                             break
-                        # Use open price of the current bar as execution price
-                        current_prices[ticker] = float(price_data.iloc[-1]["open"])
-                    except Exception:
+                        bar = price_data.iloc[-1]
+                        # Execution price: today's open
+                        current_prices[ticker] = float(bar["open"])
+                        bar_low_high[ticker] = (float(bar["low"]), float(bar["high"]))
+                    except (KeyError, ValueError) as exc:
+                        warnings.warn(
+                            f"Bad price data for {ticker} on {current_date_str}: {exc}",
+                            stacklevel=2,
+                        )
                         missing_data = True
                         break
                 if missing_data:
+                    consecutive_gaps += 1
+                    if consecutive_gaps > _MAX_CONSECUTIVE_DATA_GAPS:
+                        raise DataGapError(
+                            f"{consecutive_gaps} consecutive days of missing price "
+                            f"data ending {current_date_str} — aborting."
+                        )
                     continue
-            except Exception:
+                consecutive_gaps = 0
+            except DataGapError:
+                raise
+            except (KeyError, ValueError) as exc:
+                warnings.warn(f"Price fetch failed on {current_date_str}: {exc}", stacklevel=2)
                 continue
 
-            # Also build perp price dict for funding/liquidation
+            # Perp bars for funding/liquidation (may include symbols not in
+            # the execution ticker list, e.g. spot-only + perp hedge mixes)
             perp_prices: Dict[str, float] = {}
             for pt in self._perp_tickers:
                 if pt in current_prices:
@@ -242,19 +278,27 @@ class BtcBacktestEngine(BacktestEngine):
                 else:
                     try:
                         price_data = self._price_data_fn(
-                            pt, previous_date_str, current_date_str
+                            pt, current_date_str, next_date_str
                         )
                         if not price_data.empty:
                             perp_prices[pt] = float(price_data.iloc[-1]["open"])
-                    except Exception:
+                            bar = price_data.iloc[-1]
+                            bar_low_high[pt] = (float(bar["low"]), float(bar["high"]))
+                    except (KeyError, ValueError):
                         pass
 
             # ----------------------------------------------------------
-            # Step b: Check perpetual liquidations
+            # Step b: Check perpetual liquidations against today's bar
+            # range (low/high) — intraday wicks DO trigger liquidation.
             # ----------------------------------------------------------
-            liquidated = self._perp_portfolio.check_liquidations(perp_prices)
-            for sym in liquidated:
-                print(f"[LIQUIDATION] {current_date_str}: {sym} position liquidated")
+            liquidation_events = self._perp_portfolio.check_liquidations_bars(
+                bar_low_high, timestamp=current_date_str
+            )
+            for sym, loss in liquidation_events:
+                print(
+                    f"[LIQUIDATION] {current_date_str}: {sym} liquidated, "
+                    f"realized loss {loss:,.0f} USD"
+                )
 
             # ----------------------------------------------------------
             # Step c: Apply pending funding rates (8h intervals)
@@ -289,9 +333,9 @@ class BtcBacktestEngine(BacktestEngine):
             decisions = agent_output["decisions"]
 
             # ----------------------------------------------------------
-            # Step e: Execute trades (with cost model)
+            # Step e: Execute trades (with cost model + perp wiring)
             # ----------------------------------------------------------
-            executed_trades: Dict[str, int] = {}
+            executed_trades: Dict[str, float] = {}
             for ticker in self._tickers:
                 d = decisions.get(ticker, {"action": "hold", "quantity": 0})
                 action = d.get("action", "hold")
@@ -300,6 +344,7 @@ class BtcBacktestEngine(BacktestEngine):
                 executed_qty = self._executor.execute_trade(
                     ticker, action, qty, current_prices[ticker], self._portfolio,
                     market_type=market_type,
+                    timestamp=current_date_str,
                 )
                 executed_trades[ticker] = executed_qty
 
@@ -326,38 +371,51 @@ class BtcBacktestEngine(BacktestEngine):
             }
             self._portfolio_values.append(point)
 
-            rows = self._results.build_day_rows(
-                date_str=current_date_str,
-                tickers=self._tickers,
-                agent_output=agent_output,
-                executed_trades=executed_trades,
-                current_prices=current_prices,
-                portfolio=self._portfolio,
-                performance_metrics=self._performance_metrics,
-                total_value=total_value,
-                benchmark_return_pct=(
-                    self._benchmark.get_return_pct(
-                        self._benchmark_ticker, self._start_date, current_date_str
-                    )
-                    if self._benchmark_ticker
-                    else None
-                ),
-            )
-            self._table_rows = rows + self._table_rows
-            self._results.print_rows(self._table_rows)
+            if self._verbose:
+                rows = self._results.build_day_rows(
+                    date_str=current_date_str,
+                    tickers=self._tickers,
+                    agent_output=agent_output,
+                    executed_trades=executed_trades,
+                    current_prices=current_prices,
+                    portfolio=self._portfolio,
+                    performance_metrics=self._performance_metrics,
+                    total_value=total_value,
+                    benchmark_return_pct=(
+                        self._benchmark.get_return_pct(
+                            self._benchmark_ticker, self._start_date, current_date_str
+                        )
+                        if self._benchmark_ticker
+                        else None
+                    ),
+                )
+                self._table_rows = rows + self._table_rows
+                self._results.print_rows(self._table_rows)
 
             if len(self._portfolio_values) > 3:
                 computed = self._perf.compute_metrics(self._portfolio_values)
                 if computed:
                     self._performance_metrics.update(computed)
 
-        # Enrich final metrics with cost summary + Calmar ratio
+        # Enrich final metrics with cost summary + Calmar + trade stats
         self._performance_metrics.update(
             self._compute_cost_summary()
         )
         calmar = self._perf.compute_calmar_ratio(self._portfolio_values)
         if calmar is not None:
             self._performance_metrics["calmar_ratio"] = calmar
+
+        # Total return + combined (spot + perp) trade statistics
+        if self._portfolio_values:
+            self._performance_metrics["total_return"] = (
+                self._portfolio_values[-1]["Portfolio Value"] / self._initial_capital - 1.0
+            ) * 100.0
+        self._performance_metrics.update(
+            self._perf.compute_trade_stats(
+                list(self._portfolio.trade_pnl)
+                + list(self._perp_portfolio.realized_pnl_ledger)
+            )
+        )
 
         return self._performance_metrics
 
@@ -392,13 +450,12 @@ class BtcBacktestEngine(BacktestEngine):
     # ------------------------------------------------------------------
 
     def _compute_cost_summary(self) -> dict:
-        """Summarise total costs from trade records."""
+        """Summarise total costs from trade records + spot fee tracking."""
         records = self._perp_portfolio.get_trade_records()
-        total_fees = sum(r["fee_usd"] for r in records)
+        perp_fees = sum(r["fee_usd"] for r in records)
         total_slippage = sum(r["slippage_usd"] for r in records)
+        spot_fees = self._portfolio.get_total_fees_paid()
 
-        # Also count spot trades via portfolio cash movements (approximation)
-        # For a more precise count, users should examine trade_records directly.
         initial = self._initial_capital
         final = (
             self._portfolio_values[-1]["Portfolio Value"]
@@ -408,13 +465,17 @@ class BtcBacktestEngine(BacktestEngine):
         net_pnl = final - initial
 
         return {
-            "total_fees_paid": total_fees,
-            "total_slippage_cost": total_slippage,
+            "total_fees_paid": perp_fees + spot_fees,
+            "total_slippage_cost": total_slippage,  # spot slippage is embedded in fills
             "total_funding_paid": self._total_funding_paid,
             "net_pnl_after_costs": net_pnl,
-            "num_trades": len(records),
+            "num_trades": len(records) + len(self._portfolio.trade_pnl),
         }
 
     def get_trade_records(self) -> List[TradeRecord]:
         """Return all perpetual trade records."""
         return self._perp_portfolio.get_trade_records()
+
+
+# Aliases — the engine is no longer BTC-specific (works for any CCXT symbol)
+CryptoBacktestEngine = BtcBacktestEngine

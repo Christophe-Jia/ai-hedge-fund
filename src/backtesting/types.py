@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, Mapping, Optional, Sequence, TypedDict, Literal
+from typing import Any, Dict, Mapping, NotRequired, Optional, Sequence, TypedDict, Literal
 from enum import Enum
 
 import pandas as pd
@@ -19,10 +19,13 @@ ActionLiteral = Literal["buy", "sell", "short", "cover", "hold"]
 
 
 class PositionState(TypedDict):
-    """Represents per-ticker position state in the portfolio."""
+    """Represents per-ticker position state in the portfolio.
 
-    long: int
-    short: int
+    long/short are fractional: crypto positions are sized in base-currency
+    units (e.g. 0.532 BTC)."""
+
+    long: float
+    short: float
     long_cost_basis: float
     short_cost_basis: float
     short_margin_used: float
@@ -47,6 +50,8 @@ class PortfolioSnapshot(TypedDict):
     margin_requirement: float
     positions: Dict[str, PositionState]
     realized_gains: Dict[str, TickerRealizedGains]
+    total_fees_paid: NotRequired[float]
+    total_funding_paid: NotRequired[float]  # positive = net paid
 
 
 # DataFrame alias for clarity in interfaces
@@ -110,6 +115,16 @@ class PerformanceMetrics(TypedDict, total=False):
     win_rate: Optional[float]
     profit_factor: Optional[float]
     calmar_ratio: Optional[float]
+    total_return: Optional[float]
+
+
+class DataGapError(RuntimeError):
+    """Raised when a backtest encounters an unbroken run of missing price data.
+
+    Guards against silently truncating the equity curve when a data source
+    fails mid-run (which would distort every downstream metric).
+    """
+
 
 
 class PerpPositionState(TypedDict):
@@ -141,5 +156,6 @@ class TradeRecord(TypedDict):
     fee_usd: float
     slippage_usd: float
     total_cost_usd: float
+    event: NotRequired[str]  # "liquidation" for forced-close records
 
 

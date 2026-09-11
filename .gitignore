@@ -58,7 +58,7 @@ node_modules
 outputs/
 
 # Runtime data (auto-collected market data, logs, third-party libs)
-data/
+/data/
 logs/
 vnpy/
 

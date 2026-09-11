@@ -74,6 +74,19 @@ def _run_single_combination(
     engine_kwargs.setdefault("initial_margin_requirement", 0.0)
     engine_kwargs.setdefault("price_only", True)
     engine_kwargs.setdefault("benchmark_ticker", None)
+    # Quiet mode: grid search runs hundreds of backtests — printing the full
+    # equity table on every bar is O(n^2) I/O and makes workers unusable.
+    engine_kwargs.setdefault("verbose", False)
+    # Workers must never hit the network (SQLite write contention + hangs);
+    # missing data should surface as an error instead. Only engines with a
+    # store accept this kwarg.
+    try:
+        import inspect as _inspect
+
+        if "allow_fetch" in _inspect.signature(engine_cls).parameters:
+            engine_kwargs.setdefault("allow_fetch", False)
+    except (TypeError, ValueError):
+        pass
 
     try:
         engine = engine_cls(**engine_kwargs)
