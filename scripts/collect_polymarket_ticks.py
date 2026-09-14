@@ -44,9 +44,25 @@ CLOB_BASE = "https://clob.polymarket.com"
 GAMMA_BASE = "https://gamma-api.polymarket.com"
 
 DEFAULT_KEYWORDS = [
-    "iran", "israel", "war", "nuclear", "russia", "ukraine",
-    "missile", "attack", "sanctions", "ceasefire", "invasion",
+    # Geopolitical / conflict
+    "iran", "israel", "nuclear", "russia", "ukraine",
+    "missile", "sanctions", "ceasefire", "invasion",
     "conflict", "nato", "military",
+    # Macro / economic
+    "fed", "fomc", "rate cut", "rate hike", "inflation",
+    "recession", "gdp", "interest rate",
+    # Elections / political
+    "election", "president", "trump", "biden", "nominee",
+    # Crypto / tech events
+    "bitcoin", "ethereum", "openai",
+]
+
+# Exclude sports/entertainment noise
+EXCLUDE_KEYWORDS = [
+    "nba", "nfl", "nhl", "mlb", "fifa", "world cup",
+    "mvp", "rookie", "stanley cup", "super bowl",
+    "warriors", "lakers", "celtics", "yankees",
+    "gta", "oscar", "grammy", "box office",
 ]
 
 MARKET_REFRESH_INTERVAL = 3600  # refresh market list every hour (seconds)
@@ -74,6 +90,7 @@ def fetch_active_geopolitical_markets(keywords: list[str]) -> list[dict]:
     offset = 0
     page_size = 100
     kw_lower = [k.lower() for k in keywords]
+    exclude_lower = [k.lower() for k in EXCLUDE_KEYWORDS]
 
     while len(markets) < MAX_MARKETS:
         try:
@@ -105,6 +122,8 @@ def fetch_active_geopolitical_markets(keywords: list[str]) -> list[dict]:
             question = m.get("question", "")
             if not any(kw in question.lower() for kw in kw_lower):
                 continue
+            if any(ex in question.lower() for ex in exclude_lower):
+                continue  # skip sports/entertainment noise
 
             tokens = m.get("clobTokenIds", [])
             if isinstance(tokens, str):
