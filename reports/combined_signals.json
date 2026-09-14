@@ -1,0 +1,173 @@
+{
+  "config": {
+    "basket": [
+      "COIN",
+      "MSTR",
+      "MARA",
+      "RIOT"
+    ],
+    "start": "2023-04-01",
+    "end": "2026-09-10",
+    "trading_days": 862,
+    "threshold": 0.15,
+    "rebalance_band": 0.25,
+    "initial_capital": 100000.0,
+    "cost_model": {
+      "commission_per_share": 0.005,
+      "min_commission_per_order": 1.0,
+      "spread_bps": 5.0
+    }
+  },
+  "scenarios": {
+    "combined_all3": {
+      "total_return_pct": -56.28,
+      "cagr_pct": -21.48,
+      "sharpe": -0.503,
+      "max_drawdown_pct": -67.27,
+      "n_days": 862,
+      "avg_net_exposure": -0.149,
+      "pct_days_in_market": 0.737,
+      "n_rebalances": 120,
+      "turnover_notional": 2323747.22,
+      "total_costs_usd": 1880.78,
+      "final_equity": 43696.7
+    },
+    "single_weekend_gap": {
+      "total_return_pct": 6.9,
+      "cagr_pct": 1.97,
+      "sharpe": 0.253,
+      "max_drawdown_pct": -10.35,
+      "n_days": 862,
+      "avg_net_exposure": 0.0,
+      "pct_days_in_market": 0.02,
+      "n_rebalances": 18,
+      "turnover_notional": 1195615.22,
+      "total_costs_usd": 895.6,
+      "final_equity": 106896.63
+    },
+    "single_funding_rate": {
+      "total_return_pct": 8.58,
+      "cagr_pct": 2.44,
+      "sharpe": 0.364,
+      "max_drawdown_pct": -6.88,
+      "n_days": 862,
+      "avg_net_exposure": 0.016,
+      "pct_days_in_market": 0.026,
+      "n_rebalances": 17,
+      "turnover_notional": 999598.54,
+      "total_costs_usd": 729.92,
+      "final_equity": 108580.48
+    },
+    "single_onchain_fundamental": {
+      "total_return_pct": -57.63,
+      "cagr_pct": -22.2,
+      "sharpe": -0.492,
+      "max_drawdown_pct": -67.04,
+      "n_days": 862,
+      "avg_net_exposure": -0.17,
+      "pct_days_in_market": 0.733,
+      "n_rebalances": 100,
+      "turnover_notional": 1775499.22,
+      "total_costs_usd": 1451.97,
+      "final_equity": 42351.62
+    },
+    "ablation_without_weekend_gap": {
+      "total_return_pct": -54.68,
+      "cagr_pct": -20.66,
+      "sharpe": -0.463,
+      "max_drawdown_pct": -66.49,
+      "n_days": 862,
+      "avg_net_exposure": -0.157,
+      "pct_days_in_market": 0.741,
+      "n_rebalances": 110,
+      "turnover_notional": 2017611.64,
+      "total_costs_usd": 1634.53,
+      "final_equity": 45293.49
+    },
+    "ablation_without_funding_rate": {
+      "total_return_pct": -59.12,
+      "cagr_pct": -23.01,
+      "sharpe": -0.531,
+      "max_drawdown_pct": -67.81,
+      "n_days": 862,
+      "avg_net_exposure": -0.162,
+      "pct_days_in_market": 0.729,
+      "n_rebalances": 110,
+      "turnover_notional": 2082392.43,
+      "total_costs_usd": 1698.68,
+      "final_equity": 40858.9
+    },
+    "ablation_without_onchain_fundamental": {
+      "total_return_pct": 16.07,
+      "cagr_pct": 4.45,
+      "sharpe": 0.423,
+      "max_drawdown_pct": -10.35,
+      "n_days": 862,
+      "avg_net_exposure": 0.016,
+      "pct_days_in_market": 0.045,
+      "n_rebalances": 35,
+      "turnover_notional": 2272065.27,
+      "total_costs_usd": 1680.06,
+      "final_equity": 116071.52
+    }
+  },
+  "benchmarks": {
+    "basket_buy_hold": {
+      "total_return_pct": 172.63,
+      "cagr_pct": 34.07,
+      "sharpe": 0.759,
+      "max_drawdown_pct": -68.72,
+      "n_days": 862
+    },
+    "btc_buy_hold": {
+      "total_return_pct": 175.22,
+      "cagr_pct": 34.14,
+      "sharpe": 0.87,
+      "max_drawdown_pct": -52.97,
+      "n_days": 1258,
+      "note": "annualized on 365 calendar days; BTC trades 7d/wk"
+    }
+  },
+  "signal_stats": {
+    "weekend_gap": {
+      "days_fired": 17,
+      "pct_days_fired": 0.0197,
+      "avg_abs_score_when_fired": 0.6535
+    },
+    "funding_rate": {
+      "days_fired": 22,
+      "pct_days_fired": 0.0255,
+      "avg_abs_score_when_fired": 0.6153
+    },
+    "onchain_fundamental": {
+      "days_fired": 862,
+      "pct_days_fired": 1.0,
+      "avg_abs_score_when_fired": 0.3724
+    }
+  },
+  "correlation_matrix": {
+    "weekend_gap": {
+      "weekend_gap": 1.0,
+      "funding_rate": null,
+      "onchain_fundamental": -0.7396
+    },
+    "funding_rate": {
+      "weekend_gap": null,
+      "funding_rate": 1.0,
+      "onchain_fundamental": 0.2449
+    },
+    "onchain_fundamental": {
+      "weekend_gap": -0.7396,
+      "funding_rate": 0.2449,
+      "onchain_fundamental": 1.0
+    }
+  },
+  "conventions": {
+    "look_ahead": "signals evaluated with data strictly before as_of; trades at as_of close",
+    "sizing": "target exposure = combined score (signed fraction of equity, cap +/-1)",
+    "flat_rule": "|combined score| <= 0.15 -> cash",
+    "rebalance_rule": "trade when |target - net exposure| >= 0.25",
+    "shorting": "allowed; borrow costs not modeled",
+    "costs": "IBKR Pro tiered: $0.005/share min $1/order + 5bps half-spread per trade"
+  }
+}
