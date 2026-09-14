@@ -49,6 +49,8 @@ transformers = "^4.37.0"
 torch = "^2.1.0"
 # Task scheduling
 schedule = "^1.2.0"
+# Cross-sectional GBM stock selection (see scripts/xsec_gbm_selection.py)
+lightgbm = "^4.7.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"

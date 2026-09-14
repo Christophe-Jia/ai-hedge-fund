@@ -1,0 +1,1644 @@
+{
+  "meta": {
+    "generated_at": "2026-09-14T15:10:25.767736+00:00",
+    "script": "scripts/xsec_gbm_selection.py",
+    "data_range": [
+      "2016-09-12",
+      "2026-09-10"
+    ],
+    "price_data": "Nasdaq daily OHLCV, split-adjusted, dividend-unadjusted (QQQ TR approx +0.6%/yr)",
+    "universe": {
+      "point_in_time": "data/universe/sp100_YYYY.json (Wikipedia Jan snapshots)",
+      "rename_map": {
+        "FB": "META",
+        "PCLN": "BKNG",
+        "UTX": "RTX",
+        "RTN": "RTX",
+        "BK": "BNY",
+        "DWDP": "DD",
+        "TWX": "T",
+        "CELG": "BMY",
+        "MON": "BAYRY",
+        "AGN": "ABBV"
+      },
+      "union_size": 117,
+      "missing_price_data_skipped": [
+        "BAYRY",
+        "WBA"
+      ],
+      "late_starters": {
+        "DD": "2017-09-01",
+        "DOW": "2019-03-20",
+        "FOX": "2019-02-28",
+        "FOXA": "2019-02-28",
+        "LIN": "2023-03-02",
+        "PLTR": "2020-09-30",
+        "UBER": "2019-05-10"
+      },
+      "min_history_bars": 260
+    },
+    "conventions": {
+      "signal": "\u6708\u672b\u6700\u540e\u4ea4\u6613\u65e5\u6536\u76d8\u4ea7\u751f\u4fe1\u53f7\uff0c\u7279\u5f81\u4ec5\u7528\u4e25\u683c\u65e9\u4e8e\u4fe1\u53f7\u65e5\u7684\u6570\u636e",
+      "execution": "\u4fe1\u53f7\u65e5\u6b21\u4e00\u4ea4\u6613\u65e5\u6536\u76d8\u6210\u4ea4 (execution_lag_bars=1)",
+      "label": "\u672a\u676521\u4e2a\u4ea4\u6613\u65e5\u6536\u76ca \u2212 \u5f53\u6708\u622a\u9762\u5747\u503c (monthly sampling, \u65e0\u91cd\u53e0)",
+      "feature_scaling": "\u6bcf\u6708\u622a\u9762 z-score, clip \u00b13",
+      "purge": "\u6d4b\u8bd5\u6708 M \u53ea\u7528 period \u2264 M\u22122 \u7684\u6837\u672c\u8bad\u7ec3\uff08\u6807\u7b7e\u7a97\u53e3\u5168\u90e8\u7ed3\u675f\u4e14\u75591\u4e2a\u6708\u9694\u79bb\u5e26\uff09",
+      "walk_forward": "expanding window, \u6bcf\u6708\u91cd\u8bad, \u65e0\u968f\u673aK\u6298",
+      "costs": "IBKR Pro: $0.005/\u80a1 min $1 + 5bps \u534a\u4ef7\u5dee (IbkrCostModel)",
+      "hyperparams_locked": "LOCKED_PARAMS \u7531 2017-2020 \u5185\u90e8 walk-forward CV \u9009\u51fa\uff0c\u672a\u7528\u6d4b\u8bd5\u7a97\u8868\u73b0\u8c03\u53c2",
+      "yearly_returns_note": "2020 \u5e74\u4e3a 11-12 \u6708\u4e24\u4e2a\u6708\uff08\u9996\u4e2a\u6d4b\u8bd5\u6708 2020-10\uff09\uff1b2026 \u5e74\u4e3a 1 \u6708~9 \u6708 10 \u65e5\uff08\u90e8\u5206\u5e74\u5ea6\uff09"
+    }
+  },
+  "hyperparams": {
+    "max_depth": 4,
+    "num_leaves": 12,
+    "learning_rate": 0.05,
+    "n_estimators": 300,
+    "min_child_samples": 40,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "lambda_l1": 0.1,
+    "lambda_l2": 1.0,
+    "label_transform": "rank"
+  },
+  "inner_cv_2017_2020": {
+    "inner_window": "2017-09 ~ 2020-12 (inner test from 2019-07, 15 months)",
+    "results": [
+      {
+        "config": "A_depth3_lr05",
+        "mean_monthly_ic": -0.0778,
+        "ic_positive_rate": 0.333,
+        "mean_top10_monthly_excess_pct": 1.471
+      },
+      {
+        "config": "B_depth4_lr05",
+        "mean_monthly_ic": -0.0547,
+        "ic_positive_rate": 0.4,
+        "mean_top10_monthly_excess_pct": 1.343
+      },
+      {
+        "config": "C_depth3_lr03",
+        "mean_monthly_ic": -0.0638,
+        "ic_positive_rate": 0.4,
+        "mean_top10_monthly_excess_pct": 2.205
+      },
+      {
+        "config": "D_depth2_lr05",
+        "mean_monthly_ic": -0.0618,
+        "ic_positive_rate": 0.4,
+        "mean_top10_monthly_excess_pct": 0.97
+      },
+      {
+        "config": "E_depth3_mc20",
+        "mean_monthly_ic": -0.0586,
+        "ic_positive_rate": 0.333,
+        "mean_top10_monthly_excess_pct": 1.993
+      },
+      {
+        "config": "F_rank_depth3",
+        "mean_monthly_ic": -0.0026,
+        "ic_positive_rate": 0.467,
+        "mean_top10_monthly_excess_pct": 2.681
+      },
+      {
+        "config": "G_rank_depth4",
+        "mean_monthly_ic": 0.0099,
+        "ic_positive_rate": 0.4,
+        "mean_top10_monthly_excess_pct": 2.314
+      },
+      {
+        "config": "H_huber_depth3",
+        "mean_monthly_ic": -0.0778,
+        "ic_positive_rate": 0.333,
+        "mean_top10_monthly_excess_pct": 1.471
+      }
+    ],
+    "winner": "G_rank_depth4 (locked as LOCKED_PARAMS)"
+  },
+  "walk_forward": {
+    "first_test_date": "2020-10-30",
+    "min_train_months": 36,
+    "embargo_extra_months": 0,
+    "n_test_months": 71,
+    "seed": 42
+  },
+  "comparison_full_test_window": {
+    "gbm_top10": {
+      "total_return_pct": 266.8,
+      "cagr_pct": 24.82,
+      "ann_vol_pct": 20.91,
+      "sharpe": 0.963,
+      "max_dd_pct": -24.14,
+      "calmar": 1.028,
+      "total_costs": 12208.0,
+      "avg_one_side_turnover": 147777.0,
+      "cost_bps_per_rebalance": 7.66,
+      "n_rebalances": 71
+    },
+    "momentum_top10": {
+      "total_return_pct": 174.4,
+      "cagr_pct": 18.79,
+      "ann_vol_pct": 23.21,
+      "sharpe": 0.675,
+      "max_dd_pct": -29.39,
+      "calmar": 0.639,
+      "total_costs": 4102.0,
+      "avg_one_side_turnover": 44349.0,
+      "cost_bps_per_rebalance": 3.95,
+      "n_rebalances": 71
+    },
+    "equal_weight_pool": {
+      "total_return_pct": 117.42,
+      "cagr_pct": 14.17,
+      "ann_vol_pct": 14.82,
+      "sharpe": 0.68,
+      "max_dd_pct": -23.28,
+      "calmar": 0.609,
+      "total_costs": 7416.0,
+      "avg_one_side_turnover": 5269.0,
+      "cost_bps_per_rebalance": 6.73,
+      "n_rebalances": 71
+    },
+    "qqq_buy_hold": {
+      "total_return_pct": 175.35,
+      "cagr_pct": 18.87,
+      "ann_vol_pct": 22.37,
+      "sharpe": 0.695,
+      "max_dd_pct": -35.19,
+      "calmar": 0.536
+    }
+  },
+  "comparison_since_2021": {
+    "gbm_top10": {
+      "total_return_pct": 207.73,
+      "cagr_pct": 21.88,
+      "ann_vol_pct": 20.93,
+      "sharpe": 0.846,
+      "max_dd_pct": -24.14,
+      "calmar": 0.906
+    },
+    "momentum_top10": {
+      "total_return_pct": 161.07,
+      "cagr_pct": 18.4,
+      "ann_vol_pct": 23.18,
+      "sharpe": 0.66,
+      "max_dd_pct": -29.39,
+      "calmar": 0.626
+    },
+    "equal_weight_pool": {
+      "total_return_pct": 90.53,
+      "cagr_pct": 12.02,
+      "ann_vol_pct": 14.75,
+      "sharpe": 0.551,
+      "max_dd_pct": -23.28,
+      "calmar": 0.516
+    },
+    "qqq_buy_hold": {
+      "total_return_pct": 139.56,
+      "cagr_pct": 16.63,
+      "ann_vol_pct": 22.46,
+      "sharpe": 0.606,
+      "max_dd_pct": -35.19,
+      "calmar": 0.473
+    }
+  },
+  "momentum_full_window_m2_reference": {
+    "start": "2017-10-02",
+    "total_return_pct": 343.41,
+    "cagr_pct": 17.94,
+    "ann_vol_pct": 23.8,
+    "sharpe": 0.633,
+    "max_dd_pct": -29.37,
+    "calmar": 0.611,
+    "total_costs": 8192.0,
+    "avg_one_side_turnover": 61348.0,
+    "cost_bps_per_rebalance": 3.81,
+    "n_rebalances": 108
+  },
+  "yearly_returns_pct": {
+    "gbm_top10": {
+      "2020": 20.03,
+      "2021": 49.79,
+      "2022": -8.06,
+      "2023": 34.01,
+      "2024": 15.8,
+      "2025": 41.02,
+      "2026": 1.4
+    },
+    "momentum_top10": {
+      "2020": 6.71,
+      "2021": 9.36,
+      "2022": -15.62,
+      "2023": 29.48,
+      "2024": 35.37,
+      "2025": 18.54,
+      "2026": 34.13
+    },
+    "equal_weight_pool": {
+      "2020": 15.77,
+      "2021": 25.48,
+      "2022": -12.34,
+      "2023": 17.54,
+      "2024": 15.93,
+      "2025": 14.05,
+      "2026": 9.86
+    },
+    "qqq_buy_hold": {
+      "2020": 16.58,
+      "2021": 27.57,
+      "2022": -32.67,
+      "2023": 54.71,
+      "2024": 25.59,
+      "2025": 20.88,
+      "2026": 17.08
+    }
+  },
+  "monthly_ic": {
+    "mean": 0.0082,
+    "positive_rate": 0.529,
+    "n_months": 70,
+    "by_year": {
+      "2020": 0.0455,
+      "2021": -0.0186,
+      "2022": 0.0386,
+      "2023": -0.0126,
+      "2024": 0.0186,
+      "2025": 0.0419,
+      "2026": -0.0534
+    },
+    "mean_top10_monthly_excess_pct": 2.082
+  },
+  "overlap_with_momentum": {
+    "avg_pct": 17.6,
+    "per_month": [
+      {
+        "date": "2020-11-02",
+        "pct": 10.0
+      },
+      {
+        "date": "2020-12-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2021-01-04",
+        "pct": 10.0
+      },
+      {
+        "date": "2021-02-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2021-03-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2021-04-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2021-05-03",
+        "pct": 20.0
+      },
+      {
+        "date": "2021-06-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2021-07-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2021-08-02",
+        "pct": 20.0
+      },
+      {
+        "date": "2021-09-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2021-10-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2021-11-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2021-12-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2022-01-03",
+        "pct": 10.0
+      },
+      {
+        "date": "2022-02-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2022-03-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2022-04-01",
+        "pct": 40.0
+      },
+      {
+        "date": "2022-05-02",
+        "pct": 30.0
+      },
+      {
+        "date": "2022-06-01",
+        "pct": 50.0
+      },
+      {
+        "date": "2022-07-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2022-08-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2022-09-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2022-10-03",
+        "pct": 0.0
+      },
+      {
+        "date": "2022-11-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2022-12-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2023-01-03",
+        "pct": 0.0
+      },
+      {
+        "date": "2023-02-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2023-03-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2023-04-03",
+        "pct": 0.0
+      },
+      {
+        "date": "2023-05-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2023-06-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2023-07-03",
+        "pct": 20.0
+      },
+      {
+        "date": "2023-08-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2023-09-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2023-10-02",
+        "pct": 20.0
+      },
+      {
+        "date": "2023-11-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2023-12-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2024-01-02",
+        "pct": 0.0
+      },
+      {
+        "date": "2024-02-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2024-03-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2024-04-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2024-05-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2024-06-03",
+        "pct": 20.0
+      },
+      {
+        "date": "2024-07-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2024-08-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2024-09-03",
+        "pct": 10.0
+      },
+      {
+        "date": "2024-10-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2024-11-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2024-12-02",
+        "pct": 0.0
+      },
+      {
+        "date": "2025-01-02",
+        "pct": 0.0
+      },
+      {
+        "date": "2025-02-03",
+        "pct": 20.0
+      },
+      {
+        "date": "2025-03-03",
+        "pct": 20.0
+      },
+      {
+        "date": "2025-04-01",
+        "pct": 0.0
+      },
+      {
+        "date": "2025-05-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2025-06-02",
+        "pct": 20.0
+      },
+      {
+        "date": "2025-07-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2025-08-01",
+        "pct": 40.0
+      },
+      {
+        "date": "2025-09-02",
+        "pct": 20.0
+      },
+      {
+        "date": "2025-10-01",
+        "pct": 10.0
+      },
+      {
+        "date": "2025-11-03",
+        "pct": 40.0
+      },
+      {
+        "date": "2025-12-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2026-01-02",
+        "pct": 20.0
+      },
+      {
+        "date": "2026-02-02",
+        "pct": 60.0
+      },
+      {
+        "date": "2026-03-02",
+        "pct": 40.0
+      },
+      {
+        "date": "2026-04-01",
+        "pct": 30.0
+      },
+      {
+        "date": "2026-05-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2026-06-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2026-07-01",
+        "pct": 20.0
+      },
+      {
+        "date": "2026-08-03",
+        "pct": 40.0
+      },
+      {
+        "date": "2026-09-01",
+        "pct": 10.0
+      }
+    ]
+  },
+  "feature_importance_gain_share": {
+    "mom_12_1": 0.0289,
+    "mom_6m": 0.1255,
+    "mom_3m": 0.0769,
+    "mom_1m": 0.0653,
+    "vol_60d": 0.0622,
+    "vol_ratio": 0.0577,
+    "mdd_120d": 0.1117,
+    "dist_52w_high": 0.173,
+    "dist_ma20": 0.0325,
+    "log_dollar_vol_20d": 0.0346,
+    "dollar_vol_chg": 0.058,
+    "vol_ratio_5_60": 0.081,
+    "atr_ratio": 0.0927
+  },
+  "gbm_holdings": [
+    {
+      "date": "2020-11-02",
+      "symbols": [
+        "AIG",
+        "C",
+        "CHTR",
+        "F",
+        "GE",
+        "GM",
+        "LLY",
+        "LOW",
+        "UPS",
+        "USB"
+      ]
+    },
+    {
+      "date": "2020-12-01",
+      "symbols": [
+        "COP",
+        "DHR",
+        "DUK",
+        "HON",
+        "LLY",
+        "MS",
+        "PFE",
+        "PYPL",
+        "TGT",
+        "TMO"
+      ]
+    },
+    {
+      "date": "2021-01-04",
+      "symbols": [
+        "ABBV",
+        "BIIB",
+        "BRK.B",
+        "CVX",
+        "DD",
+        "DHR",
+        "GILD",
+        "LOW",
+        "PM",
+        "TGT"
+      ]
+    },
+    {
+      "date": "2021-02-01",
+      "symbols": [
+        "AIG",
+        "C",
+        "CL",
+        "COF",
+        "GOOG",
+        "INTC",
+        "MMM",
+        "RTX",
+        "UNP",
+        "USB"
+      ]
+    },
+    {
+      "date": "2021-03-01",
+      "symbols": [
+        "COP",
+        "DIS",
+        "GM",
+        "GOOGL",
+        "INTC",
+        "MS",
+        "NFLX",
+        "SLB",
+        "SPG",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2021-04-01",
+      "symbols": [
+        "C",
+        "CL",
+        "COST",
+        "CSCO",
+        "HD",
+        "JPM",
+        "KMI",
+        "MMM",
+        "PEP",
+        "SPG"
+      ]
+    },
+    {
+      "date": "2021-05-03",
+      "symbols": [
+        "BA",
+        "COP",
+        "CRM",
+        "CVX",
+        "INTC",
+        "KMI",
+        "PYPL",
+        "QCOM",
+        "SLB",
+        "SPG"
+      ]
+    },
+    {
+      "date": "2021-06-01",
+      "symbols": [
+        "BA",
+        "COP",
+        "DD",
+        "DIS",
+        "GE",
+        "GM",
+        "KHC",
+        "NVDA",
+        "PYPL",
+        "V"
+      ]
+    },
+    {
+      "date": "2021-07-01",
+      "symbols": [
+        "EXC",
+        "GD",
+        "GOOG",
+        "JNJ",
+        "MDT",
+        "MRK",
+        "PG",
+        "PM",
+        "SO",
+        "UNH"
+      ]
+    },
+    {
+      "date": "2021-08-02",
+      "symbols": [
+        "AMT",
+        "COST",
+        "DHR",
+        "FDX",
+        "LLY",
+        "MSFT",
+        "NKE",
+        "NVDA",
+        "PYPL",
+        "TGT"
+      ]
+    },
+    {
+      "date": "2021-09-01",
+      "symbols": [
+        "ACN",
+        "BIIB",
+        "C",
+        "CHTR",
+        "COP",
+        "DHR",
+        "DOW",
+        "GOOGL",
+        "MSFT",
+        "NKE"
+      ]
+    },
+    {
+      "date": "2021-10-01",
+      "symbols": [
+        "GM",
+        "MDT",
+        "MRK",
+        "MS",
+        "MSFT",
+        "NEE",
+        "NFLX",
+        "NVDA",
+        "SLB",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2021-11-01",
+      "symbols": [
+        "BA",
+        "CAT",
+        "COP",
+        "GM",
+        "NVDA",
+        "PYPL",
+        "QCOM",
+        "SLB",
+        "T",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2021-12-01",
+      "symbols": [
+        "AAPL",
+        "F",
+        "MET",
+        "MRK",
+        "MSFT",
+        "NEE",
+        "NVDA",
+        "QCOM",
+        "SLB",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2022-01-03",
+      "symbols": [
+        "CHTR",
+        "FDX",
+        "MDT",
+        "META",
+        "MSFT",
+        "NEE",
+        "NFLX",
+        "PFE",
+        "SLB",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2022-02-01",
+      "symbols": [
+        "CHTR",
+        "COP",
+        "CRM",
+        "CVS",
+        "CVX",
+        "F",
+        "LMT",
+        "NVDA",
+        "TMUS",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2022-03-01",
+      "symbols": [
+        "ADBE",
+        "BNY",
+        "CHTR",
+        "COP",
+        "CRM",
+        "CVX",
+        "GD",
+        "INTC",
+        "NVDA",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2022-04-01",
+      "symbols": [
+        "ABBV",
+        "BMY",
+        "CHTR",
+        "COP",
+        "CVX",
+        "F",
+        "GD",
+        "GM",
+        "TMUS",
+        "UNP"
+      ]
+    },
+    {
+      "date": "2022-05-02",
+      "symbols": [
+        "BIIB",
+        "BMY",
+        "CHTR",
+        "DOW",
+        "F",
+        "KHC",
+        "LMT",
+        "NVDA",
+        "WMT",
+        "XOM"
+      ]
+    },
+    {
+      "date": "2022-06-01",
+      "symbols": [
+        "AAPL",
+        "AMZN",
+        "COP",
+        "CVX",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "NVDA",
+        "TSLA",
+        "XOM"
+      ]
+    },
+    {
+      "date": "2022-07-01",
+      "symbols": [
+        "AMZN",
+        "BA",
+        "BLK",
+        "F",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "NVDA",
+        "TSLA",
+        "XOM"
+      ]
+    },
+    {
+      "date": "2022-08-01",
+      "symbols": [
+        "AMZN",
+        "BIIB",
+        "CRM",
+        "LLY",
+        "MCD",
+        "NFLX",
+        "ORCL",
+        "QCOM",
+        "SBUX",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2022-09-01",
+      "symbols": [
+        "AAPL",
+        "BA",
+        "DHR",
+        "GM",
+        "NEE",
+        "NFLX",
+        "SBUX",
+        "TMUS",
+        "TSLA",
+        "UNH"
+      ]
+    },
+    {
+      "date": "2022-10-03",
+      "symbols": [
+        "AAPL",
+        "AMZN",
+        "AXP",
+        "BAC",
+        "COST",
+        "GE",
+        "HON",
+        "MO",
+        "NFLX",
+        "PYPL"
+      ]
+    },
+    {
+      "date": "2022-11-01",
+      "symbols": [
+        "BLK",
+        "COP",
+        "GILD",
+        "LLY",
+        "LOW",
+        "NFLX",
+        "ORCL",
+        "PEP",
+        "SBUX",
+        "UNH"
+      ]
+    },
+    {
+      "date": "2022-12-01",
+      "symbols": [
+        "ABBV",
+        "AIG",
+        "BIIB",
+        "BMY",
+        "CAT",
+        "GILD",
+        "JPM",
+        "MET",
+        "NFLX",
+        "NVDA"
+      ]
+    },
+    {
+      "date": "2023-01-03",
+      "symbols": [
+        "BAC",
+        "C",
+        "DIS",
+        "GE",
+        "GS",
+        "JPM",
+        "NFLX",
+        "NVDA",
+        "PYPL",
+        "T"
+      ]
+    },
+    {
+      "date": "2023-02-01",
+      "symbols": [
+        "AIG",
+        "AMD",
+        "BLK",
+        "DUK",
+        "FDX",
+        "JPM",
+        "META",
+        "NVDA",
+        "PM",
+        "VZ"
+      ]
+    },
+    {
+      "date": "2023-03-01",
+      "symbols": [
+        "AMD",
+        "C",
+        "CHTR",
+        "CMCSA",
+        "COF",
+        "META",
+        "NFLX",
+        "NKE",
+        "NVDA",
+        "SPG"
+      ]
+    },
+    {
+      "date": "2023-04-03",
+      "symbols": [
+        "AMZN",
+        "CMCSA",
+        "DIS",
+        "DOW",
+        "F",
+        "INTC",
+        "NKE",
+        "PYPL",
+        "TGT",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2023-05-01",
+      "symbols": [
+        "AMZN",
+        "CMCSA",
+        "CVS",
+        "GE",
+        "MET",
+        "META",
+        "MO",
+        "NVDA",
+        "PFE",
+        "VZ"
+      ]
+    },
+    {
+      "date": "2023-06-01",
+      "symbols": [
+        "CL",
+        "FDX",
+        "GE",
+        "INTC",
+        "JNJ",
+        "KO",
+        "META",
+        "NVDA",
+        "PEP",
+        "VZ"
+      ]
+    },
+    {
+      "date": "2023-07-03",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "FDX",
+        "JNJ",
+        "JPM",
+        "KO",
+        "LLY",
+        "LOW",
+        "MCD"
+      ]
+    },
+    {
+      "date": "2023-08-01",
+      "symbols": [
+        "AMGN",
+        "CVS",
+        "F",
+        "MET",
+        "META",
+        "NVDA",
+        "PFE",
+        "SCHW",
+        "TGT",
+        "USB"
+      ]
+    },
+    {
+      "date": "2023-09-01",
+      "symbols": [
+        "BRK.B",
+        "CMCSA",
+        "EMR",
+        "GOOG",
+        "GOOGL",
+        "KO",
+        "MCD",
+        "MMM",
+        "SCHW",
+        "USB"
+      ]
+    },
+    {
+      "date": "2023-10-02",
+      "symbols": [
+        "BAC",
+        "CVS",
+        "JNJ",
+        "LLY",
+        "MCD",
+        "META",
+        "NKE",
+        "NVDA",
+        "T",
+        "VZ"
+      ]
+    },
+    {
+      "date": "2023-11-01",
+      "symbols": [
+        "BKNG",
+        "BMY",
+        "CHTR",
+        "CVS",
+        "GOOG",
+        "GOOGL",
+        "MMM",
+        "RTX",
+        "UPS",
+        "XOM"
+      ]
+    },
+    {
+      "date": "2023-12-01",
+      "symbols": [
+        "BA",
+        "CAT",
+        "INTC",
+        "LLY",
+        "MET",
+        "META",
+        "SCHW",
+        "TGT",
+        "TSLA",
+        "USB"
+      ]
+    },
+    {
+      "date": "2024-01-02",
+      "symbols": [
+        "AIG",
+        "AMGN",
+        "BNY",
+        "GD",
+        "IBM",
+        "JPM",
+        "LOW",
+        "MET",
+        "QCOM",
+        "SBUX"
+      ]
+    },
+    {
+      "date": "2024-02-01",
+      "symbols": [
+        "AAPL",
+        "GM",
+        "KHC",
+        "MA",
+        "MCD",
+        "MDLZ",
+        "RTX",
+        "TGT",
+        "TSLA",
+        "UPS"
+      ]
+    },
+    {
+      "date": "2024-03-01",
+      "symbols": [
+        "ABBV",
+        "F",
+        "FDX",
+        "GD",
+        "GM",
+        "HON",
+        "IBM",
+        "JPM",
+        "PG",
+        "TGT"
+      ]
+    },
+    {
+      "date": "2024-04-01",
+      "symbols": [
+        "AAPL",
+        "BA",
+        "EMR",
+        "LOW",
+        "MCD",
+        "MDLZ",
+        "MDT",
+        "MET",
+        "MO",
+        "MRK"
+      ]
+    },
+    {
+      "date": "2024-05-01",
+      "symbols": [
+        "AAPL",
+        "ACN",
+        "AMD",
+        "BA",
+        "COF",
+        "EMR",
+        "F",
+        "GILD",
+        "MSFT",
+        "RTX"
+      ]
+    },
+    {
+      "date": "2024-06-03",
+      "symbols": [
+        "ACN",
+        "AMZN",
+        "CVS",
+        "GOOGL",
+        "MDT",
+        "META",
+        "MSFT",
+        "PYPL",
+        "TMUS",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2024-07-01",
+      "symbols": [
+        "BA",
+        "BMY",
+        "CVS",
+        "INTC",
+        "META",
+        "MSFT",
+        "NEE",
+        "NFLX",
+        "NKE",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2024-08-01",
+      "symbols": [
+        "ADBE",
+        "AMD",
+        "AMGN",
+        "CL",
+        "CRM",
+        "GE",
+        "HD",
+        "MMM",
+        "QCOM",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2024-09-03",
+      "symbols": [
+        "AMD",
+        "CHTR",
+        "CRM",
+        "DIS",
+        "F",
+        "MMM",
+        "NKE",
+        "PM",
+        "QCOM",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2024-10-01",
+      "symbols": [
+        "CL",
+        "DIS",
+        "EXC",
+        "GD",
+        "JNJ",
+        "LIN",
+        "MMM",
+        "NKE",
+        "PG",
+        "VZ"
+      ]
+    },
+    {
+      "date": "2024-11-01",
+      "symbols": [
+        "AMD",
+        "CRM",
+        "F",
+        "GOOG",
+        "GOOGL",
+        "NVDA",
+        "ORCL",
+        "PYPL",
+        "QCOM",
+        "TGT"
+      ]
+    },
+    {
+      "date": "2024-12-02",
+      "symbols": [
+        "AMD",
+        "BA",
+        "BLK",
+        "BMY",
+        "CHTR",
+        "COP",
+        "FDX",
+        "MRK",
+        "QCOM",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2025-01-02",
+      "symbols": [
+        "AMD",
+        "BA",
+        "CMCSA",
+        "COP",
+        "DOW",
+        "F",
+        "MMM",
+        "PEP",
+        "QCOM",
+        "UNH"
+      ]
+    },
+    {
+      "date": "2025-02-03",
+      "symbols": [
+        "AAPL",
+        "DIS",
+        "GE",
+        "GM",
+        "GOOGL",
+        "IBM",
+        "MSFT",
+        "SBUX",
+        "SO",
+        "TGT"
+      ]
+    },
+    {
+      "date": "2025-03-03",
+      "symbols": [
+        "AAPL",
+        "AVGO",
+        "DIS",
+        "GILD",
+        "META",
+        "MSFT",
+        "PM",
+        "TGT",
+        "TMUS",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2025-04-01",
+      "symbols": [
+        "FDX",
+        "GM",
+        "GOOG",
+        "GOOGL",
+        "LMT",
+        "META",
+        "MSFT",
+        "NKE",
+        "NVDA",
+        "TGT"
+      ]
+    },
+    {
+      "date": "2025-05-01",
+      "symbols": [
+        "AAPL",
+        "AMZN",
+        "AVGO",
+        "BA",
+        "INTC",
+        "META",
+        "MSFT",
+        "NFLX",
+        "NVDA",
+        "V"
+      ]
+    },
+    {
+      "date": "2025-06-02",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "AVGO",
+        "INTU",
+        "MSFT",
+        "NFLX",
+        "NVDA",
+        "PM",
+        "SBUX"
+      ]
+    },
+    {
+      "date": "2025-07-01",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "AVGO",
+        "CVS",
+        "MSFT",
+        "NFLX",
+        "NVDA",
+        "ORCL",
+        "PM"
+      ]
+    },
+    {
+      "date": "2025-08-01",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "AVGO",
+        "GOOG",
+        "META",
+        "MSFT",
+        "NFLX",
+        "NVDA",
+        "ORCL"
+      ]
+    },
+    {
+      "date": "2025-09-02",
+      "symbols": [
+        "AAPL",
+        "AMZN",
+        "AVGO",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "TSLA",
+        "UNH"
+      ]
+    },
+    {
+      "date": "2025-10-01",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AVGO",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "PYPL",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2025-11-03",
+      "symbols": [
+        "AAPL",
+        "AVGO",
+        "CAT",
+        "GD",
+        "GM",
+        "GOOG",
+        "GOOGL",
+        "MSFT",
+        "TMO",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2025-12-01",
+      "symbols": [
+        "AAPL",
+        "AVGO",
+        "GOOG",
+        "GOOGL",
+        "LLY",
+        "MRK",
+        "MSFT",
+        "NKE",
+        "TSLA",
+        "UNH"
+      ]
+    },
+    {
+      "date": "2026-01-02",
+      "symbols": [
+        "AAPL",
+        "AMZN",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NFLX",
+        "ORCL",
+        "SBUX",
+        "TMO"
+      ]
+    },
+    {
+      "date": "2026-02-02",
+      "symbols": [
+        "AMD",
+        "AMZN",
+        "AVGO",
+        "GOOG",
+        "GOOGL",
+        "INTC",
+        "META",
+        "NVDA",
+        "PLTR",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2026-03-02",
+      "symbols": [
+        "AAPL",
+        "AMZN",
+        "AVGO",
+        "CAT",
+        "FDX",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "ORCL",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2026-04-01",
+      "symbols": [
+        "AMT",
+        "AVGO",
+        "COP",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "MRK",
+        "MSFT",
+        "PYPL",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2026-05-01",
+      "symbols": [
+        "AAPL",
+        "AVGO",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NKE",
+        "ORCL",
+        "PLTR",
+        "TSLA",
+        "XOM"
+      ]
+    },
+    {
+      "date": "2026-06-01",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "AVGO",
+        "CSCO",
+        "META",
+        "MSFT",
+        "NOW",
+        "ORCL",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2026-07-01",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "AVGO",
+        "HON",
+        "META",
+        "MSFT",
+        "NVDA",
+        "PYPL",
+        "TSLA"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "symbols": [
+        "AAPL",
+        "ADBE",
+        "AMD",
+        "AVGO",
+        "GOOG",
+        "GOOGL",
+        "INTC",
+        "MSFT",
+        "NVDA",
+        "PYPL"
+      ]
+    },
+    {
+      "date": "2026-09-01",
+      "symbols": [
+        "ADBE",
+        "AMZN",
+        "INTC",
+        "META",
+        "MSFT",
+        "NOW",
+        "PYPL",
+        "QCOM",
+        "TMO",
+        "UBER"
+      ]
+    }
+  ],
+  "verdict_2021_plus": "OUTPERFORM: \u6837\u672c\u5916(2021+) GBM \u540c\u65f6\u6253\u8d25\u52a8\u91cf\u89c4\u5219\u4e0e QQQ \u2014\u2014 \u503c\u5f97\u63a5\u5165\u4fe1\u53f7\u5e73\u53f0"
+}
