@@ -1,0 +1,956 @@
+{
+  "config": {
+    "signals": [
+      "weekend_gap",
+      "funding_rate"
+    ],
+    "threshold": 0.15,
+    "rebalance_band": 0.25,
+    "initial_capital": 100000.0,
+    "cost_model": {
+      "commission_per_share": 0.005,
+      "min_commission_per_order": 1.0,
+      "spread_bps": 5.0
+    },
+    "training_reference": {
+      "source": "commit 07e03d0, reports/combined_signals.json, window 2023-04-01..2026-09-10",
+      "combined_2sig": {
+        "total_return_pct": 16.07,
+        "cagr_pct": 4.45,
+        "sharpe": 0.423,
+        "max_drawdown_pct": -10.35
+      },
+      "single_weekend_gap": {
+        "total_return_pct": 6.9,
+        "sharpe": 0.253,
+        "max_drawdown_pct": -10.35
+      },
+      "single_funding_rate": {
+        "total_return_pct": 8.58,
+        "sharpe": 0.364,
+        "max_drawdown_pct": -6.88
+      },
+      "benchmarks": {
+        "basket_buy_hold": {
+          "total_return_pct": 172.63,
+          "sharpe": 0.759,
+          "max_drawdown_pct": -68.72
+        },
+        "btc_buy_hold": {
+          "total_return_pct": 175.22,
+          "sharpe": 0.87,
+          "max_drawdown_pct": -52.97
+        }
+      }
+    }
+  },
+  "windows": {
+    "out_of_sample": {
+      "range": [
+        "2021-01-04",
+        "2023-03-02"
+      ],
+      "trading_days": 544,
+      "scenarios": {
+        "combined_2sig": {
+          "total_return_pct": 9.3,
+          "cagr_pct": 4.21,
+          "sharpe": 0.318,
+          "max_drawdown_pct": -55.17,
+          "n_days": 544,
+          "win_rate_daily_pct": 7.73,
+          "win_rate_in_market_pct": 36.67,
+          "avg_net_exposure": 0.0931,
+          "pct_days_in_market": 0.1673,
+          "n_rebalances": 62,
+          "turnover_notional": 5816687.93,
+          "total_costs_usd": 3809.81,
+          "final_equity": 109227.37,
+          "skipped_symbol_days": {
+            "COIN": {
+              "days": 41,
+              "first": "2021-01-04",
+              "last": "2021-04-13"
+            }
+          },
+          "empty_universe_days": 0,
+          "equity_min_pct_of_initial": 99.93,
+          "equity_min_day": "2021-01-04",
+          "first_nonpositive_equity_day": null
+        },
+        "single_weekend_gap": {
+          "total_return_pct": 30.16,
+          "cagr_pct": 12.99,
+          "sharpe": 0.677,
+          "max_drawdown_pct": -13.54,
+          "n_days": 544,
+          "win_rate_daily_pct": 2.95,
+          "win_rate_in_market_pct": 34.48,
+          "avg_net_exposure": -0.0022,
+          "pct_days_in_market": 0.0551,
+          "n_rebalances": 30,
+          "turnover_notional": 2805574.02,
+          "total_costs_usd": 1834.56,
+          "final_equity": 130058.84,
+          "skipped_symbol_days": {
+            "COIN": {
+              "days": 4,
+              "first": "2021-01-04",
+              "last": "2021-01-12"
+            }
+          },
+          "empty_universe_days": 0,
+          "equity_min_pct_of_initial": 99.92,
+          "equity_min_day": "2021-01-04",
+          "first_nonpositive_equity_day": null
+        },
+        "single_funding_rate": {
+          "total_return_pct": -0.85,
+          "cagr_pct": -0.39,
+          "sharpe": 0.203,
+          "max_drawdown_pct": -53.14,
+          "n_days": 544,
+          "win_rate_daily_pct": 6.08,
+          "win_rate_in_market_pct": 38.57,
+          "avg_net_exposure": 0.103,
+          "pct_days_in_market": 0.1305,
+          "n_rebalances": 37,
+          "turnover_notional": 3006822.74,
+          "total_costs_usd": 1972.9,
+          "final_equity": 99106.75,
+          "skipped_symbol_days": {
+            "COIN": {
+              "days": 41,
+              "first": "2021-01-04",
+              "last": "2021-04-13"
+            }
+          },
+          "empty_universe_days": 0,
+          "equity_min_pct_of_initial": 99.11,
+          "equity_min_day": "2022-11-21",
+          "first_nonpositive_equity_day": null
+        }
+      },
+      "benchmarks": {
+        "basket_buy_hold": {
+          "total_return_pct": -48.72,
+          "cagr_pct": -26.61,
+          "sharpe": 0.285,
+          "max_drawdown_pct": -92.95,
+          "n_days": 544,
+          "symbols": [
+            "MSTR",
+            "MARA",
+            "RIOT"
+          ]
+        },
+        "btc_buy_hold": {
+          "total_return_pct": -20.0,
+          "cagr_pct": -9.78,
+          "sharpe": 0.213,
+          "max_drawdown_pct": -76.63,
+          "n_days": 791,
+          "note": "annualized on 365 calendar days; BTC trades 7d/wk"
+        },
+        "qqq_buy_hold": {
+          "total_return_pct": -5.08,
+          "cagr_pct": -2.38,
+          "sharpe": 0.037,
+          "max_drawdown_pct": -35.62,
+          "n_days": 544,
+          "note": "price-only close series, dividends not reinvested"
+        }
+      },
+      "yearly": {
+        "years": [
+          "2021",
+          "2022",
+          "2023"
+        ],
+        "combined_2sig": {
+          "2021": {
+            "return_pct": 30.31,
+            "max_drawdown_pct": -49.47,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -16.12,
+            "max_drawdown_pct": -25.98,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 0.0,
+            "max_drawdown_pct": 0.0,
+            "n_days": 41
+          }
+        },
+        "single_weekend_gap": {
+          "2021": {
+            "return_pct": 25.04,
+            "max_drawdown_pct": -13.54,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": 4.1,
+            "max_drawdown_pct": -13.32,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 0.0,
+            "max_drawdown_pct": 0.0,
+            "n_days": 41
+          }
+        },
+        "single_funding_rate": {
+          "2021": {
+            "return_pct": 23.05,
+            "max_drawdown_pct": -49.7,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -19.42,
+            "max_drawdown_pct": -22.76,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 0.0,
+            "max_drawdown_pct": 0.0,
+            "n_days": 41
+          }
+        },
+        "bench_basket": {
+          "2021": {
+            "return_pct": 87.33,
+            "max_drawdown_pct": -62.08,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -85.05,
+            "max_drawdown_pct": -86.21,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 80.06,
+            "max_drawdown_pct": -22.68,
+            "n_days": 41
+          }
+        },
+        "bench_btc": {
+          "2021": {
+            "return_pct": 57.57,
+            "max_drawdown_pct": -53.14,
+            "n_days": 365
+          },
+          "2022": {
+            "return_pct": -65.34,
+            "max_drawdown_pct": -66.93,
+            "n_days": 365
+          },
+          "2023": {
+            "return_pct": 41.21,
+            "max_drawdown_pct": -8.92,
+            "n_days": 61
+          }
+        },
+        "bench_qqq": {
+          "2021": {
+            "return_pct": 28.63,
+            "max_drawdown_pct": -10.85,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -33.71,
+            "max_drawdown_pct": -35.25,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 11.01,
+            "max_drawdown_pct": -6.58,
+            "n_days": 41
+          }
+        }
+      },
+      "trigger_stats": {
+        "weekend_gap": {
+          "2021": {
+            "days_fired": 22,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 10,
+            "short_days": 12
+          },
+          "2022": {
+            "days_fired": 8,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 4,
+            "short_days": 4
+          }
+        },
+        "funding_rate": {
+          "2021": {
+            "days_fired": 62,
+            "high_days": 51,
+            "low_days": 11,
+            "new_extreme_episodes": 11,
+            "long_days": 62,
+            "short_days": 0
+          },
+          "2022": {
+            "days_fired": 9,
+            "high_days": 0,
+            "low_days": 9,
+            "new_extreme_episodes": 4,
+            "long_days": 9,
+            "short_days": 0
+          }
+        }
+      },
+      "skipped_symbols": {
+        "COIN": {
+          "combined_2sig": {
+            "days": 41,
+            "first": "2021-01-04",
+            "last": "2021-04-13"
+          },
+          "single_weekend_gap": {
+            "days": 4,
+            "first": "2021-01-04",
+            "last": "2021-01-12"
+          },
+          "single_funding_rate": {
+            "days": 41,
+            "first": "2021-01-04",
+            "last": "2021-04-13"
+          }
+        }
+      }
+    },
+    "full": {
+      "range": [
+        "2021-01-04",
+        "2026-09-11"
+      ],
+      "trading_days": 1429,
+      "scenarios": {
+        "combined_2sig": {
+          "total_return_pct": 54.21,
+          "cagr_pct": 7.94,
+          "sharpe": 0.399,
+          "max_drawdown_pct": -55.2,
+          "n_days": 1429,
+          "win_rate_daily_pct": 4.83,
+          "win_rate_in_market_pct": 37.4,
+          "avg_net_exposure": 0.0463,
+          "pct_days_in_market": 0.0924,
+          "n_rebalances": 99,
+          "turnover_notional": 8999587.0,
+          "total_costs_usd": 5970.69,
+          "final_equity": 154099.97,
+          "skipped_symbol_days": {
+            "COIN": {
+              "days": 41,
+              "first": "2021-01-04",
+              "last": "2021-04-13"
+            }
+          },
+          "empty_universe_days": 0,
+          "equity_min_pct_of_initial": 99.93,
+          "equity_min_day": "2021-01-04",
+          "first_nonpositive_equity_day": null
+        },
+        "single_weekend_gap": {
+          "total_return_pct": 49.16,
+          "cagr_pct": 7.31,
+          "sharpe": 0.533,
+          "max_drawdown_pct": -13.54,
+          "n_days": 1429,
+          "win_rate_daily_pct": 2.03,
+          "win_rate_in_market_pct": 33.33,
+          "avg_net_exposure": 0.0005,
+          "pct_days_in_market": 0.0343,
+          "n_rebalances": 50,
+          "turnover_notional": 4708086.96,
+          "total_costs_usd": 3116.85,
+          "final_equity": 149042.67,
+          "skipped_symbol_days": {
+            "COIN": {
+              "days": 4,
+              "first": "2021-01-04",
+              "last": "2021-01-12"
+            }
+          },
+          "empty_universe_days": 0,
+          "equity_min_pct_of_initial": 99.92,
+          "equity_min_day": "2021-01-04",
+          "first_nonpositive_equity_day": null
+        },
+        "single_funding_rate": {
+          "total_return_pct": 22.06,
+          "cagr_pct": 3.58,
+          "sharpe": 0.264,
+          "max_drawdown_pct": -53.15,
+          "n_days": 1429,
+          "win_rate_daily_pct": 3.29,
+          "win_rate_in_market_pct": 40.22,
+          "avg_net_exposure": 0.0487,
+          "pct_days_in_market": 0.0651,
+          "n_rebalances": 54,
+          "turnover_notional": 4129113.48,
+          "total_costs_usd": 2750.79,
+          "final_equity": 122006.63,
+          "skipped_symbol_days": {
+            "COIN": {
+              "days": 41,
+              "first": "2021-01-04",
+              "last": "2021-04-13"
+            }
+          },
+          "empty_universe_days": 0,
+          "equity_min_pct_of_initial": 99.08,
+          "equity_min_day": "2024-03-01",
+          "first_nonpositive_equity_day": null
+        }
+      },
+      "benchmarks": {
+        "basket_buy_hold": {
+          "total_return_pct": 82.36,
+          "cagr_pct": 11.18,
+          "sharpe": 0.585,
+          "max_drawdown_pct": -92.95,
+          "n_days": 1429,
+          "symbols": [
+            "MSTR",
+            "MARA",
+            "RIOT"
+          ]
+        },
+        "btc_buy_hold": {
+          "total_return_pct": 163.28,
+          "cagr_pct": 18.52,
+          "sharpe": 0.583,
+          "max_drawdown_pct": -76.63,
+          "n_days": 2080,
+          "note": "annualized on 365 calendar days; BTC trades 7d/wk"
+        },
+        "qqq_buy_hold": {
+          "total_return_pct": 129.12,
+          "cagr_pct": 15.76,
+          "sharpe": 0.764,
+          "max_drawdown_pct": -35.62,
+          "n_days": 1428,
+          "note": "price-only close series, dividends not reinvested"
+        }
+      },
+      "yearly": {
+        "years": [
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025",
+          "2026"
+        ],
+        "combined_2sig": {
+          "2021": {
+            "return_pct": 30.31,
+            "max_drawdown_pct": -49.47,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -16.12,
+            "max_drawdown_pct": -25.98,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 6.01,
+            "max_drawdown_pct": -0.08,
+            "n_days": 250
+          },
+          "2024": {
+            "return_pct": 14.85,
+            "max_drawdown_pct": -7.81,
+            "n_days": 252
+          },
+          "2025": {
+            "return_pct": 1.66,
+            "max_drawdown_pct": -11.27,
+            "n_days": 250
+          },
+          "2026": {
+            "return_pct": 13.97,
+            "max_drawdown_pct": -4.71,
+            "n_days": 174
+          }
+        },
+        "single_weekend_gap": {
+          "2021": {
+            "return_pct": 25.04,
+            "max_drawdown_pct": -13.54,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": 4.1,
+            "max_drawdown_pct": -13.32,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 6.01,
+            "max_drawdown_pct": -0.08,
+            "n_days": 250
+          },
+          "2024": {
+            "return_pct": -1.25,
+            "max_drawdown_pct": -5.54,
+            "n_days": 252
+          },
+          "2025": {
+            "return_pct": 1.66,
+            "max_drawdown_pct": -11.27,
+            "n_days": 250
+          },
+          "2026": {
+            "return_pct": 7.67,
+            "max_drawdown_pct": -0.06,
+            "n_days": 174
+          }
+        },
+        "single_funding_rate": {
+          "2021": {
+            "return_pct": 23.05,
+            "max_drawdown_pct": -49.7,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -19.42,
+            "max_drawdown_pct": -22.76,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 0.0,
+            "max_drawdown_pct": 0.0,
+            "n_days": 250
+          },
+          "2024": {
+            "return_pct": 16.3,
+            "max_drawdown_pct": -7.81,
+            "n_days": 252
+          },
+          "2025": {
+            "return_pct": 0.0,
+            "max_drawdown_pct": 0.0,
+            "n_days": 250
+          },
+          "2026": {
+            "return_pct": 5.85,
+            "max_drawdown_pct": -4.71,
+            "n_days": 174
+          }
+        },
+        "bench_basket": {
+          "2021": {
+            "return_pct": 87.33,
+            "max_drawdown_pct": -62.08,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -85.05,
+            "max_drawdown_pct": -86.21,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 433.46,
+            "max_drawdown_pct": -52.63,
+            "n_days": 250
+          },
+          "2024": {
+            "return_pct": 93.43,
+            "max_drawdown_pct": -40.92,
+            "n_days": 252
+          },
+          "2025": {
+            "return_pct": -44.26,
+            "max_drawdown_pct": -61.07,
+            "n_days": 250
+          },
+          "2026": {
+            "return_pct": 0.29,
+            "max_drawdown_pct": -43.8,
+            "n_days": 174
+          }
+        },
+        "bench_btc": {
+          "2021": {
+            "return_pct": 57.57,
+            "max_drawdown_pct": -53.14,
+            "n_days": 365
+          },
+          "2022": {
+            "return_pct": -65.34,
+            "max_drawdown_pct": -66.93,
+            "n_days": 365
+          },
+          "2023": {
+            "return_pct": 154.46,
+            "max_drawdown_pct": -20.0,
+            "n_days": 365
+          },
+          "2024": {
+            "return_pct": 111.81,
+            "max_drawdown_pct": -26.15,
+            "n_days": 366
+          },
+          "2025": {
+            "return_pct": -7.34,
+            "max_drawdown_pct": -32.02,
+            "n_days": 365
+          },
+          "2026": {
+            "return_pct": -13.07,
+            "max_drawdown_pct": -39.53,
+            "n_days": 254
+          }
+        },
+        "bench_qqq": {
+          "2021": {
+            "return_pct": 28.63,
+            "max_drawdown_pct": -10.85,
+            "n_days": 252
+          },
+          "2022": {
+            "return_pct": -33.71,
+            "max_drawdown_pct": -35.25,
+            "n_days": 251
+          },
+          "2023": {
+            "return_pct": 54.84,
+            "max_drawdown_pct": -10.91,
+            "n_days": 250
+          },
+          "2024": {
+            "return_pct": 26.99,
+            "max_drawdown_pct": -13.56,
+            "n_days": 252
+          },
+          "2025": {
+            "return_pct": 20.4,
+            "max_drawdown_pct": -22.88,
+            "n_days": 250
+          },
+          "2026": {
+            "return_pct": 15.59,
+            "max_drawdown_pct": -11.83,
+            "n_days": 173
+          }
+        }
+      },
+      "trigger_stats": {
+        "weekend_gap": {
+          "2021": {
+            "days_fired": 22,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 10,
+            "short_days": 12
+          },
+          "2022": {
+            "days_fired": 8,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 4,
+            "short_days": 4
+          },
+          "2023": {
+            "days_fired": 3,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 3,
+            "short_days": 0
+          },
+          "2024": {
+            "days_fired": 8,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 6,
+            "short_days": 2
+          },
+          "2025": {
+            "days_fired": 6,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 2,
+            "short_days": 4
+          },
+          "2026": {
+            "days_fired": 2,
+            "high_days": 0,
+            "low_days": 0,
+            "new_extreme_episodes": 0,
+            "long_days": 0,
+            "short_days": 2
+          }
+        },
+        "funding_rate": {
+          "2021": {
+            "days_fired": 62,
+            "high_days": 51,
+            "low_days": 11,
+            "new_extreme_episodes": 11,
+            "long_days": 62,
+            "short_days": 0
+          },
+          "2022": {
+            "days_fired": 9,
+            "high_days": 0,
+            "low_days": 9,
+            "new_extreme_episodes": 4,
+            "long_days": 9,
+            "short_days": 0
+          },
+          "2024": {
+            "days_fired": 10,
+            "high_days": 8,
+            "low_days": 2,
+            "new_extreme_episodes": 4,
+            "long_days": 10,
+            "short_days": 0
+          },
+          "2026": {
+            "days_fired": 12,
+            "high_days": 0,
+            "low_days": 12,
+            "new_extreme_episodes": 2,
+            "long_days": 12,
+            "short_days": 0
+          }
+        }
+      },
+      "skipped_symbols": {
+        "COIN": {
+          "combined_2sig": {
+            "days": 41,
+            "first": "2021-01-04",
+            "last": "2021-04-13"
+          },
+          "single_weekend_gap": {
+            "days": 4,
+            "first": "2021-01-04",
+            "last": "2021-01-12"
+          },
+          "single_funding_rate": {
+            "days": 41,
+            "first": "2021-01-04",
+            "last": "2021-04-13"
+          }
+        }
+      }
+    }
+  },
+  "funding_distribution_3d_ma": {
+    "year_2021": {
+      "n_days": 363,
+      "p01": -14.75,
+      "p05": -3.02,
+      "p25": 10.22,
+      "p50": 14.57,
+      "p75": 42.41,
+      "p95": 118.21,
+      "p99": 140.3,
+      "days_ma_above_50": 73,
+      "days_ma_below_neg5": 15,
+      "pct_ma_above_50": 20.11,
+      "pct_ma_below_neg5": 4.132
+    },
+    "year_2022": {
+      "n_days": 365,
+      "p01": -9.36,
+      "p05": -3.3,
+      "p25": 1.82,
+      "p50": 4.56,
+      "p75": 8.04,
+      "p95": 10.72,
+      "p99": 10.95,
+      "days_ma_above_50": 0,
+      "days_ma_below_neg5": 14,
+      "pct_ma_above_50": 0.0,
+      "pct_ma_below_neg5": 3.836
+    },
+    "year_2023": {
+      "n_days": 365,
+      "p01": -1.67,
+      "p05": 0.39,
+      "p25": 3.94,
+      "p50": 6.95,
+      "p75": 10.95,
+      "p95": 17.07,
+      "p99": 32.61,
+      "days_ma_above_50": 0,
+      "days_ma_below_neg5": 0,
+      "pct_ma_above_50": 0.0,
+      "pct_ma_below_neg5": 0.0
+    },
+    "year_2024": {
+      "n_days": 366,
+      "p01": -4.04,
+      "p05": -0.27,
+      "p25": 5.67,
+      "p50": 10.56,
+      "p75": 11.84,
+      "p95": 37.55,
+      "p99": 56.97,
+      "days_ma_above_50": 10,
+      "days_ma_below_neg5": 2,
+      "pct_ma_above_50": 2.732,
+      "pct_ma_below_neg5": 0.546
+    },
+    "year_2025": {
+      "n_days": 365,
+      "p01": -2.82,
+      "p05": -0.79,
+      "p25": 3.32,
+      "p50": 5.06,
+      "p75": 7.33,
+      "p95": 10.71,
+      "p99": 10.95,
+      "days_ma_above_50": 0,
+      "days_ma_below_neg5": 0,
+      "pct_ma_above_50": 0.0,
+      "pct_ma_below_neg5": 0.0
+    },
+    "year_2026": {
+      "n_days": 257,
+      "p01": -8.23,
+      "p05": -5.82,
+      "p25": -0.31,
+      "p50": 2.47,
+      "p75": 4.73,
+      "p95": 6.9,
+      "p99": 9.02,
+      "days_ma_above_50": 0,
+      "days_ma_below_neg5": 18,
+      "pct_ma_above_50": 0.0,
+      "pct_ma_below_neg5": 7.004
+    },
+    "oos_2021_01_01__2023_03_02": {
+      "n_days": 789,
+      "p01": -14.02,
+      "p05": -3.11,
+      "p25": 3.71,
+      "p50": 9.09,
+      "p75": 12.9,
+      "p95": 78.69,
+      "p99": 133.73,
+      "days_ma_above_50": 73,
+      "days_ma_below_neg5": 29,
+      "pct_ma_above_50": 9.252,
+      "pct_ma_below_neg5": 3.676
+    },
+    "training_2023_03_03__2026_09_14": {
+      "n_days": 1292,
+      "p01": -5.81,
+      "p05": -1.7,
+      "p25": 2.76,
+      "p50": 5.74,
+      "p75": 10.01,
+      "p95": 18.73,
+      "p99": 44.89,
+      "days_ma_above_50": 10,
+      "days_ma_below_neg5": 20,
+      "pct_ma_above_50": 0.774,
+      "pct_ma_below_neg5": 1.548
+    }
+  },
+  "convention_bridge": {
+    "canonical_reference_07e03d0": {
+      "total_return_pct": 16.07,
+      "cagr_pct": 4.45,
+      "sharpe": 0.423,
+      "max_drawdown_pct": -10.35
+    },
+    "training_targets_union": {
+      "total_return_pct": 34.41,
+      "cagr_pct": 9.03,
+      "sharpe": 0.686,
+      "max_drawdown_pct": -11.33,
+      "n_days": 862,
+      "win_rate_daily_pct": 2.9,
+      "win_rate_in_market_pct": 38.46,
+      "avg_net_exposure": 0.0159,
+      "pct_days_in_market": 0.0452,
+      "n_rebalances": 35,
+      "turnover_notional": 2596855.96,
+      "total_costs_usd": 1741.23,
+      "final_equity": 134411.68,
+      "skipped_symbol_days": {},
+      "empty_universe_days": 0,
+      "equity_min_pct_of_initial": 99.96,
+      "equity_min_day": "2023-05-30",
+      "first_nonpositive_equity_day": null
+    },
+    "training_fixed_basket": {
+      "total_return_pct": 16.07,
+      "cagr_pct": 4.45,
+      "sharpe": 0.423,
+      "max_drawdown_pct": -10.35,
+      "n_days": 862,
+      "win_rate_daily_pct": 2.67,
+      "win_rate_in_market_pct": 38.46,
+      "avg_net_exposure": 0.0157,
+      "pct_days_in_market": 0.0452,
+      "n_rebalances": 35,
+      "turnover_notional": 2272065.27,
+      "total_costs_usd": 1680.06,
+      "final_equity": 116071.52,
+      "skipped_symbol_days": {},
+      "empty_universe_days": 0,
+      "equity_min_pct_of_initial": 96.66,
+      "equity_min_day": "2024-03-05",
+      "first_nonpositive_equity_day": null
+    },
+    "oos_fixed_basket": {
+      "total_return_pct": 21.77,
+      "cagr_pct": 9.55,
+      "sharpe": 0.428,
+      "max_drawdown_pct": -60.65,
+      "n_days": 544,
+      "win_rate_daily_pct": 7.55,
+      "win_rate_in_market_pct": 37.78,
+      "avg_net_exposure": 0.0926,
+      "pct_days_in_market": 0.1673,
+      "n_rebalances": 61,
+      "turnover_notional": 6225308.71,
+      "total_costs_usd": 4321.22,
+      "final_equity": 121689.12,
+      "skipped_symbol_days": {
+        "COIN": {
+          "days": 41,
+          "first": "2021-01-04",
+          "last": "2021-04-13"
+        }
+      },
+      "empty_universe_days": 0,
+      "equity_min_pct_of_initial": 99.93,
+      "equity_min_day": "2021-01-04",
+      "first_nonpositive_equity_day": null
+    }
+  },
+  "conventions": {
+    "look_ahead": "signals evaluated with data strictly before as_of; trades at as_of close",
+    "sizing": "target exposure = combined score (signed fraction of equity, cap +/-1)",
+    "flat_rule": "|combined score| <= 0.15 -> cash",
+    "rebalance_rule": "trade when |target - net exposure| >= 0.25, or when the active universe changes",
+    "universe": "union of fired signals' metadata targets, equal weight; symbols without data on the day are skipped and counted (COIN IPO 2021-04-14)",
+    "difference_vs_canonical": "canonical 07e03d0 used a fixed COIN/MSTR/MARA/RIOT basket for sizing; this script sizes only the fired signals' target union",
+    "win_rate": "win_rate_daily_pct = % of trading days with positive daily equity return; win_rate_in_market_pct = same, restricted to days with nonzero target",
+    "shorting": "allowed; borrow costs not modeled",
+    "costs": "IBKR Pro tiered: $0.005/share min $1/order + 5bps half-spread per trade",
+    "benchmarks": "basket B&H over symbols with data at window start; QQQ price-only (no dividends)"
+  }
+}
