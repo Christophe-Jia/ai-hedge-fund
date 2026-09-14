@@ -155,36 +155,28 @@ def test_calculate_bollinger_bands_structure(price_df):
 
 
 # ---------------------------------------------------------------------------
-# calculate_adx – Bug documentation
+# calculate_adx – mutation regression (fixed)
 # ---------------------------------------------------------------------------
 
 
-def test_calculate_adx_mutates_input_df_bug(price_df):
-    """BUG: calculate_adx() adds extra columns to the caller's DataFrame.
+def test_calculate_adx_does_not_mutate_input_df(price_df):
+    """calculate_adx() must not add columns to the caller's DataFrame.
 
-    This test documents the side-effect behaviour: after calling calculate_adx
-    with the original (not copied) DataFrame, the caller's DataFrame gains the
-    intermediate computation columns injected by the function.
+    Regression test: it used to inject intermediate computation columns
+    into the caller's df; it now works on a copy.
     """
     original_cols = set(price_df.columns)
 
-    # Intentionally pass the *original* df to demonstrate the mutation bug
-    _ = calculate_adx(price_df)
+    result = calculate_adx(price_df)
 
-    added_cols = set(price_df.columns) - original_cols
-    mutation_cols = {"adx", "+di", "-di"}
-    assert mutation_cols.issubset(added_cols), (
-        f"Bug not reproduced: expected columns {mutation_cols} to be added, "
-        f"but only {added_cols} were added."
+    assert set(price_df.columns) == original_cols, (
+        "calculate_adx must not mutate the caller's DataFrame"
     )
+    assert set(result.columns) == {"adx", "+di", "-di"}
 
 
 def test_calculate_adx_returns_valid_values(price_df):
-    """ADX values should be in [0, 100] for valid input.
-
-    Uses .copy() to work around the mutation bug documented in
-    test_calculate_adx_mutates_input_df_bug.
-    """
+    """ADX values should be in [0, 100] for valid input."""
     result = calculate_adx(price_df.copy(), period=14)
 
     assert isinstance(result, pd.DataFrame), f"Expected DataFrame, got {type(result)}"

@@ -311,16 +311,21 @@ class TestDataCollection:
         # stores may be empty if no DBs exist, but the key must be present
         assert isinstance(body["stores"], list)
 
-    def test_processes_has_six_scripts(self, backend):
-        """GET /data-collection/processes returns exactly 6 registered scripts."""
+    def test_processes_has_seven_scripts(self, backend):
+        """GET /data-collection/processes returns exactly 7 registered scripts.
+
+        Updated from 6 when collect_polymarket_ticks was registered.
+        """
         r = get("/data-collection/processes")
         assert r.status_code == 200
         body = r.json()
         assert "processes" in body
-        assert len(body["processes"]) == 6, (
-            f"Expected 6 scripts, got {len(body['processes'])}: "
+        assert len(body["processes"]) == 7, (
+            f"Expected 7 scripts, got {len(body['processes'])}: "
             + str([p["name"] for p in body["processes"]])
         )
+        names = {p["name"] for p in body["processes"]}
+        assert "collect_polymarket_ticks" in names
 
 
 # ---------------------------------------------------------------------------
