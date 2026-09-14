@@ -34,13 +34,20 @@ OUT_DIR = Path(__file__).resolve().parents[1] / "outputs" / "selection"
 def load_universe(mode: str = "today") -> list[str] | dict[int, list[str]]:
     """Load universe: 'today' = current list; 'pit' = point-in-time by year."""
     uni_dir = Path(__file__).resolve().parents[1] / "data" / "universe"
+    # Old ticker -> current ticker (price data lives under the new symbol)
+    RENAME = {
+        "FB": "META", "PCLN": "BKNG", "UTX": "RTX", "RTN": "RTX",
+        "BK": "BNY", "DWDP": "DD", "TWX": "T", "CELG": "BMY",
+        "MON": "BAYRY", "AGN": "ABBV", "HON": "HON", "KHC": "KHC",
+    }
     if mode == "pit":
         pit = {}
         for f in sorted(uni_dir.glob("sp100_*.json")):
             if f.name == "sp100_union.json":
                 continue
             year = int(f.stem.split("_")[1])
-            pit[year] = [c["symbol"] for c in json.loads(f.read_text())]
+            syms = [RENAME.get(c["symbol"], c["symbol"]) for c in json.loads(f.read_text())]
+            pit[year] = syms
         return pit
     with open(uni_dir / "sp100.json") as f:
         return [c["symbol"] for c in json.load(f)]
