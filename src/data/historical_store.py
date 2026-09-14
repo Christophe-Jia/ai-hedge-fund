@@ -16,7 +16,7 @@ from typing import Literal
 import pandas as pd
 import sqlalchemy as sa
 
-MarketType = Literal["spot", "perp", "etf"]
+MarketType = Literal["spot", "perp", "etf", "stocks"]
 
 _DEFAULT_DB_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "data", "btc_history.db"
@@ -297,4 +297,26 @@ class HistoricalOHLCVStore:
                 sql,
                 {"symbol": symbol, "market_type": market_type, "timeframe": timeframe},
             ).fetchone()
-        return int(row[0]) if row and row[0] is not None else None
+        return row[0] if row and row[0] is not None else None
+
+    def get_coverage(
+        self, symbol: str, market_type: str = "stocks", timeframe: str = "1d"
+    ) -> tuple[str | None, str | None, int]:
+        """(first_date, last_date, row_count) for a symbol/market/timeframe."""
+        sql = sa.text(
+            """
+            SELECT MIN(ts), MAX(ts), COUNT(*) FROM ohlcv
+            WHERE symbol = :symbol AND market_type = :market_type AND timeframe = :timeframe
+            """
+        )
+        with self._engine.connect() as conn:
+            row = conn.execute(
+                sql,
+                {"symbol": symbol, "market_type": market_type, "timeframe": timeframe},
+            ).fetchone()
+        if not row or row[0] is None:
+            return None, None, 0
+        from datetime import datetime as _dt
+
+        fmt = lambda ts: _dt.fromtimestamp(ts / 1000).strftime("%Y-%m-%d")
+        return fmt(row[0]), fmt(row[1]), int(row[2])

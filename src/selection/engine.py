@@ -29,7 +29,14 @@ FactorFn = Callable[[pd.DataFrame, pd.Timestamp], pd.Series]
 
 @dataclass
 class SelectionConfig:
-    universe: list[str]
+    """Selection parameters.
+
+    `universe` can be:
+      - list[str]: fixed universe (backward compatible)
+      - dict[int, list[str]]: year -> tickers (point-in-time; the engine
+        picks the correct list for each signal date's year)
+    """
+    universe: list[str] | dict[int, list[str]]
     start_date: str
     end_date: str
     rebalance_freq: str = "ME"        # pandas offset alias (ME = month end)
@@ -154,9 +161,21 @@ class SelectionBacktest:
 
     def _select(self, signal_day: pd.Timestamp) -> list[str]:
         cfg = self._cfg
+        # point-in-time universe: dict year -> tickers
+        if isinstance(cfg.universe, dict):
+            year = signal_day.year
+            # fall back to the nearest available year
+            universe = cfg.universe.get(year)
+            if universe is None:
+                years = sorted(cfg.universe.keys())
+                nearby = [y for y in years if y <= year]
+                universe = cfg.universe[nearby[-1]] if nearby else cfg.universe[years[0]]
+        else:
+            universe = cfg.universe
+
         hist = self._closes[self._closes.index < signal_day]
         eligible = [
-            s for s in cfg.universe
+            s for s in universe
             if s in self._closes.columns
             and hist[s].dropna().shape[0] >= cfg.min_history_bars
         ]

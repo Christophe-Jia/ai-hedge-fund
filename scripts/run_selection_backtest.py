@@ -31,6 +31,21 @@ UNIVERSE_PATH = Path(__file__).resolve().parents[1] / "data" / "universe" / "sp1
 OUT_DIR = Path(__file__).resolve().parents[1] / "outputs" / "selection"
 
 
+def load_universe(mode: str = "today") -> list[str] | dict[int, list[str]]:
+    """Load universe: 'today' = current list; 'pit' = point-in-time by year."""
+    uni_dir = Path(__file__).resolve().parents[1] / "data" / "universe"
+    if mode == "pit":
+        pit = {}
+        for f in sorted(uni_dir.glob("sp100_*.json")):
+            if f.name == "sp100_union.json":
+                continue
+            year = int(f.stem.split("_")[1])
+            pit[year] = [c["symbol"] for c in json.loads(f.read_text())]
+        return pit
+    with open(uni_dir / "sp100.json") as f:
+        return [c["symbol"] for c in json.load(f)]
+
+
 def load_closes(store: NasdaqDailyStore, symbols: list[str],
                 start: str, end: str) -> pd.DataFrame:
     frames = {}
@@ -58,25 +73,32 @@ def main() -> None:
     p.add_argument("--start", type=str, default="2016-09-12")
     p.add_argument("--end", type=str, default=None)
     p.add_argument("--no-costs", action="store_true")
+    p.add_argument("--pit", action="store_true",
+                   help="point-in-time universe (year-specific constituents)")
     p.add_argument("--capital", type=float, default=100_000.0)
     args = p.parse_args()
     end = args.end or datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
 
-    with open(UNIVERSE_PATH) as f:
-        universe = [c["symbol"] for c in json.load(f)]
+    universe = load_universe("pit" if args.pit else "today")
+    if isinstance(universe, dict):
+        all_symbols = sorted(set().union(*universe.values()))
+        uni_note = f"point-in-time ({len(universe)} 年度名单, 联合 {len(all_symbols)} 只)"
+    else:
+        all_symbols = universe
+        uni_note = f"今日名单 ({len(universe)} 只)"
 
     stocks = NasdaqDailyStore(assetclass="stocks")
     etfs = NasdaqDailyStore(assetclass="etf")
 
-    print(f"Loading {len(universe)} stocks ...")
-    closes = load_closes(stocks, universe, args.start, end)
+    print(f"Loading {len(all_symbols)} stocks ... ({uni_note})")
+    closes = load_closes(stocks, all_symbols, args.start, end)
     print(f"  price matrix: {closes.shape[0]} days x {closes.shape[1]} symbols")
 
     cost_model = IbkrCostModel() if not args.no_costs else IbkrCostModel(
         commission_per_share=0.0, min_commission_per_order=0.0, spread_bps=0.0
     )
     cfg = SelectionConfig(
-        universe=list(closes.columns),
+        universe=universe,
         start_date=args.start,
         end_date=end,
         rebalance_freq=args.freq,
