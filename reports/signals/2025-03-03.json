@@ -1,0 +1,140 @@
+{
+  "as_of": "2025-03-03",
+  "generated_at": "2026-09-14T13:15:19+00:00",
+  "mode": "paper_trading_v1_report_only",
+  "decision_threshold": 0.2,
+  "signals": {
+    "weekend_gap": {
+      "triggered": true,
+      "output": {
+        "score": 1.0,
+        "direction": "long",
+        "confidence": 1.0,
+        "metadata": {
+          "targets": [
+            "COIN",
+            "MSTR",
+            "MARA"
+          ],
+          "btc_weekend_return_pct": 11.76,
+          "btc_friday_close": 84349.94,
+          "btc_sunday_close": 94270.0,
+          "friday": "2025-02-28",
+          "sunday": "2025-03-02",
+          "threshold_pct": 5.0
+        }
+      },
+      "error": null,
+      "data_health": {
+        "signal": "weekend_gap",
+        "ok": true,
+        "btc": {
+          "ok": true,
+          "last_date": "2026-09-14",
+          "stale_days": 0,
+          "max_stale_days": 3
+        },
+        "stocks": {
+          "COIN": {
+            "ok": true,
+            "first_date": "2021-04-14",
+            "last_date": "2026-09-11",
+            "rows": 1360,
+            "stale_days": 3
+          },
+          "MSTR": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          },
+          "MARA": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          }
+        }
+      }
+    },
+    "funding_rate": {
+      "triggered": false,
+      "output": null,
+      "error": null,
+      "data_health": {
+        "signal": "funding_rate",
+        "ok": true,
+        "funding": {
+          "ok": true,
+          "first_date": "2021-01-01",
+          "last_date": "2026-09-14",
+          "last_event": "2026-09-14T08:00:01",
+          "stale_hours": 5.3,
+          "max_stale_hours": 24,
+          "rows": 6248
+        },
+        "stocks": {
+          "COIN": {
+            "ok": true,
+            "first_date": "2021-04-14",
+            "last_date": "2026-09-11",
+            "rows": 1360,
+            "stale_days": 3
+          },
+          "MARA": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          },
+          "MSTR": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          },
+          "RIOT": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          }
+        }
+      }
+    }
+  },
+  "combined": {
+    "score": 1.0,
+    "direction": "long",
+    "confidence": 1.0,
+    "metadata": {
+      "contributing": [
+        "weekend_gap"
+      ],
+      "missing": [
+        "funding_rate"
+      ]
+    }
+  },
+  "combiner_error": null,
+  "decision": {
+    "action": "long",
+    "fired_signals": [
+      "weekend_gap"
+    ],
+    "targets": [
+      "COIN",
+      "MSTR",
+      "MARA"
+    ],
+    "position_size": 1.0,
+    "entry": "next trading day open",
+    "note": "entry next trading day open; split equally across targets"
+  },
+  "data_ok": true
+}

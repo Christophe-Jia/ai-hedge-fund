@@ -1,0 +1,117 @@
+{
+  "as_of": "2026-09-14",
+  "generated_at": "2026-09-14T13:15:17+00:00",
+  "mode": "paper_trading_v1_report_only",
+  "decision_threshold": 0.2,
+  "signals": {
+    "weekend_gap": {
+      "triggered": false,
+      "output": null,
+      "error": null,
+      "data_health": {
+        "signal": "weekend_gap",
+        "ok": true,
+        "btc": {
+          "ok": true,
+          "last_date": "2026-09-14",
+          "stale_days": 0,
+          "max_stale_days": 3
+        },
+        "stocks": {
+          "COIN": {
+            "ok": true,
+            "first_date": "2021-04-14",
+            "last_date": "2026-09-11",
+            "rows": 1360,
+            "stale_days": 3
+          },
+          "MSTR": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          },
+          "MARA": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          }
+        }
+      }
+    },
+    "funding_rate": {
+      "triggered": false,
+      "output": null,
+      "error": null,
+      "data_health": {
+        "signal": "funding_rate",
+        "ok": true,
+        "funding": {
+          "ok": true,
+          "first_date": "2021-01-01",
+          "last_date": "2026-09-14",
+          "last_event": "2026-09-14T08:00:01",
+          "stale_hours": 5.3,
+          "max_stale_hours": 24,
+          "rows": 6248
+        },
+        "stocks": {
+          "COIN": {
+            "ok": true,
+            "first_date": "2021-04-14",
+            "last_date": "2026-09-11",
+            "rows": 1360,
+            "stale_days": 3
+          },
+          "MARA": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          },
+          "MSTR": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          },
+          "RIOT": {
+            "ok": true,
+            "first_date": "2016-09-12",
+            "last_date": "2026-09-11",
+            "rows": 2514,
+            "stale_days": 3
+          }
+        }
+      }
+    }
+  },
+  "combined": {
+    "score": 0.0,
+    "direction": "flat",
+    "confidence": 0.0,
+    "metadata": {
+      "contributing": [],
+      "missing": [
+        "weekend_gap",
+        "funding_rate"
+      ],
+      "reason": "no contributing signal with positive weight"
+    }
+  },
+  "combiner_error": null,
+  "decision": {
+    "action": "flat",
+    "fired_signals": [],
+    "targets": [],
+    "position_size": 0.0,
+    "entry": null,
+    "note": "no signal today; stay in cash / maintain current position"
+  },
+  "data_ok": true
+}
