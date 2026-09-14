@@ -1,0 +1,2533 @@
+{
+  "config": {
+    "experiment": "meta-labeling feasibility, weekend_gap relaxed to 3% (long only)",
+    "event_set": "BTC Fri close -> Sun close ret >= +3.0% (2019-01-01..2026-09-30)",
+    "label": "equal-weight long COIN/MSTR/MARA at Monday open -> T+2 trading-day close, net of 5bps/side (10bps round trip); 1 = ret > 0",
+    "features": [
+      "weekend_ret_pct",
+      "btc_rv30_ann_pct",
+      "btc_ret5d_pct",
+      "funding_3d_ann_pct",
+      "mvrv_z180",
+      "vix_fri",
+      "days_since_prev",
+      "dist_30d_high_pct",
+      "sat_share",
+      "(frozen a priori, see script docstring for rationale)"
+    ],
+    "models": {
+      "logreg": "median impute + standardize + LogisticRegression(C=1)",
+      "rf": "median impute + RandomForest(300 trees, depth 3, leaf>=2)"
+    },
+    "validation": "LOO-CV primary; chronological first-half/second-half split secondary",
+    "zero_tuning": "features, hyperparameters, and entry gates (0.5/0.6) fixed before any run",
+    "data_notes": {
+      "funding_coverage": "2021-01-01 onward; earlier events imputed (fold-median)",
+      "mvrv_coverage": "2019-01-01 onward; z180 needs 60d so early-2019 imputed",
+      "vix": "FRED VIXCLS, Friday close",
+      "dropped_events": []
+    }
+  },
+  "n_events": 50,
+  "n_positive": 22,
+  "positive_rate": 0.44,
+  "loo_cv": {
+    "logreg": {
+      "auc": 0.252,
+      "accuracy": 0.36
+    },
+    "rf": {
+      "auc": 0.505,
+      "accuracy": 0.58
+    }
+  },
+  "time_split": {
+    "train_n": 25,
+    "test_n": 25,
+    "logreg": {
+      "test_auc": 0.46,
+      "test_accuracy": 0.44
+    },
+    "rf": {
+      "test_auc": 0.513,
+      "test_accuracy": 0.44
+    }
+  },
+  "strategies": [
+    {
+      "name": "always_take_3pct",
+      "n_trades": 50,
+      "win_rate_pct": 44.0,
+      "avg_ret_pct": 1.712,
+      "median_ret_pct": -0.843,
+      "total_ret_pct_sum": 85.59,
+      "std_pct": 10.622,
+      "t_stat": 1.14,
+      "sharpe_annualized": 0.42,
+      "trades_per_year": 6.72,
+      "worst_ret_pct": -12.48,
+      "best_ret_pct": 34.01
+    },
+    {
+      "name": "rule_5pct_threshold",
+      "n_trades": 22,
+      "win_rate_pct": 63.6,
+      "avg_ret_pct": 5.197,
+      "median_ret_pct": 1.246,
+      "total_ret_pct_sum": 114.34,
+      "std_pct": 10.337,
+      "t_stat": 2.36,
+      "sharpe_annualized": 0.95,
+      "trades_per_year": 3.58,
+      "worst_ret_pct": -8.15,
+      "best_ret_pct": 27.32
+    },
+    {
+      "name": "ml_logreg_p05",
+      "n_trades": 16,
+      "win_rate_pct": 18.8,
+      "avg_ret_pct": 0.202,
+      "median_ret_pct": -2.092,
+      "total_ret_pct_sum": 3.23,
+      "std_pct": 9.981,
+      "t_stat": 0.08,
+      "sharpe_annualized": 0.03,
+      "trades_per_year": 2.48,
+      "worst_ret_pct": -8.25,
+      "best_ret_pct": 25.56
+    },
+    {
+      "name": "ml_logreg_p06",
+      "n_trades": 9,
+      "win_rate_pct": 22.2,
+      "avg_ret_pct": -0.436,
+      "median_ret_pct": -0.878,
+      "total_ret_pct_sum": -3.93,
+      "std_pct": 10.465,
+      "t_stat": -0.13,
+      "sharpe_annualized": -0.05,
+      "trades_per_year": 1.39,
+      "worst_ret_pct": -8.25,
+      "best_ret_pct": 25.56
+    },
+    {
+      "name": "ml_rf_p05",
+      "n_trades": 17,
+      "win_rate_pct": 52.9,
+      "avg_ret_pct": 4.932,
+      "median_ret_pct": 0.795,
+      "total_ret_pct_sum": 83.85,
+      "std_pct": 11.617,
+      "t_stat": 1.75,
+      "sharpe_annualized": 0.71,
+      "trades_per_year": 2.76,
+      "worst_ret_pct": -8.25,
+      "best_ret_pct": 27.32
+    },
+    {
+      "name": "ml_rf_p06",
+      "n_trades": 9,
+      "win_rate_pct": 22.2,
+      "avg_ret_pct": 1.034,
+      "median_ret_pct": -0.808,
+      "total_ret_pct_sum": 9.3,
+      "std_pct": 10.658,
+      "t_stat": 0.29,
+      "sharpe_annualized": 0.12,
+      "trades_per_year": 1.55,
+      "worst_ret_pct": -8.25,
+      "best_ret_pct": 25.56
+    }
+  ],
+  "feature_importance_insample": {
+    "logreg_std_coefs": {
+      "weekend_ret_pct": 0.279,
+      "btc_rv30_ann_pct": -0.071,
+      "btc_ret5d_pct": 0.306,
+      "funding_3d_ann_pct": -0.037,
+      "mvrv_z180": 0.232,
+      "vix_fri": 0.113,
+      "days_since_prev": 0.124,
+      "dist_30d_high_pct": -0.188,
+      "sat_share": 0.03
+    },
+    "rf_importances": {
+      "weekend_ret_pct": 0.229,
+      "btc_rv30_ann_pct": 0.142,
+      "btc_ret5d_pct": 0.119,
+      "funding_3d_ann_pct": 0.072,
+      "mvrv_z180": 0.133,
+      "vix_fri": 0.098,
+      "days_since_prev": 0.058,
+      "dist_30d_high_pct": 0.08,
+      "sat_share": 0.07
+    }
+  },
+  "univariate_auc": {
+    "weekend_ret_pct": 0.614,
+    "btc_rv30_ann_pct": 0.474,
+    "btc_ret5d_pct": 0.577,
+    "funding_3d_ann_pct": 0.454,
+    "mvrv_z180": 0.588,
+    "vix_fri": 0.562,
+    "days_since_prev": 0.543,
+    "dist_30d_high_pct": 0.548,
+    "sat_share": 0.536
+  },
+  "events": [
+    {
+      "friday": "2019-01-04",
+      "sunday": "2019-01-06",
+      "entry_date": "2019-01-07",
+      "weekend_ret_pct": 5.158,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": 1.141,
+      "label": 1,
+      "loo_prob_logreg": 0.403,
+      "loo_prob_rf": 0.567,
+      "features": {
+        "weekend_ret_pct": 5.158,
+        "btc_rv30_ann_pct": null,
+        "btc_ret5d_pct": null,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": null,
+        "vix_fri": 21.38,
+        "days_since_prev": null,
+        "dist_30d_high_pct": null,
+        "sat_share": -0.108
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-01-07",
+          "entry_price": 13.039,
+          "exit_date": "2019-01-09",
+          "exit_price": 13.158,
+          "ret_net_pct": 0.813
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-01-07",
+          "entry_price": 1.6576,
+          "exit_date": "2019-01-09",
+          "exit_price": 1.6836,
+          "ret_net_pct": 1.469
+        }
+      ]
+    },
+    {
+      "friday": "2019-04-05",
+      "sunday": "2019-04-07",
+      "entry_date": "2019-04-08",
+      "weekend_ret_pct": 3.303,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": 34.008,
+      "label": 1,
+      "loo_prob_logreg": 0.5,
+      "loo_prob_rf": 0.417,
+      "features": {
+        "weekend_ret_pct": 3.303,
+        "btc_rv30_ann_pct": 62.09,
+        "btc_ret5d_pct": 21.954,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 3.596,
+        "vix_fri": 12.82,
+        "days_since_prev": 91.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 0.236
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-04-08",
+          "entry_price": 14.611,
+          "exit_date": "2019-04-10",
+          "exit_price": 14.774,
+          "ret_net_pct": 1.016
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-04-08",
+          "entry_price": 2.31,
+          "exit_date": "2019-04-10",
+          "exit_price": 3.86,
+          "ret_net_pct": 67.0
+        }
+      ]
+    },
+    {
+      "friday": "2019-05-10",
+      "sunday": "2019-05-12",
+      "entry_date": "2019-05-13",
+      "weekend_ret_pct": 9.32,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": 1.351,
+      "label": 1,
+      "loo_prob_logreg": 0.601,
+      "loo_prob_rf": 0.566,
+      "features": {
+        "weekend_ret_pct": 9.32,
+        "btc_rv30_ann_pct": 40.83,
+        "btc_ret5d_pct": 10.349,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 3.046,
+        "vix_fri": 16.04,
+        "days_since_prev": 35.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 1.183
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-05-13",
+          "entry_price": 13.709,
+          "exit_date": "2019-05-15",
+          "exit_price": 13.622,
+          "ret_net_pct": -0.735
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-05-13",
+          "entry_price": 3.11,
+          "exit_date": "2019-05-15",
+          "exit_price": 3.22,
+          "ret_net_pct": 3.437
+        }
+      ]
+    },
+    {
+      "friday": "2019-05-17",
+      "sunday": "2019-05-19",
+      "entry_date": "2019-05-20",
+      "weekend_ret_pct": 10.784,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": -0.154,
+      "label": 0,
+      "loo_prob_logreg": 0.826,
+      "loo_prob_rf": 0.627,
+      "features": {
+        "weekend_ret_pct": 10.784,
+        "btc_rv30_ann_pct": 69.57,
+        "btc_ret5d_pct": 5.568,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 3.139,
+        "vix_fri": 15.96,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -9.971,
+        "sat_share": -0.123
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-05-20",
+          "entry_price": 13.596,
+          "exit_date": "2019-05-22",
+          "exit_price": 13.627,
+          "ret_net_pct": 0.128
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-05-20",
+          "entry_price": 2.98,
+          "exit_date": "2019-05-22",
+          "exit_price": 2.97,
+          "ret_net_pct": -0.436
+        }
+      ]
+    },
+    {
+      "friday": "2019-05-24",
+      "sunday": "2019-05-26",
+      "entry_date": "2019-05-28",
+      "weekend_ret_pct": 8.155,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": -2.843,
+      "label": 0,
+      "loo_prob_logreg": 0.561,
+      "loo_prob_rf": 0.491,
+      "features": {
+        "weekend_ret_pct": 8.155,
+        "btc_rv30_ann_pct": 82.45,
+        "btc_ret5d_pct": -2.253,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 2.89,
+        "vix_fri": 15.85,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -2.509,
+        "sat_share": 0.093
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-05-28",
+          "entry_price": 13.405,
+          "exit_date": "2019-05-30",
+          "exit_price": 13.366,
+          "ret_net_pct": -0.391
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-05-28",
+          "entry_price": 3.08,
+          "exit_date": "2019-05-30",
+          "exit_price": 2.92,
+          "ret_net_pct": -5.295
+        }
+      ]
+    },
+    {
+      "friday": "2019-06-14",
+      "sunday": "2019-06-16",
+      "entry_date": "2019-06-17",
+      "weekend_ret_pct": 3.507,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -2.073,
+      "label": 0,
+      "loo_prob_logreg": 0.509,
+      "loo_prob_rf": 0.458,
+      "features": {
+        "weekend_ret_pct": 3.507,
+        "btc_rv30_ann_pct": 78.35,
+        "btc_ret5d_pct": 13.396,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 2.071,
+        "vix_fri": 15.28,
+        "days_since_prev": 21.0,
+        "dist_30d_high_pct": -1.214,
+        "sat_share": 0.523
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-06-17",
+          "entry_price": 13.433,
+          "exit_date": "2019-06-19",
+          "exit_price": 14.767,
+          "ret_net_pct": 9.831
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-06-17",
+          "entry_price": 2.45,
+          "exit_date": "2019-06-19",
+          "exit_price": 2.11,
+          "ret_net_pct": -13.978
+        }
+      ]
+    },
+    {
+      "friday": "2019-06-21",
+      "sunday": "2019-06-23",
+      "entry_date": "2019-06-24",
+      "weekend_ret_pct": 7.345,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": 23.595,
+      "label": 1,
+      "loo_prob_logreg": 0.536,
+      "loo_prob_rf": 0.57,
+      "features": {
+        "weekend_ret_pct": 7.345,
+        "btc_rv30_ann_pct": 63.2,
+        "btc_ret5d_pct": 13.476,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 2.614,
+        "vix_fri": 15.4,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 0.763
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-06-24",
+          "entry_price": 14.685,
+          "exit_date": "2019-06-26",
+          "exit_price": 13.912,
+          "ret_net_pct": -5.364
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-06-24",
+          "entry_price": 2.26,
+          "exit_date": "2019-06-26",
+          "exit_price": 3.45,
+          "ret_net_pct": 52.555
+        }
+      ]
+    },
+    {
+      "friday": "2019-07-05",
+      "sunday": "2019-07-07",
+      "entry_date": "2019-07-08",
+      "weekend_ret_pct": 3.97,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -9.29,
+      "label": 0,
+      "loo_prob_logreg": 0.498,
+      "loo_prob_rf": 0.265,
+      "features": {
+        "weekend_ret_pct": 3.97,
+        "btc_rv30_ann_pct": 102.68,
+        "btc_ret5d_pct": 1.075,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 1.975,
+        "vix_fri": 13.28,
+        "days_since_prev": 14.0,
+        "dist_30d_high_pct": -16.214,
+        "sat_share": 0.656
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-07-08",
+          "entry_price": 13.92,
+          "exit_date": "2019-07-10",
+          "exit_price": 12.296,
+          "ret_net_pct": -11.767
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-07-08",
+          "entry_price": 2.83,
+          "exit_date": "2019-07-10",
+          "exit_price": 2.64,
+          "ret_net_pct": -6.814
+        }
+      ]
+    },
+    {
+      "friday": "2019-08-02",
+      "sunday": "2019-08-04",
+      "entry_date": "2019-08-05",
+      "weekend_ret_pct": 3.853,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -2.585,
+      "label": 0,
+      "loo_prob_logreg": 0.575,
+      "loo_prob_rf": 0.435,
+      "features": {
+        "weekend_ret_pct": 3.853,
+        "btc_rv30_ann_pct": 93.92,
+        "btc_ret5d_pct": 10.294,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 1.127,
+        "vix_fri": 17.61,
+        "days_since_prev": 28.0,
+        "dist_30d_high_pct": -16.101,
+        "sat_share": 0.723
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-08-05",
+          "entry_price": 13.246,
+          "exit_date": "2019-08-07",
+          "exit_price": 13.835,
+          "ret_net_pct": 4.347
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-08-05",
+          "entry_price": 2.23,
+          "exit_date": "2019-08-07",
+          "exit_price": 2.02,
+          "ret_net_pct": -9.517
+        }
+      ]
+    },
+    {
+      "friday": "2019-10-18",
+      "sunday": "2019-10-20",
+      "entry_date": "2019-10-21",
+      "weekend_ret_pct": 3.477,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -11.472,
+      "label": 0,
+      "loo_prob_logreg": 0.37,
+      "loo_prob_rf": 0.278,
+      "features": {
+        "weekend_ret_pct": 3.477,
+        "btc_rv30_ann_pct": 58.34,
+        "btc_ret5d_pct": -3.964,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": -1.129,
+        "vix_fri": 14.25,
+        "days_since_prev": 77.0,
+        "dist_30d_high_pct": -22.425,
+        "sat_share": 0.004
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-10-21",
+          "entry_price": 14.385,
+          "exit_date": "2019-10-23",
+          "exit_price": 14.26,
+          "ret_net_pct": -0.969
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-10-21",
+          "entry_price": 1.6,
+          "exit_date": "2019-10-23",
+          "exit_price": 1.25,
+          "ret_net_pct": -21.975
+        }
+      ]
+    },
+    {
+      "friday": "2019-10-25",
+      "sunday": "2019-10-27",
+      "entry_date": "2019-10-28",
+      "weekend_ret_pct": 10.109,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": -6.68,
+      "label": 0,
+      "loo_prob_logreg": 0.616,
+      "loo_prob_rf": 0.464,
+      "features": {
+        "weekend_ret_pct": 10.109,
+        "btc_rv30_ann_pct": 76.26,
+        "btc_ret5d_pct": 5.249,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": -0.379,
+        "vix_fri": 12.65,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 0.657
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-10-28",
+          "entry_price": 14.6,
+          "exit_date": "2019-10-30",
+          "exit_price": 15.341,
+          "ret_net_pct": 4.975
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-10-28",
+          "entry_price": 1.7,
+          "exit_date": "2019-10-30",
+          "exit_price": 1.39,
+          "ret_net_pct": -18.335
+        }
+      ]
+    },
+    {
+      "friday": "2019-11-08",
+      "sunday": "2019-11-10",
+      "entry_date": "2019-11-11",
+      "weekend_ret_pct": 3.029,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -3.07,
+      "label": 0,
+      "loo_prob_logreg": 0.243,
+      "loo_prob_rf": 0.274,
+      "features": {
+        "weekend_ret_pct": 3.029,
+        "btc_rv30_ann_pct": 77.92,
+        "btc_ret5d_pct": -4.579,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": -0.845,
+        "vix_fri": 12.07,
+        "days_since_prev": 14.0,
+        "dist_30d_high_pct": -7.935,
+        "sat_share": 0.134
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-11-11",
+          "entry_price": 15.557,
+          "exit_date": "2019-11-13",
+          "exit_price": 15.696,
+          "ret_net_pct": 0.793
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-11-11",
+          "entry_price": 1.32,
+          "exit_date": "2019-11-13",
+          "exit_price": 1.2298,
+          "ret_net_pct": -6.933
+        }
+      ]
+    },
+    {
+      "friday": "2019-12-20",
+      "sunday": "2019-12-22",
+      "entry_date": "2019-12-23",
+      "weekend_ret_pct": 4.363,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -2.464,
+      "label": 0,
+      "loo_prob_logreg": 0.327,
+      "loo_prob_rf": 0.353,
+      "features": {
+        "weekend_ret_pct": 4.363,
+        "btc_rv30_ann_pct": 61.96,
+        "btc_ret5d_pct": 0.973,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": -1.135,
+        "vix_fri": 12.51,
+        "days_since_prev": 42.0,
+        "dist_30d_high_pct": -7.13,
+        "sat_share": -0.176
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2019-12-23",
+          "entry_price": 14.555,
+          "exit_date": "2019-12-26",
+          "exit_price": 14.505,
+          "ret_net_pct": -0.444
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2019-12-23",
+          "entry_price": 0.9601,
+          "exit_date": "2019-12-26",
+          "exit_price": 0.918,
+          "ret_net_pct": -4.485
+        }
+      ]
+    },
+    {
+      "friday": "2020-02-07",
+      "sunday": "2020-02-09",
+      "entry_date": "2020-02-10",
+      "weekend_ret_pct": 3.444,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": 1.348,
+      "label": 1,
+      "loo_prob_logreg": 0.325,
+      "loo_prob_rf": 0.294,
+      "features": {
+        "weekend_ret_pct": 3.444,
+        "btc_rv30_ann_pct": 51.55,
+        "btc_ret5d_pct": 5.168,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 1.211,
+        "vix_fri": 15.47,
+        "days_since_prev": 49.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 0.241
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2020-02-10",
+          "entry_price": 15.306,
+          "exit_date": "2020-02-12",
+          "exit_price": 14.984,
+          "ret_net_pct": -2.204
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2020-02-10",
+          "entry_price": 1.2,
+          "exit_date": "2020-02-12",
+          "exit_price": 1.26,
+          "ret_net_pct": 4.9
+        }
+      ]
+    },
+    {
+      "friday": "2020-05-15",
+      "sunday": "2020-05-17",
+      "entry_date": "2020-05-18",
+      "weekend_ret_pct": 3.903,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -0.878,
+      "label": 0,
+      "loo_prob_logreg": 0.722,
+      "loo_prob_rf": 0.498,
+      "features": {
+        "weekend_ret_pct": 3.903,
+        "btc_rv30_ann_pct": 83.0,
+        "btc_ret5d_pct": 6.806,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 1.419,
+        "vix_fri": 31.89,
+        "days_since_prev": 98.0,
+        "dist_30d_high_pct": -6.709,
+        "sat_share": 0.178
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2020-05-18",
+          "entry_price": 11.881,
+          "exit_date": "2020-05-20",
+          "exit_price": 12.124,
+          "ret_net_pct": 1.945
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2020-05-18",
+          "entry_price": 0.861,
+          "exit_date": "2020-05-20",
+          "exit_price": 0.83,
+          "ret_net_pct": -3.7
+        }
+      ]
+    },
+    {
+      "friday": "2020-07-24",
+      "sunday": "2020-07-26",
+      "entry_date": "2020-07-27",
+      "weekend_ret_pct": 4.128,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": 18.531,
+      "label": 1,
+      "loo_prob_logreg": 0.353,
+      "loo_prob_rf": 0.379,
+      "features": {
+        "weekend_ret_pct": 4.128,
+        "btc_rv30_ann_pct": 22.93,
+        "btc_ret5d_pct": 3.571,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 0.872,
+        "vix_fri": 25.84,
+        "days_since_prev": 70.0,
+        "dist_30d_high_pct": -0.682,
+        "sat_share": 0.413
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2020-07-27",
+          "entry_price": 11.755,
+          "exit_date": "2020-07-29",
+          "exit_price": 12.274,
+          "ret_net_pct": 4.315
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2020-07-27",
+          "entry_price": 1.37,
+          "exit_date": "2020-07-29",
+          "exit_price": 1.82,
+          "ret_net_pct": 32.747
+        }
+      ]
+    },
+    {
+      "friday": "2020-11-27",
+      "sunday": "2020-11-29",
+      "entry_date": "2020-11-30",
+      "weekend_ret_pct": 6.1,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": 9.431,
+      "label": 1,
+      "loo_prob_logreg": 0.392,
+      "loo_prob_rf": 0.626,
+      "features": {
+        "weekend_ret_pct": 6.1,
+        "btc_rv30_ann_pct": 65.78,
+        "btc_ret5d_pct": -6.923,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 2.266,
+        "vix_fri": 20.84,
+        "days_since_prev": 126.0,
+        "dist_30d_high_pct": -10.545,
+        "sat_share": 0.555
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2020-11-30",
+          "entry_price": 30.03,
+          "exit_date": "2020-12-02",
+          "exit_price": 32.132,
+          "ret_net_pct": 6.9
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2020-11-30",
+          "entry_price": 5.14,
+          "exit_date": "2020-12-02",
+          "exit_price": 5.76,
+          "ret_net_pct": 11.962
+        }
+      ]
+    },
+    {
+      "friday": "2020-12-04",
+      "sunday": "2020-12-06",
+      "entry_date": "2020-12-07",
+      "weekend_ret_pct": 3.801,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -12.485,
+      "label": 0,
+      "loo_prob_logreg": 0.474,
+      "loo_prob_rf": 0.317,
+      "features": {
+        "weekend_ret_pct": 3.801,
+        "btc_rv30_ann_pct": 75.27,
+        "btc_ret5d_pct": 2.56,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 2.227,
+        "vix_fri": 20.79,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -5.307,
+        "sat_share": 0.701
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2020-12-07",
+          "entry_price": 33.007,
+          "exit_date": "2020-12-09",
+          "exit_price": 28.621,
+          "ret_net_pct": -13.388
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2020-12-07",
+          "entry_price": 5.4,
+          "exit_date": "2020-12-09",
+          "exit_price": 4.78,
+          "ret_net_pct": -11.581
+        }
+      ]
+    },
+    {
+      "friday": "2020-12-11",
+      "sunday": "2020-12-13",
+      "entry_date": "2020-12-14",
+      "weekend_ret_pct": 6.312,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": 27.325,
+      "label": 1,
+      "loo_prob_logreg": 0.349,
+      "loo_prob_rf": 0.573,
+      "features": {
+        "weekend_ret_pct": 6.312,
+        "btc_rv30_ann_pct": 66.41,
+        "btc_ret5d_pct": -6.833,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 1.765,
+        "vix_fri": 23.31,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -8.425,
+        "sat_share": 0.678
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2020-12-14",
+          "entry_price": 29.893,
+          "exit_date": "2020-12-16",
+          "exit_price": 29.912,
+          "ret_net_pct": -0.036
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2020-12-14",
+          "entry_price": 5.317,
+          "exit_date": "2020-12-16",
+          "exit_price": 8.23,
+          "ret_net_pct": 54.687
+        }
+      ]
+    },
+    {
+      "friday": "2020-12-25",
+      "sunday": "2020-12-27",
+      "entry_date": "2020-12-28",
+      "weekend_ret_pct": 6.35,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": -8.155,
+      "label": 0,
+      "loo_prob_logreg": 0.608,
+      "loo_prob_rf": 0.611,
+      "features": {
+        "weekend_ret_pct": 6.35,
+        "btc_rv30_ann_pct": 75.01,
+        "btc_ret5d_pct": 5.359,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 2.707,
+        "vix_fri": 21.53,
+        "days_since_prev": 14.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 1.135
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2020-12-28",
+          "entry_price": 36.729,
+          "exit_date": "2020-12-30",
+          "exit_price": 38.997,
+          "ret_net_pct": 6.075
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2020-12-28",
+          "entry_price": 14.0,
+          "exit_date": "2020-12-30",
+          "exit_price": 10.88,
+          "ret_net_pct": -22.386
+        }
+      ]
+    },
+    {
+      "friday": "2021-01-01",
+      "sunday": "2021-01-03",
+      "entry_date": "2021-01-04",
+      "weekend_ret_pct": 12.506,
+      "in_5pct_rule": true,
+      "n_legs": 2,
+      "ret_net_pct": 25.561,
+      "label": 1,
+      "loo_prob_logreg": 0.687,
+      "loo_prob_rf": 0.612,
+      "features": {
+        "weekend_ret_pct": 12.506,
+        "btc_rv30_ann_pct": 63.59,
+        "btc_ret5d_pct": 11.605,
+        "funding_3d_ann_pct": null,
+        "mvrv_z180": 3.152,
+        "vix_fri": 22.75,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 0.776
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-01-04",
+          "entry_price": 41.633,
+          "exit_date": "2021-01-06",
+          "exit_price": 48.055,
+          "ret_net_pct": 15.325
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-01-04",
+          "entry_price": 12.48,
+          "exit_date": "2021-01-06",
+          "exit_price": 16.96,
+          "ret_net_pct": 35.797
+        }
+      ]
+    },
+    {
+      "friday": "2021-03-05",
+      "sunday": "2021-03-07",
+      "entry_date": "2021-03-08",
+      "weekend_ret_pct": 4.554,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": 19.169,
+      "label": 1,
+      "loo_prob_logreg": 0.412,
+      "loo_prob_rf": 0.499,
+      "features": {
+        "weekend_ret_pct": 4.554,
+        "btc_rv30_ann_pct": 104.68,
+        "btc_ret5d_pct": 8.012,
+        "funding_3d_ann_pct": 10.95,
+        "mvrv_z180": 1.106,
+        "vix_fri": 24.66,
+        "days_since_prev": 63.0,
+        "dist_30d_high_pct": -15.079,
+        "sat_share": 0.059
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-03-08",
+          "entry_price": 64.501,
+          "exit_date": "2021-03-10",
+          "exit_price": 75.655,
+          "ret_net_pct": 17.193
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-03-08",
+          "entry_price": 31.498,
+          "exit_date": "2021-03-10",
+          "exit_price": 38.19,
+          "ret_net_pct": 21.146
+        }
+      ]
+    },
+    {
+      "friday": "2021-03-12",
+      "sunday": "2021-03-14",
+      "entry_date": "2021-03-15",
+      "weekend_ret_pct": 3.052,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": 1.446,
+      "label": 1,
+      "loo_prob_logreg": 0.005,
+      "loo_prob_rf": 0.226,
+      "features": {
+        "weekend_ret_pct": 3.052,
+        "btc_rv30_ann_pct": 81.23,
+        "btc_ret5d_pct": 12.262,
+        "funding_3d_ann_pct": 81.095,
+        "mvrv_z180": 1.572,
+        "vix_fri": 20.69,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -0.954,
+        "sat_share": 2.271
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-03-15",
+          "entry_price": 78.833,
+          "exit_date": "2021-03-17",
+          "exit_price": 77.099,
+          "ret_net_pct": -2.3
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-03-15",
+          "entry_price": 41.01,
+          "exit_date": "2021-03-17",
+          "exit_price": 43.18,
+          "ret_net_pct": 5.191
+        }
+      ]
+    },
+    {
+      "friday": "2021-04-09",
+      "sunday": "2021-04-11",
+      "entry_date": "2021-04-12",
+      "weekend_ret_pct": 3.199,
+      "in_5pct_rule": false,
+      "n_legs": 2,
+      "ret_net_pct": -8.449,
+      "label": 0,
+      "loo_prob_logreg": 0.382,
+      "loo_prob_rf": 0.364,
+      "features": {
+        "weekend_ret_pct": 3.199,
+        "btc_rv30_ann_pct": 61.25,
+        "btc_ret5d_pct": -0.102,
+        "funding_3d_ann_pct": 53.641,
+        "mvrv_z180": 0.692,
+        "vix_fri": 16.69,
+        "days_since_prev": 28.0,
+        "dist_30d_high_pct": -4.978,
+        "sat_share": 0.875
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "skipped": true
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-04-12",
+          "entry_price": 73.519,
+          "exit_date": "2021-04-14",
+          "exit_price": 73.55,
+          "ret_net_pct": -0.058
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-04-12",
+          "entry_price": 51.61,
+          "exit_date": "2021-04-14",
+          "exit_price": 42.97,
+          "ret_net_pct": -16.841
+        }
+      ]
+    },
+    {
+      "friday": "2021-06-11",
+      "sunday": "2021-06-13",
+      "entry_date": "2021-06-14",
+      "weekend_ret_pct": 4.523,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": 5.197,
+      "label": 1,
+      "loo_prob_logreg": 0.101,
+      "loo_prob_rf": 0.32,
+      "features": {
+        "weekend_ret_pct": 4.523,
+        "btc_rv30_ann_pct": 113.08,
+        "btc_ret5d_pct": 4.29,
+        "funding_3d_ann_pct": 2.193,
+        "mvrv_z180": -1.756,
+        "vix_fri": 15.65,
+        "days_since_prev": 63.0,
+        "dist_30d_high_pct": -25.099,
+        "sat_share": -1.058
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-06-14",
+          "entry_price": 231.265,
+          "exit_date": "2021-06-16",
+          "exit_price": 228.05,
+          "ret_net_pct": -1.49
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-06-14",
+          "entry_price": 54.4,
+          "exit_date": "2021-06-16",
+          "exit_price": 61.982,
+          "ret_net_pct": 13.838
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-06-14",
+          "entry_price": 29.0,
+          "exit_date": "2021-06-16",
+          "exit_price": 29.97,
+          "ret_net_pct": 3.245
+        }
+      ]
+    },
+    {
+      "friday": "2021-06-25",
+      "sunday": "2021-06-27",
+      "entry_date": "2021-06-28",
+      "weekend_ret_pct": 9.865,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 11.589,
+      "label": 1,
+      "loo_prob_logreg": 0.205,
+      "loo_prob_rf": 0.284,
+      "features": {
+        "weekend_ret_pct": 9.865,
+        "btc_rv30_ann_pct": 99.17,
+        "btc_ret5d_pct": -11.28,
+        "funding_3d_ann_pct": -3.504,
+        "mvrv_z180": -1.713,
+        "vix_fri": 15.62,
+        "days_since_prev": 14.0,
+        "dist_30d_high_pct": -22.045,
+        "sat_share": 0.224
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-06-28",
+          "entry_price": 227.64,
+          "exit_date": "2021-06-30",
+          "exit_price": 253.3,
+          "ret_net_pct": 11.172
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-06-28",
+          "entry_price": 57.033,
+          "exit_date": "2021-06-30",
+          "exit_price": 66.45,
+          "ret_net_pct": 16.411
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-06-28",
+          "entry_price": 29.24,
+          "exit_date": "2021-06-30",
+          "exit_price": 31.37,
+          "ret_net_pct": 7.185
+        }
+      ]
+    },
+    {
+      "friday": "2021-07-02",
+      "sunday": "2021-07-04",
+      "entry_date": "2021-07-06",
+      "weekend_ret_pct": 4.44,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -4.93,
+      "label": 0,
+      "loo_prob_logreg": 0.328,
+      "loo_prob_rf": 0.39,
+      "features": {
+        "weekend_ret_pct": 4.44,
+        "btc_rv30_ann_pct": 99.68,
+        "btc_ret5d_pct": -2.633,
+        "funding_3d_ann_pct": 2.583,
+        "mvrv_z180": -1.481,
+        "vix_fri": 15.07,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -16.61,
+        "sat_share": 0.588
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-07-06",
+          "entry_price": 243.0,
+          "exit_date": "2021-07-08",
+          "exit_price": 244.29,
+          "ret_net_pct": 0.431
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-07-06",
+          "entry_price": 65.208,
+          "exit_date": "2021-07-08",
+          "exit_price": 61.844,
+          "ret_net_pct": -5.259
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-07-06",
+          "entry_price": 30.83,
+          "exit_date": "2021-07-08",
+          "exit_price": 27.79,
+          "ret_net_pct": -9.961
+        }
+      ]
+    },
+    {
+      "friday": "2021-07-23",
+      "sunday": "2021-07-25",
+      "entry_date": "2021-07-26",
+      "weekend_ret_pct": 5.194,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 1.441,
+      "label": 1,
+      "loo_prob_logreg": 0.278,
+      "loo_prob_rf": 0.373,
+      "features": {
+        "weekend_ret_pct": 5.194,
+        "btc_rv30_ann_pct": 68.5,
+        "btc_ret5d_pct": 5.839,
+        "funding_3d_ann_pct": -7.59,
+        "mvrv_z180": -1.128,
+        "vix_fri": 17.2,
+        "days_since_prev": 21.0,
+        "dist_30d_high_pct": -6.342,
+        "sat_share": 0.357
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-07-26",
+          "entry_price": 240.084,
+          "exit_date": "2021-07-28",
+          "exit_price": 241.75,
+          "ret_net_pct": 0.594
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-07-26",
+          "entry_price": 62.1,
+          "exit_date": "2021-07-28",
+          "exit_price": 64.665,
+          "ret_net_pct": 4.03
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-07-26",
+          "entry_price": 28.217,
+          "exit_date": "2021-07-28",
+          "exit_price": 28.16,
+          "ret_net_pct": -0.302
+        }
+      ]
+    },
+    {
+      "friday": "2021-09-03",
+      "sunday": "2021-09-05",
+      "entry_date": "2021-09-07",
+      "weekend_ret_pct": 3.516,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -8.406,
+      "label": 0,
+      "loo_prob_logreg": 0.378,
+      "loo_prob_rf": 0.332,
+      "features": {
+        "weekend_ret_pct": 3.516,
+        "btc_rv30_ann_pct": 60.34,
+        "btc_ret5d_pct": 2.525,
+        "funding_3d_ann_pct": 39.805,
+        "mvrv_z180": 0.137,
+        "vix_fri": 16.41,
+        "days_since_prev": 42.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": -0.048
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-09-07",
+          "entry_price": 277.0,
+          "exit_date": "2021-09-09",
+          "exit_price": 256.42,
+          "ret_net_pct": -7.53
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-09-07",
+          "entry_price": 69.9,
+          "exit_date": "2021-09-09",
+          "exit_price": 64.062,
+          "ret_net_pct": -8.452
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-09-07",
+          "entry_price": 42.8,
+          "exit_date": "2021-09-09",
+          "exit_price": 38.89,
+          "ret_net_pct": -9.236
+        }
+      ]
+    },
+    {
+      "friday": "2021-11-05",
+      "sunday": "2021-11-07",
+      "entry_date": "2021-11-08",
+      "weekend_ret_pct": 3.834,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -5.57,
+      "label": 0,
+      "loo_prob_logreg": 0.466,
+      "loo_prob_rf": 0.334,
+      "features": {
+        "weekend_ret_pct": 3.834,
+        "btc_rv30_ann_pct": 56.58,
+        "btc_ret5d_pct": -0.592,
+        "funding_3d_ann_pct": 43.481,
+        "mvrv_z180": 1.578,
+        "vix_fri": 16.48,
+        "days_since_prev": 63.0,
+        "dist_30d_high_pct": -7.673,
+        "sat_share": 0.228
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-11-08",
+          "entry_price": 349.501,
+          "exit_date": "2021-11-10",
+          "exit_price": 328.6,
+          "ret_net_pct": -6.08
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-11-08",
+          "entry_price": 84.199,
+          "exit_date": "2021-11-10",
+          "exit_price": 81.634,
+          "ret_net_pct": -3.146
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-11-08",
+          "entry_price": 70.01,
+          "exit_date": "2021-11-10",
+          "exit_price": 64.84,
+          "ret_net_pct": -7.485
+        }
+      ]
+    },
+    {
+      "friday": "2021-11-26",
+      "sunday": "2021-11-28",
+      "entry_date": "2021-11-29",
+      "weekend_ret_pct": 6.604,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": -2.111,
+      "label": 0,
+      "loo_prob_logreg": 0.547,
+      "loo_prob_rf": 0.642,
+      "features": {
+        "weekend_ret_pct": 6.604,
+        "btc_rv30_ann_pct": 62.55,
+        "btc_ret5d_pct": -8.351,
+        "funding_3d_ann_pct": 16.016,
+        "mvrv_z180": 0.396,
+        "vix_fri": 28.62,
+        "days_since_prev": 21.0,
+        "dist_30d_high_pct": -20.436,
+        "sat_share": 0.28
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-11-29",
+          "entry_price": 312.223,
+          "exit_date": "2021-12-01",
+          "exit_price": 294.5,
+          "ret_net_pct": -5.776
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-11-29",
+          "entry_price": 69.0,
+          "exit_date": "2021-12-01",
+          "exit_price": 70.547,
+          "ret_net_pct": 2.142
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-11-29",
+          "entry_price": 52.145,
+          "exit_date": "2021-12-01",
+          "exit_price": 50.79,
+          "ret_net_pct": -2.699
+        }
+      ]
+    },
+    {
+      "friday": "2021-12-10",
+      "sunday": "2021-12-12",
+      "entry_date": "2021-12-13",
+      "weekend_ret_pct": 6.18,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 0.178,
+      "label": 1,
+      "loo_prob_logreg": 0.333,
+      "loo_prob_rf": 0.434,
+      "features": {
+        "weekend_ret_pct": 6.18,
+        "btc_rv30_ann_pct": 65.16,
+        "btc_ret5d_pct": -4.567,
+        "funding_3d_ann_pct": 10.95,
+        "mvrv_z180": -0.481,
+        "vix_fri": 18.69,
+        "days_since_prev": 14.0,
+        "dist_30d_high_pct": -28.051,
+        "sat_share": 0.772
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2021-12-13",
+          "entry_price": 252.14,
+          "exit_date": "2021-12-15",
+          "exit_price": 258.3,
+          "ret_net_pct": 2.343
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2021-12-13",
+          "entry_price": 59.495,
+          "exit_date": "2021-12-15",
+          "exit_price": 59.859,
+          "ret_net_pct": 0.512
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2021-12-13",
+          "entry_price": 39.61,
+          "exit_date": "2021-12-15",
+          "exit_price": 38.73,
+          "ret_net_pct": -2.322
+        }
+      ]
+    },
+    {
+      "friday": "2022-03-25",
+      "sunday": "2022-03-27",
+      "entry_date": "2022-03-28",
+      "weekend_ret_pct": 5.675,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": -0.808,
+      "label": 0,
+      "loo_prob_logreg": 0.54,
+      "loo_prob_rf": 0.618,
+      "features": {
+        "weekend_ret_pct": 5.675,
+        "btc_rv30_ann_pct": 80.13,
+        "btc_ret5d_pct": 7.394,
+        "funding_3d_ann_pct": 3.603,
+        "mvrv_z180": -0.333,
+        "vix_fri": 20.81,
+        "days_since_prev": 105.0,
+        "dist_30d_high_pct": -0.243,
+        "sat_share": 0.079
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2022-03-28",
+          "entry_price": 193.31,
+          "exit_date": "2022-03-30",
+          "exit_price": 196.7,
+          "ret_net_pct": 1.654
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2022-03-28",
+          "entry_price": 49.604,
+          "exit_date": "2022-03-30",
+          "exit_price": 50.069,
+          "ret_net_pct": 0.837
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2022-03-28",
+          "entry_price": 31.055,
+          "exit_date": "2022-03-30",
+          "exit_price": 29.56,
+          "ret_net_pct": -4.914
+        }
+      ]
+    },
+    {
+      "friday": "2022-05-13",
+      "sunday": "2022-05-15",
+      "entry_date": "2022-05-16",
+      "weekend_ret_pct": 6.972,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": -6.018,
+      "label": 0,
+      "loo_prob_logreg": 0.514,
+      "loo_prob_rf": 0.61,
+      "features": {
+        "weekend_ret_pct": 6.972,
+        "btc_rv30_ann_pct": 67.98,
+        "btc_ret5d_pct": -13.959,
+        "funding_3d_ann_pct": -2.442,
+        "mvrv_z180": -1.876,
+        "vix_fri": 28.87,
+        "days_since_prev": 49.0,
+        "dist_30d_high_pct": -29.417,
+        "sat_share": 0.392
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2022-05-16",
+          "entry_price": 68.06,
+          "exit_date": "2022-05-18",
+          "exit_price": 63.03,
+          "ret_net_pct": -7.491
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2022-05-16",
+          "entry_price": 20.0,
+          "exit_date": "2022-05-18",
+          "exit_price": 19.744,
+          "ret_net_pct": -1.38
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2022-05-16",
+          "entry_price": 11.175,
+          "exit_date": "2022-05-18",
+          "exit_price": 10.16,
+          "ret_net_pct": -9.183
+        }
+      ]
+    },
+    {
+      "friday": "2022-05-20",
+      "sunday": "2022-05-22",
+      "entry_date": "2022-05-23",
+      "weekend_ret_pct": 3.743,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -3.458,
+      "label": 0,
+      "loo_prob_logreg": 0.435,
+      "loo_prob_rf": 0.28,
+      "features": {
+        "weekend_ret_pct": 3.743,
+        "btc_rv30_ann_pct": 76.77,
+        "btc_ret5d_pct": -6.792,
+        "funding_3d_ann_pct": 5.225,
+        "mvrv_z180": -1.897,
+        "vix_fri": 29.43,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -27.863,
+        "sat_share": 0.223
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2022-05-23",
+          "entry_price": 65.54,
+          "exit_date": "2022-05-25",
+          "exit_price": 67.17,
+          "ret_net_pct": 2.387
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2022-05-23",
+          "entry_price": 21.164,
+          "exit_date": "2022-05-25",
+          "exit_price": 19.812,
+          "ret_net_pct": -6.488
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2022-05-23",
+          "entry_price": 9.88,
+          "exit_date": "2022-05-25",
+          "exit_price": 9.27,
+          "ret_net_pct": -6.274
+        }
+      ]
+    },
+    {
+      "friday": "2022-08-19",
+      "sunday": "2022-08-21",
+      "entry_date": "2022-08-22",
+      "weekend_ret_pct": 3.27,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": 3.403,
+      "label": 1,
+      "loo_prob_logreg": 0.166,
+      "loo_prob_rf": 0.306,
+      "features": {
+        "weekend_ret_pct": 3.27,
+        "btc_rv30_ann_pct": 58.56,
+        "btc_ret5d_pct": -14.28,
+        "funding_3d_ann_pct": 2.519,
+        "mvrv_z180": -1.028,
+        "vix_fri": 20.6,
+        "days_since_prev": 91.0,
+        "dist_30d_high_pct": -14.758,
+        "sat_share": 0.449
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2022-08-22",
+          "entry_price": 70.91,
+          "exit_date": "2022-08-24",
+          "exit_price": 71.48,
+          "ret_net_pct": 0.704
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2022-08-22",
+          "entry_price": 27.301,
+          "exit_date": "2022-08-24",
+          "exit_price": 27.441,
+          "ret_net_pct": 0.413
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2022-08-22",
+          "entry_price": 12.62,
+          "exit_date": "2022-08-24",
+          "exit_price": 13.78,
+          "ret_net_pct": 9.092
+        }
+      ]
+    },
+    {
+      "friday": "2023-01-13",
+      "sunday": "2023-01-15",
+      "entry_date": "2023-01-17",
+      "weekend_ret_pct": 4.724,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -8.254,
+      "label": 0,
+      "loo_prob_logreg": 0.771,
+      "loo_prob_rf": 0.791,
+      "features": {
+        "weekend_ret_pct": 4.724,
+        "btc_rv30_ann_pct": 36.62,
+        "btc_ret5d_pct": 16.36,
+        "funding_3d_ann_pct": 14.515,
+        "mvrv_z180": 1.537,
+        "vix_fri": 18.35,
+        "days_since_prev": 147.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 1.089
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2023-01-17",
+          "entry_price": 53.31,
+          "exit_date": "2023-01-19",
+          "exit_price": 49.42,
+          "ret_net_pct": -7.397
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2023-01-17",
+          "entry_price": 23.2,
+          "exit_date": "2023-01-19",
+          "exit_price": 22.145,
+          "ret_net_pct": -4.647
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2023-01-17",
+          "entry_price": 8.4,
+          "exit_date": "2023-01-19",
+          "exit_price": 7.34,
+          "ret_net_pct": -12.719
+        }
+      ]
+    },
+    {
+      "friday": "2023-03-10",
+      "sunday": "2023-03-12",
+      "entry_date": "2023-03-13",
+      "weekend_ret_pct": 9.163,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 18.191,
+      "label": 1,
+      "loo_prob_logreg": 0.477,
+      "loo_prob_rf": 0.525,
+      "features": {
+        "weekend_ret_pct": 9.163,
+        "btc_rv30_ann_pct": 56.07,
+        "btc_ret5d_pct": -10.163,
+        "funding_3d_ann_pct": 2.155,
+        "mvrv_z180": 1.12,
+        "vix_fri": 24.8,
+        "days_since_prev": 56.0,
+        "dist_30d_high_pct": -18.885,
+        "sat_share": 0.165
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2023-03-13",
+          "entry_price": 54.705,
+          "exit_date": "2023-03-15",
+          "exit_price": 64.47,
+          "ret_net_pct": 17.75
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2023-03-13",
+          "entry_price": 20.202,
+          "exit_date": "2023-03-15",
+          "exit_price": 22.755,
+          "ret_net_pct": 12.537
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2023-03-13",
+          "entry_price": 5.7,
+          "exit_date": "2023-03-15",
+          "exit_price": 7.09,
+          "ret_net_pct": 24.286
+        }
+      ]
+    },
+    {
+      "friday": "2023-05-26",
+      "sunday": "2023-05-28",
+      "entry_date": "2023-05-30",
+      "weekend_ret_pct": 5.089,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 3.749,
+      "label": 1,
+      "loo_prob_logreg": 0.41,
+      "loo_prob_rf": 0.518,
+      "features": {
+        "weekend_ret_pct": 5.089,
+        "btc_rv30_ann_pct": 32.68,
+        "btc_ret5d_pct": -0.156,
+        "funding_3d_ann_pct": 8.934,
+        "mvrv_z180": 0.931,
+        "vix_fri": 17.95,
+        "days_since_prev": 77.0,
+        "dist_30d_high_pct": -9.489,
+        "sat_share": 0.109
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2023-05-30",
+          "entry_price": 60.1,
+          "exit_date": "2023-06-01",
+          "exit_price": 63.57,
+          "ret_net_pct": 5.674
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2023-05-30",
+          "entry_price": 30.01,
+          "exit_date": "2023-06-01",
+          "exit_price": 29.994,
+          "ret_net_pct": -0.153
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2023-05-30",
+          "entry_price": 9.44,
+          "exit_date": "2023-06-01",
+          "exit_price": 9.99,
+          "ret_net_pct": 5.726
+        }
+      ]
+    },
+    {
+      "friday": "2023-09-29",
+      "sunday": "2023-10-01",
+      "entry_date": "2023-10-02",
+      "weekend_ret_pct": 4.035,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -10.787,
+      "label": 0,
+      "loo_prob_logreg": 0.469,
+      "loo_prob_rf": 0.374,
+      "features": {
+        "weekend_ret_pct": 4.035,
+        "btc_rv30_ann_pct": 28.59,
+        "btc_ret5d_pct": 2.509,
+        "funding_3d_ann_pct": -0.97,
+        "mvrv_z180": -0.126,
+        "vix_fri": 17.52,
+        "days_since_prev": 126.0,
+        "dist_30d_high_pct": -1.115,
+        "sat_share": 0.051
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2023-10-02",
+          "entry_price": 78.55,
+          "exit_date": "2023-10-04",
+          "exit_price": 73.47,
+          "ret_net_pct": -6.567
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2023-10-02",
+          "entry_price": 34.657,
+          "exit_date": "2023-10-04",
+          "exit_price": 32.04,
+          "ret_net_pct": -7.651
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2023-10-02",
+          "entry_price": 9.2,
+          "exit_date": "2023-10-04",
+          "exit_price": 7.54,
+          "ret_net_pct": -18.143
+        }
+      ]
+    },
+    {
+      "friday": "2023-12-01",
+      "sunday": "2023-12-03",
+      "entry_date": "2023-12-04",
+      "weekend_ret_pct": 3.334,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -1.599,
+      "label": 0,
+      "loo_prob_logreg": 0.467,
+      "loo_prob_rf": 0.549,
+      "features": {
+        "weekend_ret_pct": 3.334,
+        "btc_rv30_ann_pct": 42.72,
+        "btc_ret5d_pct": 3.298,
+        "funding_3d_ann_pct": 10.398,
+        "mvrv_z180": 2.47,
+        "vix_fri": 12.63,
+        "days_since_prev": 63.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 0.595
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2023-12-04",
+          "entry_price": 143.53,
+          "exit_date": "2023-12-06",
+          "exit_price": 134.63,
+          "ret_net_pct": -6.301
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2023-12-04",
+          "entry_price": 56.7,
+          "exit_date": "2023-12-06",
+          "exit_price": 56.8885,
+          "ret_net_pct": 0.232
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2023-12-04",
+          "entry_price": 15.33,
+          "exit_date": "2023-12-06",
+          "exit_price": 15.54,
+          "ret_net_pct": 1.27
+        }
+      ]
+    },
+    {
+      "friday": "2024-03-22",
+      "sunday": "2024-03-24",
+      "entry_date": "2024-03-25",
+      "weekend_ret_pct": 5.35,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 7.202,
+      "label": 1,
+      "loo_prob_logreg": 0.252,
+      "loo_prob_rf": 0.403,
+      "features": {
+        "weekend_ret_pct": 5.35,
+        "btc_rv30_ann_pct": 82.99,
+        "btc_ret5d_pct": -6.721,
+        "funding_3d_ann_pct": 14.385,
+        "mvrv_z180": 1.488,
+        "vix_fri": 13.06,
+        "days_since_prev": 112.0,
+        "dist_30d_high_pct": -12.694,
+        "sat_share": 0.057
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2024-03-25",
+          "entry_price": 261.0,
+          "exit_date": "2024-03-27",
+          "exit_price": 256.7,
+          "ret_net_pct": -1.748
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2024-03-25",
+          "entry_price": 160.5,
+          "exit_date": "2024-03-27",
+          "exit_price": 191.916,
+          "ret_net_pct": 19.474
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2024-03-25",
+          "entry_price": 21.225,
+          "exit_date": "2024-03-27",
+          "exit_price": 22.07,
+          "ret_net_pct": 3.881
+        }
+      ]
+    },
+    {
+      "friday": "2024-06-28",
+      "sunday": "2024-06-30",
+      "entry_date": "2024-07-01",
+      "weekend_ret_pct": 3.879,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -1.742,
+      "label": 0,
+      "loo_prob_logreg": 0.389,
+      "loo_prob_rf": 0.353,
+      "features": {
+        "weekend_ret_pct": 3.879,
+        "btc_rv30_ann_pct": 30.84,
+        "btc_ret5d_pct": -4.401,
+        "funding_3d_ann_pct": 10.95,
+        "mvrv_z180": -0.763,
+        "vix_fri": 12.44,
+        "days_since_prev": 98.0,
+        "dist_30d_high_pct": -15.02,
+        "sat_share": 0.238
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2024-07-01",
+          "entry_price": 226.0,
+          "exit_date": "2024-07-03",
+          "exit_price": 224.94,
+          "ret_net_pct": -0.569
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2024-07-01",
+          "entry_price": 141.0,
+          "exit_date": "2024-07-03",
+          "exit_price": 130.209,
+          "ret_net_pct": -7.753
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2024-07-01",
+          "entry_price": 20.33,
+          "exit_date": "2024-07-03",
+          "exit_price": 20.98,
+          "ret_net_pct": 3.097
+        }
+      ]
+    },
+    {
+      "friday": "2024-07-12",
+      "sunday": "2024-07-14",
+      "entry_date": "2024-07-15",
+      "weekend_ret_pct": 5.025,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 9.747,
+      "label": 1,
+      "loo_prob_logreg": 0.264,
+      "loo_prob_rf": 0.484,
+      "features": {
+        "weekend_ret_pct": 5.025,
+        "btc_rv30_ann_pct": 39.7,
+        "btc_ret5d_pct": 3.637,
+        "funding_3d_ann_pct": 8.196,
+        "mvrv_z180": -0.986,
+        "vix_fri": 12.46,
+        "days_since_prev": 14.0,
+        "dist_30d_high_pct": -13.305,
+        "sat_share": 0.452
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2024-07-15",
+          "entry_price": 229.38,
+          "exit_date": "2024-07-17",
+          "exit_price": 249.1,
+          "ret_net_pct": 8.497
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2024-07-15",
+          "entry_price": 152.4,
+          "exit_date": "2024-07-17",
+          "exit_price": 159.0,
+          "ret_net_pct": 4.231
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2024-07-15",
+          "entry_price": 21.91,
+          "exit_date": "2024-07-17",
+          "exit_price": 25.55,
+          "ret_net_pct": 16.513
+        }
+      ]
+    },
+    {
+      "friday": "2024-11-08",
+      "sunday": "2024-11-10",
+      "entry_date": "2024-11-11",
+      "weekend_ret_pct": 5.045,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": 0.795,
+      "label": 1,
+      "loo_prob_logreg": 0.49,
+      "loo_prob_rf": 0.588,
+      "features": {
+        "weekend_ret_pct": 5.045,
+        "btc_rv30_ann_pct": 46.15,
+        "btc_ret5d_pct": 11.245,
+        "funding_3d_ann_pct": 10.95,
+        "mvrv_z180": 2.103,
+        "vix_fri": 14.94,
+        "days_since_prev": 119.0,
+        "dist_30d_high_pct": 0.0,
+        "sat_share": 0.043
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2024-11-11",
+          "entry_price": 300.305,
+          "exit_date": "2024-11-13",
+          "exit_price": 284.72,
+          "ret_net_pct": -5.29
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2024-11-11",
+          "entry_price": 297.0,
+          "exit_date": "2024-11-13",
+          "exit_price": 328.38,
+          "ret_net_pct": 10.466
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2024-11-11",
+          "entry_price": 22.3,
+          "exit_date": "2024-11-13",
+          "exit_price": 21.7,
+          "ret_net_pct": -2.791
+        }
+      ]
+    },
+    {
+      "friday": "2025-02-28",
+      "sunday": "2025-03-02",
+      "entry_date": "2025-03-03",
+      "weekend_ret_pct": 11.761,
+      "in_5pct_rule": true,
+      "n_legs": 3,
+      "ret_net_pct": -0.188,
+      "label": 0,
+      "loo_prob_logreg": 0.773,
+      "loo_prob_rf": 0.641,
+      "features": {
+        "weekend_ret_pct": 11.761,
+        "btc_rv30_ann_pct": 37.72,
+        "btc_ret5d_pct": -12.371,
+        "funding_3d_ann_pct": 2.352,
+        "mvrv_z180": -0.322,
+        "vix_fri": 19.63,
+        "days_since_prev": 112.0,
+        "dist_30d_high_pct": -19.454,
+        "sat_share": 0.173
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2025-03-03",
+          "entry_price": 232.23,
+          "exit_date": "2025-03-05",
+          "exit_price": 222.45,
+          "ret_net_pct": -4.311
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2025-03-03",
+          "entry_price": 293.15,
+          "exit_date": "2025-03-05",
+          "exit_price": 308.55,
+          "ret_net_pct": 5.153
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2025-03-03",
+          "entry_price": 15.32,
+          "exit_date": "2025-03-05",
+          "exit_price": 15.12,
+          "ret_net_pct": -1.405
+        }
+      ]
+    },
+    {
+      "friday": "2025-10-24",
+      "sunday": "2025-10-26",
+      "entry_date": "2025-10-27",
+      "weekend_ret_pct": 3.202,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -6.53,
+      "label": 0,
+      "loo_prob_logreg": 0.645,
+      "loo_prob_rf": 0.426,
+      "features": {
+        "weekend_ret_pct": 3.202,
+        "btc_rv30_ann_pct": 45.07,
+        "btc_ret5d_pct": 2.174,
+        "funding_3d_ann_pct": 4.379,
+        "mvrv_z180": -1.367,
+        "vix_fri": 16.37,
+        "days_since_prev": 238.0,
+        "dist_30d_high_pct": -10.953,
+        "sat_share": 0.18
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2025-10-27",
+          "entry_price": 362.82,
+          "exit_date": "2025-10-29",
+          "exit_price": 348.61,
+          "ret_net_pct": -4.017
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2025-10-27",
+          "entry_price": 299.5,
+          "exit_date": "2025-10-29",
+          "exit_price": 275.36,
+          "ret_net_pct": -8.16
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2025-10-27",
+          "entry_price": 20.37,
+          "exit_date": "2025-10-29",
+          "exit_price": 18.88,
+          "ret_net_pct": -7.415
+        }
+      ]
+    },
+    {
+      "friday": "2026-04-03",
+      "sunday": "2026-04-05",
+      "entry_date": "2026-04-06",
+      "weekend_ret_pct": 3.091,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": 3.527,
+      "label": 1,
+      "loo_prob_logreg": 0.335,
+      "loo_prob_rf": 0.239,
+      "features": {
+        "weekend_ret_pct": 3.091,
+        "btc_rv30_ann_pct": 41.98,
+        "btc_ret5d_pct": 1.444,
+        "funding_3d_ann_pct": 2.47,
+        "mvrv_z180": -1.064,
+        "vix_fri": 23.87,
+        "days_since_prev": 161.0,
+        "dist_30d_high_pct": -10.577,
+        "sat_share": 0.162
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2026-04-06",
+          "entry_price": 175.1,
+          "exit_date": "2026-04-08",
+          "exit_price": 175.09,
+          "ret_net_pct": -0.106
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2026-04-06",
+          "entry_price": 124.57,
+          "exit_date": "2026-04-08",
+          "exit_price": 128.3,
+          "ret_net_pct": 2.894
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2026-04-06",
+          "entry_price": 8.805,
+          "exit_date": "2026-04-08",
+          "exit_price": 9.5,
+          "ret_net_pct": 7.793
+        }
+      ]
+    },
+    {
+      "friday": "2026-06-05",
+      "sunday": "2026-06-07",
+      "entry_date": "2026-06-08",
+      "weekend_ret_pct": 3.727,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -3.844,
+      "label": 0,
+      "loo_prob_logreg": 0.336,
+      "loo_prob_rf": 0.39,
+      "features": {
+        "weekend_ret_pct": 3.727,
+        "btc_rv30_ann_pct": 36.49,
+        "btc_ret5d_pct": -17.127,
+        "funding_3d_ann_pct": 1.35,
+        "mvrv_z180": -1.524,
+        "vix_fri": 21.51,
+        "days_since_prev": 63.0,
+        "dist_30d_high_pct": -25.731,
+        "sat_share": -0.076
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2026-06-08",
+          "entry_price": 156.605,
+          "exit_date": "2026-06-10",
+          "exit_price": 153.97,
+          "ret_net_pct": -1.783
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2026-06-08",
+          "entry_price": 125.84,
+          "exit_date": "2026-06-10",
+          "exit_price": 115.35,
+          "ret_net_pct": -8.436
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2026-06-08",
+          "entry_price": 12.775,
+          "exit_date": "2026-06-10",
+          "exit_price": 12.62,
+          "ret_net_pct": -1.313
+        }
+      ]
+    },
+    {
+      "friday": "2026-06-12",
+      "sunday": "2026-06-14",
+      "entry_date": "2026-06-15",
+      "weekend_ret_pct": 3.407,
+      "in_5pct_rule": false,
+      "n_legs": 3,
+      "ret_net_pct": -7.489,
+      "label": 0,
+      "loo_prob_logreg": 0.447,
+      "loo_prob_rf": 0.383,
+      "features": {
+        "weekend_ret_pct": 3.407,
+        "btc_rv30_ann_pct": 41.68,
+        "btc_ret5d_pct": 0.392,
+        "funding_3d_ann_pct": 1.253,
+        "mvrv_z180": -1.083,
+        "vix_fri": 17.68,
+        "days_since_prev": 7.0,
+        "dist_30d_high_pct": -21.593,
+        "sat_share": 0.405
+      },
+      "legs": [
+        {
+          "symbol": "COIN",
+          "entry_date": "2026-06-15",
+          "entry_price": 170.0,
+          "exit_date": "2026-06-17",
+          "exit_price": 164.915,
+          "ret_net_pct": -3.091
+        },
+        {
+          "symbol": "MSTR",
+          "entry_date": "2026-06-15",
+          "entry_price": 133.22,
+          "exit_date": "2026-06-17",
+          "exit_price": 116.56,
+          "ret_net_pct": -12.606
+        },
+        {
+          "symbol": "MARA",
+          "entry_date": "2026-06-15",
+          "entry_price": 14.915,
+          "exit_date": "2026-06-17",
+          "exit_price": 13.92,
+          "ret_net_pct": -6.771
+        }
+      ]
+    }
+  ]
+}
