@@ -21,6 +21,12 @@ Examples:
         --exchange binance --hostname data-api.binance.vision \\
         --market spot --symbol "BTC/USDT,ETH/USDT,SOL/USDT" \\
         --timeframe "15m,1h" --years 3 --skip-funding
+
+    # Backfill a gap BEFORE existing data (spot 1d back to 2021)
+    poetry run python scripts/backfill_perp_ohlcv.py \\
+        --exchange binance --hostname data-api.binance.vision \\
+        --market spot --symbol "BTC/USDT" --timeframe 1d \\
+        --since 2021-01-01 --skip-funding
 """
 
 from __future__ import annotations
@@ -71,6 +77,18 @@ def make_exchange(exchange_id: str, hostname: str | None = None) -> ccxt.Exchang
     return cls({"enableRateLimit": True, "options": kwargs})
 
 
+def parse_since(since: str) -> int:
+    """Parse --since as ms timestamp or ISO date (YYYY-MM-DD, UTC)."""
+    if since.isdigit():
+        return int(since)
+    return int(
+        datetime.strptime(since, "%Y-%m-%d")
+        .replace(tzinfo=timezone.utc)
+        .timestamp()
+        * 1000
+    )
+
+
 def backfill_ohlcv(
     exchange: ccxt.Exchange,
     store: HistoricalOHLCVStore,
@@ -79,10 +97,22 @@ def backfill_ohlcv(
     dry_run: bool,
     years: float = 2.0,
     market_type: str = "perp",
+    since: int | None = None,
 ) -> int:
-    """Fetch and store OHLCV candles from the last stored ts to now."""
+    """Fetch and store OHLCV candles from the last stored ts to now.
+
+    If `since` (ms) is given, fetch from that point instead — used to
+    backfill gaps *before* the earliest stored data. Upserts are idempotent,
+    so re-fetching already-stored candles is safe.
+    """
     last_ts = store.get_latest_ts(symbol, market_type, timeframe)
-    if last_ts is None:
+    if since is not None:
+        since_ms = since
+        print(
+            f"  Backfill mode from {datetime.fromtimestamp(since_ms / 1000, tz=timezone.utc)}"
+            f" (last stored ts: {last_ts})"
+        )
+    elif last_ts is None:
         # Start from `years` ago if DB is empty
         since_ms = int((datetime.now(timezone.utc).timestamp() - years * 365 * 24 * 3600) * 1000)
         print(f"  No existing data — starting from {datetime.fromtimestamp(since_ms / 1000, tz=timezone.utc)}")
@@ -285,6 +315,15 @@ def main() -> None:
         help="SQLite DB path (default: data/btc_history.db)",
     )
     parser.add_argument(
+        "--since",
+        default=None,
+        help=(
+            "Force fetch start for OHLCV backfill: ISO date (YYYY-MM-DD) or ms "
+            "timestamp. Fetches from this point to now (existing rows are "
+            "upserted, not duplicated). Default: resume after last stored ts."
+        ),
+    )
+    parser.add_argument(
         "--skip-funding",
         action="store_true",
         help="Skip funding rate backfill",
@@ -324,6 +363,7 @@ def main() -> None:
             total_ohlcv += backfill_ohlcv(
                 exchange, ohlcv_store, sym, tf, args.dry_run,
                 years=args.years, market_type=args.market,
+                since=parse_since(args.since) if args.since else None,
             )
     print(f"  Total OHLCV rows written: {total_ohlcv}\n")
 
