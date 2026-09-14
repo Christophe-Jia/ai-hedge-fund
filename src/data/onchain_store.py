@@ -248,6 +248,10 @@ class OnchainMetricStore:
     # Internal helpers
     # ------------------------------------------------------------------
 
+    def upsert(self, records: list[dict]) -> int:
+        """Upsert raw records ([{asset, metric, ts_ms, value}, ...]). Public API."""
+        return self._upsert(records)
+
     def _upsert(self, records: list[dict]) -> int:
         if not records:
             return 0
