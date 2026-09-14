@@ -57,11 +57,12 @@ _HEADERS = {
 _DEFAULT_FROM = "2014-01-01"
 
 # ETF whitelist (assetclass=etf). Stocks accept any valid ticker symbol.
-_ETF_SUPPORTED = {"QQQ", "VOO", "SPY", "TQQQ", "IWM", "DIA", "GLD", "TLT"}
+_ETF_SUPPORTED = {"QQQ", "VOO", "SPY", "QLD", "TQQQ", "IWM", "DIA", "GLD", "TLT"}
 
 # Approximate trailing dividend yields (for total-return adjustment only).
 _APPROX_DIV_YIELDS: dict[str, float] = {
     "QQQ": 0.006,
+    "QLD": 0.005,
     "VOO": 0.013,
     "SPY": 0.013,
     "TQQQ": 0.0,
