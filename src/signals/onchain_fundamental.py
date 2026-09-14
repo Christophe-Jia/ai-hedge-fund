@@ -5,6 +5,12 @@ metrics, positive price-vs-usage divergence, net exchange inflows),
 bullish when usage leads price. Uses only data available STRICTLY BEFORE
 `as_of` (no look-ahead).
 
+Execution target: BTC itself (Binance USDT-margined perpetual,
+shortable), NOT crypto-proxy stocks. The z-scores are computed on BTC
+on-chain data, so the instrument traded is the asset the fundamentals
+describe — mean-reversion in BTC valuation is expressed as a BTC short,
+not as a short of high-beta crypto equities.
+
 Data source: OnchainMetricStore (data/onchain_metrics.db). Metric
 selection degrades gracefully based on availability:
 
@@ -22,6 +28,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
+from src.data.historical_store import HistoricalOHLCVStore
 from src.data.onchain_store import OnchainMetricStore
 
 from .base import Signal, SignalOutput, direction_from_score
@@ -29,6 +36,16 @@ from .base import Signal, SignalOutput, direction_from_score
 _MS_PER_DAY = 86_400_000
 _STALENESS_MS = 7 * _MS_PER_DAY  # a metric older than this is stale
 _SMOOTH_DAYS = 30                # rolling window for usage/flow smoothing
+
+# Execution: BTC perpetual on Binance (USDT-margined, shortable).
+DEFAULT_TARGETS = ("BTC/USDT:USDT",)
+INSTRUMENT = "perp"
+# Spot daily bars backing the execution instrument's price; used only for
+# the market-data freshness check in data_health().
+_PRICE_SYMBOL = "BTC/USDT"
+_PRICE_MARKET = "spot"
+_PRICE_TIMEFRAME = "1d"
+_BTC_MAX_STALE_DAYS = 3  # BTC trades 7d/wk — bars older than this = stale
 
 _VALUATION_CANDIDATES = ("mvrv", "nvt_approx")  # preference order
 _CANDIDATE_METRICS = (
@@ -82,6 +99,8 @@ class OnchainFundamentalSignal(Signal):
         lookback_days: int = 180,
         min_history_days: int = 120,
         sigma_cap: float = 2.0,
+        targets: tuple[str, ...] | list[str] = DEFAULT_TARGETS,
+        price_store: HistoricalOHLCVStore | None = None,
     ) -> None:
         """
         Args:
@@ -91,12 +110,19 @@ class OnchainFundamentalSignal(Signal):
             min_history_days: minimum daily observations required, else
                 generate() returns None.
             sigma_cap: z-score magnitude mapped to a full +/-1 score.
+            targets: execution instruments (exchange symbols). Default is
+                the BTC perpetual — shortable, so negative scores express
+                bearish BTC fundamentals directly.
+            price_store: OHLCV store for the market-data freshness check
+                in data_health(); defaults to the shared btc_history.db.
         """
         self._store = store if store is not None else OnchainMetricStore()
         self._asset = asset
         self._lookback_days = lookback_days
         self._min_history_days = min_history_days
         self._sigma_cap = sigma_cap
+        self.targets = tuple(targets)
+        self._price_store = price_store
 
     # ------------------------------------------------------------------
     # Signal interface
@@ -178,6 +204,8 @@ class OnchainFundamentalSignal(Signal):
         metadata = {
             "asset": self._asset,
             "as_of": str(as_of),
+            "targets": list(self.targets),
+            "instrument": INSTRUMENT,
             **{k: v for k, v in components.items()},
             "raw": raw,
             "valuation_metric": valuation,
@@ -197,7 +225,13 @@ class OnchainFundamentalSignal(Signal):
         )
 
     def data_health(self, now_ms: int | None = None) -> dict:
-        """Check availability/freshness of the metrics this signal can use."""
+        """Check availability/freshness of the metrics this signal can use.
+
+        Returns the on-chain metrics status (unchanged semantics: ok /
+        degraded / stale / no_data) plus a separate ``market_data`` block
+        reporting freshness of the execution instrument's daily bars
+        (BTC/USDT spot 1d in btc_history.db).
+        """
         if now_ms is None:
             now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
 
@@ -230,4 +264,29 @@ class OnchainFundamentalSignal(Signal):
             "asset": self._asset,
             "status": status,
             "metrics": metrics,
+            "market_data": self._market_data_health(now_ms),
+        }
+
+    def _market_data_health(self, now_ms: int) -> dict:
+        """Freshness of the execution instrument's daily bars (spot 1d)."""
+        if self._price_store is None:
+            self._price_store = HistoricalOHLCVStore(allow_fetch=False)
+        ts = self._price_store.get_latest_ts(_PRICE_SYMBOL, _PRICE_MARKET, _PRICE_TIMEFRAME)
+        if ts is None:
+            mkt_status = "no_data"
+        elif (now_ms - ts) / _MS_PER_DAY > _BTC_MAX_STALE_DAYS:
+            mkt_status = "stale"
+        else:
+            mkt_status = "ok"
+        return {
+            "symbol": _PRICE_SYMBOL,
+            "market_type": _PRICE_MARKET,
+            "timeframe": _PRICE_TIMEFRAME,
+            "latest_ts": (
+                datetime.fromtimestamp(ts / 1000, tz=timezone.utc).isoformat()
+                if ts is not None
+                else None
+            ),
+            "days_stale": (now_ms - ts) / _MS_PER_DAY if ts is not None else None,
+            "status": mkt_status,
         }

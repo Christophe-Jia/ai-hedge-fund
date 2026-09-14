@@ -1,0 +1,157 @@
+{
+  "config": {
+    "signal": "onchain_fundamental",
+    "targets": [
+      "BTC/USDT:USDT"
+    ],
+    "instrument": "perp (proxied by BTC/USDT spot 1d closes)",
+    "start": "2019-07-01",
+    "end": "2026-09-13",
+    "threshold": 0.15,
+    "rebalance_band": 0.25,
+    "fee_bps_on_turnover": 5.0,
+    "initial_capital": 100000.0,
+    "annualization_days": 365
+  },
+  "overall": {
+    "strategy": {
+      "total_return_pct": -71.62,
+      "cagr_pct": -16.03,
+      "sharpe": -0.409,
+      "max_drawdown_pct": -83.03,
+      "n_days": 2632,
+      "avg_exposure": -0.059,
+      "avg_abs_exposure": 0.339,
+      "pct_days_in_market": 0.6945,
+      "days_long": 843,
+      "days_short": 985,
+      "days_flat": 804,
+      "n_days_fired": 2632,
+      "n_rebalances": 217,
+      "turnover": 68.88,
+      "total_costs_usd": 1823.32,
+      "final_equity": 28363.27
+    },
+    "btc_buy_hold": {
+      "total_return_pct": 623.22,
+      "cagr_pct": 31.57,
+      "sharpe": 0.761,
+      "max_drawdown_pct": -76.63,
+      "n_days": 2632
+    }
+  },
+  "yearly": [
+    {
+      "year": 2019,
+      "strategy_return_pct": 2.45,
+      "strategy_sharpe": 0.317,
+      "strategy_mdd_pct": -16.67,
+      "btc_return_pct": -32.28,
+      "excess_pct": 34.73,
+      "avg_exposure": -0.077,
+      "days_long": 45,
+      "days_short": 70,
+      "n_days": 184
+    },
+    {
+      "year": 2020,
+      "strategy_return_pct": -36.97,
+      "strategy_sharpe": -0.558,
+      "strategy_mdd_pct": -47.21,
+      "btc_return_pct": 301.67,
+      "excess_pct": -338.64,
+      "avg_exposure": -0.035,
+      "days_long": 112,
+      "days_short": 132,
+      "n_days": 366
+    },
+    {
+      "year": 2021,
+      "strategy_return_pct": -25.74,
+      "strategy_sharpe": -1.055,
+      "strategy_mdd_pct": -34.56,
+      "btc_return_pct": 57.57,
+      "excess_pct": -83.31,
+      "avg_exposure": -0.135,
+      "days_long": 15,
+      "days_short": 126,
+      "n_days": 365
+    },
+    {
+      "year": 2022,
+      "strategy_return_pct": -7.69,
+      "strategy_sharpe": -0.154,
+      "strategy_mdd_pct": -25.55,
+      "btc_return_pct": -65.34,
+      "excess_pct": 57.65,
+      "avg_exposure": 0.419,
+      "days_long": 348,
+      "days_short": 0,
+      "n_days": 365
+    },
+    {
+      "year": 2023,
+      "strategy_return_pct": -26.81,
+      "strategy_sharpe": -1.096,
+      "strategy_mdd_pct": -30.48,
+      "btc_return_pct": 154.46,
+      "excess_pct": -181.27,
+      "avg_exposure": -0.352,
+      "days_long": 68,
+      "days_short": 288,
+      "n_days": 365
+    },
+    {
+      "year": 2024,
+      "strategy_return_pct": -21.69,
+      "strategy_sharpe": -0.703,
+      "strategy_mdd_pct": -38.59,
+      "btc_return_pct": 111.81,
+      "excess_pct": -133.5,
+      "avg_exposure": -0.302,
+      "days_long": 61,
+      "days_short": 214,
+      "n_days": 366
+    },
+    {
+      "year": 2025,
+      "strategy_return_pct": 4.79,
+      "strategy_sharpe": 0.431,
+      "strategy_mdd_pct": -8.38,
+      "btc_return_pct": -7.34,
+      "excess_pct": 12.13,
+      "avg_exposure": -0.06,
+      "days_long": 76,
+      "days_short": 140,
+      "n_days": 365
+    },
+    {
+      "year": 2026,
+      "strategy_return_pct": 11.25,
+      "strategy_sharpe": 1.446,
+      "strategy_mdd_pct": -3.95,
+      "btc_return_pct": -13.5,
+      "excess_pct": 24.75,
+      "avg_exposure": 0.114,
+      "days_long": 118,
+      "days_short": 15,
+      "n_days": 256
+    }
+  ],
+  "signal_stats": {
+    "days_fired": 2632,
+    "avg_score": -0.052,
+    "avg_abs_score": 0.3649,
+    "pct_days_short_score": 0.511
+  },
+  "conventions": {
+    "look_ahead": "signal as_of = bar date D uses on-chain data strictly before D; trades at D's close",
+    "sizing": "target exposure = signal score (signed fraction of equity, cap +/-1)",
+    "flat_rule": "|score| <= 0.15 -> cash",
+    "rebalance_rule": "trade when |target - exposure| >= 0.25",
+    "shorting": "allowed (perp); borrow/funding costs NOT modeled",
+    "costs": "5.0 bps on traded notional (turnover)",
+    "price_note": "spot daily closes stand in for perp; basis and funding not modeled",
+    "data_note": "BTC spot 1d pre-2023-03 backfilled from data-api.binance.vision; on-chain metrics from CoinMetrics (2019-01-01+)"
+  }
+}

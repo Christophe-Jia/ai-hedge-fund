@@ -9,6 +9,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from src.data.historical_store import HistoricalOHLCVStore
 from src.data.onchain_store import OnchainMetricStore
 from src.signals import OnchainFundamentalSignal, Signal
 
@@ -337,6 +338,96 @@ class TestDataHealth:
 
 
 # ---------------------------------------------------------------------------
+# Execution targets (BTC direct, not crypto stocks)
+# ---------------------------------------------------------------------------
+
+
+class TestTargets:
+    def test_default_targets_are_btc_perp(self, bearish_store):
+        out = OnchainFundamentalSignal(store=bearish_store).generate(AS_OF)
+        assert out is not None
+        assert out.metadata["targets"] == ["BTC/USDT:USDT"]
+        assert out.metadata["instrument"] == "perp"
+
+    def test_custom_targets_respected(self, bearish_store):
+        sig = OnchainFundamentalSignal(store=bearish_store, targets=["BTC/USDT"])
+        out = sig.generate(AS_OF)
+        assert out is not None
+        assert out.metadata["targets"] == ["BTC/USDT"]
+        assert out.metadata["instrument"] == "perp"
+
+    def test_no_stock_symbols_in_default_targets(self, bearish_store):
+        """The signal must NOT point at the crypto-proxy stock basket."""
+        out = OnchainFundamentalSignal(store=bearish_store).generate(AS_OF)
+        assert out is not None
+        for sym in ("COIN", "MSTR", "MARA", "RIOT"):
+            assert sym not in out.metadata["targets"]
+
+
+# ---------------------------------------------------------------------------
+# data_health(): market-data freshness (execution instrument bars)
+# ---------------------------------------------------------------------------
+
+
+def build_price_store(tmp_path, last_day: str, n_days: int = 10) -> HistoricalOHLCVStore:
+    """BTC/USDT spot 1d store with `n_days` bars ending on `last_day`."""
+    store = HistoricalOHLCVStore(
+        db_path=str(tmp_path / "btc_prices.db"), allow_fetch=False
+    )
+    rows = []
+    base = pd.Timestamp(last_day, tz="UTC") - pd.Timedelta(days=n_days - 1)
+    for i in range(n_days):
+        ts = base + pd.Timedelta(days=i)
+        rows.append([int(ts.value // 1_000_000), 100.0, 101.0, 99.0, 100.5, 10.0])
+    store.upsert_ohlcv("BTC/USDT", "spot", "1d", rows)
+    return store
+
+
+class TestMarketDataHealth:
+    NOW_MS = int(pd.Timestamp("2026-09-14", tz="UTC").value // 1_000_000)
+
+    def test_ok_when_bars_fresh(self, tmp_path):
+        store = build_store(tmp_path, bearish_series())
+        prices = build_price_store(tmp_path / "px", last_day="2026-09-13")
+        health = OnchainFundamentalSignal(
+            store=store, price_store=prices
+        ).data_health(now_ms=self.NOW_MS)
+        md = health["market_data"]
+        assert md["symbol"] == "BTC/USDT"
+        assert md["status"] == "ok"
+        assert md["days_stale"] == pytest.approx(1.0)
+
+    def test_stale_when_bars_old(self, tmp_path):
+        store = build_store(tmp_path, bearish_series())
+        prices = build_price_store(tmp_path / "px", last_day="2026-09-01")
+        health = OnchainFundamentalSignal(
+            store=store, price_store=prices
+        ).data_health(now_ms=self.NOW_MS)
+        assert health["market_data"]["status"] == "stale"
+
+    def test_no_data_when_price_store_empty(self, tmp_path):
+        store = build_store(tmp_path, bearish_series())
+        prices = HistoricalOHLCVStore(
+            db_path=str(tmp_path / "px_empty.db"), allow_fetch=False
+        )
+        health = OnchainFundamentalSignal(
+            store=store, price_store=prices
+        ).data_health(now_ms=self.NOW_MS)
+        assert health["market_data"]["status"] == "no_data"
+        assert health["market_data"]["latest_ts"] is None
+
+    def test_market_data_does_not_override_onchain_status(self, tmp_path):
+        """On-chain metrics are stale but bars fresh -> overall status still 'stale'."""
+        store = build_store(tmp_path, bearish_series())  # ends 2025-07-19
+        prices = build_price_store(tmp_path / "px", last_day="2026-09-13")
+        health = OnchainFundamentalSignal(
+            store=store, price_store=prices
+        ).data_health(now_ms=self.NOW_MS)
+        assert health["status"] == "stale"
+        assert health["market_data"]["status"] == "ok"
+
+
+# ---------------------------------------------------------------------------
 # Integration: real onchain_metrics.db (skipped if absent)
 # ---------------------------------------------------------------------------
 
@@ -357,6 +448,8 @@ class TestRealDataSmoke:
             assert out.direction in ("long", "short", "flat")
             assert out.metadata["valuation_metric"] == "mvrv"
             assert out.metadata["exchange_flows_used"] is True
+            assert out.metadata["targets"] == ["BTC/USDT:USDT"]
+            assert out.metadata["instrument"] == "perp"
 
     def test_data_health_on_real_store(self):
         health = OnchainFundamentalSignal().data_health()
