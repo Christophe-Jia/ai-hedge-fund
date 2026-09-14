@@ -35,11 +35,13 @@ RENAME_MAP = {
     "FB": "META",
     "PCLN": "BKNG",
     "UTX": "RTX",
-    "DWDP": "DD",      # DowDuPont breakup -> Dow; approximated
-    "TWX": "T",        # acquired by AT&T
-    "CELG": "BMY",     # acquired by Bristol-Myers
-    "MON": "BAYRY",    # acquired by Bayer (ADR)
-    "AGN": "ABBV",     # acquired by AbbVie
+    "RTN": "RTX",      # Raytheon merged into RTX
+    "BK": "BNY",       # BNY Mellon renamed
+    "DWDP": "DD",
+    "TWX": "T",
+    "CELG": "BMY",
+    "MON": "BAYRY",
+    "AGN": "ABBV",
 }
 
 
