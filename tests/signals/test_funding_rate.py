@@ -184,7 +184,7 @@ class TestDataHealth:
         assert set(h) >= {"ok", "funding", "stocks"}
         f = h["funding"]
         assert f["rows"] > 0
-        assert f["first_date"] == "2023-03-02"  # funding feed start
+        assert f["first_date"] <= "2023-03-02"  # feed started here; may extend earlier after backfills
         assert "stale_hours" in f and "max_stale_hours" in f
         for sym in ("MSTR", "COIN", "MARA", "RIOT"):
             assert sym in h["stocks"]
