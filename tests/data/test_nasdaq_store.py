@@ -1,10 +1,15 @@
-"""Unit tests for EtfDailyStore (offline; live fetch is network-marked)."""
+"""Unit tests for NasdaqDailyStore (offline; live fetch is network-marked).
+
+Covers the ETF path (assetclass="etf", the default). The store superseded
+the old EtfDailyStore in the M1 refactor; parsing/query semantics carry
+over unchanged.
+"""
 
 from __future__ import annotations
 
 import pytest
 
-from src.data.etf_store import EtfDailyStore
+from src.data.nasdaq_store import NasdaqDailyStore
 
 _SAMPLE_PAYLOAD = {
     "data": {
@@ -45,7 +50,7 @@ _PAYLOAD_WITH_JUNK = {
 
 class TestPayloadParsing:
     def test_parse_basic(self):
-        rows = EtfDailyStore._parse_payload(_SAMPLE_PAYLOAD)
+        rows = NasdaqDailyStore._parse_payload(_SAMPLE_PAYLOAD)
         assert len(rows) == 3
         # sorted oldest-first: 2026-01-02 first
         assert rows[0][0] == 1767312000000  # 2026-01-02 UTC ms
@@ -54,21 +59,21 @@ class TestPayloadParsing:
         assert rows[0][5] == pytest.approx(35_120_000)  # comma-stripped volume
 
     def test_parse_skips_malformed(self):
-        rows = EtfDailyStore._parse_payload(_PAYLOAD_WITH_JUNK)
+        rows = NasdaqDailyStore._parse_payload(_PAYLOAD_WITH_JUNK)
         assert len(rows) == 2
         # N/A volume -> 0.0, garbage row dropped
         assert rows[1][5] == 0.0
 
     def test_parse_empty(self):
-        assert EtfDailyStore._parse_payload(None) == []
-        assert EtfDailyStore._parse_payload({"data": None}) == []
-        assert EtfDailyStore._parse_payload({"data": {"tradesTable": {"rows": None}}}) == []
+        assert NasdaqDailyStore._parse_payload(None) == []
+        assert NasdaqDailyStore._parse_payload({"data": None}) == []
+        assert NasdaqDailyStore._parse_payload({"data": {"tradesTable": {"rows": None}}}) == []
 
 
 class TestStoreRoundTrip:
     def test_upsert_and_query_lookahead_safe(self, tmp_path):
-        store = EtfDailyStore(db_path=str(tmp_path / "etf.db"))
-        rows = EtfDailyStore._parse_payload(_SAMPLE_PAYLOAD)
+        store = NasdaqDailyStore(db_path=str(tmp_path / "etf.db"))
+        rows = NasdaqDailyStore._parse_payload(_SAMPLE_PAYLOAD)
         n = store._store.upsert_ohlcv("QQQ", "etf", "1d", rows)
         assert n == 3
 
@@ -82,8 +87,8 @@ class TestStoreRoundTrip:
         assert df2.index[-1].strftime("%Y-%m-%d") == "2026-01-05"
 
     def test_close_series_dividend_accrual(self, tmp_path):
-        store = EtfDailyStore(db_path=str(tmp_path / "etf.db"))
-        rows = EtfDailyStore._parse_payload(_SAMPLE_PAYLOAD)
+        store = NasdaqDailyStore(db_path=str(tmp_path / "etf.db"))
+        rows = NasdaqDailyStore._parse_payload(_SAMPLE_PAYLOAD)
         store._store.upsert_ohlcv("VOO", "etf", "1d", rows)
 
         raw = store.get_close_series("VOO", "2026-01-01", "2026-01-31", div_yield_annual=0.0)
@@ -94,12 +99,12 @@ class TestStoreRoundTrip:
         assert 0.0 < uplift < 0.001  # ~1.3%/yr over 2 days
 
     def test_unknown_symbol_raises(self, tmp_path):
-        store = EtfDailyStore(db_path=str(tmp_path / "etf.db"))
+        store = NasdaqDailyStore(db_path=str(tmp_path / "etf.db"))
         with pytest.raises(ValueError, match="Unsupported ETF"):
             store.fetch_and_store("NOPE")
 
     def test_coverage_empty(self, tmp_path):
-        store = EtfDailyStore(db_path=str(tmp_path / "etf.db"))
+        store = NasdaqDailyStore(db_path=str(tmp_path / "etf.db"))
         assert store.get_coverage("QQQ") == (None, None, 0)
 
 
@@ -107,7 +112,7 @@ class TestStoreRoundTrip:
 class TestNetwork:
     def test_fetch_qqq_smoke(self, tmp_path):
         """Live fetch (opt-in: pytest -m network). ~10y of daily bars."""
-        store = EtfDailyStore(db_path=str(tmp_path / "etf.db"))
+        store = NasdaqDailyStore(db_path=str(tmp_path / "etf.db"))
         n = store.fetch_and_store("QQQ")
         assert n > 2000
         first, last, total = store.get_coverage("QQQ")

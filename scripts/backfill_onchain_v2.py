@@ -18,13 +18,14 @@ Metrics pulled (daily, 00:00 UTC):
   FlowOutExNtv         -> exchange_outflow_native (BTC out of exchanges, native units)
   CapMVRVCur           -> mvrv                    (real MVRV ratio)
   CapMrktCurUSD        -> market_cap              (USD market capitalisation)
-  ReferenceRateUSD     -> price                   (USD reference rate; recent dates only)
+  PriceUSD             -> price                   (daily USD close, full history)
 
 Notes:
   - The community API pages NEWEST-FIRST; we follow next_page_url until exhausted.
-  - ReferenceRateUSD returns null for older dates on the community tier — nulls skipped.
   - Exchange flow values with "flash" status are preliminary estimates; they get
     corrected on re-runs (INSERT OR REPLACE).
+  - Trading volume is NOT available on the community tier; CoinGecko free is
+    limited to the past 365 days, so `volume`/`nvt_approx` only cover ~1 year.
 
 Usage:
     poetry run python scripts/backfill_onchain_v2.py
@@ -56,7 +57,7 @@ _CM_METRIC_MAP = {
     "FlowOutExNtv": "exchange_outflow_native",
     "CapMVRVCur": "mvrv",
     "CapMrktCurUSD": "market_cap",
-    "ReferenceRateUSD": "price",
+    "PriceUSD": "price",
 }
 
 _CM_ASSET_MAP = {"BTC": "btc", "ETH": "eth", "SOL": "sol"}
