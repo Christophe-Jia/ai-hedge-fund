@@ -114,6 +114,14 @@ RED_TEAM_QUESTIONS: list[dict] = [
         "why": "样本内最优不等于可交易；必须声明样本外口径。",
     },
     {
+        "id": "reproducibility",
+        "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+        "paths": ["reproducibility", "reproduction.as_of_check", "reproducibility_probe", "determinism_check", "rerun_overlap", "verification_vs_source_report"],
+        "mode": "any",
+        "severity": "high",
+        "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。",
+    },
+    {
         "id": "conventions",
         "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
         "paths": ["conventions", "config.conventions", "config.execution", "config.rules"],

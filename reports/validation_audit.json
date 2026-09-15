@@ -47,6 +47,10 @@
         "reports_missing": 12
       },
       {
+        "question": "reproducibility",
+        "reports_missing": 11
+      },
+      {
         "question": "universe_snapshot",
         "reports_missing": 11
       },
@@ -79,6 +83,24 @@
         "reports_missing": 7
       }
     ],
+    "platform_search": {
+      "label": "best |t| stored anywhere: gbm_attribution",
+      "n_hypotheses": 20,
+      "observed_t": 1.8373148664978474,
+      "observed_p": 0.07420512258358092,
+      "df": 37,
+      "alpha": 0.05,
+      "corrected_alpha": 0.0025,
+      "bonferroni_p": 1.0,
+      "required_t": 3.023341439739153,
+      "expected_best_abs_t_under_null": 2.4477468306808166,
+      "null_threshold_p": 0.0024999999999999467,
+      "family_wise_survivor": false,
+      "fdr_bh": null,
+      "verdict": "FAILS",
+      "interpretation": "|t|=1.84 vs required 3.02 for N=20; under the null the best of 20 independent tests is already ~2.45, so this is inside the search noise",
+      "best_source": "gbm_attribution"
+    },
     "headline": "4/13 strategies are RED. The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), red_team (no significance / window / boundary fields) and boundary (exact score ties in shipped picks)."
   },
   "strategies": [
@@ -90,10 +112,13 @@
         "significance": {
           "label": "mean monthly IC",
           "n": 71,
+          "df": 70,
           "mean": 0.0082,
           "std": null,
           "se": null,
           "t_stat": null,
+          "p_value": null,
+          "p_value_normal": null,
           "ci_low": null,
           "ci_high": null,
           "t_threshold": 2.0,
@@ -217,16 +242,22 @@
             }
           ]
         },
+        "reproducibility": {
+          "label": "GBM sp100 flagship: as-of / rerun probe",
+          "verdict": "INSUFFICIENT",
+          "note": "no as-of / rerun verification block stored: the strategy's reproducibility was never demonstrated"
+        },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 7,
-          "n_unanswered": 7,
-          "coverage": 0.5,
+          "n_unanswered": 8,
+          "coverage": 0.4666666666666667,
           "high_severity_unanswered": [
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "multiple_comparison",
@@ -420,6 +451,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -455,14 +502,16 @@
       "should_have_caught": [
         "Sharpe 0.963 与月均 IC 0.0082 从未交叉检验：SE=0.0095 → t≈0.84，与零无法区分（significance 检查在第一次生成报告时就该报 NOISE）。",
         "IC 分布的证据其实已经存在（reports/gbm_attribution.json 的 by_year IC 7 年翻号 3 次）—— 只差一个 multi_window 调用。",
-        "模型分数并列已在 shipped picks 里可见（UBER 与 ADBE 分数完全相同）→ boundary 检查本该直接命中。",
-        "报告从未存 IC 的 std/t，也没有与动量的显著性对比：这两个字段缺失本身就是必须阻断交付的信号。"
+        "模型分数并列已在 shipped picks 里可见（2026-10 top-10 只有 5 个唯一分数）→ boundary 检查本该直接命中。",
+        "报告从未存 IC 的 std/t，也没有与动量的显著性对比：这两个字段缺失本身就是必须阻断交付的信号。",
+        "报告没有任何复现证据（没有 --as-of 重跑重合度字段）—— 而正是这个探针后来抓到了 2/10 MISMATCH。"
       ],
       "red_flags": [
         "significance NOT computable from the report (missing: ['monthly_ic.std', 'monthly_ic.se', 'monthly_ic.t_stat'])",
         "claimed Sharpe 0.963 is 3.8787498097067394x the IC-implied IR 0.06909442814004615",
         "exact score ties present in selection (max tied at boundary 3)",
-        "red-team checklist: 7/14 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance)"
+        "no reproducibility evidence stored (no --as-of / rerun check in the report)",
+        "red-team checklist: 8/15 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "RED"
     },
@@ -474,10 +523,13 @@
         "significance": {
           "label": "mean monthly IC (SP500)",
           "n": 71,
+          "df": 70,
           "mean": -0.0038,
           "std": null,
           "se": null,
           "t_stat": null,
+          "p_value": null,
+          "p_value_normal": null,
           "ci_low": null,
           "ci_high": null,
           "t_threshold": 2.0,
@@ -547,15 +599,16 @@
           "scope": "windows"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 7,
-          "n_unanswered": 7,
-          "coverage": 0.5,
+          "n_unanswered": 8,
+          "coverage": 0.4666666666666667,
           "high_severity_unanswered": [
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "multiple_comparison",
@@ -749,6 +802,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -779,6 +848,11 @@
               "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
             }
           ]
+        },
+        "reproducibility": {
+          "label": "GBM SP500: as-of / rerun probe",
+          "verdict": "INSUFFICIENT",
+          "note": "no as-of / rerun verification block stored: the strategy's reproducibility was never demonstrated"
         }
       },
       "should_have_caught": [
@@ -789,7 +863,8 @@
       "red_flags": [
         "significance NOT computable from the report (missing: ['monthly_ic.std', 'monthly_ic.se', 'monthly_ic.t_stat'])",
         "metric flips sign across test windows (sign consistency 0.75)",
-        "red-team checklist: 7/14 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance)"
+        "no reproducibility evidence stored (no --as-of / rerun check in the report)",
+        "red-team checklist: 8/15 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "RED"
     },
@@ -801,10 +876,13 @@
         "significance": {
           "label": "pre-2024 monthly top10 excess (%)",
           "n": 38,
+          "df": 37,
           "mean": 1.6217,
           "std": 5.441,
           "se": 0.882646752372479,
           "t_stat": 1.8373148664978474,
+          "p_value": 0.07420512258358092,
+          "p_value_normal": 0.06616342646842832,
           "ci_low": -0.10825584572130253,
           "ci_high": 3.3516558457213024,
           "t_threshold": 2.0,
@@ -879,10 +957,10 @@
           "notes": []
         },
         "red_team": {
-          "n_questions": 14,
-          "n_answered": 2,
+          "n_questions": 15,
+          "n_answered": 3,
           "n_unanswered": 12,
-          "coverage": 0.14285714285714285,
+          "coverage": 0.2,
           "high_severity_unanswered": [
             "universe_snapshot",
             "significance",
@@ -1082,6 +1160,23 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "verification_vs_source_report"
+              ],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -1111,17 +1206,57 @@
               "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
             }
           ]
+        },
+        "reproducibility": {
+          "label": "GBM attribution: holdings vs source rerun",
+          "scope": "full_set",
+          "top_n": null,
+          "n_baseline": 71,
+          "n_candidate": 71,
+          "n_intersection": 71,
+          "overlap_ratio": 1.0,
+          "jaccard": 1.0,
+          "pass_line": 0.9,
+          "tolerance": 1e-06,
+          "missing_from_candidate": [],
+          "extra_in_candidate": [],
+          "n_value_mismatches": 0,
+          "value_mismatches": [],
+          "reproducible": true,
+          "verdict": "REPRODUCIBLE",
+          "interpretation": "full_set overlap 1.00 (71/71)",
+          "source": "verification_vs_source_report (holdings months matched vs source report rerun)",
+          "mismatched_months": []
+        },
+        "multiple_comparisons": {
+          "label": "pre-2024 monthly excess t vs platform-wide search",
+          "n_hypotheses": 20,
+          "observed_t": 1.8373,
+          "observed_p": 0.07420736525929078,
+          "df": 37,
+          "alpha": 0.05,
+          "corrected_alpha": 0.0025,
+          "bonferroni_p": 1.0,
+          "required_t": 3.023341439739153,
+          "expected_best_abs_t_under_null": 2.4477468306808166,
+          "null_threshold_p": 0.0024999999999999467,
+          "family_wise_survivor": false,
+          "fdr_bh": null,
+          "verdict": "FAILS",
+          "interpretation": "|t|=1.84 vs required 3.02 for N=20; under the null the best of 20 independent tests is already ~2.45, so this is inside the search noise"
         }
       },
       "should_have_caught": [
         "pre-2024 月度超额的 t=1.837(<2) 已经写在报告里，却仍被当作'曾经有效'的证据 —— significance 检查应在第一次就报 NOISE。",
+        "把 t=1.837 放回'我们搜过约 20 个方向'的背景里更糟：20 次独立试验下空假设的最优 |t| 期望就有 ~2.45，要求线是 3.02 —— multiple_comparisons 直接判 FAILS。",
         "by_year IC 7 年翻号 3 次（sign consistency 0.571）：multi_window 早就该判 UNSTABLE。",
-        "本报告是整个 GBM 线里检验最严谨的一份（含 bootstrap、era split）—— 说明问题不是'不会做检验'，而是检验没有成为交付的必过关卡。"
+        "这份报告反而是全场唯一自带复现证据的（verification_vs_source_report: 71/71 月持仓吻合）—— 说明复现探针可做，只是没有成为交付门槛。"
       ],
       "red_flags": [
         "headline metric indistinguishable from zero (t=1.8373148664978474, n=38)",
         "metric flips sign across test windows (sign consistency 0.5714285714285714)",
-        "red-team checklist: 12/14 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "does not survive the search of N=20 hypotheses (|t|=1.8373 vs required 3.023341439739153)",
+        "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
       ],
       "verdict": "RED"
     },
@@ -1180,17 +1315,18 @@
           "scope": "variants"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 3,
-          "n_unanswered": 11,
-          "coverage": 0.21428571428571427,
+          "n_unanswered": 12,
+          "coverage": 0.2,
           "high_severity_unanswered": [
             "provenance",
             "universe_snapshot",
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "price_source",
@@ -1383,6 +1519,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -1421,7 +1573,7 @@
       ],
       "red_flags": [
         "metric flips sign across variants/ablations (sign consistency 0.5714285714285714)",
-        "red-team checklist: 11/14 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 12/15 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -1472,10 +1624,10 @@
           "scope": "variants"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 2,
-          "n_unanswered": 12,
-          "coverage": 0.14285714285714285,
+          "n_unanswered": 13,
+          "coverage": 0.13333333333333333,
           "high_severity_unanswered": [
             "provenance",
             "data_window",
@@ -1483,7 +1635,8 @@
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "price_source",
@@ -1674,6 +1827,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -1713,7 +1882,7 @@
       ],
       "red_flags": [
         "metric flips sign across variants/ablations (sign consistency 0.6)",
-        "red-team checklist: 12/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 13/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -1768,10 +1937,10 @@
           "scope": "windows"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 3,
-          "n_unanswered": 11,
-          "coverage": 0.21428571428571427,
+          "n_unanswered": 12,
+          "coverage": 0.2,
           "high_severity_unanswered": [
             "provenance",
             "data_window",
@@ -1779,7 +1948,8 @@
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "price_source",
@@ -1971,6 +2141,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -2008,7 +2194,7 @@
         "OOS 窗口 max_drawdown -55%（远超训练窗 -10%）：风险特征换窗即变，报告里没有 risk 稳定性检查。"
       ],
       "red_flags": [
-        "red-team checklist: 11/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 12/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -2063,10 +2249,10 @@
           "scope": "variants"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 3,
-          "n_unanswered": 11,
-          "coverage": 0.21428571428571427,
+          "n_unanswered": 12,
+          "coverage": 0.2,
           "high_severity_unanswered": [
             "provenance",
             "data_window",
@@ -2074,7 +2260,8 @@
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "price_source",
@@ -2266,6 +2453,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -2296,14 +2499,122 @@
               "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
             }
           ]
+        },
+        "events": {
+          "label": "weekend_gap T+1 per-trade returns (25 events)",
+          "n_events": 25,
+          "n_resamples": 8000,
+          "alpha": 0.05,
+          "win_threshold": 0.0,
+          "t_threshold": 2.0,
+          "n_wins": 16,
+          "win_rate": 0.64,
+          "win_rate_wilson_low": 0.44518497748164876,
+          "win_rate_wilson_high": 0.7975211922554177,
+          "win_rate_beats_chance": false,
+          "mean": 1.0197200000000004,
+          "median": 2.417,
+          "std": 10.615195874782527,
+          "min": -24.769,
+          "max": 18.596,
+          "total": 25.493000000000013,
+          "df": 24,
+          "se": 2.1230391749565056,
+          "t_stat": 0.48031143844573254,
+          "p_value": 0.6353549881810796,
+          "verdict": "NOISE",
+          "bootstrap_mean_low": -3.168262999999999,
+          "bootstrap_mean_high": 4.987065,
+          "bootstrap_p_one_sided_leq_zero": 0.300375,
+          "bootstrap_ci_excludes_zero": false,
+          "win_rate_z": 1.4000000000000001,
+          "win_rate_p": 0.17430819221194604,
+          "small_sample": true,
+          "note": "event-level test (Student-t, df=n-1); 1 observation per trade"
+        },
+        "event_windows": {
+          "label": "weekend_gap per-period distribution",
+          "date_col": "date",
+          "return_col": "return_pct",
+          "n_windows": 2,
+          "n_windows_with_events": 2,
+          "n_events_total": 25,
+          "windows": [
+            {
+              "window": "2021-23",
+              "start": "2021-01-01",
+              "end": "2023-12-31",
+              "n_events": 17,
+              "mean": 0.924058823529412,
+              "median": 1.348,
+              "std": 9.994197131777197,
+              "t_stat": 0.3812204305618146,
+              "p_value": 0.7080543646139337,
+              "win_rate": 0.5882352941176471,
+              "win_rate_wilson_low": 0.360054426429998,
+              "win_rate_wilson_high": 0.7838894320978518,
+              "verdict": "NOISE",
+              "bootstrap_mean_low": -3.476063235294117,
+              "bootstrap_mean_high": 5.439452941176472
+            },
+            {
+              "window": "2024-26",
+              "start": "2024-01-01",
+              "end": "2026-12-31",
+              "n_events": 8,
+              "mean": 1.2230000000000003,
+              "median": 4.3025,
+              "std": 12.568369777228185,
+              "t_stat": 0.27522792811459373,
+              "p_value": 0.791088054681246,
+              "win_rate": 0.75,
+              "win_rate_wilson_low": 0.40927543031016905,
+              "win_rate_wilson_high": 0.9285207872478909,
+              "verdict": "NOISE",
+              "bootstrap_mean_low": -7.504618749999998,
+              "bootstrap_mean_high": 8.359431250000004
+            }
+          ],
+          "window_sign_consistency": 1.0,
+          "window_verdicts": {
+            "2021-23": "NOISE",
+            "2024-26": "NOISE"
+          },
+          "verdict": "STABLE",
+          "note": "segments an existing trade list; per-window sign consistency decides STABLE/UNSTABLE"
+        },
+        "multiple_comparisons": {
+          "label": "best exit-rule win rate (64%) among 6 rules tested",
+          "n_hypotheses": 6,
+          "observed_t": 1.4000000000000001,
+          "observed_p": 0.17430819221194604,
+          "df": 24,
+          "alpha": 0.05,
+          "corrected_alpha": 0.008333333333333333,
+          "bonferroni_p": 1.0,
+          "required_t": 2.6382572734767513,
+          "expected_best_abs_t_under_null": 1.8930184728248454,
+          "null_threshold_p": 0.008333333333333304,
+          "family_wise_survivor": false,
+          "fdr_bh": null,
+          "verdict": "FAILS",
+          "interpretation": "|t|=1.40 vs required 2.64 for N=6; under the null the best of 6 independent tests is already ~1.89, so this is inside the search noise",
+          "win_rate": 0.64,
+          "wilson": [
+            0.44518497748164876,
+            0.7975211922554177
+          ]
         }
       },
       "should_have_caught": [
         "只有 25 个事件却比较 6 条出场规则：多重比较 + 样本极小，显著性检查必然报 NOISE。",
+        "event_significance 对 25 笔实盘口径收益直接给出 t 值/自助 CI/Wilson 区间 —— 该检验第一次就该跑，而不是靠 Sharpe 0.288 讲故事。",
         "short_side 平均收益为负(-3.46%/-2.63%)且胜率 50%/42%：空头腿无信息，报告未做单腿显著性检验。"
       ],
       "red_flags": [
-        "red-team checklist: 11/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "event-level test NOISE (n_events=25, t=0.48031143844573254, win rate 0.64 CI [0.44518497748164876, 0.7975211922554177])",
+        "does not survive the search of N=6 hypotheses (|t|=1.4000000000000001 vs required 2.6382572734767513)",
+        "red-team checklist: 12/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -2399,17 +2710,18 @@
           "scope": "windows"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 4,
-          "n_unanswered": 10,
-          "coverage": 0.2857142857142857,
+          "n_unanswered": 11,
+          "coverage": 0.26666666666666666,
           "high_severity_unanswered": [
             "data_window",
             "universe_snapshot",
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "cost_sensitivity",
@@ -2601,6 +2913,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -2638,7 +2966,7 @@
         "这是全场唯一做了邻域平滑检验的报告（K12/K15/K18 邻域），应作为其他报告的模板。"
       ],
       "red_flags": [
-        "red-team checklist: 10/14 mandatory questions unanswered (data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 11/15 mandatory questions unanswered (data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -2789,10 +3117,10 @@
           "scope": "windows"
         },
         "red_team": {
-          "n_questions": 14,
-          "n_answered": 2,
+          "n_questions": 15,
+          "n_answered": 3,
           "n_unanswered": 12,
-          "coverage": 0.14285714285714285,
+          "coverage": 0.2,
           "high_severity_unanswered": [
             "universe_snapshot",
             "significance",
@@ -2992,6 +3320,23 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "verification_vs_source_report"
+              ],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -3021,14 +3366,36 @@
               "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
             }
           ]
+        },
+        "reproducibility": {
+          "label": "risk gates: holdings vs source rerun",
+          "scope": "full_set",
+          "top_n": null,
+          "n_baseline": 71,
+          "n_candidate": 71,
+          "n_intersection": 71,
+          "overlap_ratio": 1.0,
+          "jaccard": 1.0,
+          "pass_line": 0.9,
+          "tolerance": 1e-06,
+          "missing_from_candidate": [],
+          "extra_in_candidate": [],
+          "n_value_mismatches": 0,
+          "value_mismatches": [],
+          "reproducible": true,
+          "verdict": "REPRODUCIBLE",
+          "interpretation": "full_set overlap 1.00 (71/71)",
+          "source": "verification_vs_source_report (holdings months matched vs source report rerun)",
+          "mismatched_months": []
         }
       },
       "should_have_caught": [
         "三个开关注入的 delta-Sharpe 在两个半窗上符号不一致 —— multi_window 会直接判 UNSTABLE，与报告的 FAIL 结论一致。",
+        "报告自带 71/71 月持仓吻合的复现证据（verification_vs_source_report）→ reproducibility 检查通过；这是正确做法，应成为所有报告的默认动作。",
         "报告含 era split + pass_line，是较严谨的一份；但它验证的是'开关无效'，而非'策略有效'。"
       ],
       "red_flags": [
-        "red-team checklist: 12/14 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
       ],
       "verdict": "AMBER"
     },
@@ -3075,10 +3442,10 @@
           "scope": "variants"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 1,
-          "n_unanswered": 13,
-          "coverage": 0.07142857142857142,
+          "n_unanswered": 14,
+          "coverage": 0.06666666666666667,
           "high_severity_unanswered": [
             "provenance",
             "data_window",
@@ -3086,7 +3453,8 @@
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "price_source",
@@ -3279,6 +3647,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -3308,14 +3692,99 @@
               "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
             }
           ]
+        },
+        "events": {
+          "label": "meta-label event returns (50 events)",
+          "n_events": 50,
+          "n_resamples": 8000,
+          "alpha": 0.05,
+          "win_threshold": 0.0,
+          "t_threshold": 2.0,
+          "n_wins": 22,
+          "win_rate": 0.44,
+          "win_rate_wilson_low": 0.3116219921125717,
+          "win_rate_wilson_high": 0.5769397197834314,
+          "win_rate_beats_chance": false,
+          "mean": 1.7118600000000002,
+          "median": -0.843,
+          "std": 10.621550036792257,
+          "min": -12.485,
+          "max": 34.008,
+          "total": 85.593,
+          "df": 49,
+          "se": 1.5021140115456055,
+          "t_stat": 1.1396338672312734,
+          "p_value": 0.25997929700743816,
+          "verdict": "NOISE",
+          "bootstrap_mean_low": -1.1300255,
+          "bootstrap_mean_high": 4.707651499999999,
+          "bootstrap_p_one_sided_leq_zero": 0.126375,
+          "bootstrap_ci_excludes_zero": false,
+          "win_rate_z": -0.848528137423857,
+          "win_rate_p": 0.4002701997983452,
+          "small_sample": false,
+          "note": "event-level test (Student-t, df=n-1); 1 observation per trade"
+        },
+        "event_windows": {
+          "label": "meta-label per-period distribution",
+          "date_col": "date",
+          "return_col": "return_pct",
+          "n_windows": 2,
+          "n_windows_with_events": 2,
+          "n_events_total": 50,
+          "windows": [
+            {
+              "window": "2019-22",
+              "start": "2019-01-01",
+              "end": "2022-12-31",
+              "n_events": 36,
+              "mean": 2.3004166666666666,
+              "median": -0.843,
+              "std": 11.557970855956633,
+              "t_stat": 1.1941975085433447,
+              "p_value": 0.24043158259657005,
+              "win_rate": 0.4444444444444444,
+              "win_rate_wilson_low": 0.2954126874008022,
+              "win_rate_wilson_high": 0.604189382443027,
+              "verdict": "NOISE",
+              "bootstrap_mean_low": -1.2461965277777776,
+              "bootstrap_mean_high": 6.228125694444447
+            },
+            {
+              "window": "2023-26",
+              "start": "2023-01-01",
+              "end": "2026-12-31",
+              "n_events": 14,
+              "mean": 0.19842857142857154,
+              "median": -0.8935,
+              "std": 7.883662588048641,
+              "t_stat": 0.09417599012396173,
+              "p_value": 0.9264054168968368,
+              "win_rate": 0.42857142857142855,
+              "win_rate_wilson_low": 0.21380798904474127,
+              "win_rate_wilson_high": 0.6740935542034924,
+              "verdict": "NOISE",
+              "bootstrap_mean_low": -3.524510714285714,
+              "bootstrap_mean_high": 4.198083928571429
+            }
+          ],
+          "window_sign_consistency": 1.0,
+          "window_verdicts": {
+            "2019-22": "NOISE",
+            "2023-26": "NOISE"
+          },
+          "verdict": "STABLE",
+          "note": "segments an existing trade list; per-window sign consistency decides STABLE/UNSTABLE"
         }
       },
       "should_have_caught": [
         "所有 AUC 均贴近 0.5：这正是'诚实负结果'，但报告仍需把'无信息'这一结论用显著性表述出来(AUC 与 0.5 的检验)。",
-        "n_events=50 已被报告自己点出是上限 —— 样本量不足应作为硬性交付门槛。"
+        "n_events=50 已被报告自己点出是上限 —— 事件级 event_significance 会把'50 笔的均值与 0 无法区分'量化为明确的 NOISE。",
+        "样本量不足应作为硬性交付门槛（small_sample 标记）。"
       ],
       "red_flags": [
-        "red-team checklist: 13/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "event-level test NOISE (n_events=50, t=1.1396338672312734, win rate 0.44 CI [0.3116219921125717, 0.5769397197834314])",
+        "red-team checklist: 14/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -3325,10 +3794,10 @@
       "headline_claim": "overnight(market_close 5%, long_only): 事件日量比 high桶均值 3.82% vs low桶 -1.949% (差 5.769pp); 前一日量比 high 1.356% vs low 2.992% (差 -1.636pp)",
       "checks": {
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 1,
-          "n_unanswered": 13,
-          "coverage": 0.07142857142857142,
+          "n_unanswered": 14,
+          "coverage": 0.06666666666666667,
           "high_severity_unanswered": [
             "provenance",
             "data_window",
@@ -3336,7 +3805,8 @@
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "price_source",
@@ -3528,6 +3998,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -3558,6 +4044,28 @@
               "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
             }
           ]
+        },
+        "multiple_comparisons": {
+          "label": "weekend_gap high-volume bucket win rate (2 symbol sets x 4 thresholds searched)",
+          "n_hypotheses": 8,
+          "observed_t": 1.6059101370939324,
+          "observed_p": 0.1256940647237581,
+          "df": 18,
+          "alpha": 0.05,
+          "corrected_alpha": 0.00625,
+          "bonferroni_p": 1.0,
+          "required_t": 2.7343687865331763,
+          "expected_best_abs_t_under_null": 2.039333980337618,
+          "null_threshold_p": 0.006250000000000089,
+          "family_wise_survivor": false,
+          "fdr_bh": null,
+          "verdict": "FAILS",
+          "interpretation": "|t|=1.61 vs required 2.73 for N=8; under the null the best of 8 independent tests is already ~2.04, so this is inside the search noise",
+          "win_rate": 0.6842105263157895,
+          "wilson": [
+            0.4601040767532748,
+            0.8463562091220772
+          ]
         }
       },
       "should_have_caught": [
@@ -3565,7 +4073,8 @@
         "报告自己指出'事件日量比是前视'——结论正确，但缺一个标准位置（显著性/不可执行）来承载它。"
       ],
       "red_flags": [
-        "red-team checklist: 13/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "does not survive the search of N=8 hypotheses (|t|=1.6059101370939324 vs required 2.7343687865331763)",
+        "red-team checklist: 14/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -3616,10 +4125,10 @@
           "scope": "variants"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 2,
-          "n_unanswered": 12,
-          "coverage": 0.14285714285714285,
+          "n_unanswered": 13,
+          "coverage": 0.13333333333333333,
           "high_severity_unanswered": [
             "provenance",
             "data_window",
@@ -3627,7 +4136,8 @@
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "price_source",
@@ -3819,6 +4329,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -3856,7 +4382,7 @@
         "基准(0.447) 高于所有策略变体，报告的正确结论应是'无增量'，而 baseline 对比需要显著性。"
       ],
       "red_flags": [
-        "red-team checklist: 12/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 13/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "AMBER"
     },
@@ -3919,17 +4445,18 @@
           "scope": "windows"
         },
         "red_team": {
-          "n_questions": 14,
+          "n_questions": 15,
           "n_answered": 3,
-          "n_unanswered": 11,
-          "coverage": 0.21428571428571427,
+          "n_unanswered": 12,
+          "coverage": 0.2,
           "high_severity_unanswered": [
             "provenance",
             "universe_snapshot",
             "significance",
             "window_stability",
             "score_distribution",
-            "baseline_significance"
+            "baseline_significance",
+            "reproducibility"
           ],
           "medium_severity_unanswered": [
             "multiple_comparison",
@@ -4122,6 +4649,22 @@
               "why": "样本内最优不等于可交易；必须声明样本外口径。"
             },
             {
+              "id": "reproducibility",
+              "question": "复现探针：换一个数据快照 / 换一次执行路径，结论还能复现吗（top-N 重合度）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "reproducibility",
+                "reproduction.as_of_check",
+                "reproducibility_probe",
+                "determinism_check",
+                "rerun_overlap",
+                "verification_vs_source_report"
+              ],
+              "why": "GBM 危机正是被复现探针抓到的：run_monthly_gbm.py --as-of 2021-06 重跑 top-10 只有 2/10 与存档重合。没有复现证据的策略结论不得交付（用 reproducibility_probe 生成该字段）。"
+            },
+            {
               "id": "conventions",
               "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
               "severity": "medium",
@@ -4160,7 +4703,7 @@
       ],
       "red_flags": [
         "metric flips sign across test windows (sign consistency 0.625)",
-        "red-team checklist: 11/14 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 12/15 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
       "verdict": "RED"
     }

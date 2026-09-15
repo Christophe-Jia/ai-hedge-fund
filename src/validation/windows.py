@@ -40,6 +40,10 @@ def multi_window(
     Sign consistency is the share of windows agreeing with the *majority* sign;
     it is therefore always >= 0.5.  A strategy that flips sign across windows
     scores near 0.5 and is flagged UNSTABLE.
+
+    Event-driven strategies should normally use :func:`event_window_stats`
+    instead, which *segments an existing trade list* (and reports per-window
+    event counts) rather than re-running a backtest per window.
     """
     rows: list[dict] = []
     for w in windows:

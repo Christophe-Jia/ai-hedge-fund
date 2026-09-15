@@ -29,17 +29,30 @@ if str(ROOT) not in sys.path:
 
 from src.validation import (  # noqa: E402
     boundary_stability,
+    event_significance,
+    event_window_stats,
     internal_consistency,
     multi_window,
+    multiple_comparisons,
     neighborhood_stability,
+    proportion_z,
     red_team_checklist,
+    reproducibility_probe,
     significance_from_stats,
+    wilson_interval,
 )
 from src.validation._extract import dig  # noqa: E402
 
 REPORTS = ROOT / "reports"
 PICKS_DIR = REPORTS / "gbm_picks"
 OUT = REPORTS / "validation_audit.json"
+
+# How many distinct lines of research this platform has actually searched:
+# funding rate, on-chain fundamentals, FOMC (decisions + hawkishness text),
+# overnight gap, order-book lead, Polymarket lead, volume confirmation,
+# limit-entry timing, 3 risk gates, GBM (sp100/sp500), meta-labelling,
+# weekend_gap, exit rules/mechanisms, DCA/leverage, book event study, ...
+PLATFORM_HYPOTHESES_SEARCHED = 20
 
 
 # ----------------------------------------------------------------------------
@@ -114,6 +127,19 @@ def _severity(entry: dict) -> str:
     nb = checks.get("neighborhood") or {}
     if nb.get("verdict") == "OVERFIT":
         red = True
+    rp = checks.get("reproducibility") or {}
+    if rp.get("verdict") == "NON_REPRODUCIBLE":
+        red = True
+    elif rp.get("verdict") == "INSUFFICIENT":
+        amber = True
+    ev = checks.get("events") or {}
+    if ev.get("verdict") == "FAIL":
+        red = True
+    elif ev.get("verdict") in {"NOISE", "INSUFFICIENT"}:
+        amber = True
+    mc = checks.get("multiple_comparisons") or {}
+    if mc.get("verdict") == "FAILS":
+        amber = True
     sg = checks.get("significance") or {}
     if sg.get("verdict") == "FAIL":
         red = True
@@ -151,6 +177,20 @@ def _red_flags(entry: dict) -> list[str]:
         flags.append(f"top-N boundary decided by score ties (flip rate {bd.get('mean_flip_rate')})")
     elif bd.get("has_exact_ties"):
         flags.append(f"exact score ties present in selection (max tied at boundary {bd.get('max_boundary_ties')})")
+    rp = checks.get("reproducibility") or {}
+    if rp.get("verdict") == "NON_REPRODUCIBLE":
+        flags.append(f"reproducibility probe NON_REPRODUCIBLE: {rp.get('interpretation')}")
+    elif rp.get("verdict") == "INSUFFICIENT":
+        flags.append("no reproducibility evidence stored (no --as-of / rerun check in the report)")
+    ev = checks.get("events") or {}
+    if ev.get("verdict") in {"NOISE", "FAIL", "INSUFFICIENT"}:
+        flags.append(
+            f"event-level test {ev.get('verdict')} (n_events={ev.get('n_events')}, t={ev.get('t_stat')}, "
+            f"win rate {ev.get('win_rate')} CI [{ev.get('win_rate_wilson_low')}, {ev.get('win_rate_wilson_high')}])"
+        )
+    mc = checks.get("multiple_comparisons") or {}
+    if mc.get("verdict") == "FAILS":
+        flags.append(f"does not survive the search of N={mc.get('n_hypotheses')} hypotheses (|t|={mc.get('observed_t')} vs required {mc.get('required_t')})")
     rt = checks.get("red_team") or {}
     if rt.get("verdict") in {"FAIL", "WARN"}:
         flags.append(f"red-team checklist: {rt.get('n_unanswered')}/{rt.get('n_questions')} mandatory questions unanswered ({', '.join(rt.get('high_severity_unanswered', []))})")
@@ -169,6 +209,55 @@ def _entry(name: str, role: str, _report: dict, checks: dict, should_have_caught
     entry["red_flags"] = _red_flags(entry)
     entry["verdict"] = _severity(entry)
     return entry
+
+
+def _events_check(records: list[dict], ret_key: str, *, label: str, n_resamples: int = 8000) -> dict:
+    """Event-level significance from a stored per-trade / per-event return list."""
+    rets = [_num(r.get(ret_key)) for r in records]
+    rets = [r for r in rets if r is not None]
+    if not rets:
+        return {"label": label, "verdict": "INSUFFICIENT", "note": f"no '{ret_key}' values stored"}
+    return event_significance(rets, label=label, n_resamples=n_resamples)
+
+
+def _event_windows_check(records: list[dict], windows: dict, date_key: str, ret_key: str, *, label: str, n_resamples: int = 3000) -> dict:
+    return event_window_stats(records, windows, date_col=date_key, ret_col=ret_key, label=label, n_resamples=n_resamples)
+
+
+def _reproducibility_check(rep: dict, *, label: str) -> dict:
+    """Look for a stored as-of / rerun verification block and probe it."""
+    ver = dig(rep, "verification_vs_source_report")
+    if isinstance(ver, dict) and "holdings_months_matching_source" in ver and "holdings_months_in_source" in ver:
+        n_src = int(ver["holdings_months_in_source"])
+        n_match = int(ver["holdings_months_matching_source"])
+        probe = reproducibility_probe(
+            {f"m{i:03d}": 1.0 for i in range(n_src)},
+            {f"m{i:03d}": 1.0 for i in range(n_match)},
+            label=label,
+        )
+        probe["source"] = "verification_vs_source_report (holdings months matched vs source report rerun)"
+        probe["mismatched_months"] = ver.get("mismatched_months")
+        return probe
+    return {
+        "label": label,
+        "verdict": "INSUFFICIENT",
+        "note": "no as-of / rerun verification block stored: the strategy's reproducibility was never demonstrated",
+    }
+
+
+def _mc_check(t_obs: float | None, n: int, n_hypotheses: int, *, label: str) -> dict:
+    if t_obs is None:
+        return multiple_comparisons(n_hypotheses, None, label=label)
+    return multiple_comparisons(n_hypotheses, {"t_stat": t_obs, "n": n}, label=label)
+
+
+def _mc_from_winrate(wins: int, n: int, n_hypotheses: int, *, label: str) -> dict:
+    """Multiple-comparison correction where the only test statistic available is a win rate."""
+    z = proportion_z(wins, n)
+    res = multiple_comparisons(n_hypotheses, {"t_stat": z, "n": n}, label=label)
+    res["win_rate"] = wins / n if n else None
+    res["wilson"] = list(wilson_interval(wins, n)) if n else None
+    return res
 
 
 def _picks_scores_frame() -> tuple[pd.DataFrame | None, int, list[str]]:
@@ -240,6 +329,7 @@ def audit_gbm_sp100() -> dict:
     else:
         checks["boundary"] = {"verdict": "INSUFFICIENT", "note": "reports/gbm_picks/*.json not found"}
 
+    checks["reproducibility"] = _reproducibility_check(rep, label="GBM sp100 flagship: as-of / rerun probe")
     checks["red_team"] = red_team_checklist(rep)
 
     return _entry(
@@ -251,8 +341,9 @@ def audit_gbm_sp100() -> dict:
         should_have_caught=[
             "Sharpe 0.963 与月均 IC 0.0082 从未交叉检验：SE=0.0095 → t≈0.84，与零无法区分（significance 检查在第一次生成报告时就该报 NOISE）。",
             "IC 分布的证据其实已经存在（reports/gbm_attribution.json 的 by_year IC 7 年翻号 3 次）—— 只差一个 multi_window 调用。",
-            "模型分数并列已在 shipped picks 里可见（UBER 与 ADBE 分数完全相同）→ boundary 检查本该直接命中。",
+            "模型分数并列已在 shipped picks 里可见（2026-10 top-10 只有 5 个唯一分数）→ boundary 检查本该直接命中。",
             "报告从未存 IC 的 std/t，也没有与动量的显著性对比：这两个字段缺失本身就是必须阻断交付的信号。",
+            "报告没有任何复现证据（没有 --as-of 重跑重合度字段）—— 而正是这个探针后来抓到了 2/10 MISMATCH。",
         ],
     )
 
@@ -285,6 +376,7 @@ def audit_gbm_sp500() -> dict:
         "reported window slices + universe swap",
     )
     checks["red_team"] = red_team_checklist(rep)
+    checks["reproducibility"] = _reproducibility_check(rep, label="GBM SP500: as-of / rerun probe")
     return _entry(
         "xsec_gbm_sp500",
         "美股选股 (SP500 universe 泛化)",
@@ -318,6 +410,11 @@ def audit_gbm_attribution() -> dict:
         0.0, 31, label="post-2024 (illustrative)",
     )
     checks["red_team"] = red_team_checklist(rep)
+    checks["reproducibility"] = _reproducibility_check(rep, label="GBM attribution: holdings vs source rerun")
+    checks["multiple_comparisons"] = _mc_check(
+        _num(boot.get("t_stat")), int(boot.get("n_months") or 0), PLATFORM_HYPOTHESES_SEARCHED,
+        label="pre-2024 monthly excess t vs platform-wide search",
+    )
     return _entry(
         "gbm_attribution",
         "GBM 归因（风格轮动 vs 模型退化）",
@@ -326,8 +423,9 @@ def audit_gbm_attribution() -> dict:
         headline=str(dig(rep, "final_verdict") or "")[:200],
         should_have_caught=[
             "pre-2024 月度超额的 t=1.837(<2) 已经写在报告里，却仍被当作'曾经有效'的证据 —— significance 检查应在第一次就报 NOISE。",
+            "把 t=1.837 放回'我们搜过约 20 个方向'的背景里更糟：20 次独立试验下空假设的最优 |t| 期望就有 ~2.45，要求线是 3.02 —— multiple_comparisons 直接判 FAILS。",
             "by_year IC 7 年翻号 3 次（sign consistency 0.571）：multi_window 早就该判 UNSTABLE。",
-            "本报告是整个 GBM 线里检验最严谨的一份（含 bootstrap、era split）—— 说明问题不是'不会做检验'，而是检验没有成为交付的必过关卡。",
+            "这份报告反而是全场唯一自带复现证据的（verification_vs_source_report: 71/71 月持仓吻合）—— 说明复现探针可做，只是没有成为交付门槛。",
         ],
     )
 
@@ -416,6 +514,28 @@ def audit_exit_rules() -> dict:
         "multi_window": _mw(mapping, "exit-rule Sharpe", scope="variants"),
         "red_team": red_team_checklist(rep),
     }
+
+    trades = dig(rep, "trades_full_window.long_short.t_plus_1") or []
+    if trades:
+        checks["events"] = _events_check(trades, "ret_pct", label="weekend_gap T+1 per-trade returns (25 events)")
+        checks["event_windows"] = _event_windows_check(
+            [{"date": t.get("entry_date"), "return_pct": t.get("ret_pct")} for t in trades],
+            {"2021-23": ("2021-01-01", "2023-12-31"), "2024-26": ("2024-01-01", "2026-12-31")},
+            "date",
+            "return_pct",
+            label="weekend_gap per-period distribution",
+        )
+        best = max(
+            ((_num(blob.get("win_rate_event_pct")), _num(blob.get("n_events"))) for blob in full.values() if isinstance(blob, dict)),
+            default=(None, None),
+            key=lambda x: -1 if x[0] is None else x[0],
+        )
+        if best[0] is not None and best[1]:
+            wins = int(round(best[0] / 100.0 * best[1]))
+            checks["multiple_comparisons"] = _mc_from_winrate(
+                wins, int(best[1]), len(full), label=f"best exit-rule win rate ({best[0]:.0f}%) among {len(full)} rules tested"
+            )
+
     return _entry(
         "exit_rules_backtest",
         "出场规则对比 (weekend_gap)",
@@ -424,6 +544,7 @@ def audit_exit_rules() -> dict:
         headline="T+1 sharpe 0.288 / T+2 0.359 (n_events 25)",
         should_have_caught=[
             "只有 25 个事件却比较 6 条出场规则：多重比较 + 样本极小，显著性检查必然报 NOISE。",
+            "event_significance 对 25 笔实盘口径收益直接给出 t 值/自助 CI/Wilson 区间 —— 该检验第一次就该跑，而不是靠 Sharpe 0.288 讲故事。",
             "short_side 平均收益为负(-3.46%/-2.63%)且胜率 50%/42%：空头腿无信息，报告未做单腿显著性检验。",
         ],
     )
@@ -474,6 +595,7 @@ def audit_risk_gate() -> dict:
     checks: dict[str, Any] = {
         "multi_window": _mw(dict(half_deltas), "gate delta-Sharpe across half windows"),
         "red_team": red_team_checklist(rep),
+        "reproducibility": _reproducibility_check(rep, label="risk gates: holdings vs source rerun"),
     }
     return _entry(
         "risk_gate",
@@ -483,6 +605,7 @@ def audit_risk_gate() -> dict:
         headline="all three gates FAIL; 100% exposure retained",
         should_have_caught=[
             "三个开关注入的 delta-Sharpe 在两个半窗上符号不一致 —— multi_window 会直接判 UNSTABLE，与报告的 FAIL 结论一致。",
+            "报告自带 71/71 月持仓吻合的复现证据（verification_vs_source_report）→ reproducibility 检查通过；这是正确做法，应成为所有报告的默认动作。",
             "报告含 era split + pass_line，是较严谨的一份；但它验证的是'开关无效'，而非'策略有效'。",
         ],
     )
@@ -505,6 +628,16 @@ def audit_meta_label() -> dict:
         ),
         "red_team": red_team_checklist(rep),
     }
+    events = dig(rep, "events") or []
+    if events:
+        checks["events"] = _events_check(events, "ret_net_pct", label=f"meta-label event returns ({len(events)} events)")
+        checks["event_windows"] = _event_windows_check(
+            [{"date": e.get("entry_date"), "return_pct": e.get("ret_net_pct")} for e in events],
+            {"2019-22": ("2019-01-01", "2022-12-31"), "2023-26": ("2023-01-01", "2026-12-31")},
+            "date",
+            "return_pct",
+            label="meta-label per-period distribution",
+        )
     return _entry(
         "meta_label_results",
         "weekend_gap meta-labeling",
@@ -513,7 +646,8 @@ def audit_meta_label() -> dict:
         headline="LOO AUC ~0.5; 5% threshold is the information ceiling",
         should_have_caught=[
             "所有 AUC 均贴近 0.5：这正是'诚实负结果'，但报告仍需把'无信息'这一结论用显著性表述出来(AUC 与 0.5 的检验)。",
-            "n_events=50 已被报告自己点出是上限 —— 样本量不足应作为硬性交付门槛。",
+            "n_events=50 已被报告自己点出是上限 —— 事件级 event_significance 会把'50 笔的均值与 0 无法区分'量化为明确的 NOISE。",
+            "样本量不足应作为硬性交付门槛（small_sample 标记）。",
         ],
     )
 
@@ -525,6 +659,12 @@ def audit_volume_confirm() -> dict:
     checks: dict[str, Any] = {
         "red_team": red_team_checklist(rep),
     }
+    high = dig(rep, "weekend_gap_set.bucket_stats_event_day.high") or {}
+    if high.get("win_rate_pct") is not None and high.get("n_legs"):
+        wins = int(round(float(high["win_rate_pct"]) / 100.0 * int(high["n_legs"])))
+        checks["multiple_comparisons"] = _mc_from_winrate(
+            wins, int(high["n_legs"]), 8, label="weekend_gap high-volume bucket win rate (2 symbol sets x 4 thresholds searched)"
+        )
     return _entry(
         "volume_confirm",
         "量比确认（事件研究）",
@@ -639,6 +779,33 @@ def main() -> int:
             gap_counts[qid] = gap_counts.get(qid, 0) + 1
     systemic = [{"question": k, "reports_missing": v} for k, v in sorted(gap_counts.items(), key=lambda kv: -kv[1])]
 
+    # Platform-level search correction: the best t-statistic found anywhere in the
+    # repo, judged against the number of directions the platform has searched.
+    best: tuple[float, str, int, float] | None = None
+    for e in entries:
+        ch = e.get("checks") or {}
+        for key in ("significance", "events"):
+            blob = ch.get(key) or {}
+            t = _num(blob.get("t_stat"))
+            n = blob.get("n") or blob.get("n_events")
+            if t is not None and n:
+                cand = (abs(t), e["name"], int(n), t)
+                if best is None or cand[0] > best[0]:
+                    best = cand
+        for row in (ch.get("event_windows") or {}).get("windows", []):
+            t = _num(row.get("t_stat"))
+            if t is not None and row.get("n_events"):
+                cand = (abs(t), f"{e['name']} / {row['window']}", int(row["n_events"]), t)
+                if best is None or cand[0] > best[0]:
+                    best = cand
+    if best:
+        platform = multiple_comparisons(
+            PLATFORM_HYPOTHESES_SEARCHED, {"t_stat": best[3], "n": best[2]}, label=f"best |t| stored anywhere: {best[1]}"
+        )
+        platform["best_source"] = best[1]
+    else:
+        platform = multiple_comparisons(PLATFORM_HYPOTHESES_SEARCHED, None, label="best |t| across stored reports")
+
     out = {
         "meta": {
             "harness": "src/validation",
@@ -659,6 +826,7 @@ def main() -> int:
             "n_amber": counts.get("AMBER", 0),
             "n_green": counts.get("GREEN", 0),
             "systemic_gaps": systemic,
+            "platform_search": platform,
             "headline": (
                 f"{counts.get('RED', 0)}/{len(entries)} strategies are RED. "
                 "The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), "

@@ -15,6 +15,8 @@ from typing import Iterable
 
 import numpy as np
 
+from .stats import normal_two_sided_p, two_sided_t_p
+
 # Two-sided 95% normal critical value (normal approximation, no scipy dependency).
 Z_95 = 1.959963984540054
 
@@ -81,13 +83,28 @@ def significance_from_stats(
     else:
         direction = "none"
 
+    df = n - 1
+    if verdict == VERDICT_INSUFFICIENT:
+        p_value = p_normal = None
+    elif std == 0.0:
+        # zero-variance series: degenerate but perfectly (in)significant
+        p_value = p_normal = 0.0 if mean != 0.0 else 1.0
+    elif not np.isfinite(t):
+        p_value = p_normal = None
+    else:
+        p_value = two_sided_t_p(t, df) if df > 0 else None
+        p_normal = normal_two_sided_p(t)
+
     return {
         "label": label,
         "n": n,
+        "df": df if df > 0 else None,
         "mean": _f(mean),
         "std": _f(std),
         "se": _f(se),
         "t_stat": _f(t),
+        "p_value": _f(p_value),
+        "p_value_normal": _f(p_normal),
         "ci_low": _f(lo),
         "ci_high": _f(hi),
         "t_threshold": float(t_threshold),
@@ -103,8 +120,9 @@ def significance(
     *,
     t_threshold: float = 2.0,
     label: str = "IC",
+    kind: str = "period",
 ) -> dict:
-    """One-sample t-test of a per-period IC series against zero.
+    """One-sample t-test of a per-period metric series against zero.
 
     Returns PASS (significantly positive), FAIL (significantly negative) or
     NOISE (cannot be distinguished from zero).  INSUFFICIENT when fewer than
@@ -112,7 +130,23 @@ def significance(
 
     Reference calibration (the GBM case): mean 0.0082, std 0.080, n 71
     -> se ~= 0.0095, t ~= 0.84 -> NOISE.
+
+    Args:
+        kind: "period" (default) for a monthly/periodic series (IC, monthly
+            excess return).  "events" routes to :func:`event_significance`,
+            which additionally reports a bootstrap mean CI and a Wilson win-rate
+            interval — the right test for a handful of trades.  Use it for
+            event-driven strategies::
+
+                significance(trade_returns, kind="events")
     """
+    if kind in ("event", "events"):
+        from .events import event_significance
+
+        return event_significance(ic_series, t_threshold=t_threshold, label=label)
+    if kind != "period":
+        raise ValueError(f"unknown kind={kind!r}; expected 'period' or 'events'")
+
     values = np.asarray([v for v in ic_series], dtype=float)
     values = values[np.isfinite(values)]
     n = int(values.size)

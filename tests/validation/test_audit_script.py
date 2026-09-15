@@ -6,6 +6,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
+
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "validate_reports.py"
 
 
@@ -64,6 +66,76 @@ def test_window_scope_flip_is_red_variant_scope_flip_is_amber():
 def test_missing_checklist_fields_are_amber_not_red():
     assert vr._severity(_entry({"red_team": {"verdict": "FAIL"}})) == "AMBER"
     assert vr._severity(_entry({"red_team": {"verdict": "WARN"}})) == "AMBER"
+
+
+def test_severity_red_on_non_reproducible_result():
+    assert vr._severity(_entry({"reproducibility": {"verdict": "NON_REPRODUCIBLE"}})) == "RED"
+
+
+def test_severity_amber_on_missing_reproducibility_evidence():
+    assert vr._severity(_entry({"reproducibility": {"verdict": "INSUFFICIENT"}})) == "AMBER"
+
+
+def test_severity_handles_event_checks():
+    assert vr._severity(_entry({"events": {"verdict": "FAIL"}})) == "RED"
+    assert vr._severity(_entry({"events": {"verdict": "NOISE"}})) == "AMBER"
+    assert vr._severity(_entry({"multiple_comparisons": {"verdict": "FAILS"}})) == "AMBER"
+    assert vr._severity(_entry({"multiple_comparisons": {"verdict": "SURVIVES"}})) == "GREEN"
+
+
+def test_platform_search_uses_the_search_count():
+    entry = vr.audit_gbm_attribution()
+    mc = entry["checks"]["multiple_comparisons"]
+    assert mc["n_hypotheses"] == vr.PLATFORM_HYPOTHESES_SEARCHED
+    assert mc["verdict"] == "FAILS"
+    assert mc["required_t"] > 3.0
+
+
+def test_gbm_attribution_carries_reproduction_evidence():
+    entry = vr.audit_gbm_attribution()
+    assert entry["checks"]["reproducibility"]["verdict"] == "REPRODUCIBLE"
+
+
+def test_flagship_has_no_reproduction_evidence():
+    entry = vr.audit_gbm_sp100()
+    assert entry["checks"]["reproducibility"]["verdict"] == "INSUFFICIENT"
+    assert any("reproducibility" in f for f in entry["red_flags"])
+
+
+def test_event_level_checks_run_on_real_trades():
+    entry = vr.audit_exit_rules()
+    events = entry["checks"]["events"]
+    assert events["n_events"] == 25
+    assert events["verdict"] == "NOISE"
+    assert events["win_rate_wilson_low"] < 0.5 < events["win_rate_wilson_high"]
+    windows = entry["checks"]["event_windows"]
+    assert windows["n_events_total"] == 25
+    assert entry["checks"]["multiple_comparisons"]["verdict"] == "FAILS"
+
+
+def test_meta_label_event_level_check():
+    entry = vr.audit_meta_label()
+    assert entry["checks"]["events"]["n_events"] == 50
+    assert entry["checks"]["events"]["verdict"] == "NOISE"
+
+
+def test_mc_from_winrate_helper():
+    res = vr._mc_from_winrate(13, 19, 8, label="x")
+    assert res["win_rate"] == pytest.approx(13 / 19)
+    assert res["observed_t"] == pytest.approx(1.6059, abs=1e-3)
+    assert res["verdict"] == "FAILS"
+    assert res["wilson"][0] < 0.5 < res["wilson"][1]
+
+
+def test_events_check_reports_missing_data():
+    res = vr._events_check([{"foo": 1}], "ret_pct", label="x")
+    assert res["verdict"] == "INSUFFICIENT"
+
+
+def test_reproducibility_check_without_block():
+    res = vr._reproducibility_check({}, label="x")
+    assert res["verdict"] == "INSUFFICIENT"
+    assert "--as-of" in res["note"] or "as-of" in res["note"]
 
 
 def test_clean_makes_strict_json():

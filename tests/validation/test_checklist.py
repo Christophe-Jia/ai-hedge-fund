@@ -34,6 +34,7 @@ COMPLETE_REPORT = {
     "cost_sensitivity": {"zero_cost_sharpe": 0.5},
     "total_costs_usd": 1234.0,
     "walk_forward": {"first_test_date": "2021-01-01"},
+    "reproducibility": {"verdict": "REPRODUCIBLE", "overlap_ratio": 1.0},
     "conventions": {"execution": "next open"},
     "verdict": "PASS",
 }
@@ -58,8 +59,8 @@ def test_gbm_like_report_fails_on_the_crisis_questions():
     res = red_team_checklist(GBM_LIKE_REPORT)
     assert res["verdict"] == "FAIL"
     missing = set(res["high_severity_unanswered"]) | set(res["medium_severity_unanswered"])
-    # the four questions that would have exposed the crisis
-    assert {"significance", "window_stability", "score_distribution", "baseline_significance"} <= missing
+    # the five questions that would have exposed the crisis
+    assert {"significance", "window_stability", "score_distribution", "baseline_significance", "reproducibility"} <= missing
     # but provenance / window / costs / walk-forward were actually answered
     answered = {i["id"] for i in res["items"] if i["answered"]}
     assert {"provenance", "data_window", "universe_snapshot", "cost_reporting", "out_of_sample", "verdict"} <= answered
