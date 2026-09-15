@@ -1,0 +1,1225 @@
+{
+  "meta": {
+    "audit": "red-team adversarial review of weekend_gap",
+    "commit": "12f0deaefc3540030e4922994b107fd59fe3d99e",
+    "generated_at": "2026-09-15T20:19:46",
+    "signal_under_test": "BTC Fri-close -> Sun-close |move| >= 5% -> Monday-open long COIN/MSTR/MARA equal weight -> T+2 close",
+    "window": [
+      "2021-01-01",
+      "2026-09-11"
+    ],
+    "read_only": "no parameters were tuned; no alternative specification is proposed as an improvement"
+  },
+  "q1_reproducibility": {
+    "audit_trigger_events_in_window": 25,
+    "report_trigger_events_in_window": 25,
+    "event_dates_only_in_audit": [],
+    "event_dates_only_in_report": [],
+    "btc_weekend_return_mismatches": [],
+    "entry_price_mismatches": [],
+    "direction_mismatches": [],
+    "reproduced_exactly": true,
+    "clock_alignment_probe": {
+      "note": "BTC daily bar labelled Fri closes Sat 00:00 UTC (=Fri 20:00 ET summer / 19:00 ET winter), i.e. the signal's weekend window is Fri 20:00 ET -> Sun 20:00 ET, not the 16:00 ET equity close. Re-derived from 1h bars over Fri 16:00 ET -> Sun 20:00 ET (still known before Monday's open).",
+      "weekends_compared_in_window": 298,
+      "trigger_decision_flips_in_window": 13,
+      "traded_events_that_stop_triggering": [
+        "2021-01-10",
+        "2021-05-23",
+        "2021-08-01",
+        "2021-12-12",
+        "2022-05-15",
+        "2023-05-28"
+      ],
+      "new_triggers_appearing": [
+        "2021-01-31",
+        "2021-07-04",
+        "2022-01-23",
+        "2022-08-28",
+        "2023-01-15",
+        "2025-02-02",
+        "2026-06-07"
+      ],
+      "n_traded_events_changed": 13,
+      "flip_detail": [
+        {
+          "sunday": "2021-01-10",
+          "daily_bar_ret_pct": -5.99,
+          "et_aligned_ret_pct": -4.78
+        },
+        {
+          "sunday": "2021-01-31",
+          "daily_bar_ret_pct": -3.38,
+          "et_aligned_ret_pct": -5.87
+        },
+        {
+          "sunday": "2021-05-23",
+          "daily_bar_ret_pct": -6.97,
+          "et_aligned_ret_pct": -3.9
+        },
+        {
+          "sunday": "2021-07-04",
+          "daily_bar_ret_pct": 4.44,
+          "et_aligned_ret_pct": 5.88
+        },
+        {
+          "sunday": "2021-08-01",
+          "daily_bar_ret_pct": -5.59,
+          "et_aligned_ret_pct": -0.02
+        },
+        {
+          "sunday": "2021-12-12",
+          "daily_bar_ret_pct": 6.18,
+          "et_aligned_ret_pct": 2.48
+        },
+        {
+          "sunday": "2022-01-23",
+          "daily_bar_ret_pct": -0.55,
+          "et_aligned_ret_pct": -6.56
+        },
+        {
+          "sunday": "2022-05-15",
+          "daily_bar_ret_pct": 6.97,
+          "et_aligned_ret_pct": 4.14
+        },
+        {
+          "sunday": "2022-08-28",
+          "daily_bar_ret_pct": -3.39,
+          "et_aligned_ret_pct": -5.27
+        },
+        {
+          "sunday": "2023-01-15",
+          "daily_bar_ret_pct": 4.72,
+          "et_aligned_ret_pct": 7.67
+        },
+        {
+          "sunday": "2023-05-28",
+          "daily_bar_ret_pct": 5.09,
+          "et_aligned_ret_pct": 4.85
+        },
+        {
+          "sunday": "2025-02-02",
+          "daily_bar_ret_pct": -4.62,
+          "et_aligned_ret_pct": -5.08
+        },
+        {
+          "sunday": "2026-06-07",
+          "daily_bar_ret_pct": 3.73,
+          "et_aligned_ret_pct": 5.03
+        }
+      ],
+      "largest_abs_divergence_pct": 6.006,
+      "mean_abs_divergence_pct": 0.757,
+      "verdict": "the 5% boundary is not robust to a 4-hour change in the window definition: ~4% of all in-window weekends change decision, and 2 of the 25 traded legs drop out / 4 new ones appear"
+    },
+    "data_snapshot_probe": {
+      "note": "re-run on bars truncated to the report's own end date",
+      "trigger_set_identical": true,
+      "n_audit": 25,
+      "n_truncated": 25,
+      "verdict": "the recent backfills (21 S&P names, BAYRY, BTC 1h) did NOT disturb the weekend_gap event set: COIN/MSTR/MARA daily bars were not revised and the signal only reads BTC spot"
+    },
+    "clock_brittleness_sweep": {
+      "design": "shift ONLY the Friday-close endpoint by the given hours on the 1h series; Sunday-close endpoint and everything else fixed; long side only",
+      "note": "DIAGNOSTIC ONLY — no alternative clock is recommended here",
+      "sweep": {
+        "start_shift_-12h": {
+          "n_long_events": 22,
+          "event_dates": [
+            "2021-01-04",
+            "2021-02-22",
+            "2021-03-08",
+            "2021-03-29",
+            "2021-07-06",
+            "2021-07-26",
+            "2021-08-09",
+            "2021-11-29",
+            "2022-02-07",
+            "2022-03-28",
+            "2023-01-17",
+            "2023-01-23",
+            "2023-03-13",
+            "2023-05-30",
+            "2024-05-06",
+            "2024-07-15",
+            "2024-07-22",
+            "2024-08-26",
+            "2024-11-11",
+            "2025-03-03",
+            "2025-11-24",
+            "2026-02-09"
+          ],
+          "mean_event_ret_pct": 2.917,
+          "sum_event_ret_pct": 64.173,
+          "win_rate_pct": 50.0
+        },
+        "start_shift_-8h": {
+          "n_long_events": 16,
+          "event_dates": [
+            "2021-01-04",
+            "2021-02-22",
+            "2021-03-08",
+            "2021-06-14",
+            "2021-06-28",
+            "2021-07-26",
+            "2021-11-29",
+            "2022-02-07",
+            "2022-03-28",
+            "2023-01-17",
+            "2023-01-23",
+            "2023-03-13",
+            "2023-03-20",
+            "2024-03-25",
+            "2024-11-11",
+            "2025-03-03"
+          ],
+          "mean_event_ret_pct": 4.881,
+          "sum_event_ret_pct": 78.09,
+          "win_rate_pct": 62.5
+        },
+        "start_shift_-4h": {
+          "n_long_events": 13,
+          "event_dates": [
+            "2021-01-04",
+            "2021-06-28",
+            "2021-07-06",
+            "2021-07-26",
+            "2021-11-29",
+            "2022-03-28",
+            "2023-01-17",
+            "2023-01-23",
+            "2023-03-13",
+            "2024-03-25",
+            "2024-07-15",
+            "2025-03-03",
+            "2026-06-08"
+          ],
+          "mean_event_ret_pct": 4.386,
+          "sum_event_ret_pct": 57.013,
+          "win_rate_pct": 53.85
+        },
+        "start_shift_+0h": {
+          "n_long_events": 13,
+          "event_dates": [
+            "2021-01-04",
+            "2021-06-28",
+            "2021-07-26",
+            "2021-11-29",
+            "2021-12-13",
+            "2022-03-28",
+            "2022-05-16",
+            "2023-03-13",
+            "2023-05-30",
+            "2024-03-25",
+            "2024-07-15",
+            "2024-11-11",
+            "2025-03-03"
+          ],
+          "mean_event_ret_pct": 5.433,
+          "sum_event_ret_pct": 70.628,
+          "win_rate_pct": 69.23
+        },
+        "start_shift_+4h": {
+          "n_long_events": 13,
+          "event_dates": [
+            "2021-01-04",
+            "2021-06-14",
+            "2021-06-28",
+            "2021-07-06",
+            "2021-07-26",
+            "2021-11-29",
+            "2022-03-28",
+            "2022-05-16",
+            "2023-03-13",
+            "2024-03-25",
+            "2024-07-15",
+            "2024-11-11",
+            "2025-03-03"
+          ],
+          "mean_event_ret_pct": 5.151,
+          "sum_event_ret_pct": 66.968,
+          "win_rate_pct": 61.54
+        },
+        "start_shift_+8h": {
+          "n_long_events": 11,
+          "event_dates": [
+            "2021-01-04",
+            "2021-06-14",
+            "2021-06-28",
+            "2021-11-29",
+            "2022-03-28",
+            "2022-05-16",
+            "2022-06-21",
+            "2023-03-13",
+            "2023-05-30",
+            "2024-11-11",
+            "2025-03-03"
+          ],
+          "mean_event_ret_pct": 5.796,
+          "sum_event_ret_pct": 63.751,
+          "win_rate_pct": 63.64
+        },
+        "start_shift_+12h": {
+          "n_long_events": 12,
+          "event_dates": [
+            "2021-01-04",
+            "2021-03-08",
+            "2021-06-14",
+            "2021-06-28",
+            "2021-12-06",
+            "2022-03-28",
+            "2022-05-16",
+            "2022-06-21",
+            "2023-03-13",
+            "2023-05-30",
+            "2024-11-11",
+            "2025-03-03"
+          ],
+          "mean_event_ret_pct": 8.292,
+          "sum_event_ret_pct": 99.509,
+          "win_rate_pct": 75.0
+        }
+      }
+    },
+    "discovery_claim_recheck": {
+      "purpose": "reproduce the numbers that justified the signal in commit dbb6f40, using that script's OWN functions on today's data",
+      "by_symbol_and_window": {
+        "COIN": {
+          "discovery_sample_approx_3.5y_2019_06_to_2023_06": {
+            "n_flagged": 35,
+            "n_up": 19,
+            "corr_btc_vs_gap_all_flagged": 0.245,
+            "corr_btc_vs_gap_up_only": 0.044,
+            "mean_gap_pct": -0.749,
+            "mean_gap_pct_up_only": 2.729,
+            "mean_next_day_pct_up_only": 0.918,
+            "next_day_win_rate_pct_up_only": 36.8
+          },
+          "playbook_window_2021_01_to_2026_09": {
+            "n_flagged": 43,
+            "n_up": 23,
+            "corr_btc_vs_gap_all_flagged": 0.232,
+            "corr_btc_vs_gap_up_only": -0.075,
+            "mean_gap_pct": -1.0,
+            "mean_gap_pct_up_only": 3.888,
+            "mean_next_day_pct_up_only": 0.788,
+            "next_day_win_rate_pct_up_only": 39.1
+          },
+          "full_sample_2019_to_2026": {
+            "n_flagged": 43,
+            "n_up": 23,
+            "corr_btc_vs_gap_all_flagged": 0.232,
+            "corr_btc_vs_gap_up_only": -0.075,
+            "mean_gap_pct": -1.0,
+            "mean_gap_pct_up_only": 3.888,
+            "mean_next_day_pct_up_only": 0.788,
+            "next_day_win_rate_pct_up_only": 39.1
+          }
+        },
+        "MSTR": {
+          "discovery_sample_approx_3.5y_2019_06_to_2023_06": {
+            "n_flagged": 30,
+            "n_up": 15,
+            "corr_btc_vs_gap_all_flagged": 0.186,
+            "corr_btc_vs_gap_up_only": -0.123,
+            "mean_gap_pct": 0.379,
+            "mean_gap_pct_up_only": 4.965,
+            "mean_next_day_pct_up_only": 2.11,
+            "next_day_win_rate_pct_up_only": 73.3
+          },
+          "playbook_window_2021_01_to_2026_09": {
+            "n_flagged": 26,
+            "n_up": 14,
+            "corr_btc_vs_gap_all_flagged": 0.222,
+            "corr_btc_vs_gap_up_only": -0.174,
+            "mean_gap_pct": -1.152,
+            "mean_gap_pct_up_only": 6.016,
+            "mean_next_day_pct_up_only": 3.97,
+            "next_day_win_rate_pct_up_only": 92.9
+          },
+          "full_sample_2019_to_2026": {
+            "n_flagged": 43,
+            "n_up": 23,
+            "corr_btc_vs_gap_all_flagged": 0.2,
+            "corr_btc_vs_gap_up_only": -0.088,
+            "mean_gap_pct": -0.075,
+            "mean_gap_pct_up_only": 4.841,
+            "mean_next_day_pct_up_only": 2.265,
+            "next_day_win_rate_pct_up_only": 78.3
+          }
+        },
+        "MARA": {
+          "discovery_sample_approx_3.5y_2019_06_to_2023_06": {
+            "n_flagged": 30,
+            "n_up": 15,
+            "corr_btc_vs_gap_all_flagged": 0.217,
+            "corr_btc_vs_gap_up_only": -0.148,
+            "mean_gap_pct": 1.286,
+            "mean_gap_pct_up_only": 9.295,
+            "mean_next_day_pct_up_only": 5.842,
+            "next_day_win_rate_pct_up_only": 60.0
+          },
+          "playbook_window_2021_01_to_2026_09": {
+            "n_flagged": 26,
+            "n_up": 14,
+            "corr_btc_vs_gap_all_flagged": 0.252,
+            "corr_btc_vs_gap_up_only": -0.089,
+            "mean_gap_pct": -0.659,
+            "mean_gap_pct_up_only": 6.982,
+            "mean_next_day_pct_up_only": 5.077,
+            "next_day_win_rate_pct_up_only": 71.4
+          },
+          "full_sample_2019_to_2026": {
+            "n_flagged": 43,
+            "n_up": 23,
+            "corr_btc_vs_gap_all_flagged": 0.24,
+            "corr_btc_vs_gap_up_only": -0.098,
+            "mean_gap_pct": 0.958,
+            "mean_gap_pct_up_only": 8.098,
+            "mean_next_day_pct_up_only": 3.657,
+            "next_day_win_rate_pct_up_only": 56.5
+          }
+        },
+        "RIOT": {
+          "discovery_sample_approx_3.5y_2019_06_to_2023_06": {
+            "n_flagged": 30,
+            "n_up": 15,
+            "corr_btc_vs_gap_all_flagged": 0.226,
+            "corr_btc_vs_gap_up_only": -0.188,
+            "mean_gap_pct": 0.116,
+            "mean_gap_pct_up_only": 6.721,
+            "mean_next_day_pct_up_only": 4.205,
+            "next_day_win_rate_pct_up_only": 73.3
+          },
+          "playbook_window_2021_01_to_2026_09": {
+            "n_flagged": 26,
+            "n_up": 14,
+            "corr_btc_vs_gap_all_flagged": 0.235,
+            "corr_btc_vs_gap_up_only": -0.147,
+            "mean_gap_pct": -0.826,
+            "mean_gap_pct_up_only": 5.461,
+            "mean_next_day_pct_up_only": 3.016,
+            "next_day_win_rate_pct_up_only": 57.1
+          },
+          "full_sample_2019_to_2026": {
+            "n_flagged": 43,
+            "n_up": 23,
+            "corr_btc_vs_gap_all_flagged": 0.249,
+            "corr_btc_vs_gap_up_only": -0.143,
+            "mean_gap_pct": 0.266,
+            "mean_gap_pct_up_only": 6.262,
+            "mean_next_day_pct_up_only": 2.556,
+            "next_day_win_rate_pct_up_only": 56.5
+          }
+        }
+      },
+      "committed_claims": {
+        "corr_btc_vs_mstr_gap": 0.823,
+        "mstr_gap_pct": 8.3,
+        "mstr_next_day_pct": 3.8,
+        "mstr_next_day_win_rate_pct": 100,
+        "sample": "3.5 years / 10 triggering weekends (per commit dbb6f40)"
+      },
+      "stale_documentation": [
+        "src/signals/weekend_gap.py:6-7 still states 'the Monday gap correlates 0.82 with the BTC weekend move and mostly does NOT fill (0-20% fill rate)'",
+        "the live rerun of the same script gives corr(btc_weekend, gap) = 0.19-0.22 over any 3.5-year window, and a NEGATIVE correlation (-0.09 to -0.17) once restricted to the up-only weekends the strategy actually trades",
+        "the '100% win rate' on MSTR's next day is now 77% on the full sample"
+      ],
+      "clock_of_the_original_statistic": {
+        "file": "scripts/backtest_weekend_gap.py",
+        "lines": "92-99 (compute_stock_gaps), 173-176 (printing)",
+        "gap_pct": "open(Mon)/close(Fri) - 1  -> the Monday GAP",
+        "ret_1d": "close.shift(-1)/close - 1 evaluated at the Monday row = close(Tue)/close(Mon) - 1  -> measured from MONDAY'S CLOSE",
+        "ret_5d": "close.shift(-5)/close at the Monday row -> also from Monday's CLOSE",
+        "consequence": "the evidence that launched the signal (a) is mostly about the gap, which the playbook deliberately does NOT trade because it enters at the Monday OPEN, and (b) measures 'next day' from Monday's close. The playbook's own leg -- Monday open -> T+2 close -- was never the subject of the original validation. Entering at the open means paying the ~5-8% gap first."
+      },
+      "universe_note": "the original script loops COIN/MSTR/MARA/RIOT and its commit message highlights the single best of the four ('MSTR ... 100% win rate!'); the traded roster is a post-hoc pick from that scan"
+    }
+  },
+  "q2_significance": {
+    "event_returns_pct": [
+      25.496,
+      11.565,
+      1.42,
+      -2.123,
+      0.161,
+      -0.827,
+      -6.066,
+      18.101,
+      3.695,
+      7.178,
+      9.722,
+      0.775,
+      -0.212
+    ],
+    "unit_of_analysis": "one event = one weekend; equal-weight leg P&L/net notional",
+    "n_long_events": 13,
+    "mean_sd_t_p": {
+      "n": 13,
+      "mean_pct": 5.299,
+      "sd_pct": 8.901,
+      "se_pct": 2.469,
+      "t_stat": 2.146,
+      "df": 12,
+      "p_two_sided": 0.053,
+      "p_one_sided": 0.0265,
+      "t_ci95_pct": [
+        -0.08,
+        10.678
+      ]
+    },
+    "bootstrap_mean_ci95_pct": {
+      "n_boot": 10000,
+      "mean_pct": 5.299,
+      "percentile_ci95_pct": [
+        0.992,
+        10.102
+      ],
+      "percentile_p_le_zero": 0.0061,
+      "studentized_ci95_pct": [
+        0.963,
+        13.268
+      ],
+      "studentized_contains_zero": false,
+      "median_pct": 5.165,
+      "caveat": "percentile CI excludes 0 (p=0.006) while the t-test gives p=0.053 — the percentile bootstrap is anti-conservative at n=13 because it does not propagate the uncertainty in the sd. Quote the t / studentized interval, not the percentile one."
+    },
+    "win_rate": {
+      "wins": 9,
+      "n": 13,
+      "observed_pct": 69.23,
+      "wilson_ci95_pct": [
+        42.37,
+        87.32
+      ],
+      "clopper_pearson_ci95_pct": [
+        38.57,
+        90.91
+      ],
+      "null_50pct_in_ci": true
+    },
+    "concentration": {
+      "sum_event_returns_pct": 68.885,
+      "top2_events_share_of_gross_returns_pct": 63.3,
+      "top2_contributions": [
+        18.101,
+        25.496
+      ]
+    },
+    "jackknife": {
+      "drop_worst": {
+        "n": 12,
+        "mean_pct": 3.616,
+        "sd_pct": 6.802,
+        "se_pct": 1.963,
+        "t_stat": 1.842,
+        "df": 11,
+        "p_two_sided": 0.0926,
+        "p_one_sided": 0.0463,
+        "t_ci95_pct": [
+          -0.706,
+          7.937
+        ]
+      },
+      "drop_best": {
+        "n": 12,
+        "mean_pct": 6.246,
+        "sd_pct": 8.586,
+        "se_pct": 2.479,
+        "t_stat": 2.52,
+        "df": 11,
+        "p_two_sided": 0.0285,
+        "p_one_sided": 0.0142,
+        "t_ci95_pct": [
+          0.791,
+          11.701
+        ]
+      },
+      "drop_top2": {
+        "n": 11,
+        "mean_pct": 2.299,
+        "sd_pct": 5.291,
+        "se_pct": 1.595,
+        "t_stat": 1.441,
+        "df": 10,
+        "p_two_sided": 0.1802,
+        "p_one_sided": 0.0901,
+        "t_ci95_pct": [
+          -1.256,
+          5.854
+        ]
+      },
+      "drop_best_and_worst": {
+        "n": 11,
+        "mean_pct": 4.496,
+        "sd_pct": 6.377,
+        "se_pct": 1.923,
+        "t_stat": 2.338,
+        "df": 10,
+        "p_two_sided": 0.0415,
+        "p_one_sided": 0.0207,
+        "t_ci95_pct": [
+          0.212,
+          8.78
+        ]
+      }
+    },
+    "reject_zero_at_5pct_two_sided": false,
+    "reject_zero_at_5pct_one_sided": true,
+    "headline": "p(two-sided) = 0.053 -> FAILS to reject zero at 5% two-sided; passes only one-sided (0.027), i.e. it is not significant by the standard a strategy must clear before money goes on it",
+    "per_leg_stats": {
+      "n_legs": 38,
+      "mean_pct": 4.767,
+      "t_stat": 3.067,
+      "p_two_sided": 0.00403,
+      "warning": "legs within one event are highly correlated (same day, same sector) — this n=38 t-stat is NOT the right unit and is shown only to demonstrate how much flattery the wrong unit buys"
+    }
+  },
+  "q3_multiple_comparisons": {
+    "n_hypothesis_families_audited": 28,
+    "hypotheses": [
+      "crypto-signal: funding_rate absolute threshold -> equity risk",
+      "crypto-signal: funding_rate rolling percentile threshold",
+      "crypto-signal: onchain MVRV / NVT divergence -> BTC",
+      "crypto-signal: onchain exchange netflow",
+      "crypto-signal: volume-ratio confirmation on gap events",
+      "crypto-signal: weekend_gap (weekend BTC move -> crypto stocks)",
+      "crypto-signal: overnight_gap daily-frequency generalization",
+      "crypto-signal: merged weekend+overnight gap signal",
+      "crypto-signal: order-book / BBO event study around gaps",
+      "crypto-signal: Polymarket lead-lag mining",
+      "macro: FOMC decision-day calendar effect",
+      "macro: FOMC statement hawkishness (lexicon NLP)",
+      "equity: cross-sectional GBM monthly selection (S&P100)",
+      "equity: cross-sectional GBM on S&P500 universe",
+      "equity: momentum factor (12-1) baseline",
+      "equity: GBM vs momentum attribution",
+      "equity: meta-labeling on weekend_gap / selection",
+      "execution: limit-order entry instead of market",
+      "execution: tranched/scaled entry",
+      "execution: score-weighted sizing",
+      "risk: risk gate: VIX percentile",
+      "risk: risk gate: momentum regime",
+      "risk: risk gate: MVRV level",
+      "exit: T+1 vs T+2 vs T+5 exit",
+      "exit: hard stop / take-profit",
+      "exit: trailing stop",
+      "exit: signal-decay exit",
+      "exit: mid-month rescoring / month-end vs intrameonth exit"
+    ],
+    "expected_false_positives_at_5pct": 1.4,
+    "family_wise_error_rate_at_5pct": 0.7622,
+    "raw_p_two_sided": 0.053,
+    "p_bonferroni": 1.0,
+    "p_bh_fdr_rank1": 1.0,
+    "survives_bonferroni_5pct": false,
+    "in_signal_search_degrees_of_freedom": {
+      "symbols_considered": 4,
+      "exit_rules_considered": 6,
+      "directions_considered": 2,
+      "windows_considered": 3,
+      "threshold": "5% is the script default; --threshold is exposed"
+    },
+    "inner_degrees_of_freedom_symbols_x_exits": 24,
+    "all_in_k": 52,
+    "all_in_bonferroni_p": 1.0,
+    "discovery_archaeology": {
+      "first_commit": "dbb6f40 'feat(signals): weekend BTC→stock gap signal — STRONG RESULTS'",
+      "preceded_by": "63a0e57 'docs: data audit + signal brainstorm' 2.5h earlier",
+      "was_it_preregistered": false,
+      "evidence": [
+        "the brainstorm doc 63a0e57 lists momentum / macro / Polymarket / on-chain / order-book candidates — weekend_gap is NOT among them",
+        "the very first commit that touches it announces 'STRONG RESULTS' — the hypothesis and the confirmation were produced in the same session",
+        "scripts/backtest_weekend_gap.py takes --threshold and loops 4 symbols (COIN/MSTR/MARA/RIOT); the commit message singles out 'MSTR ... 100% win rate!' — the traded symbol set is a post-hoc choice among 4"
+      ],
+      "verdict": "opportunistic scan, not a pre-registered hypothesis -> the raw p-value must be discounted, it cannot be read as a confirmatory test"
+    }
+  },
+  "q4_beta_disguise": {
+    "unconditional_compounded_pct_over_window": {
+      "compounded_pct": 363.29,
+      "n_events": 297,
+      "by_year": {
+        "2021": {
+          "n": 52,
+          "sum_ret_pct": 37.76,
+          "compounded_pct": 13.64,
+          "mean_ret_pct": 0.726
+        },
+        "2022": {
+          "n": 52,
+          "sum_ret_pct": 40.43,
+          "compounded_pct": 2.1,
+          "mean_ret_pct": 0.777
+        },
+        "2023": {
+          "n": 52,
+          "sum_ret_pct": 151.08,
+          "compounded_pct": 281.77,
+          "mean_ret_pct": 2.905
+        },
+        "2024": {
+          "n": 53,
+          "sum_ret_pct": 33.2,
+          "compounded_pct": 13.04,
+          "mean_ret_pct": 0.626
+        },
+        "2025": {
+          "n": 52,
+          "sum_ret_pct": 2.89,
+          "compounded_pct": -6.92,
+          "mean_ret_pct": 0.055
+        },
+        "2026": {
+          "n": 36,
+          "sum_ret_pct": 6.34,
+          "compounded_pct": -0.6,
+          "mean_ret_pct": 0.176
+        }
+      },
+      "note": "trade equal-weight COIN/MSTR/MARA every single weekend in the SAME window, Monday open -> T+2 close, 100% notional every time, no BTC condition at all. CAVEAT: this is not a strategy anyone would run (negative median event return, ~40% time in market, fat tails) — it is here only to show how much of the P&L comes from the underlying names' Monday->Wednesday drift rather than from the BTC condition. The signal deploys ~|score| x equity (mean 0.70) on 13 of these 401 occasions, so compare the SIGN, not the magnitudes."
+    },
+    "signal_adds_over_unconditional": {
+      "welch_t": 1.737,
+      "welch_p_two_sided": 0.1058,
+      "mean_difference_pct": 4.384,
+      "permutation_p_one_sided": 0.042,
+      "permutation_design": "draw 13 random weekends from ALL 401 weekends, no BTC condition, same trade; 10000 draws",
+      "permutation_ci95_of_draw_mean_pct": [
+        -3.132,
+        5.096
+      ],
+      "note": "if this p is not small the '>=5% condition' is not the reason the trade made money"
+    },
+    "unconditional_all_weekends": {
+      "n": 297,
+      "note": "buy COIN/MSTR/MARA equal-weight at the Monday open, sell T+2 close, on EVERY weekend regardless of the BTC move",
+      "mean_ret_pct": 0.915,
+      "median_ret_pct": -0.244,
+      "sd_pct": 8.985,
+      "win_rate_pct": 48.48,
+      "t_stat": 1.755
+    },
+    "conditional_up_only_no_threshold": {
+      "n": 153,
+      "note": "same trade but only when the BTC weekend move was > 0 (any size)",
+      "mean_ret_pct": 0.951,
+      "median_ret_pct": -0.116,
+      "win_rate_pct": 47.71,
+      "t_stat": 1.342
+    },
+    "conditional_down_only": {
+      "n": 144,
+      "mean_ret_pct": 0.876,
+      "win_rate_pct": 49.31
+    },
+    "regression_stock_on_btc_weekend_all_weekends": {
+      "slope": 0.0841,
+      "intercept_pct": 0.9019,
+      "intercept_p": 0.655,
+      "r_squared": 0.0007,
+      "note": "if the intercept is ~0 the rule is harvesting plain beta to the BTC weekend move, not a timing edge"
+    },
+    "buy_and_hold_controls_pct_over_window": {
+      "window": [
+        "2021-01-01",
+        "2026-09-11"
+      ],
+      "BTC": 167.0,
+      "MSTR": 214.58,
+      "COIN": -54.0,
+      "MARA": -4.01
+    },
+    "event_day_buy_and_hold_to_month_end": {
+      "n": 13,
+      "equal_weight_mean_pct": 8.797,
+      "equal_weight_sd_pct": 20.287,
+      "equal_weight_win_rate_pct": 61.54,
+      "mstr_only_mean_pct": 13.707,
+      "t_plus_2_mean_pct": 5.299,
+      "note": "same entry days, holding to the calendar month end instead of T+2"
+    },
+    "random_date_placebo": {
+      "design": "anchors = all non-Sunday days where BTC rose >=5% over the next 2 calendar days; entry = next trading-day open; trade = same equal-weight T+2",
+      "pool_size": 175,
+      "pool_mean_pct": 7.733,
+      "pool_win_rate_pct": 73.71,
+      "actual_mean_pct": 5.299,
+      "n_sim": 10000,
+      "n_events_per_draw": 13,
+      "p_value_placebo": 0.7547,
+      "placebo_draw_mean_ci95_pct": [
+        1.519,
+        15.422
+      ]
+    },
+    "mstr_daily_beta_to_btc": {
+      "beta": 1.1626,
+      "intercept_bp": 10.352,
+      "r_squared": 0.5065,
+      "p_value": 0.0
+    },
+    "threshold_sensitivity": {
+      "design": "long-only, equal-weight COIN/MSTR/MARA, entry trigger-day open, exit T+2 close, gross of costs",
+      "note": "DIAGNOSTIC ONLY — the 5% choice is NOT being second-guessed here",
+      "by_threshold": {
+        "ge_3pct": {
+          "n": 30,
+          "mean_ret_pct": 1.134,
+          "median_ret_pct": -0.398,
+          "win_rate_pct": 46.67,
+          "t_stat": 0.709
+        },
+        "ge_4pct": {
+          "n": 18,
+          "mean_ret_pct": 3.974,
+          "median_ret_pct": 1.218,
+          "win_rate_pct": 61.11,
+          "t_stat": 1.708
+        },
+        "ge_5pct": {
+          "n": 13,
+          "mean_ret_pct": 5.433,
+          "median_ret_pct": 1.541,
+          "win_rate_pct": 69.23,
+          "t_stat": 2.197
+        },
+        "ge_6pct": {
+          "n": 7,
+          "mean_ret_pct": 6.843,
+          "median_ret_pct": 0.278,
+          "win_rate_pct": 57.14,
+          "t_stat": 1.529
+        },
+        "ge_7pct": {
+          "n": 4,
+          "mean_ret_pct": 13.889,
+          "median_ret_pct": 14.99,
+          "win_rate_pct": 75.0,
+          "t_stat": 2.542
+        },
+        "ge_8pct": {
+          "n": 4,
+          "mean_ret_pct": 13.889,
+          "median_ret_pct": 14.99,
+          "win_rate_pct": 75.0,
+          "t_stat": 2.542
+        },
+        "ge_10pct": {
+          "n": 2,
+          "mean_ret_pct": 12.787,
+          "median_ret_pct": 12.787,
+          "win_rate_pct": 50.0,
+          "t_stat": 0.993
+        }
+      }
+    }
+  },
+  "q5_costs_tax_capital": {
+    "slippage_sensitivity": {
+      "0bps": {
+        "mean_event_ret_pct": 5.402,
+        "sum_event_ret_pct": 70.22,
+        "cumulative_compounded_pct": 90.21,
+        "win_rate_pct": 69.23,
+        "t_stat": 2.187
+      },
+      "5bps": {
+        "mean_event_ret_pct": 5.302,
+        "sum_event_ret_pct": 68.92,
+        "cumulative_compounded_pct": 87.87,
+        "win_rate_pct": 69.23,
+        "t_stat": 2.146
+      },
+      "10bps": {
+        "mean_event_ret_pct": 5.202,
+        "sum_event_ret_pct": 67.62,
+        "cumulative_compounded_pct": 85.55,
+        "win_rate_pct": 69.23,
+        "t_stat": 2.106
+      },
+      "15bps": {
+        "mean_event_ret_pct": 5.102,
+        "sum_event_ret_pct": 66.32,
+        "cumulative_compounded_pct": 83.25,
+        "win_rate_pct": 61.54,
+        "t_stat": 2.065
+      },
+      "25bps": {
+        "mean_event_ret_pct": 4.902,
+        "sum_event_ret_pct": 63.72,
+        "cumulative_compounded_pct": 78.74,
+        "win_rate_pct": 61.54,
+        "t_stat": 1.984
+      },
+      "50bps": {
+        "mean_event_ret_pct": 4.402,
+        "sum_event_ret_pct": 57.22,
+        "cumulative_compounded_pct": 67.91,
+        "win_rate_pct": 53.85,
+        "t_stat": 1.782
+      }
+    },
+    "cost_reconciliation": {
+      "audit_5bps_mean_event_ret_pct": 5.302,
+      "report_mean_event_ret_pct": 5.299,
+      "matches": true,
+      "note": "re-derivation from the report's own entry/exit prices reproduces the published per-event mean -> the cost arithmetic in the original backtest is internally consistent; what is questionable is the 5bps ASSUMPTION, not the arithmetic",
+      "compounded_vs_published": "the audit's cumulative_compounded_pct holds 100% notional every event; the published +80.56% equity curve scales notional by |score| (mean 0.70) so the two compounded numbers are not interchangeable"
+    },
+    "slippage_note": "5bps is modelled ONE-WAY (src/selection/costs.py), so the reported +80.6% already nets ~10bps round trip. The open auction on a gapped crypto name is the widest spread of the day; 15-25bps one-way is the realistic band.",
+    "tax": {
+      "holding_period": "2-3 trading days -> short-term, taxed as ordinary income",
+      "assumed_rate": 0.35,
+      "gross_cumulative_pct": 90.21,
+      "net_of_cost_cumulative_pct": 83.25,
+      "after_tax_cumulative_pct": 54.11,
+      "after_tax_cagr_pct_on_sleeve": 7.89,
+      "loss_offsetting_note": "assumes gains can offset other losses and no wash-sale interaction; 4 of 13 events were losses"
+    },
+    "capital_efficiency": {
+      "window_years": 5.69,
+      "trading_days_in_window": 1429,
+      "in_market_trading_days": 39,
+      "time_in_market_pct": 2.73,
+      "events": 13,
+      "events_per_year": 2.28,
+      "trading_contribution_cagr_pct": 10.98,
+      "note": "the +80.6% / ~11% CAGR is the return on the WHOLE active sleeve even though it is only deployed ~5% of trading days; add SGOV on idle cash for the sleeve total. On a 10-20% sleeve this is ~1.5-3pp/yr of total portfolio, pre-tax, pre-execution-error."
+    }
+  },
+  "q6_decay": {
+    "era_split_halves": {
+      "first_half": {
+        "n": 6,
+        "start": "2021-01-04",
+        "end": "2022-03-28",
+        "mean_ret_pct": 5.949,
+        "sum_ret_pct": 35.692,
+        "win_rate_pct": 66.67,
+        "t_stat": 1.354
+      },
+      "second_half": {
+        "n": 7,
+        "start": "2022-05-16",
+        "end": "2025-03-03",
+        "mean_ret_pct": 4.742,
+        "sum_ret_pct": 33.193,
+        "win_rate_pct": 71.43,
+        "t_stat": 1.603
+      }
+    },
+    "era_split_3yr": {
+      "2021-2022": {
+        "n": 7,
+        "start": "2021-01-04",
+        "end": "2022-05-16",
+        "mean_ret_pct": 4.232,
+        "sum_ret_pct": 29.626,
+        "win_rate_pct": 57.14,
+        "t_stat": 1.035
+      },
+      "2023-2024": {
+        "n": 5,
+        "start": "2023-03-13",
+        "end": "2024-11-11",
+        "mean_ret_pct": 7.894,
+        "sum_ret_pct": 39.471,
+        "win_rate_pct": 100.0,
+        "t_stat": 2.659
+      },
+      "2025-2026": {
+        "n": 1,
+        "start": "2025-03-03",
+        "end": "2025-03-03",
+        "mean_ret_pct": -0.212,
+        "sum_ret_pct": -0.212,
+        "win_rate_pct": 0.0,
+        "t_stat": null
+      }
+    },
+    "trigger_frequency_and_btc_vol": {
+      "2021": {
+        "weekends": 52,
+        "abs_move_ge_5pct_up": 5,
+        "abs_move_ge_5pct_any": 11,
+        "btc_realized_vol_ann_pct": 81.2
+      },
+      "2022": {
+        "weekends": 52,
+        "abs_move_ge_5pct_up": 2,
+        "abs_move_ge_5pct_any": 4,
+        "btc_realized_vol_ann_pct": 63.7
+      },
+      "2023": {
+        "weekends": 53,
+        "abs_move_ge_5pct_up": 2,
+        "abs_move_ge_5pct_any": 2,
+        "btc_realized_vol_ann_pct": 44.1
+      },
+      "2024": {
+        "weekends": 52,
+        "abs_move_ge_5pct_up": 3,
+        "abs_move_ge_5pct_any": 4,
+        "btc_realized_vol_ann_pct": 53.0
+      },
+      "2025": {
+        "weekends": 52,
+        "abs_move_ge_5pct_up": 1,
+        "abs_move_ge_5pct_any": 3,
+        "btc_realized_vol_ann_pct": 41.7
+      },
+      "2026": {
+        "weekends": 37,
+        "abs_move_ge_5pct_up": 0,
+        "abs_move_ge_5pct_any": 1,
+        "btc_realized_vol_ann_pct": 46.0
+      }
+    },
+    "pnl_decomposition": {
+      "note": "gap = Fri close -> Mon open (we DO NOT capture it); post_open_to_t2 = Mon open -> Wed close (this is the strategy)",
+      "by_year": {
+        "2021": {
+          "n": 5,
+          "mean_gap_pct": 6.249,
+          "mean_post_open_to_t2_pct": 7.432,
+          "mean_fri_close_to_t2_pct": 14.589,
+          "gap_fill_rate_pct": 20.0
+        },
+        "2022": {
+          "n": 2,
+          "mean_gap_pct": 2.031,
+          "mean_post_open_to_t2_pct": -3.313,
+          "mean_fri_close_to_t2_pct": -1.294,
+          "gap_fill_rate_pct": 50.0
+        },
+        "2023": {
+          "n": 2,
+          "mean_gap_pct": 5.181,
+          "mean_post_open_to_t2_pct": 11.07,
+          "mean_fri_close_to_t2_pct": 16.822,
+          "gap_fill_rate_pct": 0.0
+        },
+        "2024": {
+          "n": 3,
+          "mean_gap_pct": 7.293,
+          "mean_post_open_to_t2_pct": 6.015,
+          "mean_fri_close_to_t2_pct": 13.628,
+          "gap_fill_rate_pct": 0.0
+        },
+        "2025": {
+          "n": 1,
+          "mean_gap_pct": 10.843,
+          "mean_post_open_to_t2_pct": -0.088,
+          "mean_fri_close_to_t2_pct": 10.862,
+          "gap_fill_rate_pct": 0.0
+        }
+      },
+      "early_2021_2023": {
+        "n": 9,
+        "mean_gap_pct": 5.074,
+        "mean_post_open_to_t2_pct": 5.852,
+        "gap_fill_rate_pct": 22.2
+      },
+      "late_2024_2026": {
+        "n": 4,
+        "mean_gap_pct": 8.18,
+        "mean_post_open_to_t2_pct": 4.489,
+        "gap_fill_rate_pct": 0.0
+      },
+      "per_event": [
+        {
+          "entry_date": "2021-01-04",
+          "btc_weekend_ret_pct": 12.51,
+          "gap_pct": 13.345,
+          "post_open_to_t2_pct": 25.661,
+          "fri_close_to_t2_pct": 43.065,
+          "gap_filled_by_t2": false,
+          "year": "2021"
+        },
+        {
+          "entry_date": "2021-06-28",
+          "btc_weekend_ret_pct": 9.87,
+          "gap_pct": 2.931,
+          "post_open_to_t2_pct": 11.689,
+          "fri_close_to_t2_pct": 14.965,
+          "gap_filled_by_t2": false,
+          "year": "2021"
+        },
+        {
+          "entry_date": "2021-07-26",
+          "btc_weekend_ret_pct": 5.19,
+          "gap_pct": 12.107,
+          "post_open_to_t2_pct": 1.541,
+          "fri_close_to_t2_pct": 13.861,
+          "gap_filled_by_t2": false,
+          "year": "2021"
+        },
+        {
+          "entry_date": "2021-11-29",
+          "btc_weekend_ret_pct": 6.6,
+          "gap_pct": 4.346,
+          "post_open_to_t2_pct": -2.011,
+          "fri_close_to_t2_pct": 2.257,
+          "gap_filled_by_t2": false,
+          "year": "2021"
+        },
+        {
+          "entry_date": "2021-12-13",
+          "btc_weekend_ret_pct": 6.18,
+          "gap_pct": -1.483,
+          "post_open_to_t2_pct": 0.278,
+          "fri_close_to_t2_pct": -1.203,
+          "gap_filled_by_t2": true,
+          "year": "2021"
+        },
+        {
+          "entry_date": "2022-03-28",
+          "btc_weekend_ret_pct": 5.67,
+          "gap_pct": 5.343,
+          "post_open_to_t2_pct": -0.708,
+          "fri_close_to_t2_pct": 4.551,
+          "gap_filled_by_t2": false,
+          "year": "2022"
+        },
+        {
+          "entry_date": "2022-05-16",
+          "btc_weekend_ret_pct": 6.97,
+          "gap_pct": -1.281,
+          "post_open_to_t2_pct": -5.918,
+          "fri_close_to_t2_pct": -7.139,
+          "gap_filled_by_t2": true,
+          "year": "2022"
+        },
+        {
+          "entry_date": "2023-03-13",
+          "btc_weekend_ret_pct": 9.16,
+          "gap_pct": 4.841,
+          "post_open_to_t2_pct": 18.291,
+          "fri_close_to_t2_pct": 24.057,
+          "gap_filled_by_t2": false,
+          "year": "2023"
+        },
+        {
+          "entry_date": "2023-05-30",
+          "btc_weekend_ret_pct": 5.09,
+          "gap_pct": 5.52,
+          "post_open_to_t2_pct": 3.849,
+          "fri_close_to_t2_pct": 9.586,
+          "gap_filled_by_t2": false,
+          "year": "2023"
+        },
+        {
+          "entry_date": "2024-03-25",
+          "btc_weekend_ret_pct": 5.35,
+          "gap_pct": 3.078,
+          "post_open_to_t2_pct": 7.302,
+          "fri_close_to_t2_pct": 10.742,
+          "gap_filled_by_t2": false,
+          "year": "2024"
+        },
+        {
+          "entry_date": "2024-07-15",
+          "btc_weekend_ret_pct": 5.02,
+          "gap_pct": 6.603,
+          "post_open_to_t2_pct": 9.847,
+          "fri_close_to_t2_pct": 17.035,
+          "gap_filled_by_t2": false,
+          "year": "2024"
+        },
+        {
+          "entry_date": "2024-11-11",
+          "btc_weekend_ret_pct": 5.05,
+          "gap_pct": 12.198,
+          "post_open_to_t2_pct": 0.895,
+          "fri_close_to_t2_pct": 13.108,
+          "gap_filled_by_t2": false,
+          "year": "2024"
+        },
+        {
+          "entry_date": "2025-03-03",
+          "btc_weekend_ret_pct": 11.76,
+          "gap_pct": 10.843,
+          "post_open_to_t2_pct": -0.088,
+          "fri_close_to_t2_pct": 10.862,
+          "gap_filled_by_t2": false,
+          "year": "2025"
+        }
+      ]
+    },
+    "last_8_events": {
+      "n": 8,
+      "start": "2022-03-28",
+      "end": "2025-03-03",
+      "mean_ret_pct": 4.046,
+      "sum_ret_pct": 32.366,
+      "win_rate_pct": 62.5,
+      "t_stat": 1.524
+    }
+  },
+  "q7_verdict": {
+    "verdict": "DOWNGRADE — playbook v1.0 must not stand as written, but the signal should not be deleted either",
+    "confidence": "high on the statistics; the direction of the fix is not in doubt, only how far to cut",
+    "one_line": "The backtest is not broken and the sign is probably real, but the edge is statistically unestablished: 2 of 13 events produce 63.3% of the gross return, dropping them kills the result (p=0.18), the two-sided p is 0.053 BEFORE any correction and 1.0 after, a random-date placebo is not beaten, and the documented 0.82 gap correlation does not reproduce.",
+    "most_lethal_finding": {
+      "title": "Two weekends out of thirteen are the entire result.",
+      "detail": "2021-01-04 (+25.50%) and 2023-03-13 (+18.10%) contribute 63.3% of the sum of event returns. Remove both and the remaining 11 events average +2.30% with p=0.18 and a 95% CI of [-1.26%, +5.85%] — i.e. indistinguishable from zero. A strategy whose headline '+80.6% / 69% win rate' is manufactured by two observations cannot be sized with real money at the confidence the playbook implies."
+    },
+    "reasons_ranked": [
+      {
+        "rank": 1,
+        "reason": "Two events carry the result.",
+        "evidence": "2021-01-04 (+25.5%) and 2023-03-13 (+18.1%) are 63.3% of gross returns. Drop both: mean +2.30%/event, p=0.18, 95% CI [-1.26, +5.85]. Drop the best alone: the CI still covers zero. The distribution is not merely noisy, it is concentrated in a way that makes every headline statistic (mean, win rate, MDD) an artifact of two dates."
+      },
+      {
+        "rank": 2,
+        "reason": "It does not clear 5%, and it is not close after correction.",
+        "evidence": "t=2.146, p(two-sided)=0.053 on n=13; studentized bootstrap CI [0.963, 13.268]; Wilson win-rate CI [42.37, 87.32] which contains a coin flip. The platform has tested 28 hypothesis directions (+24 in-signal degrees of freedom), so ~1.4 false positives are expected at 5%; Bonferroni p=1.0. The best-looking survivor of a search cannot be validated by the search's own data."
+      },
+      {
+        "rank": 3,
+        "reason": "Nothing about the BTC weekend condition is demonstrably what pays.",
+        "evidence": "Random-date placebo: non-weekend days where BTC rose >=5% over 2 days give a HIGHER mean T+2 return (7.733% vs 5.299%, placebo p=0.7547) and a higher win rate. Trading every weekend with no BTC condition gave +0.915%/event (n=297) and compounded +363.29% vs the signal's +80.6%. The BTC weekend move explains R^2=0.0007 of the tradable Monday-open -> T+2 return across all weekends."
+      },
+      {
+        "rank": 4,
+        "reason": "The documented mechanism does not reproduce, and is measured on a leg the strategy does not trade.",
+        "evidence": "src/signals/weekend_gap.py and commit dbb6f40 cite a 0.82 correlation between the BTC weekend move and the Monday gap. Re-running that script's OWN functions on today's data: corr = 0.222 over the playbook window (n=26) and 0.2 over the full sample (n=43); restricted to the up-only weekends the strategy actually takes it is NEGATIVE (-0.174). The same script measures 'next day' from MONDAY'S CLOSE (backtest_weekend_gap.py:95) while the playbook enters at the Monday OPEN — so the evidence and the executed trade are on different clocks, and the gap the evidence is about is the one the playbook deliberately pays away."
+      },
+      {
+        "rank": 5,
+        "reason": "The trigger set is convention-dependent and the strategy is dormant.",
+        "evidence": "A 4-hour change to the Friday-close definition (defensible: the daily bar closes 4h after the US cash close) changes 5-7 of the 25 traded events; a +/-12h sweep yields 11-22 events and a 50-75% win rate. Trigger frequency fell from 5/yr (2021) to 1 (2025) and 0 (2026 YTD) as BTC vol fell 81% -> 42-46%; the last long event was 2025-03-03 (-0.21%). The '2-3 triggers per year' the playbook promises is already stale, and the last 8 events only reach back to 2022."
+      }
+    ],
+    "what_the_red_team_did_NOT_find": [
+      "No reproducibility failure. All 25 events, every BTC weekend return and every entry price reproduce exactly from raw SQLite, and the recent backfills (21 S&P names, BAYRY, BTC 1h) did not disturb the event set.",
+      "No look-ahead. The signal reads only data up to the Sunday; the entry uses that day's open.",
+      "No cherry-picked threshold. The mean rises monotonically with the threshold (>=3%: +1.1%, >=5%: +5.4%, >=7%: +13.9%) — 5% is not the peak of a scan, so the choice of 5% is not the problem.",
+      "No cherry-picked clock. Shifting the Friday endpoint by +/-12h leaves the mean positive everywhere (+4.4% to +8.3%), so the effect is not an artifact of one convenient timestamp.",
+      "No sign flip across eras. First half +5.95% vs second half +4.74%; the direction is stable even though significance is not."
+    ],
+    "recommended_downgrade": {
+      "1_retract_the_claim": "Rewrite docs/active_strategy_playbook.md sections 3, 7 and 10: strike '已验证', and never again quote '+80.6% / 69% / +5.3% per trade' without 'p=0.053 two-sided, Bonferroni p=1.0, 63% of the return from 2 of 13 events' on the same line.",
+      "2_halve_the_size": "If the sleeve trades it at all, run it at half of the section 4 sizing (score x 0.5) until new out-of-sample triggers accumulate. The evidence supports a positive sign of uncertain magnitude, not the stated confidence.",
+      "3_do_NOT_change_the_threshold": "Do not move 5% to chase the >=7% bucket. That is another shot on goal and reproduces the exact failure this audit found.",
+      "4_stop_quoting_per_trade_returns": "Replace '+5.3% per trade' with the sleeve numbers: 2.73% of trading days in market, 7.89% after-tax sleeve CAGR at a 35% short-term rate, and the trigger count per year — which is now the binding constraint, not the return.",
+      "5_monitor_the_only_informative_decay_signal": "The GAP vs POST-OPEN split. Early 2021-2023: gap 5.07%, post-open (traded) 5.85%. Late 2024-2026: gap 8.18%, post-open 4.49%. In 2025 the gap was 10.84% and the post-open leg was -0.09% — the entire move was priced at the open. If the traded leg converges to zero while the gap stays wide, the time-difference has been arbitraged away and the strategy should be retired.",
+      "6_require_new_evidence": "Log the next 8 triggers with actual execution prices before any size increase. Eight more events roughly halve the standard error and would move p from 0.053 to ~0.01 if the observed mean holds."
+    },
+    "why_not_retire_outright": [
+      "The sign is stable: positive in every era half, every threshold above 3%, every clock shift tested, and in the conditional-vs-unconditional comparison.",
+      "The gap genuinely does not fill (0% fill in 2023-2025), so the underlying claim 'US equities do not fully reprice a crypto weekend at the open' is supported even if the tradable capture is not.",
+      "The loss is structurally bounded (long-only, T+2, no leverage, ~3% of the time in market), so running it at reduced size is cheap optionality while evidence accumulates."
+    ],
+    "cannot_answer_with_available_data": [
+      "Whether the true forward mean is 0 or +4%/event: n=13 gives a 95% CI of [-0.1%, +10.7%]. Only new out-of-sample triggers can resolve this.",
+      "Whether the 2025 gap widening (gap 10.84%, post-open -0.09%) is decay or a draw: n=1.",
+      "Why the documented 0.82 correlation was reported when the same script's code gives 0.19-0.25 today. It may have been a different sample, a since-fixed alignment bug, or simply wrong — the provenance cannot be recovered from the repository.",
+      "Whether COIN/MSTR/MARA are the right proxies: deliberately not re-optimised.",
+      "The real open-auction slippage at the intended size: needs paper-trading fills.",
+      "The user's actual tax bracket, state rate and loss-offsetting position: the 35% figure is a placeholder and the after-tax number scales linearly.",
+      "Whether the -17% MDD is a fair risk estimate: with 13 events and 2 dominant winners, the drawdown distribution is estimated from almost nothing."
+    ]
+  }
+}
