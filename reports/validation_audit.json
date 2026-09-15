@@ -1,0 +1,4168 @@
+{
+  "meta": {
+    "harness": "src/validation",
+    "script": "scripts/validate_reports.py",
+    "note": "retrospective audit of frozen reports; reports/*.json were only read",
+    "n_strategies": 13,
+    "thresholds": {
+      "significance_t": 2.0,
+      "sign_consistency_pass_line": 0.8,
+      "neighborhood_overfit_isolation": 0.5,
+      "boundary_flip_rate": 0.2,
+      "internal_consistency_max_ratio": 3.0
+    }
+  },
+  "summary": {
+    "verdict_counts": {
+      "RED": 4,
+      "AMBER": 9,
+      "GREEN": 0
+    },
+    "n_red": 4,
+    "n_amber": 9,
+    "n_green": 0,
+    "systemic_gaps": [
+      {
+        "question": "significance",
+        "reports_missing": 13
+      },
+      {
+        "question": "window_stability",
+        "reports_missing": 13
+      },
+      {
+        "question": "score_distribution",
+        "reports_missing": 13
+      },
+      {
+        "question": "baseline_significance",
+        "reports_missing": 13
+      },
+      {
+        "question": "cost_sensitivity",
+        "reports_missing": 13
+      },
+      {
+        "question": "multiple_comparison",
+        "reports_missing": 12
+      },
+      {
+        "question": "universe_snapshot",
+        "reports_missing": 11
+      },
+      {
+        "question": "price_source",
+        "reports_missing": 9
+      },
+      {
+        "question": "conventions",
+        "reports_missing": 8
+      },
+      {
+        "question": "out_of_sample",
+        "reports_missing": 8
+      },
+      {
+        "question": "provenance",
+        "reports_missing": 8
+      },
+      {
+        "question": "cost_reporting",
+        "reports_missing": 7
+      },
+      {
+        "question": "verdict",
+        "reports_missing": 7
+      },
+      {
+        "question": "data_window",
+        "reports_missing": 7
+      }
+    ],
+    "headline": "4/13 strategies are RED. The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), red_team (no significance / window / boundary fields) and boundary (exact score ties in shipped picks)."
+  },
+  "strategies": [
+    {
+      "name": "xsec_gbm_results",
+      "role": "美股选股主线 (SP100 GBM walk-forward)",
+      "headline_claim": "OUTPERFORM: 样本外(2021+) GBM 同时打败动量规则与 QQQ —— 值得接入信号平台",
+      "checks": {
+        "significance": {
+          "label": "mean monthly IC",
+          "n": 71,
+          "mean": 0.0082,
+          "std": null,
+          "se": null,
+          "t_stat": null,
+          "ci_low": null,
+          "ci_high": null,
+          "t_threshold": 2.0,
+          "verdict": "INSUFFICIENT",
+          "direction": "none",
+          "significant": null,
+          "note": "need n>=2 and a finite std to test significance | report does not store: monthly_ic.std, monthly_ic.se, monthly_ic.t_stat",
+          "missing_fields": [
+            "monthly_ic.std",
+            "monthly_ic.se",
+            "monthly_ic.t_stat"
+          ]
+        },
+        "internal_consistency": {
+          "label": "GBM top10 vs QQQ",
+          "ic": 0.0082,
+          "sharpe": 0.963,
+          "benchmark_sharpe": 0.695,
+          "active_sharpe": 0.268,
+          "n_months": 71,
+          "breadth_sqrt": 8.426149773176359,
+          "expected_ir": 0.06909442814004615,
+          "required_ic": 0.03180574843959527,
+          "ratio": 3.8787498097067394,
+          "max_ratio": 3.0,
+          "turnover": 0.0,
+          "verdict": "IMPLAUSIBLE",
+          "notes": [
+            "active Sharpe 0.268 is 3.9x the IC-implied IR 0.0691"
+          ],
+          "raw_ratio": 13.9374480102522
+        },
+        "multi_window": {
+          "label": "reported window slices / yearly returns",
+          "metric": "v",
+          "n_windows": 7,
+          "n_evaluated": 7,
+          "mean": 11.538428571428572,
+          "std": 19.43581036692444,
+          "min": -8.06,
+          "max": 49.79,
+          "range": 57.85,
+          "n_positive": 6,
+          "n_negative": 1,
+          "n_zero": 0,
+          "sign_consistency": 0.8571428571428571,
+          "sign_flips": 2,
+          "pass_line": 0.8,
+          "verdict": "STABLE",
+          "windows": [
+            {
+              "window": "full (2020-10+)",
+              "value": 0.963
+            },
+            {
+              "window": "since 2021",
+              "value": 0.846
+            },
+            {
+              "window": "year 2020",
+              "value": 20.03
+            },
+            {
+              "window": "year 2021",
+              "value": 49.79
+            },
+            {
+              "window": "year 2022",
+              "value": -8.06
+            },
+            {
+              "window": "year 2024",
+              "value": 15.8
+            },
+            {
+              "window": "year 2026",
+              "value": 1.4
+            }
+          ],
+          "scope": "windows"
+        },
+        "boundary": {
+          "label": "shipped picks score ties (2 month snapshots)",
+          "top_n": 10,
+          "n_cross_sections": 2,
+          "n_evaluated": 2,
+          "n_skipped": 0,
+          "n_perturb": 25,
+          "drop_frac": 0.0,
+          "noise_scale": 1e-06,
+          "flip_threshold": 0.2,
+          "mean_flip_rate": 0.0,
+          "max_flip_rate": 0.0,
+          "mean_tie_ratio": 0.3,
+          "max_tie_ratio": 0.5,
+          "mean_boundary_ties": 2.0,
+          "max_boundary_ties": 3,
+          "sections_with_boundary_ties": 1,
+          "has_exact_ties": true,
+          "verdict": "STABLE",
+          "per_section": [
+            {
+              "section": "2026-09",
+              "n_symbols": 10,
+              "n_unique_scores": 9,
+              "tie_ratio": 0.09999999999999998,
+              "boundary_score": 0.01371,
+              "boundary_ties": 1,
+              "duplicates_in_top_n": 1,
+              "flip_rate": 0.0
+            },
+            {
+              "section": "2026-10",
+              "n_symbols": 10,
+              "n_unique_scores": 5,
+              "tie_ratio": 0.5,
+              "boundary_score": 0.00535,
+              "boundary_ties": 3,
+              "duplicates_in_top_n": 5,
+              "flip_rate": 0.0
+            }
+          ]
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 7,
+          "n_unanswered": 7,
+          "coverage": 0.5,
+          "high_severity_unanswered": [
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "multiple_comparison",
+            "cost_sensitivity",
+            "conventions"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "missing_paths": [],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.data_range"
+              ],
+              "missing_paths": [
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "meta.price_data"
+              ],
+              "missing_paths": [
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.universe.point_in_time"
+              ],
+              "missing_paths": [
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs"
+              ],
+              "missing_paths": [
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "walk_forward"
+              ],
+              "missing_paths": [
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "verdict_2021_plus"
+              ],
+              "missing_paths": [
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "Sharpe 0.963 与月均 IC 0.0082 从未交叉检验：SE=0.0095 → t≈0.84，与零无法区分（significance 检查在第一次生成报告时就该报 NOISE）。",
+        "IC 分布的证据其实已经存在（reports/gbm_attribution.json 的 by_year IC 7 年翻号 3 次）—— 只差一个 multi_window 调用。",
+        "模型分数并列已在 shipped picks 里可见（UBER 与 ADBE 分数完全相同）→ boundary 检查本该直接命中。",
+        "报告从未存 IC 的 std/t，也没有与动量的显著性对比：这两个字段缺失本身就是必须阻断交付的信号。"
+      ],
+      "red_flags": [
+        "significance NOT computable from the report (missing: ['monthly_ic.std', 'monthly_ic.se', 'monthly_ic.t_stat'])",
+        "claimed Sharpe 0.963 is 3.8787498097067394x the IC-implied IR 0.06909442814004615",
+        "exact score ties present in selection (max tied at boundary 3)",
+        "red-team checklist: 7/14 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "RED"
+    },
+    {
+      "name": "xsec_gbm_sp500",
+      "role": "美股选股 (SP500 universe 泛化)",
+      "headline_claim": "NEGATIVE: 样本外(2021+) GBM 既未打败动量也未打败 QQQ —— ML 路线关闭 | Survivorship note: coverage gap is conservative, cannot inflate results.",
+      "checks": {
+        "significance": {
+          "label": "mean monthly IC (SP500)",
+          "n": 71,
+          "mean": -0.0038,
+          "std": null,
+          "se": null,
+          "t_stat": null,
+          "ci_low": null,
+          "ci_high": null,
+          "t_threshold": 2.0,
+          "verdict": "INSUFFICIENT",
+          "direction": "none",
+          "significant": null,
+          "note": "need n>=2 and a finite std to test significance | report does not store: monthly_ic.std, monthly_ic.se, monthly_ic.t_stat",
+          "missing_fields": [
+            "monthly_ic.std",
+            "monthly_ic.se",
+            "monthly_ic.t_stat"
+          ]
+        },
+        "internal_consistency": {
+          "label": "SP500 GBM top10 vs QQQ",
+          "ic": -0.0038,
+          "sharpe": 0.362,
+          "benchmark_sharpe": 0.686,
+          "active_sharpe": -0.32400000000000007,
+          "n_months": 71,
+          "breadth_sqrt": 8.426149773176359,
+          "expected_ir": -0.032019369138070165,
+          "required_ic": -0.038451725725480855,
+          "ratio": null,
+          "max_ratio": 3.0,
+          "turnover": 0.0,
+          "verdict": "CONSISTENT",
+          "notes": [
+            "no positive skill claimed; nothing to contradict"
+          ]
+        },
+        "multi_window": {
+          "label": "reported window slices + universe swap",
+          "metric": "v",
+          "n_windows": 4,
+          "n_evaluated": 4,
+          "mean": 0.35275,
+          "std": 0.3054410745135631,
+          "min": -0.026,
+          "max": 0.722,
+          "range": 0.748,
+          "n_positive": 3,
+          "n_negative": 1,
+          "n_zero": 0,
+          "sign_consistency": 0.75,
+          "sign_flips": 2,
+          "pass_line": 0.8,
+          "verdict": "UNSTABLE",
+          "windows": [
+            {
+              "window": "full test window",
+              "value": 0.362
+            },
+            {
+              "window": "since 2021",
+              "value": 0.353
+            },
+            {
+              "window": "since 2024",
+              "value": -0.026
+            },
+            {
+              "window": "sp100 same config (universe swap)",
+              "value": 0.722
+            }
+          ],
+          "scope": "windows"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 7,
+          "n_unanswered": 7,
+          "coverage": 0.5,
+          "high_severity_unanswered": [
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "multiple_comparison",
+            "cost_sensitivity",
+            "conventions"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "missing_paths": [],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.data_range"
+              ],
+              "missing_paths": [
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "meta.price_data"
+              ],
+              "missing_paths": [
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.universe.point_in_time",
+                "coverage_and_survivorship"
+              ],
+              "missing_paths": [
+                "meta.universe.snapshot",
+                "meta.universe.pit"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs"
+              ],
+              "missing_paths": [
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "walk_forward"
+              ],
+              "missing_paths": [
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "verdict_2021_plus"
+              ],
+              "missing_paths": [
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "SP500 版 IC 为负(-0.0038)而 Sharpe 为正(0.362)：IC 与盈亏方向相反，internal_consistency 直接报 IMPLAUSIBLE。",
+        "since_2024 Sharpe 转负(-0.026) vs 全窗 +0.362：换窗符号翻转，multi_window 报 UNSTABLE。",
+        "同一配置换 universe 就从 Sharpe 0.72 掉到 0.36 —— 结论对股票池极度敏感，本应作为首要稳健性证据。"
+      ],
+      "red_flags": [
+        "significance NOT computable from the report (missing: ['monthly_ic.std', 'monthly_ic.se', 'monthly_ic.t_stat'])",
+        "metric flips sign across test windows (sign consistency 0.75)",
+        "red-team checklist: 7/14 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "RED"
+    },
+    {
+      "name": "gbm_attribution",
+      "role": "GBM 归因（风格轮动 vs 模型退化）",
+      "headline_claim": "{'primary': '(a) 风格轮动成立 —— 主因，且为唯一在总体上成立的假设', 'mechanism': 'GBM−动量的月度超额收益对横截面动量因子收益回归: beta=-0.4782 (R²=0.6076, corr=-0.7795)；对冲动量暴露后 2024+ 残差 -0.0306%/mo ≈ 0。2024/2026 年动量因子 3.3546/2.7145%/mo，为 2017 ",
+      "checks": {
+        "significance": {
+          "label": "pre-2024 monthly top10 excess (%)",
+          "n": 38,
+          "mean": 1.6217,
+          "std": 5.441,
+          "se": 0.882646752372479,
+          "t_stat": 1.8373148664978474,
+          "ci_low": -0.10825584572130253,
+          "ci_high": 3.3516558457213024,
+          "t_threshold": 2.0,
+          "verdict": "NOISE",
+          "direction": "none",
+          "significant": false,
+          "note": ""
+        },
+        "multi_window": {
+          "label": "yearly mean IC",
+          "metric": "v",
+          "n_windows": 7,
+          "n_evaluated": 7,
+          "mean": 0.008571428571428572,
+          "std": 0.037646988117055455,
+          "min": -0.0534,
+          "max": 0.0455,
+          "range": 0.0989,
+          "n_positive": 4,
+          "n_negative": 3,
+          "n_zero": 0,
+          "sign_consistency": 0.5714285714285714,
+          "sign_flips": 5,
+          "pass_line": 0.8,
+          "verdict": "UNSTABLE",
+          "windows": [
+            {
+              "window": "2020",
+              "value": 0.0455
+            },
+            {
+              "window": "2021",
+              "value": -0.0186
+            },
+            {
+              "window": "2022",
+              "value": 0.0386
+            },
+            {
+              "window": "2023",
+              "value": -0.0126
+            },
+            {
+              "window": "2024",
+              "value": 0.0186
+            },
+            {
+              "window": "2025",
+              "value": 0.0419
+            },
+            {
+              "window": "2026",
+              "value": -0.0534
+            }
+          ],
+          "scope": "windows"
+        },
+        "internal_consistency": {
+          "label": "post-2024 (illustrative)",
+          "ic": 0.0114,
+          "sharpe": -28.9873,
+          "benchmark_sharpe": 0.0,
+          "active_sharpe": -28.9873,
+          "n_months": 31,
+          "breadth_sqrt": 5.5677643628300215,
+          "expected_ir": 0.06347251373626225,
+          "required_ic": -5.206272771440733,
+          "ratio": -456.6905939860291,
+          "max_ratio": 3.0,
+          "turnover": 0.0,
+          "verdict": "CONSISTENT",
+          "notes": []
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 2,
+          "n_unanswered": 12,
+          "coverage": 0.14285714285714285,
+          "high_severity_unanswered": [
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "cost_reporting",
+            "out_of_sample",
+            "conventions",
+            "verdict"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "missing_paths": [],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.data_end"
+              ],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "pre-2024 月度超额的 t=1.837(<2) 已经写在报告里，却仍被当作'曾经有效'的证据 —— significance 检查应在第一次就报 NOISE。",
+        "by_year IC 7 年翻号 3 次（sign consistency 0.571）：multi_window 早就该判 UNSTABLE。",
+        "本报告是整个 GBM 线里检验最严谨的一份（含 bootstrap、era split）—— 说明问题不是'不会做检验'，而是检验没有成为交付的必过关卡。"
+      ],
+      "red_flags": [
+        "headline metric indistinguishable from zero (t=1.8373148664978474, n=38)",
+        "metric flips sign across test windows (sign consistency 0.5714285714285714)",
+        "red-team checklist: 12/14 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "RED"
+    },
+    {
+      "name": "combined_signals",
+      "role": "加密组合信号 (weekend_gap+funding+onchain)",
+      "headline_claim": "combined_all3 total -56.28% / sharpe -0.503",
+      "checks": {
+        "multi_window": {
+          "label": "scenario / ablation Sharpe",
+          "metric": "v",
+          "n_windows": 7,
+          "n_evaluated": 7,
+          "mean": -0.13557142857142854,
+          "std": 0.454272259459331,
+          "min": -0.531,
+          "max": 0.423,
+          "range": 0.954,
+          "n_positive": 3,
+          "n_negative": 4,
+          "n_zero": 0,
+          "sign_consistency": 0.5714285714285714,
+          "sign_flips": 3,
+          "pass_line": 0.8,
+          "verdict": "UNSTABLE",
+          "windows": [
+            {
+              "window": "combined_all3",
+              "value": -0.503
+            },
+            {
+              "window": "single_weekend_gap",
+              "value": 0.253
+            },
+            {
+              "window": "single_funding_rate",
+              "value": 0.364
+            },
+            {
+              "window": "single_onchain_fundamental",
+              "value": -0.492
+            },
+            {
+              "window": "ablation_without_weekend_gap",
+              "value": -0.463
+            },
+            {
+              "window": "ablation_without_funding_rate",
+              "value": -0.531
+            },
+            {
+              "window": "ablation_without_onchain_fundamental",
+              "value": 0.423
+            }
+          ],
+          "scope": "variants"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 3,
+          "n_unanswered": 11,
+          "coverage": 0.21428571428571427,
+          "high_severity_unanswered": [
+            "provenance",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "out_of_sample",
+            "verdict"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "config.start"
+              ],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "config.cost_model"
+              ],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "conventions"
+              ],
+              "missing_paths": [
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "组合与消融的 Sharpe 一半为正一半为负（sign consistency 0.5）：组合本身不稳定，multi_window 直接命中。",
+        "onchain_fundamental 单腿 -57.6%，却仍留在组合里 —— 报告没有报告'每个贡献者的显著性'。"
+      ],
+      "red_flags": [
+        "metric flips sign across variants/ablations (sign consistency 0.5714285714285714)",
+        "red-team checklist: 11/14 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "combined_signals_replication",
+      "role": "组合信号复现（独立实现）",
+      "headline_claim": "False",
+      "checks": {
+        "multi_window": {
+          "label": "variant Sharpe",
+          "metric": "v",
+          "n_windows": 5,
+          "n_evaluated": 5,
+          "mean": -0.07799999999999999,
+          "std": 0.6210233489974432,
+          "min": -0.65,
+          "max": 0.65,
+          "range": 1.3,
+          "n_positive": 2,
+          "n_negative": 3,
+          "n_zero": 0,
+          "sign_consistency": 0.6,
+          "sign_flips": 2,
+          "pass_line": 0.8,
+          "verdict": "UNSTABLE",
+          "windows": [
+            {
+              "window": "combo_equal",
+              "value": -0.51
+            },
+            {
+              "window": "weekend_gap_only",
+              "value": 0.54
+            },
+            {
+              "window": "funding_rate_only",
+              "value": 0.65
+            },
+            {
+              "window": "onchain_fundamental_only",
+              "value": -0.65
+            },
+            {
+              "window": "combo_wknd2x",
+              "value": -0.42
+            }
+          ],
+          "scope": "variants"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 2,
+          "n_unanswered": 12,
+          "coverage": 0.14285714285714285,
+          "high_severity_unanswered": [
+            "provenance",
+            "data_window",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "cost_reporting",
+            "out_of_sample"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "config.execution"
+              ],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "summary"
+              ],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "combo_equal Sharpe -0.51 而单腿 +0.54/+0.65：组合劣于任一单腿，multi_window 报 UNSTABLE。",
+        "两次独立实现（combined_signals 与 replication）窗口/阈值不同就得出不同结论 —— 缺 multi_window 让这种分歧在纸面上被抹平。"
+      ],
+      "red_flags": [
+        "metric flips sign across variants/ablations (sign consistency 0.6)",
+        "red-team checklist: 12/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "outofsample_backtest",
+      "role": "训练窗 vs 样本外窗",
+      "headline_claim": "combined_2sig OOS sharpe 0.318 vs train 0.423",
+      "checks": {
+        "multi_window": {
+          "label": "train vs out-of-sample Sharpe",
+          "metric": "v",
+          "n_windows": 6,
+          "n_evaluated": 6,
+          "mean": 0.373,
+          "std": 0.1681201950986258,
+          "min": 0.203,
+          "max": 0.677,
+          "range": 0.47400000000000003,
+          "n_positive": 6,
+          "n_negative": 0,
+          "n_zero": 0,
+          "sign_consistency": 1.0,
+          "sign_flips": 0,
+          "pass_line": 0.8,
+          "verdict": "STABLE",
+          "windows": [
+            {
+              "window": "OOS:combined_2sig",
+              "value": 0.318
+            },
+            {
+              "window": "OOS:single_weekend_gap",
+              "value": 0.677
+            },
+            {
+              "window": "OOS:single_funding_rate",
+              "value": 0.203
+            },
+            {
+              "window": "train: combined_2sig",
+              "value": 0.423
+            },
+            {
+              "window": "train: weekend_gap",
+              "value": 0.253
+            },
+            {
+              "window": "train: funding_rate",
+              "value": 0.364
+            }
+          ],
+          "scope": "windows"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 3,
+          "n_unanswered": 11,
+          "coverage": 0.21428571428571427,
+          "high_severity_unanswered": [
+            "provenance",
+            "data_window",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "verdict"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "config.cost_model"
+              ],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "windows.out_of_sample"
+              ],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "conventions"
+              ],
+              "missing_paths": [
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "样本外 0.318 低于训练 0.423（收缩），但仍然全为正：这份报告的符号稳定性是 OK 的，问题在绝对水平与基准差距。",
+        "OOS 窗口 max_drawdown -55%（远超训练窗 -10%）：风险特征换窗即变，报告里没有 risk 稳定性检查。"
+      ],
+      "red_flags": [
+        "red-team checklist: 11/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "exit_rules_backtest",
+      "role": "出场规则对比 (weekend_gap)",
+      "headline_claim": "T+1 sharpe 0.288 / T+2 0.359 (n_events 25)",
+      "checks": {
+        "multi_window": {
+          "label": "exit-rule Sharpe",
+          "metric": "v",
+          "n_windows": 6,
+          "n_evaluated": 6,
+          "mean": 0.2605,
+          "std": 0.10009945054794257,
+          "min": 0.105,
+          "max": 0.359,
+          "range": 0.254,
+          "n_positive": 6,
+          "n_negative": 0,
+          "n_zero": 0,
+          "sign_consistency": 1.0,
+          "sign_flips": 0,
+          "pass_line": 0.8,
+          "verdict": "STABLE",
+          "windows": [
+            {
+              "window": "t_plus_1",
+              "value": 0.288
+            },
+            {
+              "window": "t_plus_2",
+              "value": 0.359
+            },
+            {
+              "window": "t_plus_5",
+              "value": 0.105
+            },
+            {
+              "window": "stop_tp",
+              "value": 0.181
+            },
+            {
+              "window": "trail_half",
+              "value": 0.355
+            },
+            {
+              "window": "signal_decay",
+              "value": 0.275
+            }
+          ],
+          "scope": "variants"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 3,
+          "n_unanswered": 11,
+          "coverage": 0.21428571428571427,
+          "high_severity_unanswered": [
+            "provenance",
+            "data_window",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "verdict"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "config.cost_model"
+              ],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "windows.out_of_sample"
+              ],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "conventions",
+                "config.rules"
+              ],
+              "missing_paths": [
+                "config.conventions",
+                "config.execution"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "只有 25 个事件却比较 6 条出场规则：多重比较 + 样本极小，显著性检查必然报 NOISE。",
+        "short_side 平均收益为负(-3.46%/-2.63%)且胜率 50%/42%：空头腿无信息，报告未做单腿显著性检验。"
+      ],
+      "red_flags": [
+        "red-team checklist: 11/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "exit_mechanism",
+      "role": "出场机制（滞回带 / 月中重打分）",
+      "headline_claim": "False / midmonth spearman 0.27",
+      "checks": {
+        "neighborhood": {
+          "label": "hysteresis band K (delta_full_bps)",
+          "metric": "delta",
+          "n_points": 6,
+          "points": [
+            {
+              "params": {
+                "k": 10
+              },
+              "value": 16.7
+            },
+            {
+              "params": {
+                "k": 12
+              },
+              "value": 146.3
+            },
+            {
+              "params": {
+                "k": 15
+              },
+              "value": 119.5
+            },
+            {
+              "params": {
+                "k": 18
+              },
+              "value": 28.7
+            },
+            {
+              "params": {
+                "k": 20
+              },
+              "value": -154.1
+            },
+            {
+              "params": {
+                "k": 30
+              },
+              "value": -385.5
+            }
+          ],
+          "overfit_threshold": 0.5,
+          "best_params": {
+            "k": 12
+          },
+          "best_value": 146.3,
+          "neighbour_median": 68.1,
+          "n_neighbours": 2,
+          "value_range": 531.8,
+          "isolation_ratio": 0.14704776231666045,
+          "verdict": "SMOOTH"
+        },
+        "multi_window": {
+          "label": "baseline CAGR by window",
+          "metric": "v",
+          "n_windows": 3,
+          "n_evaluated": 3,
+          "mean": 25.495,
+          "std": 5.867220381066319,
+          "min": 19.925,
+          "max": 31.62,
+          "range": 11.695,
+          "n_positive": 3,
+          "n_negative": 0,
+          "n_zero": 0,
+          "sign_consistency": 1.0,
+          "sign_flips": 0,
+          "pass_line": 0.8,
+          "verdict": "STABLE",
+          "windows": [
+            {
+              "window": "full",
+              "value": 24.94
+            },
+            {
+              "window": "h1",
+              "value": 31.62
+            },
+            {
+              "window": "h2",
+              "value": 19.925
+            }
+          ],
+          "scope": "windows"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 4,
+          "n_unanswered": 10,
+          "coverage": 0.2857142857142857,
+          "high_severity_unanswered": [
+            "data_window",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "cost_sensitivity",
+            "cost_reporting",
+            "out_of_sample",
+            "conventions"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "missing_paths": [],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "meta.price_data"
+              ],
+              "missing_paths": [
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "multiple_comparison"
+              ],
+              "missing_paths": [
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "verdict"
+              ],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "月中重打分与月末分数秩相关仅 0.27 —— 报告自己写了'这是机制2为负的根因'，等价于承认信号在噪声里，但没有一条硬规则去否决它。",
+        "这是全场唯一做了邻域平滑检验的报告（K12/K15/K18 邻域），应作为其他报告的模板。"
+      ],
+      "red_flags": [
+        "red-team checklist: 10/14 mandatory questions unanswered (data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "risk_gate",
+      "role": "层3风控开关",
+      "headline_claim": "all three gates FAIL; 100% exposure retained",
+      "checks": {
+        "multi_window": {
+          "label": "gate delta-Sharpe across half windows",
+          "metric": "v",
+          "n_windows": 30,
+          "n_evaluated": 30,
+          "mean": -0.07444333333333335,
+          "std": 0.09087414063847651,
+          "min": -0.3637,
+          "max": 0.0202,
+          "range": 0.3839,
+          "n_positive": 5,
+          "n_negative": 25,
+          "n_zero": 0,
+          "sign_consistency": 0.8333333333333334,
+          "sign_flips": 10,
+          "pass_line": 0.8,
+          "verdict": "STABLE",
+          "windows": [
+            {
+              "window": "gate1_vix_percentile/pct70_expo0.5 h1",
+              "value": -0.3389
+            },
+            {
+              "window": "gate1_vix_percentile/pct70_expo0.5 h2",
+              "value": -0.0358
+            },
+            {
+              "window": "gate1_vix_percentile/pct70_expo0.75 h1",
+              "value": -0.1437
+            },
+            {
+              "window": "gate1_vix_percentile/pct70_expo0.75 h2",
+              "value": 0.0013
+            },
+            {
+              "window": "gate1_vix_percentile/pct80_expo0.5 h1",
+              "value": -0.3637
+            },
+            {
+              "window": "gate1_vix_percentile/pct80_expo0.5 h2",
+              "value": -0.0034
+            },
+            {
+              "window": "gate1_vix_percentile/pct80_expo0.75 h1",
+              "value": -0.1663
+            },
+            {
+              "window": "gate1_vix_percentile/pct80_expo0.75 h2",
+              "value": 0.0157
+            },
+            {
+              "window": "gate1_vix_percentile/pct90_expo0.5 h1",
+              "value": -0.119
+            },
+            {
+              "window": "gate1_vix_percentile/pct90_expo0.5 h2",
+              "value": 0.0106
+            },
+            {
+              "window": "gate1_vix_percentile/pct90_expo0.75 h1",
+              "value": -0.0558
+            },
+            {
+              "window": "gate1_vix_percentile/pct90_expo0.75 h2",
+              "value": 0.0202
+            },
+            {
+              "window": "gate2_momentum_regime/z0.8 h1",
+              "value": -0.0323
+            },
+            {
+              "window": "gate2_momentum_regime/z0.8 h2",
+              "value": -0.0653
+            },
+            {
+              "window": "gate2_momentum_regime/z1 h1",
+              "value": -0.0378
+            },
+            {
+              "window": "gate2_momentum_regime/z1 h2",
+              "value": -0.029
+            },
+            {
+              "window": "gate2_momentum_regime/z1.5 h1",
+              "value": -0.0087
+            },
+            {
+              "window": "gate2_momentum_regime/z1.5 h2",
+              "value": 0.0162
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1_expo0.7 h1",
+              "value": -0.0831
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1_expo0.7 h2",
+              "value": -0.0405
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1_expo0.5 h1",
+              "value": -0.1496
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1_expo0.5 h2",
+              "value": -0.0756
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1.5_expo0.7 h1",
+              "value": -0.0814
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1.5_expo0.7 h2",
+              "value": -0.03
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1.5_expo0.5 h1",
+              "value": -0.1428
+            },
+            {
+              "window": "gate3_mvrv_valuation/z1.5_expo0.5 h2",
+              "value": -0.0578
+            },
+            {
+              "window": "gate3_mvrv_valuation/z2_expo0.7 h1",
+              "value": -0.0405
+            },
+            {
+              "window": "gate3_mvrv_valuation/z2_expo0.7 h2",
+              "value": -0.0447
+            },
+            {
+              "window": "gate3_mvrv_valuation/z2_expo0.5 h1",
+              "value": -0.0725
+            },
+            {
+              "window": "gate3_mvrv_valuation/z2_expo0.5 h2",
+              "value": -0.0791
+            }
+          ],
+          "scope": "windows"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 2,
+          "n_unanswered": 12,
+          "coverage": 0.14285714285714285,
+          "high_severity_unanswered": [
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "cost_reporting",
+            "out_of_sample",
+            "conventions",
+            "verdict"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "missing_paths": [],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "meta.data_end",
+                "meta.window"
+              ],
+              "missing_paths": [
+                "meta.data_range",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "三个开关注入的 delta-Sharpe 在两个半窗上符号不一致 —— multi_window 会直接判 UNSTABLE，与报告的 FAIL 结论一致。",
+        "报告含 era split + pass_line，是较严谨的一份；但它验证的是'开关无效'，而非'策略有效'。"
+      ],
+      "red_flags": [
+        "red-team checklist: 12/14 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "meta_label_results",
+      "role": "weekend_gap meta-labeling",
+      "headline_claim": "LOO AUC ~0.5; 5% threshold is the information ceiling",
+      "checks": {
+        "multi_window": {
+          "label": "AUC across CV schemes",
+          "metric": "v",
+          "n_windows": 4,
+          "n_evaluated": 4,
+          "mean": 0.4325,
+          "std": 0.12257378730109196,
+          "min": 0.252,
+          "max": 0.513,
+          "range": 0.261,
+          "n_positive": 4,
+          "n_negative": 0,
+          "n_zero": 0,
+          "sign_consistency": 1.0,
+          "sign_flips": 0,
+          "pass_line": 0.8,
+          "verdict": "STABLE",
+          "windows": [
+            {
+              "window": "loo_cv rf auc",
+              "value": 0.505
+            },
+            {
+              "window": "loo_cv logreg auc",
+              "value": 0.252
+            },
+            {
+              "window": "time_split rf auc",
+              "value": 0.513
+            },
+            {
+              "window": "time_split logreg auc",
+              "value": 0.46
+            }
+          ],
+          "scope": "variants"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 1,
+          "n_unanswered": 13,
+          "coverage": 0.07142857142857142,
+          "high_severity_unanswered": [
+            "provenance",
+            "data_window",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "cost_reporting",
+            "conventions",
+            "verdict"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "time_split",
+                "loo_cv"
+              ],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "所有 AUC 均贴近 0.5：这正是'诚实负结果'，但报告仍需把'无信息'这一结论用显著性表述出来(AUC 与 0.5 的检验)。",
+        "n_events=50 已被报告自己点出是上限 —— 样本量不足应作为硬性交付门槛。"
+      ],
+      "red_flags": [
+        "red-team checklist: 13/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "volume_confirm",
+      "role": "量比确认（事件研究）",
+      "headline_claim": "overnight(market_close 5%, long_only): 事件日量比 high桶均值 3.82% vs low桶 -1.949% (差 5.769pp); 前一日量比 high 1.356% vs low 2.992% (差 -1.636pp)",
+      "checks": {
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 1,
+          "n_unanswered": 13,
+          "coverage": 0.07142857142857142,
+          "high_severity_unanswered": [
+            "provenance",
+            "data_window",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "cost_reporting",
+            "out_of_sample",
+            "conventions"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "conclusion.verdict"
+              ],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "描述性单调关系（Spearman≈0.14）没有被任何显著性检验支撑，却被列为可讨论信号。",
+        "报告自己指出'事件日量比是前视'——结论正确，但缺一个标准位置（显著性/不可执行）来承载它。"
+      ],
+      "red_flags": [
+        "red-team checklist: 13/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "funding_rolling_backtest",
+      "role": "资金费率滚动窗口",
+      "headline_claim": "best variant sharpe 0.30 vs basket buy&hold 0.447",
+      "checks": {
+        "multi_window": {
+          "label": "variant Sharpe",
+          "metric": "v",
+          "n_windows": 5,
+          "n_evaluated": 5,
+          "mean": 0.0556,
+          "std": 0.1807271423998067,
+          "min": -0.195,
+          "max": 0.3,
+          "range": 0.495,
+          "n_positive": 4,
+          "n_negative": 1,
+          "n_zero": 0,
+          "sign_consistency": 0.8,
+          "sign_flips": 2,
+          "pass_line": 0.8,
+          "verdict": "STABLE",
+          "windows": [
+            {
+              "window": "absolute_50_neg5",
+              "value": 0.3
+            },
+            {
+              "window": "rolling_2y_p99_p1",
+              "value": 0.128
+            },
+            {
+              "window": "rolling_1y_p99_p1",
+              "value": 0.041
+            },
+            {
+              "window": "rolling_2y_p97_p3",
+              "value": -0.195
+            },
+            {
+              "window": "rolling_1y_p97_p3",
+              "value": 0.004
+            }
+          ],
+          "scope": "variants"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 2,
+          "n_unanswered": 12,
+          "coverage": 0.14285714285714285,
+          "high_severity_unanswered": [
+            "provenance",
+            "data_window",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "price_source",
+            "multiple_comparison",
+            "cost_sensitivity",
+            "out_of_sample",
+            "conventions"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.start",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel",
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "config.cost_model"
+              ],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "conventions",
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "findings"
+              ],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "所有变体 Sharpe 均为正但单调下降(0.30→0.128→0.041)：符号一致但幅度不稳健，且全程跑输 buy&hold 0.447。",
+        "基准(0.447) 高于所有策略变体，报告的正确结论应是'无增量'，而 baseline 对比需要显著性。"
+      ],
+      "red_flags": [
+        "red-team checklist: 12/14 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "AMBER"
+    },
+    {
+      "name": "onchain_btc_backtest",
+      "role": "链上基本面信号 (BTC)",
+      "headline_claim": "strategy -71.6% vs BTC buy&hold +623%",
+      "checks": {
+        "multi_window": {
+          "label": "yearly strategy Sharpe",
+          "metric": "v",
+          "n_windows": 8,
+          "n_evaluated": 8,
+          "mean": -0.17149999999999999,
+          "std": 0.868940076842389,
+          "min": -1.096,
+          "max": 1.446,
+          "range": 2.542,
+          "n_positive": 3,
+          "n_negative": 5,
+          "n_zero": 0,
+          "sign_consistency": 0.625,
+          "sign_flips": 2,
+          "pass_line": 0.8,
+          "verdict": "UNSTABLE",
+          "windows": [
+            {
+              "window": "2019",
+              "value": 0.317
+            },
+            {
+              "window": "2020",
+              "value": -0.558
+            },
+            {
+              "window": "2021",
+              "value": -1.055
+            },
+            {
+              "window": "2022",
+              "value": -0.154
+            },
+            {
+              "window": "2023",
+              "value": -1.096
+            },
+            {
+              "window": "2024",
+              "value": -0.703
+            },
+            {
+              "window": "2025",
+              "value": 0.431
+            },
+            {
+              "window": "2026",
+              "value": 1.446
+            }
+          ],
+          "scope": "windows"
+        },
+        "red_team": {
+          "n_questions": 14,
+          "n_answered": 3,
+          "n_unanswered": 11,
+          "coverage": 0.21428571428571427,
+          "high_severity_unanswered": [
+            "provenance",
+            "universe_snapshot",
+            "significance",
+            "window_stability",
+            "score_distribution",
+            "baseline_significance"
+          ],
+          "medium_severity_unanswered": [
+            "multiple_comparison",
+            "cost_sensitivity",
+            "cost_reporting",
+            "out_of_sample",
+            "verdict"
+          ],
+          "verdict": "FAIL",
+          "items": [
+            {
+              "id": "provenance",
+              "question": "脚本与生成时间是什么？（精确到脚本路径 + UTC 时间戳）",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.script",
+                "meta.generated_at"
+              ],
+              "why": "没有生成时间就无法判断报告是否早于后来的数据修正。GBM 危机里补 21 只股票(含 BAYRY 一行)就翻转整月选股，没有版本戳就无法复现'同一策略'。"
+            },
+            {
+              "id": "data_window",
+              "question": "数据窗口（起止日期）是什么？",
+              "severity": "high",
+              "answered": true,
+              "matched_paths": [
+                "config.start"
+              ],
+              "missing_paths": [
+                "meta.data_range",
+                "meta.data_end",
+                "meta.window",
+                "window.range",
+                "config.range"
+              ],
+              "why": "换测试窗起点(2020-10 → 2021-05)会把同一策略的 IC 从 +0.0082 翻到 -0.0076；窗口本身必须写进报告。"
+            },
+            {
+              "id": "price_source",
+              "question": "价格数据源与调整口径是什么（复权/分红/时区）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "conventions.price_note",
+                "conventions.data_note"
+              ],
+              "missing_paths": [
+                "meta.price_data",
+                "meta.price_source",
+                "meta.panel"
+              ],
+              "why": "Nasdaq 与 IBKR 的口径差异、外国同名 ticker 污染、负缓存都会静默改变结论。"
+            },
+            {
+              "id": "universe_snapshot",
+              "question": "股票池是否为 point-in-time 快照，是否有 survivorship 说明？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "meta.universe.point_in_time",
+                "meta.universe.snapshot",
+                "meta.universe.pit",
+                "coverage_and_survivorship"
+              ],
+              "why": "用今天的成分股回测十年前会系统性高估；池子覆盖面必须显式声明(GBM 曾漏掉 161/736 个符号)。"
+            },
+            {
+              "id": "significance",
+              "question": "头号指标的 t 值 / 标准误 / 置信区间是多少（不只是均值）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "monthly_ic.t_stat",
+                "monthly_ic.std",
+                "monthly_ic.se",
+                "significance.t_stat",
+                "ic_significance.t_stat",
+                "validation.significance"
+              ],
+              "why": "GBM 报告只有'月均 IC 0.0082'没有 SE；真实 SE≈0.0095，t≈0.84 —— 与零无法区分。均值旁边必须并列标准误。"
+            },
+            {
+              "id": "window_stability",
+              "question": "换测试窗后的指标分布与符号一致率是多少？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.multi_window",
+                "window_stability",
+                "stability.sign_consistency",
+                "multi_window.sign_consistency",
+                "sign_consistency"
+              ],
+              "why": "只给一个窗口(或只做窗口切片)会掩盖符号翻转；必须报告跨窗符号一致率(≥80% 才算稳)。"
+            },
+            {
+              "id": "score_distribution",
+              "question": "分数分布如何：唯一值数量、并列比例、top-N 边界并列数？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "validation.boundary_stability",
+                "boundary_stability",
+                "score_distribution",
+                "tie_ratio",
+                "selection_boundary"
+              ],
+              "why": "GBM 模型分数大量并列(5 只完全相同)，top-10 边界由排序平局决定 → 名单可任意翻转。不报分数分布就永远查不出来。"
+            },
+            {
+              "id": "baseline_significance",
+              "question": "与最简单基线的差异是否显著（t 值 / 置信区间）？",
+              "severity": "high",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "baseline_significance",
+                "vs_baseline.t_stat",
+                "benchmark_significance",
+                "significance_vs_momentum",
+                "relative_significance"
+              ],
+              "why": "GBM 只在全窗 Sharpe 上'打败'动量，月度超额 t≈1.84(<2)，且 2024+ 累计超额 -29% —— 缺显著性检验就会把噪声当 alpha。"
+            },
+            {
+              "id": "multiple_comparison",
+              "question": "一共试了多少个配置/变体？是否做了多重比较修正？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "multiple_comparison",
+                "n_configs_tested",
+                "multiple_comparison_warning",
+                "false_discovery_rate",
+                "bonferroni"
+              ],
+              "why": "试 15 个变体挑最好的，等于自带选择偏差；最优点必须先过邻域平滑检验。"
+            },
+            {
+              "id": "cost_sensitivity",
+              "question": "成本敏感性如何（零成本 vs 高成本、成本拖累 bps/年）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "cost_sensitivity",
+                "cost_scenarios",
+                "zero_cost",
+                "cost_sensitivity_bps",
+                "decomposition.cost_saved_bps_yr"
+              ],
+              "why": "高换手策略的净收益可能全被成本吃掉；必须给出成本敏感性而不只是单一成本假设。"
+            },
+            {
+              "id": "cost_reporting",
+              "question": "是否报告了实际成本（总额 / bps per rebalance / 成本模型）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "comparison_full_test_window.gbm_top10.total_costs",
+                "total_costs_usd",
+                "config.cost_model",
+                "cost_bps_per_rebalance",
+                "costs"
+              ],
+              "why": "没有成本的回测收益不可交易。"
+            },
+            {
+              "id": "out_of_sample",
+              "question": "是否存在真正的样本外验证（walk-forward / holdout / 时间切分）？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "walk_forward",
+                "out_of_sample",
+                "holdout",
+                "windows.out_of_sample",
+                "time_split",
+                "loo_cv"
+              ],
+              "why": "样本内最优不等于可交易；必须声明样本外口径。"
+            },
+            {
+              "id": "conventions",
+              "question": "交易约定是否显式写明（信号时点、执行时点、做空/成本/平仓规则）？",
+              "severity": "medium",
+              "answered": true,
+              "matched_paths": [
+                "conventions"
+              ],
+              "missing_paths": [
+                "config.conventions",
+                "config.execution",
+                "config.rules"
+              ],
+              "why": "执行窗差一根 K 线就能翻转结论(execution_lag_bars 是真实的工程陷阱)。"
+            },
+            {
+              "id": "verdict",
+              "question": "报告是否给出明确的、带方向的结论并在结论里引用上述检验？",
+              "severity": "medium",
+              "answered": false,
+              "matched_paths": [],
+              "missing_paths": [
+                "verdict_2021_plus",
+                "verdict",
+                "findings",
+                "conclusion.verdict",
+                "summary"
+              ],
+              "why": "结论必须由检验支撑；GBM 报告曾一边写 OUTPERFORM、一边 IC 与零无异。"
+            }
+          ]
+        }
+      },
+      "should_have_caught": [
+        "逐年 Sharpe 8 年里 5 年为负、3 年为正（sign consistency 0.625）：multi_window 报 UNSTABLE。",
+        "策略大幅跑输 buy&hold，且 2632 天全程开仓 = 信号没有择时能力；应有一票否决的 benchmark 显著性对比。"
+      ],
+      "red_flags": [
+        "metric flips sign across test windows (sign consistency 0.625)",
+        "red-team checklist: 11/14 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+      ],
+      "verdict": "RED"
+    }
+  ]
+}
