@@ -31,6 +31,7 @@ from .boundary import boundary_stability
 from .checklist import RED_TEAM_QUESTIONS, red_team_checklist, render_checklist, unanswered
 from .consistency import internal_consistency
 from .events import event_significance, event_window_stats
+from .gate import deployment_gate, deployment_gate_from_checks
 from .multiplicity import expected_max_abs_t, multiple_comparisons, required_t
 from .neighborhood import neighborhood_stability
 from .reproducibility import reproducibility_probe
@@ -54,6 +55,8 @@ __all__ = [
     "required_t",
     "expected_max_abs_t",
     "reproducibility_probe",
+    "deployment_gate",
+    "deployment_gate_from_checks",
     "red_team_checklist",
     "render_checklist",
     "unanswered",

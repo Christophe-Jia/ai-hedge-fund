@@ -138,6 +138,32 @@ def test_reproducibility_check_without_block():
     assert "--as-of" in res["note"] or "as-of" in res["note"]
 
 
+def test_every_audit_entry_carries_a_deployment_gate():
+    for fn in vr.AUDITS:
+        entry = fn()
+        gate = entry.get("deployment_gate")
+        assert gate is not None, entry["name"]
+        assert gate["verdict"] in {"LIVE_ALLOWED", "DEPLOYMENT_BLOCKED"}
+        if gate["verdict"] == "DEPLOYMENT_BLOCKED":
+            assert gate["failed_gates"]
+
+
+def test_flagship_strategy_is_not_deployable():
+    """Report triage RED/AMBER is not a licence: the GBM flagship is blocked."""
+    gate = vr.audit_gbm_sp100()["deployment_gate"]
+    assert gate["verdict"] == "DEPLOYMENT_BLOCKED"
+    assert "significance" in gate["failed_gates"]
+    assert "boundary_stability" in gate["failed_gates"]  # 2026-10 picks: 3 names share the cut score
+
+
+def test_event_strategy_with_variant_scope_is_blocked():
+    """weekend_gap: NOISE significance + variant-scope window spread -> blocked."""
+    gate = vr.audit_exit_rules()["deployment_gate"]
+    assert gate["verdict"] == "DEPLOYMENT_BLOCKED"
+    assert "significance" in gate["failed_gates"]
+    assert "window_stability" in gate["failed_gates"]
+
+
 def test_clean_makes_strict_json():
     cleaned = vr._clean({"a": float("nan"), "b": float("inf"), "c": [float("-inf")], "d": 1.0})
     assert cleaned == {"a": None, "b": None, "c": [None], "d": 1.0}

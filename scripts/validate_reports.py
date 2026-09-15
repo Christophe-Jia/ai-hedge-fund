@@ -29,6 +29,7 @@ if str(ROOT) not in sys.path:
 
 from src.validation import (  # noqa: E402
     boundary_stability,
+    deployment_gate_from_checks,
     event_significance,
     event_window_stats,
     internal_consistency,
@@ -224,6 +225,9 @@ def _entry(name: str, role: str, _report: dict, checks: dict, should_have_caught
     }
     entry["red_flags"] = _red_flags(entry)
     entry["verdict"] = _severity(entry)
+    # Report triage (RED/AMBER/GREEN) is not a deployment licence: a strategy may
+    # only go live if significance PASS + window stable + boundary not tie-determined.
+    entry["deployment_gate"] = deployment_gate_from_checks(checks, label=name)
     return entry
 
 
@@ -787,6 +791,11 @@ def main() -> int:
     for e in entries:
         counts[e.get("verdict", "AMBER")] = counts.get(e.get("verdict", "AMBER"), 0) + 1
 
+    deploy = {"LIVE_ALLOWED": 0, "DEPLOYMENT_BLOCKED": 0}
+    for e in entries:
+        gate = e.get("deployment_gate") or {}
+        deploy[gate.get("verdict", "DEPLOYMENT_BLOCKED")] = deploy.get(gate.get("verdict", "DEPLOYMENT_BLOCKED"), 0) + 1
+
     # systemic gaps: how many reports leave each mandatory question unanswered
     gap_counts: dict[str, int] = {}
     for e in entries:
@@ -860,6 +869,11 @@ def main() -> int:
             "n_red": counts.get("RED", 0),
             "n_amber": counts.get("AMBER", 0),
             "n_green": counts.get("GREEN", 0),
+            "deployment_gate_counts": deploy,
+            "deployment_note": (
+                "report triage != deployment licence: a strategy may go live only if significance=PASS "
+                "AND window_stability=PASS AND the top-N boundary is not tie-determined"
+            ),
             "systemic_gaps": systemic,
             "platform_search": platform,
             "headline": (
@@ -876,8 +890,10 @@ def main() -> int:
     # console summary
     print(f"wrote {OUT.relative_to(ROOT)}")
     print(f"  verdicts: {counts}")
+    print(f"  deployment gate: {deploy}")
     for e in entries:
-        print(f"  [{e.get('verdict')}] {e['name']}: {'; '.join(e.get('red_flags', [])[:2])}")
+        gate = (e.get("deployment_gate") or {}).get("verdict")
+        print(f"  [{e.get('verdict')}|{gate}] {e['name']}: {'; '.join(e.get('red_flags', [])[:2])}")
     return 0
 
 

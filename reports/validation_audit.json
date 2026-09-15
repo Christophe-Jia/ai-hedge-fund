@@ -21,6 +21,11 @@
     "n_red": 4,
     "n_amber": 9,
     "n_green": 0,
+    "deployment_gate_counts": {
+      "LIVE_ALLOWED": 0,
+      "DEPLOYMENT_BLOCKED": 13
+    },
+    "deployment_note": "report triage != deployment licence: a strategy may go live only if significance=PASS AND window_stability=PASS AND the top-N boundary is not tie-determined",
     "systemic_gaps": [
       {
         "question": "significance",
@@ -532,7 +537,38 @@
         "no reproducibility evidence stored (no --as-of / rerun check in the report)",
         "red-team checklist: 8/15 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "RED"
+      "verdict": "RED",
+      "deployment_gate": {
+        "label": "xsec_gbm_results",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": "INSUFFICIENT",
+            "reason": "significance is INSUFFICIENT (a NOISE/INSUFFICIENT headline must not go live)"
+          },
+          "window_stability": {
+            "passed": true,
+            "verdict": "STABLE",
+            "reason": "sign consistency 0.8571428571428571"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": "STABLE",
+            "reason": "the top-N cut score is shared by 3 names (tie-determined boundary)"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: significance is INSUFFICIENT (a NOISE/INSUFFICIENT headline must not go live)",
+          "boundary_stability: the top-N cut score is shared by 3 names (tie-determined boundary)"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "xsec_gbm_sp500",
@@ -885,7 +921,40 @@
         "no reproducibility evidence stored (no --as-of / rerun check in the report)",
         "red-team checklist: 8/15 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "RED"
+      "verdict": "RED",
+      "deployment_gate": {
+        "label": "xsec_gbm_sp500",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": "INSUFFICIENT",
+            "reason": "significance is INSUFFICIENT (a NOISE/INSUFFICIENT headline must not go live)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "UNSTABLE",
+            "reason": "window stability is UNSTABLE"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: significance is INSUFFICIENT (a NOISE/INSUFFICIENT headline must not go live)",
+          "window_stability: window stability is UNSTABLE",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "gbm_attribution",
@@ -1277,7 +1346,40 @@
         "does not survive the search of N=27 hypotheses (|t|=1.8373 vs required 3.1130172634086892)",
         "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
       ],
-      "verdict": "RED"
+      "verdict": "RED",
+      "deployment_gate": {
+        "label": "gbm_attribution",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": "NOISE",
+            "reason": "significance is NOISE (a NOISE/INSUFFICIENT headline must not go live)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "UNSTABLE",
+            "reason": "window stability is UNSTABLE"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: significance is NOISE (a NOISE/INSUFFICIENT headline must not go live)",
+          "window_stability: window stability is UNSTABLE",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "combined_signals",
@@ -1594,7 +1696,40 @@
         "metric flips sign across variants/ablations (sign consistency 0.5714285714285714)",
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "combined_signals",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "UNSTABLE",
+            "reason": "window gate unresolved: the spread is across variants/ablations, not the same strategy across windows"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "window_stability: window gate unresolved: the spread is across variants/ablations, not the same strategy across windows",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "combined_signals_replication",
@@ -1903,7 +2038,40 @@
         "metric flips sign across variants/ablations (sign consistency 0.6)",
         "red-team checklist: 13/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "combined_signals_replication",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "UNSTABLE",
+            "reason": "window gate unresolved: the spread is across variants/ablations, not the same strategy across windows"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "window_stability: window gate unresolved: the spread is across variants/ablations, not the same strategy across windows",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "outofsample_backtest",
@@ -2215,7 +2383,38 @@
       "red_flags": [
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "outofsample_backtest",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": true,
+            "verdict": "STABLE",
+            "reason": "sign consistency 1.0"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "exit_rules_backtest",
@@ -2635,7 +2834,40 @@
         "does not survive the search of N=6 hypotheses (|t|=1.4000000000000001 vs required 2.6382572734767513)",
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "exit_rules_backtest",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": "NOISE",
+            "reason": "significance is NOISE (a NOISE/INSUFFICIENT headline must not go live)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "STABLE",
+            "reason": "window gate unresolved: the spread is across variants/ablations, not the same strategy across windows"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: significance is NOISE (a NOISE/INSUFFICIENT headline must not go live)",
+          "window_stability: window gate unresolved: the spread is across variants/ablations, not the same strategy across windows",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "exit_mechanism",
@@ -2987,7 +3219,38 @@
       "red_flags": [
         "red-team checklist: 11/15 mandatory questions unanswered (data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "exit_mechanism",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": true,
+            "verdict": "STABLE",
+            "reason": "sign consistency 1.0"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "risk_gate",
@@ -3416,7 +3679,38 @@
       "red_flags": [
         "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "risk_gate",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": true,
+            "verdict": "STABLE",
+            "reason": "sign consistency 0.8333333333333334"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "meta_label_results",
@@ -3805,7 +4099,40 @@
         "event-level test NOISE (n_events=50, t=1.1396338672312734, win rate 0.44 CI [0.3116219921125717, 0.5769397197834314])",
         "red-team checklist: 14/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "meta_label_results",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": "NOISE",
+            "reason": "significance is NOISE (a NOISE/INSUFFICIENT headline must not go live)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "STABLE",
+            "reason": "window gate unresolved: the spread is across variants/ablations, not the same strategy across windows"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: significance is NOISE (a NOISE/INSUFFICIENT headline must not go live)",
+          "window_stability: window gate unresolved: the spread is across variants/ablations, not the same strategy across windows",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "volume_confirm",
@@ -4095,7 +4422,40 @@
         "does not survive the search of N=8 hypotheses (|t|=1.6059101370939324 vs required 2.7343687865331763)",
         "red-team checklist: 14/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "volume_confirm",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no window-stability result available"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "window_stability: no window-stability result available",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "funding_rolling_backtest",
@@ -4403,7 +4763,40 @@
       "red_flags": [
         "red-team checklist: 13/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "AMBER"
+      "verdict": "AMBER",
+      "deployment_gate": {
+        "label": "funding_rolling_backtest",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "STABLE",
+            "reason": "window gate unresolved: the spread is across variants/ablations, not the same strategy across windows"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "window_stability: window gate unresolved: the spread is across variants/ablations, not the same strategy across windows",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     },
     {
       "name": "onchain_btc_backtest",
@@ -4724,7 +5117,40 @@
         "metric flips sign across test windows (sign consistency 0.625)",
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)"
       ],
-      "verdict": "RED"
+      "verdict": "RED",
+      "deployment_gate": {
+        "label": "onchain_btc_backtest",
+        "gates": {
+          "significance": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no significance result available (cannot license deployment)"
+          },
+          "window_stability": {
+            "passed": false,
+            "verdict": "UNSTABLE",
+            "reason": "window stability is UNSTABLE"
+          },
+          "boundary_stability": {
+            "passed": false,
+            "verdict": null,
+            "reason": "no boundary-stability result available"
+          }
+        },
+        "failed_gates": [
+          "significance",
+          "window_stability",
+          "boundary_stability"
+        ],
+        "passed": false,
+        "verdict": "DEPLOYMENT_BLOCKED",
+        "reasons": [
+          "significance: no significance result available (cannot license deployment)",
+          "window_stability: window stability is UNSTABLE",
+          "boundary_stability: no boundary-stability result available"
+        ],
+        "rule": "LIVE requires significance=PASS AND window_stability=PASS AND boundary not tie-determined"
+      }
     }
   ]
 }

@@ -209,6 +209,8 @@ poetry run python scripts/validate_reports.py
 ## 8. 首次全量体检结果（2026-09-15）
 
 `reports/validation_audit.json`：**4 RED / 9 AMBER / 0 GREEN**。
+每条策略同时带 `deployment_gate`：**0 LIVE / 13 BLOCKED** —— 报告可以带 AMBER 交付，
+但没有任何一个策略达到上真钱门槛（见 §6.1）。
 
 - RED：`xsec_gbm_results`、`xsec_gbm_sp500`、`gbm_attribution`、`onchain_btc_backtest`
 - 全仓**没有任何一份报告**回答了 significance / window_stability / score_distribution / baseline_significance（13/13 缺失）
