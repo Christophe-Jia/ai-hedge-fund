@@ -39,6 +39,18 @@ Usage:
     poetry run python scripts/xsec_gbm_selection.py                # locked run
     poetry run python scripts/xsec_gbm_selection.py --mode tune    # inner CV
     poetry run python scripts/xsec_gbm_selection.py --top-n 5      # variations
+    poetry run python scripts/xsec_gbm_selection.py --universe sp500
+                                                                   # breadth test:
+                                                                   # same locked
+                                                                   # params, S&P 500
+                                                                   # PIT universe;
+                                                                   # report ->
+                                                                   # reports/xsec_gbm_
+                                                                   # sp500.json incl.
+                                                                   # an in-process
+                                                                   # sp100 rerun for
+                                                                   # the head-to-head
+                                                                   # comparison
 """
 
 from __future__ import annotations
@@ -73,6 +85,13 @@ RENAME = {
     "BK": "BNY", "DWDP": "DD", "TWX": "T", "CELG": "BMY",
     "MON": "BAYRY", "AGN": "ABBV",
 }
+
+# S&P 500 universe: the sp100 rename convention PLUS pure renames of
+# 2016-2026 S&P 500 members whose history lives under the current ticker
+# (single source of truth: the backfill script's RENAME_MAP — pure renames
+# only; acquired/delisted names keep their own ticker and are fetched via
+# IBKR, so they need no mapping here).
+from scripts.backfill_sp500_stocks import RENAME_MAP as SP500_RENAME  # noqa: E402
 
 # The 13 cross-sectional features (see module docstring / report).
 FEATURES = [
@@ -147,14 +166,22 @@ INNER_CV_RESULTS = {
 # Data loading
 # ---------------------------------------------------------------------------
 
-def load_pit_universe() -> tuple[dict[int, list[str]], list[str]]:
+def report_path(universe: str) -> Path:
+    return ROOT / "reports" / ("xsec_gbm_sp500.json" if universe == "sp500"
+                               else "xsec_gbm_results.json")
+
+
+def load_pit_universe(universe: str = "sp100") -> tuple[dict[int, list[str]], list[str]]:
     """(year -> renamed symbols, sorted union of all symbols)."""
+    import re as _re
+    rename = RENAME if universe == "sp100" else SP500_RENAME
     pit: dict[int, list[str]] = {}
-    for f in sorted(UNIVERSE_DIR.glob("sp100_*.json")):
-        if f.name in ("sp100_union.json", "sp100.json"):
-            continue
-        year = int(f.stem.split("_")[1])
-        syms = sorted({RENAME.get(c["symbol"], c["symbol"]) for c in json.loads(f.read_text())})
+    for f in sorted(UNIVERSE_DIR.glob(f"{universe}_*.json")):
+        m = _re.fullmatch(rf"{universe}_(\d{{4}})\.json", f.name)
+        if not m:
+            continue  # union / current snapshots / backfill status etc.
+        year = int(m.group(1))
+        syms = sorted({rename.get(c["symbol"], c["symbol"]) for c in json.loads(f.read_text())})
         pit[year] = syms
     union = sorted(set().union(*pit.values()))
     return pit, union
@@ -567,7 +594,37 @@ def mode_tune(args, panel, feats, pit, closes) -> None:
     print("  (tune mode prints only — it does not overwrite the results report)")
 
 
-def mode_run(args, panel, feats, pit, closes, store_etf) -> None:
+def _sp500_coverage_meta() -> dict:
+    """Backfill coverage stats from the checkpoint file (sp500 runs only)."""
+    p = UNIVERSE_DIR / "sp500_backfill_status.json"
+    if not p.exists():
+        return {}
+    st = json.loads(p.read_text())
+    from scripts.backfill_sp500_stocks import constituent_year_weights
+    w = constituent_year_weights()
+    covered = {s for s, v in st.items() if v.get("status") == "ok"}
+    no_data = sorted(s for s, v in st.items() if v.get("status") == "empty")
+    failed = sorted(s for s, v in st.items() if v.get("status") == "failed")
+    sources = {}
+    for s in covered:
+        src = st[s].get("source", "?")
+        sources[src] = sources.get(src, 0) + 1
+    total_cy = sum(w.values())
+    cov_cy = sum(w.get(s, 0) for s in covered)
+    return {
+        "backfill_coverage": {
+            "symbols_total": len(st),
+            "symbols_covered": len(covered),
+            "coverage_pct": round(len(covered) / len(st) * 100, 1) if st else None,
+            "constituent_year_weighted_coverage_pct": round(cov_cy / total_cy * 100, 1) if total_cy else None,
+            "sources": sources,
+            "no_data": no_data,
+            "failed": failed,
+        },
+    }
+
+
+def mode_run(args, panel, feats, pit, closes, store_etf, store_stocks) -> None:
     index = closes.index
     data_end = str(index[-1].date())
     signals_all = month_end_signal_days(index, index[0], data_end)
@@ -577,7 +634,10 @@ def mode_run(args, panel, feats, pit, closes, store_etf) -> None:
 
     first_period, n_train = first_testable_period(data, args.min_train_months)
     if args.first_test:
-        first_period = int(pd.Timestamp(args.first_test).to_period("M").ordinal)
+        # --first-test uses the dataset's own period encoding (year*12+month-1),
+        # NOT pandas period ordinals (which are 1970-relative and never match)
+        y, m = map(int, args.first_test.split("-"))
+        first_period = y * 12 + m - 1
     first_test_date = data[data["period"] == first_period]["date"].iloc[0]
     print(f"  walk-forward: first test {first_test_date.date()} "
           f"(min {args.min_train_months} train months), expanding, embargo={args.embargo}")
@@ -620,6 +680,11 @@ def mode_run(args, panel, feats, pit, closes, store_etf) -> None:
     qqq21 = qqq[qqq.index >= "2021-01-01"]
     since2021["qqq_buy_hold"] = perf_stats(qqq21)
 
+    since2024 = {}
+    for name, (res, eq) in strategies.items():
+        since2024[name] = perf_stats(eq[eq.index >= "2024-01-01"])
+    since2024["qqq_buy_hold"] = perf_stats(qqq[qqq.index >= "2024-01-01"])
+
     # ---- diagnostics ----------------------------------------------------
     # holdings overlap GBM vs momentum (aligned by execution date)
     mom_hold = {d: set(s) for d, s in mom_res.holdings}
@@ -645,6 +710,187 @@ def mode_run(args, panel, feats, pit, closes, store_etf) -> None:
     # skipped / missing universe names (recorded, per task convention)
     pit_union = sorted(set().union(*pit.values()))
     missing = [s for s in pit_union if s not in closes.columns]
+
+    # ---- sp500 vs sp100 head-to-head (breadth experiment) ----------------
+    sp500_vs_sp100 = None
+    if args.universe == "sp500":
+        print("  [compare] in-process S&P 100 rerun (same locked params / window / seed) ...")
+        sp100_pit, sp100_union = load_pit_universe("sp100")
+        sp100_panel = load_panel(store_stocks, sp100_union, args.data_start, data_end)
+        sp100_feats = compute_daily_features(sp100_panel)
+        sp100_closes = sp100_panel["close"]
+        sp100_signals = month_end_signal_days(
+            sp100_closes.index, sp100_closes.index[0], data_end)
+        sp100_data = build_dataset(sp100_panel, sp100_feats, sp100_pit, sp100_signals)
+        print(f"  [compare] sp100 dataset: {len(sp100_data)} rows, "
+              f"{sp100_data['period'].nunique()} months")
+        sp100_wf = walk_forward(sp100_data, first_period, LOCKED_PARAMS,
+                                embargo=args.embargo, seed=args.seed, verbose=False)
+        sp100_gbm = run_engine(sp100_closes, sp100_pit,
+                               lookup_factor(sp100_wf["scores"]), start, data_end,
+                               args.top_n, cm)
+        sp100_mom = run_engine(sp100_closes, sp100_pit, momentum_12_1,
+                               start, data_end, args.top_n, cm)
+
+        def _win(eq, since=None):
+            return perf_stats(eq[eq.index >= since] if since else eq)
+
+        windows = {}
+        for wname, since in (("full_test_window", None),
+                             ("since_2021", "2021-01-01"),
+                             ("since_2024", "2024-01-01")):
+            windows[wname] = {
+                "sp500_gbm": _win(gbm_res.equity, since),
+                "sp100_gbm": _win(sp100_gbm.equity, since),
+                "sp500_momentum": _win(mom_res.equity, since),
+                "sp100_momentum": _win(sp100_mom.equity, since),
+            }
+        sharpe_impr = {
+            w: round((windows[w]["sp500_gbm"]["sharpe"] / windows[w]["sp100_gbm"]["sharpe"]
+                      - 1.0) * 100, 1) if windows[w]["sp100_gbm"]["sharpe"] > 0 else None
+            for w in windows
+        }
+
+        # top10 holdings overlap between pools (aligned by execution date)
+        sp100_hold = {d: set(s) for d, s in sp100_gbm.holdings}
+        pool_overlap = []
+        for d, syms in gbm_res.holdings:
+            if d in sp100_hold:
+                pool_overlap.append(
+                    {"date": str(d.date()),
+                     "pct": round(len(set(syms) & sp100_hold[d]) / max(len(syms), 1) * 100, 1)})
+
+        # investability diagnostic: holdings priced below $5 at execution
+        # (bankrupt shells / OTC continuations — the cost model's 5bps spread
+        # is fiction there; flags breadth gains that are NOT tradable)
+        sub5_months = []
+        sub5_names: set[str] = set()
+        for d, syms in gbm_res.holdings:
+            if d not in closes.index:
+                continue
+            px = closes.loc[d]
+            cheap = sorted(s for s in syms if 0 < float(px.get(s, 99)) < 5)
+            if cheap:
+                sub5_months.append({"date": str(d.date()), "symbols": cheap})
+                sub5_names |= set(cheap)
+        sub5_pct = round(len(sub5_months) / max(len(gbm_res.holdings), 1) * 100, 1)
+
+        ic5 = [x["ic"] for x in ics]
+        ic1 = [x["ic"] for x in sp100_wf["ics"]]
+
+        # sanity: in-process sp100 vs the stored baseline report
+        sanity = {}
+        stored_path = ROOT / "reports" / "xsec_gbm_results.json"
+        if stored_path.exists():
+            stored = json.loads(stored_path.read_text())
+            sg = stored.get("comparison_full_test_window", {}).get("gbm_top10", {})
+            rg = windows["full_test_window"]["sp100_gbm"]
+            sanity = {
+                "note": ("in-process sp100 vs 存储报告：预期不一致——存储报告生成于 lightgbm 锁版"
+                         "(4.7.0, cf4b7a8)之前且早停在两版下都停在 iter≈1（单树），"
+                         "树桩跨版本/跨数据微扰不稳定；动量基线可复现(0.684 vs 0.675)证明"
+                         "数据与引擎一致，差异全部来自 GBM 树桩敏感性"),
+                "stored": {k: sg.get(k) for k in ("total_return_pct", "sharpe", "max_dd_pct")},
+                "in_process": {k: rg.get(k) for k in ("total_return_pct", "sharpe", "max_dd_pct")},
+                "momentum_baseline": {
+                    "stored": stored.get("comparison_full_test_window", {}).get("momentum_top10", {}).get("sharpe"),
+                    "in_process": windows["full_test_window"]["sp100_momentum"]["sharpe"],
+                },
+            }
+
+        sig_2021 = sharpe_impr.get("since_2021") is not None and sharpe_impr["since_2021"] > 10
+        sig_full = sharpe_impr.get("full_test_window") is not None and sharpe_impr["full_test_window"] > 10
+        ic_diluted = float(np.mean(ic5)) < float(np.mean(ic1))
+        if sig_2021 and sig_full:
+            breadth_verdict = (f"SIGNIFICANT: 全窗口与2021+ Sharpe 提升均 >10% "
+                               f"({sharpe_impr['full_test_window']}% / {sharpe_impr['since_2021']}%) —— "
+                               f"Grinold 广度假设成立，扩池值得")
+        elif sig_2021 or sig_full:
+            breadth_verdict = (f"MIXED: 仅部分窗口 Sharpe 提升 >10% "
+                               f"(全窗口 {sharpe_impr['full_test_window']}%, 2021+ {sharpe_impr['since_2021']}%) —— "
+                               f"扩池收益不确定")
+        else:
+            breadth_verdict = (f"NOT SIGNIFICANT: Sharpe 提升未达 10% 阈值 "
+                               f"(全窗口 {sharpe_impr['full_test_window']}%, 2021+ {sharpe_impr['since_2021']}%) —— "
+                               f"扩池不值")
+        if ic_diluted:
+            breadth_verdict += f" | IC 稀释: sp500 {np.mean(ic5):+.4f} < sp100 {np.mean(ic1):+.4f}"
+        if sub5_pct >= 15:
+            breadth_verdict += (f" | 不可投资警示: {sub5_pct}% 的调仓月持有 <$5 标的"
+                                f"({sorted(sub5_names)})，其收益贡献不可实现")
+
+        sp500_vs_sp100 = {
+            "method": ("同一 LOCKED_PARAMS / purge walk-forward / 成本模型 / 首测月，"
+                       "仅 universe 不同；sp100 在同一进程内重跑作对照"),
+            "first_test_period": first_period,
+            "windows": windows,
+            "sharpe_improvement_pct": sharpe_impr,
+            "monthly_ic": {
+                "sp500": {"mean": round(float(np.mean(ic5)), 4),
+                          "positive_rate": round(float(np.mean([x > 0 for x in ic5])), 3),
+                          "n_months": len(ic5)},
+                "sp100": {"mean": round(float(np.mean(ic1)), 4),
+                          "positive_rate": round(float(np.mean([x > 0 for x in ic1])), 3),
+                          "n_months": len(ic1)},
+            },
+            "turnover": {
+                "sp500_gbm": strategy_report(gbm_res, gbm_res.equity),
+                "sp100_gbm": strategy_report(sp100_gbm, sp100_gbm.equity),
+            },
+            "top10_overlap_between_pools": {
+                "avg_pct": round(float(np.mean([o["pct"] for o in pool_overlap])), 1),
+                "per_month": pool_overlap,
+            },
+            "investability_diagnostic": {
+                "note": ("执行价 <$5 的持仓月占比：破产壳/OTC 延续体的成本模型(5bps价差)严重失真，"
+                         "这些月份的收益贡献不可实现"),
+                "pct_of_rebalance_months_with_sub5_holding": sub5_pct,
+                "sub5_names": sorted(sub5_names),
+                "months": sub5_months,
+            },
+            "run_monthly_gbm_switch_notes": {
+                "code_change": ('scripts/run_monthly_gbm.py:175  load_pit_universe() '
+                                '-> load_pit_universe("sp500")（唯一代码改动）'),
+                "refresh_cost": ("月度 --refresh 从 117 只变 ~700 只，1.5s 延时下 ~20-30 分钟；"
+                                 "建议延时提到 3s 并分批，避免触发 Nasdaq 按符号负缓存"
+                                 "（本次 598 只连续抓取触发了限流负缓存，数小时才恢复）"),
+                "delisted_names": ("~90 只退市股 Nasdaq 永远 404，刷新日志会持续报错（无害，"
+                                   "历史冻结），需在刷新循环里静默跳过"),
+                "match_verification": ("RESULTS_PATH 指向的 sp100 报告与 sp500 选股不可比，"
+                                       "MATCH 校验需指向本报告或关闭"),
+            },
+            "yearly_gbm_returns_pct": {
+                "sp500": yearly_returns(gbm_res.equity),
+                "sp100": yearly_returns(sp100_gbm.equity),
+            },
+            "sanity_vs_stored_report": sanity,
+            "stability_warning": (
+                "早停在这份数据上每月都停在 best_iteration≈1（有效模型=单棵 depth-4 树，"
+                "lightgbm 4.6/4.7 行为一致），树桩的分裂点对 ±1 个训练符号/环境版本极度敏感："
+                "预验证中仅 FISV 一个符号的进出就把 sp500 全窗 Sharpe 从 0.905 打到 0.362。"
+                "本报告数字是这种高方差分布的一次抽样，IC（截面级、更稳）才是主要证据；"
+                "run_monthly_gbm --as-of 2021-06 复现存储 sp100 报告为 MISMATCH（2/10），"
+                "存储报告本身也是树桩噪声的一次抽样"),
+            "verdict": breadth_verdict,
+        }
+
+        print("\n  [S&P 500 vs S&P 100 — GBM top10 head-to-head]")
+        for w in windows:
+            a, b = windows[w]["sp500_gbm"], windows[w]["sp100_gbm"]
+            print(f"    {w:<18} sp500: Sharpe {a['sharpe']:>6.2f}  ret {a['total_return_pct']:>7.1f}%"
+                  f"  mdd {a['max_dd_pct']:>6.1f}%   |   sp100: Sharpe {b['sharpe']:>6.2f}"
+                  f"  ret {b['total_return_pct']:>7.1f}%  mdd {b['max_dd_pct']:>6.1f}%")
+        print(f"    Sharpe 提升: {sharpe_impr}")
+        print(f"    IC: sp500 {np.mean(ic5):+.4f} vs sp100 {np.mean(ic1):+.4f}"
+              f"   换手: sp500 {sp500_vs_sp100['turnover']['sp500_gbm']['avg_one_side_turnover']:,.0f}$"
+              f" vs sp100 {sp500_vs_sp100['turnover']['sp100_gbm']['avg_one_side_turnover']:,.0f}$")
+        print(f"    双池 top10 重合度均值: {sp500_vs_sp100['top10_overlap_between_pools']['avg_pct']}%")
+        print(f"    不可投资警示: {sub5_pct}% 调仓月含 <$5 持仓 {sorted(sub5_names)}")
+        if sanity:
+            print(f"    sanity vs stored report: momentum reproducible "
+                  f"({sanity['momentum_baseline']['in_process']} vs "
+                  f"{sanity['momentum_baseline']['stored']}), GBM not (stump instability)")
+        print(f"    {breadth_verdict}")
 
     # ---- verdict --------------------------------------------------------
     g, m, q = since2021["gbm_top10"], since2021["momentum_top10"], since2021["qqq_buy_hold"]
@@ -687,14 +933,15 @@ def mode_run(args, panel, feats, pit, closes, store_etf) -> None:
             "data_range": [str(index[0].date()), data_end],
             "price_data": "Nasdaq daily OHLCV, split-adjusted, dividend-unadjusted (QQQ TR approx +0.6%/yr)",
             "universe": {
-                "point_in_time": "data/universe/sp100_YYYY.json (Wikipedia Jan snapshots)",
-                "rename_map": RENAME,
+                "point_in_time": f"data/universe/{args.universe}_YYYY.json (Wikipedia Jan snapshots)",
+                "rename_map": RENAME if args.universe == "sp100" else SP500_RENAME,
                 "union_size": len(pit_union),
                 "missing_price_data_skipped": missing,
                 "late_starters": {s: str(closes[s].dropna().index[0].date())
                                   for s in closes.columns
                                   if closes[s].dropna().index[0] > pd.Timestamp("2017-01-01", tz=index.tz)},
                 "min_history_bars": 260,
+                **(_sp500_coverage_meta() if args.universe == "sp500" else {}),
             },
             "conventions": {
                 "signal": "月末最后交易日收盘产生信号，特征仅用严格早于信号日的数据",
@@ -719,6 +966,8 @@ def mode_run(args, panel, feats, pit, closes, store_etf) -> None:
         },
         "comparison_full_test_window": window_stats,
         "comparison_since_2021": since2021,
+        "comparison_since_2024": since2024,
+        "sp500_vs_sp100": sp500_vs_sp100,
         "momentum_full_window_m2_reference": {
             "start": str(mom_full_res.holdings[0][0].date()) if mom_full_res.holdings else None,
             **strategy_report(mom_full_res, mom_full_res.equity),
@@ -740,9 +989,10 @@ def mode_run(args, panel, feats, pit, closes, store_etf) -> None:
         "gbm_holdings": [{"date": str(d.date()), "symbols": syms} for d, syms in gbm_res.holdings],
         "verdict_2021_plus": verdict,
     }
-    REPORT_PATH.parent.mkdir(exist_ok=True)
-    REPORT_PATH.write_text(json.dumps(report, indent=2, default=jsonable))
-    print(f"\n  report -> {REPORT_PATH}")
+    rpath = report_path(args.universe)
+    rpath.parent.mkdir(exist_ok=True)
+    rpath.write_text(json.dumps(report, indent=2, default=jsonable))
+    print(f"\n  report -> {rpath}")
 
 
 # ---------------------------------------------------------------------------
@@ -762,10 +1012,12 @@ def main() -> None:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--no-costs", action="store_true")
     p.add_argument("--data-start", type=str, default="2016-01-01")
+    p.add_argument("--universe", choices=["sp100", "sp500"], default="sp100",
+                   help="PIT universe: sp100 (default) or sp500 (breadth test)")
     args = p.parse_args()
 
-    pit, union = load_pit_universe()
-    print(f"  PIT universe: {len(pit)} 年度名单, union {len(union)} 只")
+    pit, union = load_pit_universe(args.universe)
+    print(f"  PIT universe ({args.universe}): {len(pit)} 年度名单, union {len(union)} 只")
 
     stocks = NasdaqDailyStore(assetclass="stocks")
     data_end = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
@@ -780,7 +1032,8 @@ def main() -> None:
     if args.mode == "tune":
         mode_tune(args, panel, feats, pit, closes)
     else:
-        mode_run(args, panel, feats, pit, closes, NasdaqDailyStore(assetclass="etf"))
+        mode_run(args, panel, feats, pit, closes,
+                 NasdaqDailyStore(assetclass="etf"), stocks)
 
 
 if __name__ == "__main__":

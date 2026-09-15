@@ -1,0 +1,2639 @@
+{
+ "meta": {
+  "generated_at": "2026-09-15T11:10:26.267631+00:00",
+  "script": "scripts/xsec_gbm_selection.py",
+  "data_range": [
+   "2016-09-14",
+   "2026-09-14"
+  ],
+  "price_data": "Nasdaq daily OHLCV, split-adjusted, dividend-unadjusted (QQQ TR approx +0.6%/yr)",
+  "universe": {
+   "point_in_time": "data/universe/sp500_YYYY.json (Wikipedia Jan snapshots)",
+   "rename_map": {
+    "FB": "META",
+    "PCLN": "BKNG",
+    "UTX": "RTX",
+    "RTN": "RTX",
+    "BK": "BNY",
+    "DWDP": "DD",
+    "TWX": "T",
+    "CELG": "BMY",
+    "MON": "BAYRY",
+    "AGN": "ABBV",
+    "ANTM": "ELV",
+    "SYMC": "GEN",
+    "NLOK": "GEN",
+    "PKI": "RVTY",
+    "WLTW": "WTW",
+    "FISV": "FI",
+    "FLT": "CPAY",
+    "XEC": "CTRA",
+    "LB": "BBWI",
+    "BBT": "TFC",
+    "CBG": "CBRE",
+    "ABC": "COR",
+    "ADS": "BFH",
+    "BLL": "BALL",
+    "COH": "TPR",
+    "CTL": "LUMN",
+    "CDAY": "DAY",
+    "BHGE": "BKR",
+    "HRS": "LHX",
+    "LLL": "LHX",
+    "HCN": "WELL",
+    "JEC": "J",
+    "KORS": "CPRI",
+    "LUK": "JEF",
+    "MHFI": "SPGI",
+    "PX": "LIN",
+    "RE": "EG",
+    "TMK": "GL",
+    "HCP": "DOC",
+    "PEAK": "DOC"
+   },
+   "union_size": 699,
+   "missing_price_data_skipped": [
+    "ABMD",
+    "AET",
+    "ALXN",
+    "ANDV",
+    "ANSS",
+    "ARG",
+    "ARNC",
+    "ATVI",
+    "AVB",
+    "BBBY",
+    "BCR",
+    "BF.B",
+    "BHI",
+    "BRCM",
+    "BXLT",
+    "CA",
+    "CAM",
+    "CBS",
+    "CCE",
+    "CERN",
+    "CHK",
+    "CMA",
+    "COG",
+    "COL",
+    "CPGX",
+    "CSRA",
+    "CTLT",
+    "CTRA",
+    "CTXS",
+    "CVC",
+    "CXO",
+    "DAY",
+    "DFS",
+    "DISCA",
+    "DISCK",
+    "DISH",
+    "DLPH",
+    "DNB",
+    "DO",
+    "DPS",
+    "DRE",
+    "EA",
+    "EMC",
+    "ENDP",
+    "EQR",
+    "ESRX",
+    "ESV",
+    "ETFC",
+    "EVHC",
+    "FBHS",
+    "FI",
+    "FL",
+    "FLIR",
+    "FRC",
+    "FTR",
+    "GAS",
+    "GGP",
+    "GMCR",
+    "GPS",
+    "HAR",
+    "HBI",
+    "HES",
+    "HFC",
+    "HOLX",
+    "HOT",
+    "INFO",
+    "IPG",
+    "JNPR",
+    "JWN",
+    "K",
+    "KSU",
+    "LEG",
+    "LLTC",
+    "LM",
+    "LVLT",
+    "MJN",
+    "MMC",
+    "MNK",
+    "MRO",
+    "MXIM",
+    "MYL",
+    "NBL",
+    "NFX",
+    "NLSN",
+    "PBCT",
+    "PCL",
+    "PCP",
+    "PDCO",
+    "PXD",
+    "RAI",
+    "RHT",
+    "SCG",
+    "SEE",
+    "SIVB",
+    "SNI",
+    "SPLS",
+    "SRCL",
+    "STJ",
+    "SWN",
+    "TGNA",
+    "TIF",
+    "TSO",
+    "TSS",
+    "TWC",
+    "TWTR",
+    "TYC",
+    "VAR",
+    "VIAB",
+    "VIAC",
+    "WBA",
+    "WCG",
+    "WFM",
+    "WRK",
+    "WYN",
+    "XL",
+    "XLNX",
+    "YHOO"
+   ],
+   "late_starters": {
+    "ABNB": "2020-12-10",
+    "ADT": "2018-01-19",
+    "AMCR": "2019-06-11",
+    "APC": "2026-02-12",
+    "APP": "2021-04-15",
+    "BHF": "2017-07-17",
+    "BKR": "2017-07-05",
+    "CARR": "2020-03-19",
+    "CEG": "2022-01-19",
+    "COIN": "2021-04-14",
+    "CRWD": "2019-06-12",
+    "CTVA": "2019-05-24",
+    "CVNA": "2017-04-28",
+    "DASH": "2020-12-09",
+    "DD": "2017-09-01",
+    "DDOG": "2019-09-19",
+    "DELL": "2018-12-20",
+    "DOW": "2019-03-20",
+    "DXC": "2017-03-16",
+    "EVRG": "2018-06-05",
+    "EXE": "2021-02-10",
+    "FOX": "2019-02-28",
+    "FOXA": "2019-02-28",
+    "FTI": "2017-01-17",
+    "GEHC": "2022-12-15",
+    "GEV": "2024-03-27",
+    "HOOD": "2021-07-29",
+    "INVH": "2017-02-01",
+    "IR": "2017-05-12",
+    "KDP": "2018-07-10",
+    "KVUE": "2023-05-04",
+    "LIN": "2023-03-02",
+    "MRNA": "2018-12-07",
+    "MTCH": "2020-07-01",
+    "OGN": "2021-05-14",
+    "OTIS": "2020-03-19",
+    "PARA": "2021-02-12",
+    "PLTR": "2020-09-30",
+    "POM": "2025-10-08",
+    "PSKY": "2025-08-07",
+    "Q": "2025-10-27",
+    "SE": "2017-10-20",
+    "SNDK": "2025-02-13",
+    "SOLV": "2024-03-26",
+    "STI": "2022-05-02",
+    "SW": "2024-07-08",
+    "TE": "2020-01-10",
+    "UBER": "2019-05-10",
+    "VICI": "2017-10-18",
+    "VLTO": "2023-09-27",
+    "VNT": "2020-09-24",
+    "VTRS": "2020-11-12",
+    "XRX": "2019-08-01"
+   },
+   "min_history_bars": 260,
+   "backfill_coverage": {
+    "symbols_total": 721,
+    "symbols_covered": 583,
+    "coverage_pct": 80.9,
+    "constituent_year_weighted_coverage_pct": 90.6,
+    "sources": {
+     "nasdaq": 458,
+     "existing": 123,
+     "ibkr": 2
+    },
+    "no_data": [],
+    "failed": [
+     "AAA",
+     "AABA",
+     "ABC",
+     "ABMD",
+     "ADS",
+     "AET",
+     "ALXN",
+     "ANDV",
+     "ANSS",
+     "ARG",
+     "ARNC",
+     "ATVI",
+     "AVB",
+     "BBBY",
+     "BCR",
+     "BF.B",
+     "BHGE",
+     "BHI",
+     "BLL",
+     "BRCM",
+     "BXLT",
+     "CA",
+     "CAM",
+     "CBG",
+     "CCE",
+     "CDAY",
+     "CERN",
+     "CHK",
+     "CMA",
+     "COG",
+     "COH",
+     "COL",
+     "CPGX",
+     "CSRA",
+     "CTL",
+     "CTLT",
+     "CTRA",
+     "CTXS",
+     "CVC",
+     "CXO",
+     "DAY",
+     "DFS",
+     "DISCA",
+     "DISCK",
+     "DISH",
+     "DLPH",
+     "DNB",
+     "DO",
+     "DPS",
+     "DRE",
+     "EA",
+     "EMC",
+     "ENDP",
+     "EQR",
+     "ESRX",
+     "ESV",
+     "ETFC",
+     "EVHC",
+     "FBHS",
+     "FI",
+     "FL",
+     "FLIR",
+     "FRC",
+     "FTR",
+     "GAS",
+     "GGP",
+     "GMCR",
+     "GPS",
+     "HAR",
+     "HBI",
+     "HCN",
+     "HCP",
+     "HES",
+     "HFC",
+     "HOLX",
+     "HOT",
+     "HRS",
+     "INFO",
+     "IPG",
+     "JEC",
+     "JNPR",
+     "JWN",
+     "K",
+     "KORS",
+     "KSU",
+     "LEG",
+     "LLL",
+     "LLTC",
+     "LM",
+     "LUK",
+     "LVLT",
+     "MHFI",
+     "MJN",
+     "MMC",
+     "MNK",
+     "MRO",
+     "MXIM",
+     "MYL",
+     "NBL",
+     "NFX",
+     "NLSN",
+     "PARAA",
+     "PBCT",
+     "PCL",
+     "PCP",
+     "PDCO",
+     "PEAK",
+     "PX",
+     "PXD",
+     "RAI",
+     "RE",
+     "RHT",
+     "SCG",
+     "SEE",
+     "SIVB",
+     "SNI",
+     "SPLS",
+     "SRCL",
+     "STJ",
+     "SWN",
+     "TGNA",
+     "TIF",
+     "TMK",
+     "TSO",
+     "TSS",
+     "TWC",
+     "TWTR",
+     "TYC",
+     "VAR",
+     "WBA",
+     "WCG",
+     "WFM",
+     "WRK",
+     "WYN",
+     "XEC",
+     "XL",
+     "XLNX",
+     "YHOO"
+    ]
+   }
+  },
+  "conventions": {
+   "signal": "月末最后交易日收盘产生信号，特征仅用严格早于信号日的数据",
+   "execution": "信号日次一交易日收盘成交 (execution_lag_bars=1)",
+   "label": "未来21个交易日收益 − 当月截面均值 (monthly sampling, 无重叠)",
+   "feature_scaling": "每月截面 z-score, clip ±3",
+   "purge": "测试月 M 只用 period ≤ M−2 的样本训练（标签窗口全部结束且留1个月隔离带）",
+   "walk_forward": "expanding window, 每月重训, 无随机K折",
+   "costs": "IBKR Pro: $0.005/股 min $1 + 5bps 半价差 (IbkrCostModel)",
+   "hyperparams_locked": "LOCKED_PARAMS 由 2017-2020 内部 walk-forward CV 选出，未用测试窗表现调参",
+   "yearly_returns_note": "2020 年为 11-12 月两个月（首个测试月 2020-10）；2026 年为 1 月~9 月 10 日（部分年度）"
+  }
+ },
+ "hyperparams": {
+  "max_depth": 4,
+  "num_leaves": 12,
+  "learning_rate": 0.05,
+  "n_estimators": 300,
+  "min_child_samples": 40,
+  "feature_fraction": 0.8,
+  "bagging_fraction": 0.8,
+  "bagging_freq": 1,
+  "lambda_l1": 0.1,
+  "lambda_l2": 1.0,
+  "label_transform": "rank"
+ },
+ "inner_cv_2017_2020": {
+  "inner_window": "2017-09 ~ 2020-12 (inner test from 2019-07, 15 months)",
+  "results": [
+   {
+    "config": "A_depth3_lr05",
+    "mean_monthly_ic": -0.0778,
+    "ic_positive_rate": 0.333,
+    "mean_top10_monthly_excess_pct": 1.471
+   },
+   {
+    "config": "B_depth4_lr05",
+    "mean_monthly_ic": -0.0547,
+    "ic_positive_rate": 0.4,
+    "mean_top10_monthly_excess_pct": 1.343
+   },
+   {
+    "config": "C_depth3_lr03",
+    "mean_monthly_ic": -0.0638,
+    "ic_positive_rate": 0.4,
+    "mean_top10_monthly_excess_pct": 2.205
+   },
+   {
+    "config": "D_depth2_lr05",
+    "mean_monthly_ic": -0.0618,
+    "ic_positive_rate": 0.4,
+    "mean_top10_monthly_excess_pct": 0.97
+   },
+   {
+    "config": "E_depth3_mc20",
+    "mean_monthly_ic": -0.0586,
+    "ic_positive_rate": 0.333,
+    "mean_top10_monthly_excess_pct": 1.993
+   },
+   {
+    "config": "F_rank_depth3",
+    "mean_monthly_ic": -0.0026,
+    "ic_positive_rate": 0.467,
+    "mean_top10_monthly_excess_pct": 2.681
+   },
+   {
+    "config": "G_rank_depth4",
+    "mean_monthly_ic": 0.0099,
+    "ic_positive_rate": 0.4,
+    "mean_top10_monthly_excess_pct": 2.314
+   },
+   {
+    "config": "H_huber_depth3",
+    "mean_monthly_ic": -0.0778,
+    "ic_positive_rate": 0.333,
+    "mean_top10_monthly_excess_pct": 1.471
+   }
+  ],
+  "winner": "G_rank_depth4 (locked as LOCKED_PARAMS)"
+ },
+ "walk_forward": {
+  "first_test_date": "2020-10-30",
+  "min_train_months": 36,
+  "embargo_extra_months": 0,
+  "n_test_months": 71,
+  "seed": 42
+ },
+ "comparison_full_test_window": {
+  "gbm_top10": {
+   "total_return_pct": 93.31,
+   "cagr_pct": 11.88,
+   "ann_vol_pct": 41.33,
+   "sharpe": 0.362,
+   "max_dd_pct": -47.27,
+   "calmar": 0.251,
+   "total_costs": 28435.0,
+   "avg_one_side_turnover": 126432.0,
+   "cost_bps_per_rebalance": 27.13,
+   "n_rebalances": 71
+  },
+  "momentum_top10": {
+   "total_return_pct": 177.43,
+   "cagr_pct": 18.98,
+   "ann_vol_pct": 37.84,
+   "sharpe": 0.54,
+   "max_dd_pct": -47.59,
+   "calmar": 0.399,
+   "total_costs": 4925.0,
+   "avg_one_side_turnover": 54545.0,
+   "cost_bps_per_rebalance": 4.15,
+   "n_rebalances": 71
+  },
+  "equal_weight_pool": {
+   "total_return_pct": 88.69,
+   "cagr_pct": 11.42,
+   "ann_vol_pct": 16.28,
+   "sharpe": 0.483,
+   "max_dd_pct": -23.68,
+   "calmar": 0.482,
+   "total_costs": 33775.0,
+   "avg_one_side_turnover": 5413.0,
+   "cost_bps_per_rebalance": 32.41,
+   "n_rebalances": 71
+  },
+  "qqq_buy_hold": {
+   "total_return_pct": 172.42,
+   "cagr_pct": 18.65,
+   "ann_vol_pct": 22.36,
+   "sharpe": 0.686,
+   "max_dd_pct": -35.19,
+   "calmar": 0.53
+  }
+ },
+ "comparison_since_2021": {
+  "gbm_top10": {
+   "total_return_pct": 85.2,
+   "cagr_pct": 11.43,
+   "ann_vol_pct": 41.87,
+   "sharpe": 0.353,
+   "max_dd_pct": -47.27,
+   "calmar": 0.242
+  },
+  "momentum_top10": {
+   "total_return_pct": 151.54,
+   "cagr_pct": 17.59,
+   "ann_vol_pct": 38.17,
+   "sharpe": 0.508,
+   "max_dd_pct": -47.59,
+   "calmar": 0.37
+  },
+  "equal_weight_pool": {
+   "total_return_pct": 65.93,
+   "cagr_pct": 9.3,
+   "ann_vol_pct": 16.14,
+   "sharpe": 0.365,
+   "max_dd_pct": -23.68,
+   "calmar": 0.393
+  },
+  "qqq_buy_hold": {
+   "total_return_pct": 137.01,
+   "cagr_pct": 16.4,
+   "ann_vol_pct": 22.46,
+   "sharpe": 0.598,
+   "max_dd_pct": -35.19,
+   "calmar": 0.466
+  }
+ },
+ "comparison_since_2024": {
+  "gbm_top10": {
+   "total_return_pct": -1.22,
+   "cagr_pct": -0.45,
+   "ann_vol_pct": 28.56,
+   "sharpe": -0.026,
+   "max_dd_pct": -27.3,
+   "calmar": -0.017
+  },
+  "momentum_top10": {
+   "total_return_pct": 105.32,
+   "cagr_pct": 30.54,
+   "ann_vol_pct": 45.4,
+   "sharpe": 0.729,
+   "max_dd_pct": -47.59,
+   "calmar": 0.642
+  },
+  "equal_weight_pool": {
+   "total_return_pct": 26.94,
+   "cagr_pct": 9.24,
+   "ann_vol_pct": 14.1,
+   "sharpe": 0.393,
+   "max_dd_pct": -18.96,
+   "calmar": 0.487
+  },
+  "qqq_buy_hold": {
+   "total_return_pct": 78.87,
+   "cagr_pct": 24.15,
+   "ann_vol_pct": 20.91,
+   "sharpe": 0.936,
+   "max_dd_pct": -22.82,
+   "calmar": 1.058
+  }
+ },
+ "sp500_vs_sp100": {
+  "method": "同一 LOCKED_PARAMS / purge walk-forward / 成本模型 / 首测月，仅 universe 不同；sp100 在同一进程内重跑作对照",
+  "first_test_period": 24249,
+  "windows": {
+   "full_test_window": {
+    "sp500_gbm": {
+     "total_return_pct": 93.31,
+     "cagr_pct": 11.88,
+     "ann_vol_pct": 41.33,
+     "sharpe": 0.362,
+     "max_dd_pct": -47.27,
+     "calmar": 0.251
+    },
+    "sp100_gbm": {
+     "total_return_pct": 171.44,
+     "cagr_pct": 18.56,
+     "ann_vol_pct": 20.62,
+     "sharpe": 0.722,
+     "max_dd_pct": -23.11,
+     "calmar": 0.803
+    },
+    "sp500_momentum": {
+     "total_return_pct": 177.43,
+     "cagr_pct": 18.98,
+     "ann_vol_pct": 37.84,
+     "sharpe": 0.54,
+     "max_dd_pct": -47.59,
+     "calmar": 0.399
+    },
+    "sp100_momentum": {
+     "total_return_pct": 178.01,
+     "cagr_pct": 19.05,
+     "ann_vol_pct": 23.2,
+     "sharpe": 0.684,
+     "max_dd_pct": -29.39,
+     "calmar": 0.648
+    }
+   },
+   "since_2021": {
+    "sp500_gbm": {
+     "total_return_pct": 85.2,
+     "cagr_pct": 11.43,
+     "ann_vol_pct": 41.87,
+     "sharpe": 0.353,
+     "max_dd_pct": -47.27,
+     "calmar": 0.242
+    },
+    "sp100_gbm": {
+     "total_return_pct": 138.03,
+     "cagr_pct": 16.48,
+     "ann_vol_pct": 20.73,
+     "sharpe": 0.633,
+     "max_dd_pct": -23.11,
+     "calmar": 0.713
+    },
+    "sp500_momentum": {
+     "total_return_pct": 151.54,
+     "cagr_pct": 17.59,
+     "ann_vol_pct": 38.17,
+     "sharpe": 0.508,
+     "max_dd_pct": -47.59,
+     "calmar": 0.37
+    },
+    "sp100_momentum": {
+     "total_return_pct": 164.5,
+     "cagr_pct": 18.66,
+     "ann_vol_pct": 23.17,
+     "sharpe": 0.67,
+     "max_dd_pct": -29.39,
+     "calmar": 0.635
+    }
+   },
+   "since_2024": {
+    "sp500_gbm": {
+     "total_return_pct": -1.22,
+     "cagr_pct": -0.45,
+     "ann_vol_pct": 28.56,
+     "sharpe": -0.026,
+     "max_dd_pct": -27.3,
+     "calmar": -0.017
+    },
+    "sp100_gbm": {
+     "total_return_pct": 60.34,
+     "cagr_pct": 19.18,
+     "ann_vol_pct": 20.48,
+     "sharpe": 0.751,
+     "max_dd_pct": -23.11,
+     "calmar": 0.83
+    },
+    "sp500_momentum": {
+     "total_return_pct": 105.32,
+     "cagr_pct": 30.54,
+     "ann_vol_pct": 45.4,
+     "sharpe": 0.729,
+     "max_dd_pct": -47.59,
+     "calmar": 0.642
+    },
+    "sp100_momentum": {
+     "total_return_pct": 122.3,
+     "cagr_pct": 34.56,
+     "ann_vol_pct": 25.05,
+     "sharpe": 1.143,
+     "max_dd_pct": -23.11,
+     "calmar": 1.495
+    }
+   }
+  },
+  "sharpe_improvement_pct": {
+   "full_test_window": -49.9,
+   "since_2021": -44.2,
+   "since_2024": -103.5
+  },
+  "monthly_ic": {
+   "sp500": {
+    "mean": -0.0038,
+    "positive_rate": 0.471,
+    "n_months": 70
+   },
+   "sp100": {
+    "mean": -0.0258,
+    "positive_rate": 0.414,
+    "n_months": 70
+   }
+  },
+  "turnover": {
+   "sp500_gbm": {
+    "total_return_pct": 93.31,
+    "cagr_pct": 11.88,
+    "ann_vol_pct": 41.33,
+    "sharpe": 0.362,
+    "max_dd_pct": -47.27,
+    "calmar": 0.251,
+    "total_costs": 28435.0,
+    "avg_one_side_turnover": 126432.0,
+    "cost_bps_per_rebalance": 27.13,
+    "n_rebalances": 71
+   },
+   "sp100_gbm": {
+    "total_return_pct": 171.44,
+    "cagr_pct": 18.56,
+    "ann_vol_pct": 20.62,
+    "sharpe": 0.722,
+    "max_dd_pct": -23.11,
+    "calmar": 0.803,
+    "total_costs": 9743.0,
+    "avg_one_side_turnover": 116065.0,
+    "cost_bps_per_rebalance": 7.86,
+    "n_rebalances": 71
+   }
+  },
+  "top10_overlap_between_pools": {
+   "avg_pct": 10.0,
+   "per_month": [
+    {
+     "date": "2020-11-02",
+     "pct": 0.0
+    },
+    {
+     "date": "2020-12-01",
+     "pct": 20.0
+    },
+    {
+     "date": "2021-01-04",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-02-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-03-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-04-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-05-03",
+     "pct": 10.0
+    },
+    {
+     "date": "2021-06-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-07-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-08-02",
+     "pct": 10.0
+    },
+    {
+     "date": "2021-09-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-10-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2021-11-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2021-12-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2022-01-03",
+     "pct": 0.0
+    },
+    {
+     "date": "2022-02-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2022-03-01",
+     "pct": 20.0
+    },
+    {
+     "date": "2022-04-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2022-05-02",
+     "pct": 10.0
+    },
+    {
+     "date": "2022-06-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2022-07-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2022-08-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2022-09-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2022-10-03",
+     "pct": 20.0
+    },
+    {
+     "date": "2022-11-01",
+     "pct": 20.0
+    },
+    {
+     "date": "2022-12-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2023-01-03",
+     "pct": 0.0
+    },
+    {
+     "date": "2023-02-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2023-03-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2023-04-03",
+     "pct": 10.0
+    },
+    {
+     "date": "2023-05-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2023-06-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2023-07-03",
+     "pct": 10.0
+    },
+    {
+     "date": "2023-08-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2023-09-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2023-10-02",
+     "pct": 10.0
+    },
+    {
+     "date": "2023-11-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2023-12-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2024-01-02",
+     "pct": 0.0
+    },
+    {
+     "date": "2024-02-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2024-03-01",
+     "pct": 20.0
+    },
+    {
+     "date": "2024-04-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2024-05-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2024-06-03",
+     "pct": 10.0
+    },
+    {
+     "date": "2024-07-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2024-08-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2024-09-03",
+     "pct": 10.0
+    },
+    {
+     "date": "2024-10-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2024-11-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2024-12-02",
+     "pct": 0.0
+    },
+    {
+     "date": "2025-01-02",
+     "pct": 0.0
+    },
+    {
+     "date": "2025-02-03",
+     "pct": 0.0
+    },
+    {
+     "date": "2025-03-03",
+     "pct": 0.0
+    },
+    {
+     "date": "2025-04-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2025-05-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2025-06-02",
+     "pct": 0.0
+    },
+    {
+     "date": "2025-07-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2025-08-01",
+     "pct": 50.0
+    },
+    {
+     "date": "2025-09-02",
+     "pct": 50.0
+    },
+    {
+     "date": "2025-10-01",
+     "pct": 20.0
+    },
+    {
+     "date": "2025-11-03",
+     "pct": 0.0
+    },
+    {
+     "date": "2025-12-01",
+     "pct": 30.0
+    },
+    {
+     "date": "2026-01-02",
+     "pct": 40.0
+    },
+    {
+     "date": "2026-02-02",
+     "pct": 30.0
+    },
+    {
+     "date": "2026-03-02",
+     "pct": 50.0
+    },
+    {
+     "date": "2026-04-01",
+     "pct": 0.0
+    },
+    {
+     "date": "2026-05-01",
+     "pct": 10.0
+    },
+    {
+     "date": "2026-06-01",
+     "pct": 30.0
+    },
+    {
+     "date": "2026-07-01",
+     "pct": 40.0
+    },
+    {
+     "date": "2026-08-03",
+     "pct": 50.0
+    },
+    {
+     "date": "2026-09-01",
+     "pct": 30.0
+    }
+   ]
+  },
+  "investability_diagnostic": {
+   "note": "执行价 <$5 的持仓月占比：破产壳/OTC 延续体的成本模型(5bps价差)严重失真，这些月份的收益贡献不可实现",
+   "pct_of_rebalance_months_with_sub5_holding": 8.5,
+   "sub5_names": [
+    "LUMN",
+    "SBNY"
+   ],
+   "months": [
+    {
+     "date": "2023-03-01",
+     "symbols": [
+      "LUMN"
+     ]
+    },
+    {
+     "date": "2023-04-03",
+     "symbols": [
+      "SBNY"
+     ]
+    },
+    {
+     "date": "2023-09-01",
+     "symbols": [
+      "LUMN"
+     ]
+    },
+    {
+     "date": "2023-10-02",
+     "symbols": [
+      "SBNY"
+     ]
+    },
+    {
+     "date": "2023-11-01",
+     "symbols": [
+      "SBNY"
+     ]
+    },
+    {
+     "date": "2024-01-02",
+     "symbols": [
+      "SBNY"
+     ]
+    }
+   ]
+  },
+  "run_monthly_gbm_switch_notes": {
+   "code_change": "scripts/run_monthly_gbm.py:175  load_pit_universe() -> load_pit_universe(\"sp500\")（唯一代码改动）",
+   "refresh_cost": "月度 --refresh 从 117 只变 ~700 只，1.5s 延时下 ~20-30 分钟；建议延时提到 3s 并分批，避免触发 Nasdaq 按符号负缓存（本次 598 只连续抓取触发了限流负缓存，数小时才恢复）",
+   "delisted_names": "~90 只退市股 Nasdaq 永远 404，刷新日志会持续报错（无害，历史冻结），需在刷新循环里静默跳过",
+   "match_verification": "RESULTS_PATH 指向的 sp100 报告与 sp500 选股不可比，MATCH 校验需指向本报告或关闭"
+  },
+  "yearly_gbm_returns_pct": {
+   "sp500": {
+    "2020": 6.47,
+    "2021": 28.07,
+    "2022": -41.5,
+    "2023": 143.94,
+    "2024": -18.48,
+    "2025": 38.5,
+    "2026": -12.0
+   },
+   "sp100": {
+    "2020": 15.45,
+    "2021": 37.15,
+    "2022": -15.39,
+    "2023": 26.89,
+    "2024": 10.24,
+    "2025": 36.82,
+    "2026": 5.86
+   }
+  },
+  "sanity_vs_stored_report": {
+   "note": "in-process rerun vs stored report (data may have been refreshed since; small deltas expected in the last month)",
+   "stored": {
+    "total_return_pct": 266.8,
+    "sharpe": 0.963,
+    "max_dd_pct": -24.14
+   },
+   "in_process": {
+    "total_return_pct": 171.44,
+    "sharpe": 0.722,
+    "max_dd_pct": -23.11
+   },
+   "consistent": false
+  },
+  "verdict": "NOT SIGNIFICANT: Sharpe 提升未达 10% 阈值 (全窗口 -49.9%, 2021+ -44.2%) —— 扩池不值"
+ },
+ "momentum_full_window_m2_reference": {
+  "start": "2017-10-02",
+  "total_return_pct": 250.75,
+  "cagr_pct": 14.9,
+  "ann_vol_pct": 35.38,
+  "sharpe": 0.452,
+  "max_dd_pct": -47.59,
+  "calmar": 0.313,
+  "total_costs": 8351.0,
+  "avg_one_side_turnover": 60937.0,
+  "cost_bps_per_rebalance": 4.33,
+  "n_rebalances": 108
+ },
+ "yearly_returns_pct": {
+  "gbm_top10": {
+   "2020": 6.47,
+   "2021": 28.07,
+   "2022": -41.5,
+   "2023": 143.94,
+   "2024": -18.48,
+   "2025": 38.5,
+   "2026": -12.0
+  },
+  "momentum_top10": {
+   "2020": 11.33,
+   "2021": 10.38,
+   "2022": -0.86,
+   "2023": 13.48,
+   "2024": 31.37,
+   "2025": 24.1,
+   "2026": 23.08
+  },
+  "equal_weight_pool": {
+   "2020": 15.87,
+   "2021": 25.63,
+   "2022": -14.37,
+   "2023": 18.44,
+   "2024": 9.07,
+   "2025": 7.24,
+   "2026": 9.27
+  },
+  "qqq_buy_hold": {
+   "2020": 16.58,
+   "2021": 27.57,
+   "2022": -32.67,
+   "2023": 54.71,
+   "2024": 25.59,
+   "2025": 20.88,
+   "2026": 15.84
+  }
+ },
+ "monthly_ic": {
+  "mean": -0.0038,
+  "positive_rate": 0.471,
+  "n_months": 70,
+  "by_year": {
+   "2020": -0.0545,
+   "2021": 0.0348,
+   "2022": -0.0105,
+   "2023": -0.0303,
+   "2024": 0.0043,
+   "2025": -0.0175,
+   "2026": 0.0186
+  },
+  "mean_top10_monthly_excess_pct": 2.108
+ },
+ "overlap_with_momentum": {
+  "avg_pct": 7.9,
+  "per_month": [
+   {
+    "date": "2020-11-02",
+    "pct": 0.0
+   },
+   {
+    "date": "2020-12-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2021-01-04",
+    "pct": 30.0
+   },
+   {
+    "date": "2021-02-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2021-03-01",
+    "pct": 40.0
+   },
+   {
+    "date": "2021-04-01",
+    "pct": 20.0
+   },
+   {
+    "date": "2021-05-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2021-06-01",
+    "pct": 20.0
+   },
+   {
+    "date": "2021-07-01",
+    "pct": 50.0
+   },
+   {
+    "date": "2021-08-02",
+    "pct": 20.0
+   },
+   {
+    "date": "2021-09-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2021-10-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2021-11-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2021-12-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2022-01-03",
+    "pct": 10.0
+   },
+   {
+    "date": "2022-02-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2022-03-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2022-04-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2022-05-02",
+    "pct": 0.0
+   },
+   {
+    "date": "2022-06-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2022-07-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2022-08-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2022-09-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2022-10-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2022-11-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2022-12-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-01-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-02-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-03-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-04-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-05-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-06-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-07-03",
+    "pct": 10.0
+   },
+   {
+    "date": "2023-08-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-09-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2023-10-02",
+    "pct": 0.0
+   },
+   {
+    "date": "2023-11-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2023-12-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-01-02",
+    "pct": 10.0
+   },
+   {
+    "date": "2024-02-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-03-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-04-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-05-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-06-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-07-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-08-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-09-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-10-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-11-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2024-12-02",
+    "pct": 0.0
+   },
+   {
+    "date": "2025-01-02",
+    "pct": 0.0
+   },
+   {
+    "date": "2025-02-03",
+    "pct": 10.0
+   },
+   {
+    "date": "2025-03-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2025-04-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2025-05-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2025-06-02",
+    "pct": 10.0
+   },
+   {
+    "date": "2025-07-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2025-08-01",
+    "pct": 20.0
+   },
+   {
+    "date": "2025-09-02",
+    "pct": 10.0
+   },
+   {
+    "date": "2025-10-01",
+    "pct": 30.0
+   },
+   {
+    "date": "2025-11-03",
+    "pct": 10.0
+   },
+   {
+    "date": "2025-12-01",
+    "pct": 20.0
+   },
+   {
+    "date": "2026-01-02",
+    "pct": 10.0
+   },
+   {
+    "date": "2026-02-02",
+    "pct": 10.0
+   },
+   {
+    "date": "2026-03-02",
+    "pct": 10.0
+   },
+   {
+    "date": "2026-04-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2026-05-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2026-06-01",
+    "pct": 10.0
+   },
+   {
+    "date": "2026-07-01",
+    "pct": 0.0
+   },
+   {
+    "date": "2026-08-03",
+    "pct": 0.0
+   },
+   {
+    "date": "2026-09-01",
+    "pct": 60.0
+   }
+  ]
+ },
+ "feature_importance_gain_share": {
+  "mom_12_1": 0.0327,
+  "mom_6m": 0.1124,
+  "mom_3m": 0.0838,
+  "mom_1m": 0.1195,
+  "vol_60d": 0.0551,
+  "vol_ratio": 0.0675,
+  "mdd_120d": 0.1145,
+  "dist_52w_high": 0.1317,
+  "dist_ma20": 0.0341,
+  "log_dollar_vol_20d": 0.0167,
+  "dollar_vol_chg": 0.06,
+  "vol_ratio_5_60": 0.0868,
+  "atr_ratio": 0.0852
+ },
+ "gbm_holdings": [
+  {
+   "date": "2020-11-02",
+   "symbols": [
+    "AEE",
+    "ALL",
+    "AZO",
+    "CRM",
+    "CTAS",
+    "D",
+    "DE",
+    "MOS",
+    "SWK",
+    "T"
+   ]
+  },
+  {
+   "date": "2020-12-01",
+   "symbols": [
+    "AES",
+    "BBY",
+    "DE",
+    "EMN",
+    "FDX",
+    "QCOM",
+    "SWK",
+    "SYF",
+    "UPS",
+    "WHR"
+   ]
+  },
+  {
+   "date": "2021-01-04",
+   "symbols": [
+    "AMD",
+    "BBWI",
+    "BFH",
+    "CCL",
+    "FDX",
+    "GM",
+    "HOG",
+    "UA",
+    "UAA",
+    "VLO"
+   ]
+  },
+  {
+   "date": "2021-02-01",
+   "symbols": [
+    "ALGN",
+    "APTV",
+    "DAL",
+    "GE",
+    "HWM",
+    "MGM",
+    "NCLH",
+    "NTAP",
+    "NWS",
+    "UAA"
+   ]
+  },
+  {
+   "date": "2021-03-01",
+   "symbols": [
+    "A",
+    "ALB",
+    "ALGN",
+    "AMAT",
+    "EMR",
+    "ENPH",
+    "GM",
+    "MMM",
+    "OKE",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2021-04-01",
+   "symbols": [
+    "ENPH",
+    "F",
+    "FANG",
+    "FCX",
+    "FITB",
+    "GE",
+    "MPC",
+    "OXY",
+    "SCHW",
+    "TPR"
+   ]
+  },
+  {
+   "date": "2021-05-03",
+   "symbols": [
+    "AAL",
+    "AMAT",
+    "CCL",
+    "EOG",
+    "HIG",
+    "MGM",
+    "MU",
+    "NTAP",
+    "SLB",
+    "VLO"
+   ]
+  },
+  {
+   "date": "2021-06-01",
+   "symbols": [
+    "AMAT",
+    "APA",
+    "BBWI",
+    "EFX",
+    "FANG",
+    "LRCX",
+    "MGM",
+    "RL",
+    "STX",
+    "TPR"
+   ]
+  },
+  {
+   "date": "2021-07-01",
+   "symbols": [
+    "AMAT",
+    "APA",
+    "FCX",
+    "IVZ",
+    "MHK",
+    "MOS",
+    "NUE",
+    "SLB",
+    "STX",
+    "TPR"
+   ]
+  },
+  {
+   "date": "2021-08-02",
+   "symbols": [
+    "AMAT",
+    "AME",
+    "COP",
+    "DVN",
+    "DXC",
+    "EOG",
+    "F",
+    "FCX",
+    "FE",
+    "NVDA"
+   ]
+  },
+  {
+   "date": "2021-09-01",
+   "symbols": [
+    "APH",
+    "DOV",
+    "DPZ",
+    "DXC",
+    "GOOG",
+    "HCA",
+    "IT",
+    "OTIS",
+    "RSG",
+    "TXT"
+   ]
+  },
+  {
+   "date": "2021-10-01",
+   "symbols": [
+    "ALB",
+    "BIO",
+    "CPRT",
+    "DHR",
+    "DPZ",
+    "EW",
+    "GOOGL",
+    "RMD",
+    "RVTY",
+    "WST"
+   ]
+  },
+  {
+   "date": "2021-11-01",
+   "symbols": [
+    "AIZ",
+    "BBWI",
+    "BKR",
+    "BRK.B",
+    "EBAY",
+    "HSY",
+    "MCD",
+    "PG",
+    "PWR",
+    "SYK"
+   ]
+  },
+  {
+   "date": "2021-12-01",
+   "symbols": [
+    "CFG",
+    "CNC",
+    "DXCM",
+    "EXPE",
+    "FTI",
+    "LVS",
+    "OXY",
+    "PAYC",
+    "SCHW",
+    "WYNN"
+   ]
+  },
+  {
+   "date": "2022-01-03",
+   "symbols": [
+    "AMAT",
+    "AOS",
+    "CDNS",
+    "FTNT",
+    "KLAC",
+    "LRCX",
+    "SNPS",
+    "TER",
+    "ULTA",
+    "ZBRA"
+   ]
+  },
+  {
+   "date": "2022-02-01",
+   "symbols": [
+    "ALGN",
+    "AMD",
+    "APA",
+    "HAL",
+    "MRNA",
+    "OXY",
+    "SLB",
+    "TER",
+    "WDC",
+    "WMB"
+   ]
+  },
+  {
+   "date": "2022-03-01",
+   "symbols": [
+    "AMD",
+    "ENPH",
+    "GNRC",
+    "LUMN",
+    "LVS",
+    "NVDA",
+    "PYPL",
+    "SEDG",
+    "TER",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2022-04-01",
+   "symbols": [
+    "AFL",
+    "DAL",
+    "DXC",
+    "ENPH",
+    "ETR",
+    "EVRG",
+    "LVS",
+    "UAL",
+    "WEC",
+    "WYNN"
+   ]
+  },
+  {
+   "date": "2022-05-02",
+   "symbols": [
+    "BBY",
+    "CCL",
+    "CRM",
+    "ETSY",
+    "NFLX",
+    "PAYC",
+    "PENN",
+    "PYPL",
+    "QRVO",
+    "TER"
+   ]
+  },
+  {
+   "date": "2022-06-01",
+   "symbols": [
+    "AAL",
+    "ADSK",
+    "AMAT",
+    "BIIB",
+    "CCL",
+    "GPN",
+    "MHK",
+    "PYPL",
+    "ROST",
+    "WYNN"
+   ]
+  },
+  {
+   "date": "2022-07-01",
+   "symbols": [
+    "BIIB",
+    "CFG",
+    "CHTR",
+    "EXPE",
+    "F",
+    "GRMN",
+    "KMX",
+    "MHK",
+    "MOS",
+    "MU"
+   ]
+  },
+  {
+   "date": "2022-08-01",
+   "symbols": [
+    "ADSK",
+    "AMD",
+    "GNRC",
+    "IDXX",
+    "INTU",
+    "KMX",
+    "MHK",
+    "MRNA",
+    "SWK",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2022-09-01",
+   "symbols": [
+    "DHI",
+    "EFX",
+    "GM",
+    "INTU",
+    "IPGP",
+    "KMX",
+    "PAYC",
+    "PYPL",
+    "STT",
+    "ZBRA"
+   ]
+  },
+  {
+   "date": "2022-10-03",
+   "symbols": [
+    "ADSK",
+    "EPAM",
+    "ETSY",
+    "GM",
+    "INTU",
+    "IPGP",
+    "PAYC",
+    "PNR",
+    "PYPL",
+    "TROW"
+   ]
+  },
+  {
+   "date": "2022-11-01",
+   "symbols": [
+    "CHTR",
+    "FFIV",
+    "INTU",
+    "NCLH",
+    "NFLX",
+    "PAYC",
+    "PENN",
+    "PYPL",
+    "TROW",
+    "TTWO"
+   ]
+  },
+  {
+   "date": "2022-12-01",
+   "symbols": [
+    "AMAT",
+    "APTV",
+    "ARE",
+    "BBWI",
+    "GM",
+    "IDXX",
+    "ILMN",
+    "MRNA",
+    "NKE",
+    "PVH"
+   ]
+  },
+  {
+   "date": "2023-01-03",
+   "symbols": [
+    "APTV",
+    "BAC",
+    "BBWI",
+    "CZR",
+    "ETSY",
+    "ILMN",
+    "LNC",
+    "LRCX",
+    "NVDA",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2023-02-01",
+   "symbols": [
+    "AKAM",
+    "BBWI",
+    "CAT",
+    "EL",
+    "NEM",
+    "NVDA",
+    "TDG",
+    "TSLA",
+    "WBD",
+    "WDC"
+   ]
+  },
+  {
+   "date": "2023-03-01",
+   "symbols": [
+    "BALL",
+    "CE",
+    "CZR",
+    "INTC",
+    "LUMN",
+    "NEM",
+    "NVDA",
+    "TFX",
+    "VFC",
+    "WBD"
+   ]
+  },
+  {
+   "date": "2023-04-03",
+   "symbols": [
+    "AAL",
+    "BBY",
+    "BKR",
+    "CCL",
+    "EXPE",
+    "IVZ",
+    "KEY",
+    "SBNY",
+    "TXN",
+    "ZION"
+   ]
+  },
+  {
+   "date": "2023-05-01",
+   "symbols": [
+    "AAPL",
+    "ALGN",
+    "AMD",
+    "CCL",
+    "EMN",
+    "EXPE",
+    "KMB",
+    "NVDA",
+    "TAP",
+    "ZBRA"
+   ]
+  },
+  {
+   "date": "2023-06-01",
+   "symbols": [
+    "ALGN",
+    "BALL",
+    "BIO",
+    "CHTR",
+    "EW",
+    "EXR",
+    "FDX",
+    "GNRC",
+    "VZ",
+    "WBD"
+   ]
+  },
+  {
+   "date": "2023-07-03",
+   "symbols": [
+    "AAP",
+    "AAPL",
+    "AMZN",
+    "ENPH",
+    "GNRC",
+    "KMX",
+    "META",
+    "MTCH",
+    "NCLH",
+    "WDC"
+   ]
+  },
+  {
+   "date": "2023-08-01",
+   "symbols": [
+    "AIZ",
+    "BAX",
+    "BXP",
+    "HAS",
+    "IP",
+    "JKHY",
+    "KMX",
+    "MHK",
+    "MMM",
+    "PYPL"
+   ]
+  },
+  {
+   "date": "2023-09-01",
+   "symbols": [
+    "CCL",
+    "FFIV",
+    "GNRC",
+    "IFF",
+    "LUMN",
+    "MRNA",
+    "MTCH",
+    "PYPL",
+    "TSLA",
+    "WMB"
+   ]
+  },
+  {
+   "date": "2023-10-02",
+   "symbols": [
+    "AKAM",
+    "COST",
+    "FFIV",
+    "MPC",
+    "PARA",
+    "PSX",
+    "SBNY",
+    "TXT",
+    "VLO",
+    "WDC"
+   ]
+  },
+  {
+   "date": "2023-11-01",
+   "symbols": [
+    "ALGN",
+    "DVA",
+    "GNRC",
+    "HAS",
+    "NCLH",
+    "NWL",
+    "RVTY",
+    "SBNY",
+    "SEDG",
+    "WHR"
+   ]
+  },
+  {
+   "date": "2023-12-01",
+   "symbols": [
+    "CAH",
+    "CI",
+    "EXR",
+    "FMC",
+    "FSLR",
+    "IT",
+    "REG",
+    "TGT",
+    "TYL",
+    "VFC"
+   ]
+  },
+  {
+   "date": "2024-01-02",
+   "symbols": [
+    "AAP",
+    "CCL",
+    "ENPH",
+    "ETSY",
+    "KEY",
+    "MKTX",
+    "MPWR",
+    "NWL",
+    "SBNY",
+    "ZION"
+   ]
+  },
+  {
+   "date": "2024-02-01",
+   "symbols": [
+    "CCI",
+    "CFG",
+    "DVA",
+    "EXR",
+    "KEY",
+    "MKTX",
+    "MPWR",
+    "TFC",
+    "TGT",
+    "ULTA"
+   ]
+  },
+  {
+   "date": "2024-03-01",
+   "symbols": [
+    "CHTR",
+    "ETSY",
+    "EW",
+    "FMC",
+    "IFF",
+    "MKTX",
+    "NCLH",
+    "NKE",
+    "PYPL",
+    "ZBRA"
+   ]
+  },
+  {
+   "date": "2024-04-01",
+   "symbols": [
+    "AAL",
+    "ALGN",
+    "CFG",
+    "DLTR",
+    "EFX",
+    "ENPH",
+    "ETSY",
+    "TPR",
+    "TSLA",
+    "ULTA"
+   ]
+  },
+  {
+   "date": "2024-05-01",
+   "symbols": [
+    "CRL",
+    "EFX",
+    "FMC",
+    "GL",
+    "KMX",
+    "MRNA",
+    "NCLH",
+    "PARA",
+    "RSG",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2024-06-03",
+   "symbols": [
+    "BAX",
+    "CHTR",
+    "CLX",
+    "ENPH",
+    "HRL",
+    "HUM",
+    "NCLH",
+    "PARA",
+    "TSLA",
+    "WBD"
+   ]
+  },
+  {
+   "date": "2024-07-01",
+   "symbols": [
+    "ALB",
+    "APTV",
+    "ENPH",
+    "FSLR",
+    "ICE",
+    "KDP",
+    "LHX",
+    "LMT",
+    "MCO",
+    "PG"
+   ]
+  },
+  {
+   "date": "2024-08-01",
+   "symbols": [
+    "CHTR",
+    "DXCM",
+    "LULU",
+    "LW",
+    "NKE",
+    "ON",
+    "PARA",
+    "POOL",
+    "RHI",
+    "WST"
+   ]
+  },
+  {
+   "date": "2024-09-03",
+   "symbols": [
+    "ALB",
+    "DG",
+    "DLTR",
+    "EL",
+    "GL",
+    "INTC",
+    "MRNA",
+    "MU",
+    "PARA",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2024-10-01",
+   "symbols": [
+    "ALB",
+    "APA",
+    "DG",
+    "DLTR",
+    "HAL",
+    "JBL",
+    "LVS",
+    "MU",
+    "PARA",
+    "WYNN"
+   ]
+  },
+  {
+   "date": "2024-11-01",
+   "symbols": [
+    "DXCM",
+    "HUM",
+    "LULU",
+    "LW",
+    "MOH",
+    "NUE",
+    "PARA",
+    "ULTA",
+    "VFC",
+    "WST"
+   ]
+  },
+  {
+   "date": "2024-12-02",
+   "symbols": [
+    "AES",
+    "BIIB",
+    "ENPH",
+    "EPAM",
+    "HII",
+    "MPWR",
+    "MRNA",
+    "NEM",
+    "PARA",
+    "PAYC"
+   ]
+  },
+  {
+   "date": "2025-01-02",
+   "symbols": [
+    "AAL",
+    "ALB",
+    "BLDR",
+    "DHI",
+    "FMC",
+    "GNRC",
+    "LEN",
+    "LULU",
+    "ULTA",
+    "URI"
+   ]
+  },
+  {
+   "date": "2025-02-03",
+   "symbols": [
+    "AVGO",
+    "BX",
+    "CDNS",
+    "CRL",
+    "EXPE",
+    "FICO",
+    "HSY",
+    "TER",
+    "ULTA",
+    "VTRS"
+   ]
+  },
+  {
+   "date": "2025-03-03",
+   "symbols": [
+    "AES",
+    "APTV",
+    "BG",
+    "BIIB",
+    "DG",
+    "DLTR",
+    "EL",
+    "ELV",
+    "ENPH",
+    "LDOS"
+   ]
+  },
+  {
+   "date": "2025-04-01",
+   "symbols": [
+    "DG",
+    "DLTR",
+    "LULU",
+    "LVS",
+    "NKE",
+    "ON",
+    "PLTR",
+    "SMCI",
+    "TER",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2025-05-01",
+   "symbols": [
+    "A",
+    "ESS",
+    "LIN",
+    "LLY",
+    "LMT",
+    "LOW",
+    "LRCX",
+    "LULU",
+    "LVS",
+    "LW"
+   ]
+  },
+  {
+   "date": "2025-06-02",
+   "symbols": [
+    "ENPH",
+    "GEV",
+    "GL",
+    "GLW",
+    "GOOG",
+    "GOOGL",
+    "RCL",
+    "REG",
+    "REGN",
+    "ZTS"
+   ]
+  },
+  {
+   "date": "2025-07-01",
+   "symbols": [
+    "ALB",
+    "ICE",
+    "MSFT",
+    "NVDA",
+    "PARA",
+    "RCL",
+    "SMCI",
+    "UNH",
+    "VST",
+    "WDC"
+   ]
+  },
+  {
+   "date": "2025-08-01",
+   "symbols": [
+    "AMD",
+    "AMZN",
+    "ANET",
+    "CRL",
+    "GEV",
+    "META",
+    "MSFT",
+    "NFLX",
+    "TER",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2025-09-02",
+   "symbols": [
+    "AVGO",
+    "CE",
+    "EMN",
+    "ENPH",
+    "MSFT",
+    "NVDA",
+    "ON",
+    "PLTR",
+    "TSLA",
+    "UNH"
+   ]
+  },
+  {
+   "date": "2025-10-01",
+   "symbols": [
+    "ALGN",
+    "AMD",
+    "AVGO",
+    "CNC",
+    "GEV",
+    "MU",
+    "PARA",
+    "PLTR",
+    "TSLA",
+    "VST"
+   ]
+  },
+  {
+   "date": "2025-11-03",
+   "symbols": [
+    "AMZN",
+    "BAX",
+    "DECK",
+    "GEV",
+    "MOH",
+    "MRNA",
+    "TER",
+    "TSLA",
+    "UNH",
+    "VST"
+   ]
+  },
+  {
+   "date": "2025-12-01",
+   "symbols": [
+    "AAPL",
+    "CMG",
+    "ENPH",
+    "JBL",
+    "KMX",
+    "LLY",
+    "MPWR",
+    "PLTR",
+    "SMCI",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2026-01-02",
+   "symbols": [
+    "AAPL",
+    "AMZN",
+    "ARE",
+    "GOOG",
+    "GOOGL",
+    "LULU",
+    "MPC",
+    "PARA",
+    "PLTR",
+    "SMCI"
+   ]
+  },
+  {
+   "date": "2026-02-02",
+   "symbols": [
+    "AMD",
+    "AMZN",
+    "APP",
+    "AVGO",
+    "CHTR",
+    "CNC",
+    "NVDA",
+    "PLTR",
+    "SMCI",
+    "UNH"
+   ]
+  },
+  {
+   "date": "2026-03-02",
+   "symbols": [
+    "APP",
+    "AVGO",
+    "COIN",
+    "GOOG",
+    "GOOGL",
+    "HOOD",
+    "META",
+    "TSLA",
+    "TYL",
+    "WBD"
+   ]
+  },
+  {
+   "date": "2026-04-01",
+   "symbols": [
+    "ARES",
+    "CHTR",
+    "CVNA",
+    "DOW",
+    "ED",
+    "EOG",
+    "GEV",
+    "LULU",
+    "MPC",
+    "SMCI"
+   ]
+  },
+  {
+   "date": "2026-05-01",
+   "symbols": [
+    "AEP",
+    "AXON",
+    "CB",
+    "CHTR",
+    "HOOD",
+    "NOW",
+    "ORCL",
+    "ROST",
+    "TSCO",
+    "WBD"
+   ]
+  },
+  {
+   "date": "2026-06-01",
+   "symbols": [
+    "AAPL",
+    "FSLR",
+    "HOOD",
+    "LDOS",
+    "MSFT",
+    "NVDA",
+    "PANW",
+    "PLTR",
+    "SMCI",
+    "WDC"
+   ]
+  },
+  {
+   "date": "2026-07-01",
+   "symbols": [
+    "ACN",
+    "CHTR",
+    "CTSH",
+    "GOOG",
+    "GOOGL",
+    "HON",
+    "META",
+    "MRNA",
+    "NVDA",
+    "TSLA"
+   ]
+  },
+  {
+   "date": "2026-08-03",
+   "symbols": [
+    "AVGO",
+    "CHTR",
+    "DOW",
+    "GOOG",
+    "GOOGL",
+    "HON",
+    "LYB",
+    "NVDA",
+    "ORCL",
+    "ZTS"
+   ]
+  },
+  {
+   "date": "2026-09-01",
+   "symbols": [
+    "AMD",
+    "AVGO",
+    "EPAM",
+    "INTC",
+    "MU",
+    "SMCI",
+    "SNDK",
+    "STX",
+    "TSLA",
+    "WDC"
+   ]
+  }
+ ],
+ "verdict_2021_plus": "NEGATIVE: 样本外(2021+) GBM 既未打败动量也未打败 QQQ —— ML 路线关闭 | Survivorship note: coverage gap is conservative, cannot inflate results.",
+ "coverage_and_survivorship": {
+  "note": "Added by team-lead 2026-09-15 after the agent stalled pre-commit. PIT union = 736 symbols; 161 absent from the price panel.",
+  "pit_union": 736,
+  "loaded_symbols": 579,
+  "missing_symbols": 161,
+  "breakdown": {
+   "rename_covered": {
+    "n": 17,
+    "bias": "none",
+    "note": "data present under the new ticker (ABC->COR, FB->META, CBG->CBRE, DWDP->DD, UTX->RTX, PCLN->BKNG, ANTM->ELV, BBT->TFC, BCR->BDX, BHGE->BKR, HRS/LLL->LHX, WLTW->WTW, DISCA/DISCK->WBD)",
+    "examples": [
+     "ABC",
+     "FB",
+     "CBG",
+     "DWDP",
+     "UTX"
+    ]
+   },
+   "still_listed_cache": {
+    "n": 46,
+    "bias": "none",
+    "note": "live symbols blocked by Nasdaq negative caching; recoverable for free on retry/IBKR",
+    "examples": [
+     "AVB",
+     "EA",
+     "MMC",
+     "GPS",
+     "EQR",
+     "CTRA",
+     "CDAY",
+     "JNPR"
+    ]
+   },
+   "delisted_acquired": {
+    "n": 85,
+    "bias": "conservative (returns understated)",
+    "note": "acquired at a premium; these names typically RAN UP into the deal. Excluding them removes winners, so backtest results are biased DOWN, not inflated.",
+    "examples": [
+     "ATVI",
+     "TWTR",
+     "XLNX",
+     "TIF",
+     "PXD",
+     "MON",
+     "CELG",
+     "ANSS",
+     "ABMD",
+     "AGN",
+     "ALXN",
+     "EMC",
+     "RHT",
+     "WFM",
+     "BRCM",
+     "LLTC"
+    ]
+   },
+   "delisted_failed": {
+    "n": 7,
+    "bias": "slightly optimistic",
+    "note": "bankrupt / seized (BBBY, SIVB, FRC, CHK, FTR, ENDP, MNK). Same family as the distressed-rebound pathology that drives the S&P500 result: filling these would AMPLIFY that artifact, not cure it.",
+    "examples": [
+     "BBBY",
+     "SIVB",
+     "FRC",
+     "CHK",
+     "FTR",
+     "ENDP",
+     "MNK"
+    ]
+   },
+   "unclassified": {
+    "n": 7,
+    "bias": "unknown",
+    "examples": [
+     "ANDV",
+     "CCE",
+     "CMA",
+     "DISH",
+     "DNB",
+     "FL",
+     "RTN"
+    ]
+   }
+  },
+  "net_direction": "conservative: 85 removed winners vs 7 removed losers => existing results understate returns. There is NO 'results inflated by survivorship bias' problem in this panel.",
+  "recoverability": {
+   "free_now": "46 still-listed (cache expiry / IBKR per-symbol resolution)",
+   "paid_later": "92 truly delisted (EODHD or Sharadara one-time ~$20-150)",
+   "recommendation": "defer the paid backfill until the model-side problems are fixed and real money is at stake; the bias direction is conservative so it cannot explain any apparently-good result"
+  }
+ }
+}
