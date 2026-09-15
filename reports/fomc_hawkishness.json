@@ -1,0 +1,2706 @@
+{
+  "meta": {
+    "generated_at": "2026-09-15T15:45:46",
+    "source": "lexicon",
+    "llm_availability_probe": "network: api.openai.com & api.anthropic.com reachable (401/405); keys: OPENAI_API_KEY=sk-kimi-* rejected by api.moonshot.ai/.cn (Invalid Authentication); all other .env keys are 'your-*' placeholders -> lexicon v1 used; api path kept via FOMC_LLM_BASE_URL/FOMC_LLM_API_KEY/FOMC_LLM_MODEL env vars",
+    "lexicon": {
+      "phrases": [
+        [
+          "reduc\\w*\\s+(?:its|the)\\s+(?:holdings|balance\\s+sheet)",
+          "PH_BS_RUNOFF",
+          2.0
+        ],
+        [
+          "balances?\\s*sheet\\s+runoff",
+          "PH_BS_RUNOFF",
+          2.0
+        ],
+        [
+          "\\brunoff\\b",
+          "PH_BS_RUNOFF",
+          2.0
+        ],
+        [
+          "(?:increase|increas\\w*|expand\\w*)\\s+(?:its|the)\\s+(?:holdings|balance\\s+sheet)",
+          "PH_BS_EXPAND",
+          -2.0
+        ],
+        [
+          "(?:reduce|reduc\\w*|slow\\w*|decrease|decreas\\w*)\\s+the\\s+pace",
+          "PH_TAPER",
+          2.0
+        ],
+        [
+          "(?:increase|increas\\w*)\\s+the\\s+pace",
+          "PH_QE",
+          -2.0
+        ],
+        [
+          "purchas\\w*\\s+(?:of\\s+)?(?:Treasury|agency|additional|mortgage)",
+          "PH_QE",
+          -2.0
+        ],
+        [
+          "\\btaper(?:ing)?\\b",
+          "PH_TAPER",
+          2.0
+        ],
+        [
+          "downside\\s+risks?",
+          "PH_RISK_DOWN",
+          -2.0
+        ],
+        [
+          "upside\\s+risks?",
+          "PH_RISK_UP",
+          2.0
+        ],
+        [
+          "act\\s+as\\s+appropriate",
+          "PH_ACCOM_BIAS",
+          -1.0
+        ],
+        [
+          "sustain\\s+the\\s+expansion",
+          "PH_ACCOM_BIAS",
+          -1.0
+        ],
+        [
+          "\\btransitory\\b",
+          "PH_TRANSITORY",
+          -1.0
+        ],
+        [
+          "\\bpatient\\b|\\bpatience\\b",
+          "PH_PATIENT",
+          -1.0
+        ],
+        [
+          "considerable\\s+time",
+          "PH_ACCOM_BIAS",
+          -1.0
+        ]
+      ],
+      "hawkish_unigrams": {
+        "2.0": [
+          "raise",
+          "raises",
+          "raised",
+          "raising",
+          "hike",
+          "hikes",
+          "hiked",
+          "hiking",
+          "tighten",
+          "tightens",
+          "tightened",
+          "tightening",
+          "firm",
+          "firms",
+          "firmed",
+          "firming"
+        ],
+        "1.0": [
+          "increase",
+          "increases",
+          "increased",
+          "increasing",
+          "strong",
+          "stronger",
+          "strongly",
+          "strengthen",
+          "strengthened",
+          "strengthening",
+          "elevated",
+          "rapidly",
+          "rapid",
+          "faster",
+          "accelerate",
+          "accelerated",
+          "accelerating",
+          "upside"
+        ]
+      },
+      "dovish_unigrams": {
+        "-2.0": [
+          "cut",
+          "cuts",
+          "lower",
+          "lowers",
+          "lowered",
+          "lowering",
+          "reduce",
+          "reduces",
+          "reduced",
+          "reducing",
+          "ease",
+          "eases",
+          "eased",
+          "easing",
+          "accommodative",
+          "accommodation"
+        ],
+        "-1.0": [
+          "weak",
+          "weaker",
+          "weaken",
+          "weakened",
+          "weakening",
+          "weakness",
+          "weaknesses",
+          "slowed",
+          "slowing",
+          "soft",
+          "softer",
+          "softening",
+          "moderated",
+          "moderating",
+          "downside",
+          "diminished",
+          "deteriorate",
+          "deteriorated",
+          "deteriorating"
+        ]
+      },
+      "normalization": "tanh(raw/8), raw = weighted match sum; statement body only (voting/dissent section excluded)"
+    },
+    "n_statements_scored": 86,
+    "n_with_delta": 85,
+    "multiple_comparison_warning": "3 assets x 2 horizons x (all + 3 eras + 3 action buckets) = ~100 correlation cells; isolated 'significant' cells are noise unless consistent across adjacent horizons/assets",
+    "prior_result": "reports/fomc_effect.json: decision-day effects were a 2020-22 artifact, gone 2023+; text held to same era-split standard"
+  },
+  "scores": [
+    {
+      "date": "2016-01-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -4.0,
+      "score": -0.4621,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "slowed": 2.0,
+        "increasing": 1.0,
+        "soft": 1.0,
+        "strong": 1.0,
+        "strengthen": 1.0,
+        "accommodative": 2.0,
+        "increases": 1.0
+      },
+      "delta": null,
+      "crypto_basket_T+1": 1.079,
+      "QQQ_T+1": -0.894,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.21,
+      "QQQ_T+5": 0.387,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2016-03-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -1.0,
+      "score": -0.1244,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "increasing": 1.0,
+        "soft": 1.0,
+        "strong": 1.0,
+        "strengthening": 1.0,
+        "strengthen": 1.0,
+        "accommodative": 2.0,
+        "increases": 1.0
+      },
+      "delta": 0.3377,
+      "crypto_basket_T+1": 1.079,
+      "QQQ_T+1": -0.894,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.21,
+      "QQQ_T+5": 0.387,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2016-04-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -4.0,
+      "score": -0.4621,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "slowed": 1.0,
+        "moderated": 1.0,
+        "soft": 1.0,
+        "strong": 1.0,
+        "strengthening": 1.0,
+        "strengthen": 1.0,
+        "accommodative": 2.0,
+        "increases": 1.0
+      },
+      "delta": -0.3377,
+      "crypto_basket_T+1": 1.079,
+      "QQQ_T+1": -0.894,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.21,
+      "QQQ_T+5": 0.387,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2016-06-15",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -5.0,
+      "score": -0.5546,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "slowed": 1.0,
+        "diminished": 1.0,
+        "strengthened": 1.0,
+        "soft": 1.0,
+        "strengthen": 1.0,
+        "accommodative": 2.0,
+        "increases": 1.0
+      },
+      "delta": -0.0925,
+      "crypto_basket_T+1": 1.079,
+      "QQQ_T+1": -0.894,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.21,
+      "QQQ_T+5": 0.387,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2016-07-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -2.0,
+      "score": -0.2449,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "strengthened": 1.0,
+        "strong": 1.0,
+        "weak": 1.0,
+        "increase": 1.0,
+        "strongly": 1.0,
+        "soft": 1.0,
+        "strengthen": 1.0,
+        "diminished": 1.0,
+        "accommodative": 2.0,
+        "increases": 1.0
+      },
+      "delta": 0.3097,
+      "crypto_basket_T+1": 1.079,
+      "QQQ_T+1": -0.894,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.21,
+      "QQQ_T+5": 0.387,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2016-09-21",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "strengthen": 2.0,
+        "strongly": 1.0,
+        "soft": 1.0,
+        "increase": 1.0,
+        "strengthened": 1.0,
+        "accommodative": 2.0,
+        "increases": 1.0
+      },
+      "delta": 0.2449,
+      "crypto_basket_T+1": -0.64,
+      "QQQ_T+1": 0.796,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -6.15,
+      "QQQ_T+5": 0.466,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2016-11-02",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "strengthen": 3.0,
+        "soft": 1.0,
+        "increased": 1.0,
+        "increase": 1.0,
+        "accommodative": 2.0,
+        "increases": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -0.696,
+      "QQQ_T+1": -0.981,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 4.976,
+      "QQQ_T+5": 2.144,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2016-12-14",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "first hike of cycle",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "strengthen": 2.0,
+        "soft": 1.0,
+        "increased": 1.0,
+        "raise": 1.0,
+        "accommodative": 2.0,
+        "strengthening": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.1244,
+      "crypto_basket_T+1": -1.496,
+      "QQQ_T+1": 0.158,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.249,
+      "QQQ_T+5": 0.208,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-02-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "strengthen": 2.0,
+        "soft": 1.0,
+        "increased": 1.0,
+        "accommodative": 2.0,
+        "strengthening": 1.0,
+        "increases": 1.0
+      },
+      "delta": -0.1244,
+      "crypto_basket_T+1": -1.075,
+      "QQQ_T+1": -0.088,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -3.088,
+      "QQQ_T+5": 0.853,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-03-15",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 5.0,
+      "score": 0.5546,
+      "lexicon_hits": {
+        "strengthen": 2.0,
+        "firmed": 1.0,
+        "increased": 1.0,
+        "raise": 1.0,
+        "accommodative": 2.0,
+        "strengthening": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.5546,
+      "crypto_basket_T+1": -1.181,
+      "QQQ_T+1": -0.068,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -9.569,
+      "QQQ_T+5": -1.067,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-05-03",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -1.0,
+      "score": -0.1244,
+      "lexicon_hits": {
+        "PH_TRANSITORY": 1.0,
+        "strengthen": 2.0,
+        "slowed": 1.0,
+        "firmed": 1.0,
+        "slowing": 1.0,
+        "accommodative": 2.0,
+        "strengthening": 1.0,
+        "increases": 1.0
+      },
+      "delta": -0.679,
+      "crypto_basket_T+1": -0.564,
+      "QQQ_T+1": 0.036,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -3.973,
+      "QQQ_T+5": 1.029,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-06-14",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "strengthen": 2.0,
+        "moderated": 1.0,
+        "raise": 1.0,
+        "accommodative": 1.0,
+        "strengthening": 1.0,
+        "increases": 1.0,
+        "reduce": 1.0
+      },
+      "delta": 0.2488,
+      "crypto_basket_T+1": 0.676,
+      "QQQ_T+1": -0.444,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 2.013,
+      "QQQ_T+5": 0.708,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-07-26",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 2.0,
+      "score": 0.2449,
+      "lexicon_hits": {
+        "strengthen": 2.0,
+        "accommodative": 1.0,
+        "strengthening": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.1205,
+      "crypto_basket_T+1": -1.711,
+      "QQQ_T+1": -0.628,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -15.625,
+      "QQQ_T+5": -0.635,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-09-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "balance-sheet runoff start announced",
+      "score_raw": 2.0,
+      "score": 0.2449,
+      "lexicon_hits": {
+        "strengthen": 2.0,
+        "accommodative": 1.0,
+        "strengthening": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -1.532,
+      "QQQ_T+1": -0.612,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 4.203,
+      "QQQ_T+5": -0.612,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-11-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "strengthen": 2.0,
+        "soft": 1.0,
+        "accommodative": 1.0,
+        "strengthening": 1.0,
+        "increases": 1.0
+      },
+      "delta": -0.1205,
+      "crypto_basket_T+1": -1.18,
+      "QQQ_T+1": -0.191,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 5.869,
+      "QQQ_T+5": 1.578,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2017-12-13",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 4.0,
+      "score": 0.4621,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 2.0,
+        "raise": 1.0,
+        "accommodative": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.3377,
+      "crypto_basket_T+1": 6.49,
+      "QQQ_T+1": -0.071,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 46.587,
+      "QQQ_T+5": 0.987,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-01-31",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 3.0,
+      "score": 0.3584,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "increased": 1.0,
+        "strong": 2.0,
+        "accommodative": 1.0,
+        "increases": 1.0
+      },
+      "delta": -0.1037,
+      "crypto_basket_T+1": -8.068,
+      "QQQ_T+1": -0.85,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.489,
+      "QQQ_T+5": -5.425,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-03-21",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 7.0,
+      "score": 0.7039,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 4.0,
+        "moderated": 1.0,
+        "increased": 1.0,
+        "strengthened": 1.0,
+        "raise": 1.0,
+        "accommodative": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.3455,
+      "crypto_basket_T+1": -2.7,
+      "QQQ_T+1": -2.468,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -16.028,
+      "QQQ_T+5": -5.793,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-05-02",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 4.0,
+      "score": 0.4621,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 4.0,
+        "moderated": 1.0,
+        "strongly": 1.0,
+        "accommodative": 1.0,
+        "increases": 1.0
+      },
+      "delta": -0.2418,
+      "crypto_basket_T+1": 4.028,
+      "QQQ_T+1": -0.012,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.702,
+      "QQQ_T+5": 3.745,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-06-13",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 6.0,
+      "score": 0.6351,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 3.0,
+        "strongly": 1.0,
+        "increases": 1.0,
+        "raise": 1.0,
+        "accommodative": 1.0
+      },
+      "delta": 0.173,
+      "crypto_basket_T+1": 2.777,
+      "QQQ_T+1": 1.012,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 1.233,
+      "QQQ_T+5": 0.813,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-08-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 5.0,
+      "score": 0.5546,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 4.0,
+        "strongly": 1.0,
+        "increases": 1.0,
+        "accommodative": 1.0
+      },
+      "delta": -0.0805,
+      "crypto_basket_T+1": 4.78,
+      "QQQ_T+1": 1.361,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": 4.214,
+      "QQQ_T+5": 2.766,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-09-26",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 8.0,
+      "score": 0.7616,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 3.0,
+        "strongly": 1.0,
+        "increases": 1.0,
+        "raise": 1.0
+      },
+      "delta": 0.207,
+      "crypto_basket_T+1": -0.843,
+      "QQQ_T+1": 0.847,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -8.226,
+      "QQQ_T+5": 0.912,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-11-08",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 6.0,
+      "score": 0.6351,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 3.0,
+        "strongly": 1.0,
+        "moderated": 1.0,
+        "rapid": 1.0,
+        "increases": 1.0
+      },
+      "delta": -0.1265,
+      "crypto_basket_T+1": -0.448,
+      "QQQ_T+1": -1.685,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -6.497,
+      "QQQ_T+5": -3.651,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2018-12-19",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 8.0,
+      "score": 0.7616,
+      "lexicon_hits": {
+        "strengthen": 1.0,
+        "strong": 3.0,
+        "strongly": 1.0,
+        "moderated": 1.0,
+        "rapid": 1.0,
+        "increases": 1.0,
+        "raise": 1.0
+      },
+      "delta": 0.1265,
+      "crypto_basket_T+1": -4.917,
+      "QQQ_T+1": -1.45,
+      "BTC_T+1": 2.545,
+      "crypto_basket_T+5": -4.068,
+      "QQQ_T+5": -0.958,
+      "BTC_T+5": 1.838
+    },
+    {
+      "date": "2019-01-30",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "PH_PATIENT": 1.0,
+        "strengthen": 1.0,
+        "strong": 2.0,
+        "strongly": 1.0,
+        "moderated": 1.0,
+        "rapid": 1.0,
+        "lower": 1.0
+      },
+      "delta": -0.6372,
+      "crypto_basket_T+1": -0.099,
+      "QQQ_T+1": 1.497,
+      "BTC_T+1": -0.696,
+      "crypto_basket_T+5": 1.756,
+      "QQQ_T+5": 2.921,
+      "BTC_T+5": 0.146
+    },
+    {
+      "date": "2019-03-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -2.0,
+      "score": -0.2449,
+      "lexicon_hits": {
+        "PH_PATIENT": 1.0,
+        "strong": 2.0,
+        "slowed": 1.0,
+        "lower": 1.0
+      },
+      "delta": -0.3693,
+      "crypto_basket_T+1": -2.829,
+      "QQQ_T+1": 1.563,
+      "BTC_T+1": -1.543,
+      "crypto_basket_T+5": -12.163,
+      "QQQ_T+5": -1.035,
+      "BTC_T+5": -2.645
+    },
+    {
+      "date": "2019-05-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "PH_PATIENT": 1.0,
+        "strong": 2.0,
+        "slowed": 1.0
+      },
+      "delta": 0.2449,
+      "crypto_basket_T+1": -3.189,
+      "QQQ_T+1": -0.434,
+      "BTC_T+1": 2.037,
+      "crypto_basket_T+5": -8.238,
+      "QQQ_T+5": -1.673,
+      "BTC_T+5": 6.773
+    },
+    {
+      "date": "2019-06-19",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "PH_ACCOM_BIAS": 2.0,
+        "strong": 3.0,
+        "soft": 1.0,
+        "increased": 1.0
+      },
+      "delta": 0.1244,
+      "crypto_basket_T+1": -0.079,
+      "QQQ_T+1": 0.93,
+      "BTC_T+1": 2.827,
+      "crypto_basket_T+5": 17.154,
+      "QQQ_T+5": -0.705,
+      "BTC_T+5": 19.46
+    },
+    {
+      "date": "2019-07-31",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "first cut since 2008",
+      "score_raw": -2.0,
+      "score": -0.2449,
+      "lexicon_hits": {
+        "PH_ACCOM_BIAS": 2.0,
+        "strong": 3.0,
+        "soft": 1.0,
+        "lower": 1.0
+      },
+      "delta": -0.3693,
+      "crypto_basket_T+1": -1.815,
+      "QQQ_T+1": -0.497,
+      "BTC_T+1": 2.921,
+      "crypto_basket_T+5": -0.844,
+      "QQQ_T+5": -3.585,
+      "BTC_T+5": 17.343
+    },
+    {
+      "date": "2019-09-18",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -1.0,
+      "score": -0.1244,
+      "lexicon_hits": {
+        "PH_ACCOM_BIAS": 2.0,
+        "strong": 4.0,
+        "weakened": 1.0,
+        "lower": 1.0
+      },
+      "delta": 0.1205,
+      "crypto_basket_T+1": -0.789,
+      "QQQ_T+1": 0.166,
+      "BTC_T+1": 0.86,
+      "crypto_basket_T+5": -2.998,
+      "QQQ_T+5": -1.267,
+      "BTC_T+5": -4.477
+    },
+    {
+      "date": "2019-10-30",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "strong": 3.0,
+        "weak": 1.0,
+        "lower": 1.0
+      },
+      "delta": 0.1244,
+      "crypto_basket_T+1": -0.696,
+      "QQQ_T+1": 0.046,
+      "BTC_T+1": -0.152,
+      "crypto_basket_T+5": 0.299,
+      "QQQ_T+5": 1.406,
+      "BTC_T+5": 2.607
+    },
+    {
+      "date": "2019-12-11",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 2.0,
+      "score": 0.2449,
+      "lexicon_hits": {
+        "strong": 3.0,
+        "weak": 1.0
+      },
+      "delta": 0.2449,
+      "crypto_basket_T+1": -1.831,
+      "QQQ_T+1": 0.746,
+      "BTC_T+1": -0.165,
+      "crypto_basket_T+5": -2.157,
+      "QQQ_T+5": 2.229,
+      "BTC_T+5": -4.414
+    },
+    {
+      "date": "2020-01-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "strong": 2.0,
+        "weak": 1.0
+      },
+      "delta": -0.1205,
+      "crypto_basket_T+1": 2.575,
+      "QQQ_T+1": 0.356,
+      "BTC_T+1": 2.276,
+      "crypto_basket_T+5": 3.776,
+      "QQQ_T+5": 2.89,
+      "BTC_T+5": -0.1
+    },
+    {
+      "date": "2020-03-03",
+      "action": "cut",
+      "bp": 50,
+      "scheduled": false,
+      "note": "EMERGENCY cut, unscheduled 1-day meeting",
+      "score_raw": -2.0,
+      "score": -0.2449,
+      "lexicon_hits": {
+        "PH_ACCOM_BIAS": 1.0,
+        "strong": 1.0,
+        "lower": 1.0
+      },
+      "delta": -0.3693,
+      "crypto_basket_T+1": 1.544,
+      "QQQ_T+1": 4.172,
+      "BTC_T+1": -0.105,
+      "crypto_basket_T+5": -4.281,
+      "QQQ_T+5": -2.563,
+      "BTC_T+5": -8.296
+    },
+    {
+      "date": "2020-03-15",
+      "action": "cut",
+      "bp": 100,
+      "scheduled": false,
+      "note": "EMERGENCY cut to 0-0.25, announced Sunday; 3/17-18 meeting cancelled",
+      "score_raw": -3.0,
+      "score": -0.3584,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "PH_ACCOM_BIAS": 1.0,
+        "strong": 3.0,
+        "weak": 1.0,
+        "lower": 1.0
+      },
+      "delta": -0.1135,
+      "crypto_basket_T+1": 4.718,
+      "QQQ_T+1": 7.584,
+      "BTC_T+1": -6.199,
+      "crypto_basket_T+5": -2.842,
+      "QQQ_T+5": 0.685,
+      "BTC_T+5": 15.8
+    },
+    {
+      "date": "2020-04-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -6.0,
+      "score": -0.6351,
+      "lexicon_hits": {
+        "PH_QE": 1.0,
+        "PH_ACCOM_BIAS": 1.0,
+        "weaker": 1.0,
+        "lower": 1.0
+      },
+      "delta": -0.2767,
+      "crypto_basket_T+1": -0.699,
+      "QQQ_T+1": -0.041,
+      "BTC_T+1": -1.806,
+      "crypto_basket_T+5": -1.561,
+      "QQQ_T+5": 0.0,
+      "BTC_T+5": 1.064
+    },
+    {
+      "date": "2020-06-10",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -6.0,
+      "score": -0.6351,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "PH_ACCOM_BIAS": 1.0,
+        "weaker": 1.0,
+        "lower": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -17.93,
+      "QQQ_T+1": -4.955,
+      "BTC_T+1": -6.116,
+      "crypto_basket_T+5": -14.85,
+      "QQQ_T+5": -1.056,
+      "BTC_T+5": -4.643
+    },
+    {
+      "date": "2020-07-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -6.0,
+      "score": -0.6351,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "PH_ACCOM_BIAS": 1.0,
+        "weaker": 1.0,
+        "lower": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -3.728,
+      "QQQ_T+1": 0.524,
+      "BTC_T+1": -0.008,
+      "crypto_basket_T+5": 25.705,
+      "QQQ_T+5": 4.342,
+      "BTC_T+5": 1.075
+    },
+    {
+      "date": "2020-09-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -9.0,
+      "score": -0.8093,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "weaker": 1.0,
+        "lower": 1.0,
+        "accommodative": 2.0
+      },
+      "delta": -0.1742,
+      "crypto_basket_T+1": -4.406,
+      "QQQ_T+1": -1.562,
+      "BTC_T+1": -0.128,
+      "crypto_basket_T+5": -15.166,
+      "QQQ_T+5": -3.805,
+      "BTC_T+5": -4.9
+    },
+    {
+      "date": "2020-11-05",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -9.0,
+      "score": -0.8093,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "weaker": 1.0,
+        "accommodative": 3.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -0.164,
+      "QQQ_T+1": 0.075,
+      "BTC_T+1": -0.065,
+      "crypto_basket_T+5": 0.699,
+      "QQQ_T+5": -2.035,
+      "BTC_T+5": -1.878
+    },
+    {
+      "date": "2020-12-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -9.0,
+      "score": -0.8093,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "weaker": 1.0,
+        "accommodative": 3.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -1.537,
+      "QQQ_T+1": 0.654,
+      "BTC_T+1": 6.851,
+      "crypto_basket_T+5": 23.02,
+      "QQQ_T+5": -0.252,
+      "BTC_T+5": 6.488
+    },
+    {
+      "date": "2021-01-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -11.0,
+      "score": -0.8798,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "moderated": 1.0,
+        "weakness": 1.0,
+        "weaker": 1.0,
+        "accommodative": 3.0
+      },
+      "delta": -0.0705,
+      "crypto_basket_T+1": 9.614,
+      "QQQ_T+1": 0.592,
+      "BTC_T+1": 9.875,
+      "crypto_basket_T+5": 31.657,
+      "QQQ_T+5": 2.176,
+      "BTC_T+5": 10.407
+    },
+    {
+      "date": "2021-03-17",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -9.0,
+      "score": -0.8093,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "weak": 1.0,
+        "accommodative": 3.0
+      },
+      "delta": 0.0705,
+      "crypto_basket_T+1": -6.466,
+      "QQQ_T+1": -3.063,
+      "BTC_T+1": -2.147,
+      "crypto_basket_T+5": -26.915,
+      "QQQ_T+5": -3.116,
+      "BTC_T+5": -8.198
+    },
+    {
+      "date": "2021-04-28",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -8.0,
+      "score": -0.7616,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "PH_TRANSITORY": 1.0,
+        "strong": 1.0,
+        "strengthened": 1.0,
+        "weak": 1.0,
+        "accommodative": 3.0
+      },
+      "delta": 0.0477,
+      "crypto_basket_T+1": -6.777,
+      "QQQ_T+1": 0.36,
+      "BTC_T+1": -2.354,
+      "crypto_basket_T+5": -13.913,
+      "QQQ_T+5": -2.941,
+      "BTC_T+5": 4.236
+    },
+    {
+      "date": "2021-06-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -12.0,
+      "score": -0.9051,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "PH_TRANSITORY": 1.0,
+        "reduced": 1.0,
+        "strong": 1.0,
+        "strengthened": 1.0,
+        "weak": 1.0,
+        "accommodative": 3.0,
+        "reduce": 1.0
+      },
+      "delta": -0.1435,
+      "crypto_basket_T+1": 0.739,
+      "QQQ_T+1": 1.27,
+      "BTC_T+1": -0.668,
+      "crypto_basket_T+5": -6.511,
+      "QQQ_T+5": 1.974,
+      "BTC_T+5": -17.576
+    },
+    {
+      "date": "2021-07-28",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -9.0,
+      "score": -0.8093,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "PH_TRANSITORY": 1.0,
+        "strong": 1.0,
+        "strengthen": 1.0,
+        "accommodative": 3.0,
+        "reduce": 1.0
+      },
+      "delta": 0.0958,
+      "crypto_basket_T+1": -3.174,
+      "QQQ_T+1": 0.178,
+      "BTC_T+1": -0.008,
+      "crypto_basket_T+5": 0.763,
+      "QQQ_T+5": 0.413,
+      "BTC_T+5": -2.178
+    },
+    {
+      "date": "2021-09-22",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -9.0,
+      "score": -0.8093,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "PH_TRANSITORY": 1.0,
+        "strong": 1.0,
+        "strengthen": 1.0,
+        "slowed": 1.0,
+        "elevated": 1.0,
+        "accommodative": 3.0,
+        "reduce": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": 2.413,
+      "QQQ_T+1": 0.923,
+      "BTC_T+1": 3.035,
+      "crypto_basket_T+5": -10.795,
+      "QQQ_T+5": -2.784,
+      "BTC_T+5": -3.207
+    },
+    {
+      "date": "2021-11-03",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "taper announced",
+      "score_raw": -12.0,
+      "score": -0.9051,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 2.0,
+        "PH_TRANSITORY": 1.0,
+        "strong": 1.0,
+        "strengthen": 1.0,
+        "slowed": 1.0,
+        "elevated": 1.0,
+        "increases": 1.0,
+        "accommodative": 3.0,
+        "easing": 1.0,
+        "reducing": 1.0
+      },
+      "delta": -0.0958,
+      "crypto_basket_T+1": -0.509,
+      "QQQ_T+1": 1.282,
+      "BTC_T+1": -2.387,
+      "crypto_basket_T+5": 5.945,
+      "QQQ_T+5": -0.933,
+      "BTC_T+5": 7.36
+    },
+    {
+      "date": "2021-12-15",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "taper accelerated",
+      "score_raw": -7.0,
+      "score": -0.7039,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "strong": 1.0,
+        "strengthen": 1.0,
+        "elevated": 1.0,
+        "accommodative": 2.0,
+        "easing": 1.0,
+        "reduce": 1.0
+      },
+      "delta": 0.2012,
+      "crypto_basket_T+1": -6.771,
+      "QQQ_T+1": -2.571,
+      "BTC_T+1": -2.522,
+      "crypto_basket_T+5": -7.236,
+      "QQQ_T+5": -0.781,
+      "BTC_T+5": -3.992
+    },
+    {
+      "date": "2022-01-26",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -5.0,
+      "score": -0.5546,
+      "lexicon_hits": {
+        "PH_BS_EXPAND": 1.0,
+        "strengthen": 1.0,
+        "elevated": 1.0,
+        "accommodative": 2.0,
+        "easing": 1.0,
+        "strong": 1.0,
+        "raise": 1.0,
+        "reduce": 1.0
+      },
+      "delta": 0.1493,
+      "crypto_basket_T+1": -7.245,
+      "QQQ_T+1": -1.007,
+      "BTC_T+1": 0.953,
+      "crypto_basket_T+5": 5.105,
+      "QQQ_T+5": 6.942,
+      "BTC_T+5": 4.503
+    },
+    {
+      "date": "2022-03-16",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "first hike of cycle",
+      "score_raw": 11.0,
+      "score": 0.8798,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "strengthen": 1.0,
+        "strong": 2.0,
+        "elevated": 1.0,
+        "firming": 1.0,
+        "raise": 1.0,
+        "increases": 1.0
+      },
+      "delta": 1.4344,
+      "crypto_basket_T+1": 7.895,
+      "QQQ_T+1": 1.211,
+      "BTC_T+1": -0.477,
+      "crypto_basket_T+5": 17.951,
+      "QQQ_T+5": 3.382,
+      "BTC_T+5": -0.272
+    },
+    {
+      "date": "2022-05-04",
+      "action": "hike",
+      "bp": 50,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 8.0,
+      "score": 0.7616,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "strong": 2.0,
+        "elevated": 1.0,
+        "firming": 1.0,
+        "raise": 1.0,
+        "increases": 1.0,
+        "reducing": 1.0
+      },
+      "delta": -0.1182,
+      "crypto_basket_T+1": -12.682,
+      "QQQ_T+1": -5.036,
+      "BTC_T+1": -7.904,
+      "crypto_basket_T+5": -47.224,
+      "QQQ_T+5": -11.456,
+      "BTC_T+5": -24.222
+    },
+    {
+      "date": "2022-06-15",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "note": "first 75bp since 1994",
+      "score_raw": 5.0,
+      "score": 0.5546,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "increases": 1.0,
+        "reducing": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.207,
+      "crypto_basket_T+1": -6.293,
+      "QQQ_T+1": -4.035,
+      "BTC_T+1": -9.664,
+      "crypto_basket_T+5": 5.359,
+      "QQQ_T+5": 0.725,
+      "BTC_T+5": -8.899
+    },
+    {
+      "date": "2022-07-27",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 5.0,
+      "score": 0.5546,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "increases": 1.0,
+        "reducing": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": 4.519,
+      "QQQ_T+1": 0.978,
+      "BTC_T+1": 3.88,
+      "crypto_basket_T+5": 16.755,
+      "QQQ_T+5": 5.241,
+      "BTC_T+5": 1.375
+    },
+    {
+      "date": "2022-09-21",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 5.0,
+      "score": 0.5546,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "increases": 1.0,
+        "reducing": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -1.587,
+      "QQQ_T+1": -1.231,
+      "BTC_T+1": 5.093,
+      "crypto_basket_T+5": 12.138,
+      "QQQ_T+5": -1.277,
+      "BTC_T+5": 4.152
+    },
+    {
+      "date": "2022-11-02",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 8.0,
+      "score": 0.7616,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "increases": 2.0,
+        "tightening": 1.0,
+        "reducing": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.207,
+      "crypto_basket_T+1": -3.348,
+      "QQQ_T+1": -1.953,
+      "BTC_T+1": 0.278,
+      "crypto_basket_T+5": -23.13,
+      "QQQ_T+5": -0.888,
+      "BTC_T+5": 2.18
+    },
+    {
+      "date": "2022-12-14",
+      "action": "hike",
+      "bp": 50,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 8.0,
+      "score": 0.7616,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "increases": 2.0,
+        "tightening": 1.0,
+        "reducing": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -5.477,
+      "QQQ_T+1": -3.358,
+      "BTC_T+1": -2.51,
+      "crypto_basket_T+5": -12.988,
+      "QQQ_T+5": -4.558,
+      "BTC_T+5": -7.663
+    },
+    {
+      "date": "2023-02-01",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 9.0,
+      "score": 0.8093,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "eased": 1.0,
+        "elevated": 2.0,
+        "raise": 1.0,
+        "increases": 2.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0477,
+      "crypto_basket_T+1": 9.819,
+      "QQQ_T+1": 3.589,
+      "BTC_T+1": -1.027,
+      "crypto_basket_T+5": -1.117,
+      "QQQ_T+5": 1.146,
+      "BTC_T+5": -4.088
+    },
+    {
+      "date": "2023-03-22",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 11.0,
+      "score": 0.8798,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "firming": 1.0,
+        "increases": 1.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0705,
+      "crypto_basket_T+1": 10.788,
+      "QQQ_T+1": 1.186,
+      "BTC_T+1": 3.833,
+      "crypto_basket_T+5": 12.037,
+      "QQQ_T+5": 2.156,
+      "BTC_T+5": -0.463
+    },
+    {
+      "date": "2023-05-03",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 10.0,
+      "score": 0.8483,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "firming": 1.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.0315,
+      "crypto_basket_T+1": 1.869,
+      "QQQ_T+1": -0.353,
+      "BTC_T+1": -0.648,
+      "crypto_basket_T+5": 10.467,
+      "QQQ_T+5": 2.474,
+      "BTC_T+5": -4.676
+    },
+    {
+      "date": "2023-06-14",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "skip after banking stress",
+      "score_raw": 8.0,
+      "score": 0.7616,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "firming": 1.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.0867,
+      "crypto_basket_T+1": -1.754,
+      "QQQ_T+1": 1.192,
+      "BTC_T+1": 1.87,
+      "crypto_basket_T+5": 12.927,
+      "QQQ_T+5": 0.074,
+      "BTC_T+5": 6.828
+    },
+    {
+      "date": "2023-07-26",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "note": "last hike of cycle",
+      "score_raw": 10.0,
+      "score": 0.8483,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "raise": 1.0,
+        "firming": 1.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0867,
+      "crypto_basket_T+1": -4.491,
+      "QQQ_T+1": -0.238,
+      "BTC_T+1": -0.44,
+      "crypto_basket_T+5": -4.685,
+      "QQQ_T+5": -0.829,
+      "BTC_T+5": -0.408
+    },
+    {
+      "date": "2023-09-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 8.0,
+      "score": 0.7616,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "slowed": 1.0,
+        "strong": 1.0,
+        "elevated": 1.0,
+        "firming": 1.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.0867,
+      "crypto_basket_T+1": -3.323,
+      "QQQ_T+1": -1.832,
+      "BTC_T+1": -2.053,
+      "crypto_basket_T+5": -8.117,
+      "QQQ_T+5": -2.606,
+      "BTC_T+5": -3.024
+    },
+    {
+      "date": "2023-11-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 9.0,
+      "score": 0.8093,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "strong": 2.0,
+        "moderated": 1.0,
+        "elevated": 1.0,
+        "firming": 1.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0477,
+      "crypto_basket_T+1": 8.584,
+      "QQQ_T+1": 1.815,
+      "BTC_T+1": -1.355,
+      "crypto_basket_T+5": 5.909,
+      "QQQ_T+5": 4.477,
+      "BTC_T+5": -1.06
+    },
+    {
+      "date": "2023-12-13",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 6.0,
+      "score": 0.6351,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "slowed": 1.0,
+        "strong": 2.0,
+        "moderated": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "firming": 1.0,
+        "tightening": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.1742,
+      "crypto_basket_T+1": 1.711,
+      "QQQ_T+1": -0.087,
+      "BTC_T+1": 0.357,
+      "crypto_basket_T+5": 4.692,
+      "QQQ_T+5": -0.163,
+      "BTC_T+5": -0.493
+    },
+    {
+      "date": "2024-01-31",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "moderated": 1.0,
+        "strong": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "reduce": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.6351,
+      "crypto_basket_T+1": 2.078,
+      "QQQ_T+1": 1.178,
+      "BTC_T+1": 1.181,
+      "crypto_basket_T+5": 1.877,
+      "QQQ_T+5": 3.602,
+      "BTC_T+5": 0.302
+    },
+    {
+      "date": "2024-03-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "strong": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "reduce": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.1244,
+      "crypto_basket_T+1": 1.55,
+      "QQQ_T+1": 0.473,
+      "BTC_T+1": -3.448,
+      "crypto_basket_T+5": 15.949,
+      "QQQ_T+5": 0.239,
+      "BTC_T+5": 3.006
+    },
+    {
+      "date": "2024-05-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "PH_TAPER": 1.0,
+        "strong": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "reduce": 1.0,
+        "reducing": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": 8.374,
+      "QQQ_T+1": 1.276,
+      "BTC_T+1": 1.192,
+      "crypto_basket_T+5": 15.067,
+      "QQQ_T+5": 4.398,
+      "BTC_T+5": 8.224
+    },
+    {
+      "date": "2024-06-12",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "strong": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "reduce": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -4.891,
+      "QQQ_T+1": 0.542,
+      "BTC_T+1": -2.184,
+      "crypto_basket_T+5": -6.933,
+      "QQQ_T+5": 1.544,
+      "BTC_T+5": -2.578
+    },
+    {
+      "date": "2024-07-31",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -1.0,
+      "score": -0.1244,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "moderated": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "reduce": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.2488,
+      "crypto_basket_T+1": -6.761,
+      "QQQ_T+1": -2.422,
+      "BTC_T+1": 1.123,
+      "crypto_basket_T+5": -22.96,
+      "QQQ_T+5": -7.706,
+      "BTC_T+5": -16.416
+    },
+    {
+      "date": "2024-09-18",
+      "action": "cut",
+      "bp": 50,
+      "scheduled": true,
+      "note": "first cut of cycle, 50bp",
+      "score_raw": 1.0,
+      "score": 0.1244,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "slowed": 1.0,
+        "elevated": 1.0,
+        "lower": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.2488,
+      "crypto_basket_T+1": 7.081,
+      "QQQ_T+1": 2.528,
+      "BTC_T+1": 1.924,
+      "crypto_basket_T+5": 11.826,
+      "QQQ_T+5": 3.05,
+      "BTC_T+5": 2.558
+    },
+    {
+      "date": "2024-11-07",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "lower": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.1244,
+      "crypto_basket_T+1": 0.625,
+      "QQQ_T+1": 0.117,
+      "BTC_T+1": 0.859,
+      "crypto_basket_T+5": 16.432,
+      "QQQ_T+5": -0.944,
+      "BTC_T+5": 15.943
+    },
+    {
+      "date": "2024-12-18",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 0.0,
+      "score": 0.0,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "eased": 1.0,
+        "elevated": 1.0,
+        "lower": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -6.424,
+      "QQQ_T+1": -0.445,
+      "BTC_T+1": -2.737,
+      "crypto_basket_T+5": -2.702,
+      "QQQ_T+5": 2.542,
+      "BTC_T+5": -5.312
+    },
+    {
+      "date": "2025-01-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 4.0,
+      "score": 0.4621,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.4621,
+      "crypto_basket_T+1": 0.613,
+      "QQQ_T+1": 0.426,
+      "BTC_T+1": 0.954,
+      "crypto_basket_T+5": -0.906,
+      "QQQ_T+5": 1.156,
+      "BTC_T+5": -2.318
+    },
+    {
+      "date": "2025-03-19",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 5.0,
+      "score": 0.5546,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "PH_TAPER": 1.0,
+        "elevated": 1.0,
+        "increased": 1.0,
+        "reducing": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0925,
+      "crypto_basket_T+1": -0.632,
+      "QQQ_T+1": -0.339,
+      "BTC_T+1": -3.02,
+      "crypto_basket_T+5": 7.475,
+      "QQQ_T+5": 0.726,
+      "BTC_T+5": 0.751
+    },
+    {
+      "date": "2025-05-07",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 5.0,
+      "score": 0.5546,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 1.0,
+        "increased": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": 5.741,
+      "QQQ_T+1": 1.032,
+      "BTC_T+1": 6.422,
+      "crypto_basket_T+5": 7.538,
+      "QQQ_T+5": 7.321,
+      "BTC_T+5": 5.937
+    },
+    {
+      "date": "2025-06-18",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 4.0,
+      "score": 0.4621,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "elevated": 2.0,
+        "diminished": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.0925,
+      "crypto_basket_T+1": -0.07,
+      "QQQ_T+1": -0.408,
+      "BTC_T+1": -0.218,
+      "crypto_basket_T+5": 5.626,
+      "QQQ_T+5": 3.257,
+      "BTC_T+5": 0.426
+    },
+    {
+      "date": "2025-07-30",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "note": "",
+      "score_raw": 4.0,
+      "score": 0.4621,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "moderated": 1.0,
+        "elevated": 2.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": 1.297,
+      "QQQ_T+1": -0.53,
+      "BTC_T+1": -1.762,
+      "crypto_basket_T+5": -4.932,
+      "QQQ_T+5": -0.123,
+      "BTC_T+5": -2.364
+    },
+    {
+      "date": "2025-09-17",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "first cut of 2025",
+      "score_raw": -1.0,
+      "score": -0.1244,
+      "lexicon_hits": {
+        "PH_BS_RUNOFF": 1.0,
+        "PH_RISK_DOWN": 1.0,
+        "moderated": 1.0,
+        "slowed": 1.0,
+        "elevated": 2.0,
+        "lower": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.5865,
+      "crypto_basket_T+1": 4.817,
+      "QQQ_T+1": 0.902,
+      "BTC_T+1": 0.538,
+      "crypto_basket_T+5": -1.094,
+      "QQQ_T+5": 1.034,
+      "BTC_T+5": -3.26
+    },
+    {
+      "date": "2025-10-29",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -2.0,
+      "score": -0.2449,
+      "lexicon_hits": {
+        "PH_RISK_DOWN": 1.0,
+        "slowed": 1.0,
+        "elevated": 2.0,
+        "lower": 1.0,
+        "strongly": 1.0
+      },
+      "delta": -0.1205,
+      "crypto_basket_T+1": -6.805,
+      "QQQ_T+1": -1.529,
+      "BTC_T+1": -1.544,
+      "crypto_basket_T+5": -9.138,
+      "QQQ_T+5": -1.965,
+      "BTC_T+5": -3.125
+    },
+    {
+      "date": "2025-12-10",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "note": "",
+      "score_raw": -2.0,
+      "score": -0.2449,
+      "lexicon_hits": {
+        "PH_RISK_DOWN": 1.0,
+        "slowed": 1.0,
+        "elevated": 2.0,
+        "lower": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -0.347,
+      "QQQ_T+1": -0.323,
+      "BTC_T+1": 0.541,
+      "crypto_basket_T+5": -13.976,
+      "QQQ_T+5": -4.334,
+      "BTC_T+5": -6.068
+    },
+    {
+      "date": "2026-01-28",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "note": "2026 decision unknown",
+      "score_raw": 3.0,
+      "score": 0.3584,
+      "lexicon_hits": {
+        "elevated": 2.0,
+        "strongly": 1.0
+      },
+      "delta": 0.6033,
+      "crypto_basket_T+1": -7.46,
+      "QQQ_T+1": -0.599,
+      "BTC_T+1": -5.207,
+      "crypto_basket_T+5": -18.866,
+      "QQQ_T+5": -4.338,
+      "BTC_T+5": -11.827
+    },
+    {
+      "date": "2026-03-18",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "note": "2026 decision unknown",
+      "score_raw": 3.0,
+      "score": 0.3584,
+      "lexicon_hits": {
+        "elevated": 2.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": -0.94,
+      "QQQ_T+1": -0.316,
+      "BTC_T+1": -1.848,
+      "crypto_basket_T+5": 0.78,
+      "QQQ_T+5": -1.19,
+      "BTC_T+5": -0.477
+    },
+    {
+      "date": "2026-04-29",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "note": "2026 decision unknown",
+      "score_raw": 3.0,
+      "score": 0.3584,
+      "lexicon_hits": {
+        "elevated": 1.0,
+        "increase": 1.0,
+        "strongly": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": 5.586,
+      "QQQ_T+1": 0.933,
+      "BTC_T+1": 0.748,
+      "crypto_basket_T+5": 26.273,
+      "QQQ_T+5": 5.17,
+      "BTC_T+5": 5.385
+    },
+    {
+      "date": "2026-06-17",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "note": "2026 decision unknown",
+      "score_raw": 4.0,
+      "score": 0.4621,
+      "lexicon_hits": {
+        "elevated": 2.0,
+        "strong": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.1037,
+      "crypto_basket_T+1": -0.486,
+      "QQQ_T+1": 2.507,
+      "BTC_T+1": -2.405,
+      "crypto_basket_T+5": -12.642,
+      "QQQ_T+5": -0.848,
+      "BTC_T+5": -0.759
+    },
+    {
+      "date": "2026-07-29",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "note": "2026 decision unknown",
+      "score_raw": 4.0,
+      "score": 0.4621,
+      "lexicon_hits": {
+        "elevated": 2.0,
+        "strong": 1.0,
+        "increases": 1.0
+      },
+      "delta": 0.0,
+      "crypto_basket_T+1": 11.83,
+      "QQQ_T+1": 3.297,
+      "BTC_T+1": 1.244,
+      "crypto_basket_T+5": 10.233,
+      "QQQ_T+5": 8.398,
+      "BTC_T+5": -0.726
+    }
+  ],
+  "trajectory_sanity": {
+    "expected_narrative": [
+      "2016-2018: hiking cycle -> rising positive scores",
+      "2019: mid-year dovish pivot -> falling scores",
+      "2020-2021: ZIRP + QE -> deeply negative floor",
+      "2022-2023: inflation fight -> strongest positive scores",
+      "2024-2025: cutting cycle -> falling to negative"
+    ],
+    "yearly_mean_score": {
+      "2016": {
+        "mean": -0.18,
+        "n": 7
+      },
+      "2017": {
+        "mean": 0.204,
+        "n": 8
+      },
+      "2018": {
+        "mean": 0.609,
+        "n": 8
+      },
+      "2019": {
+        "mean": -0.015,
+        "n": 8
+      },
+      "2020": {
+        "mean": -0.535,
+        "n": 9
+      },
+      "2021": {
+        "mean": -0.823,
+        "n": 8
+      },
+      "2022": {
+        "mean": 0.534,
+        "n": 8
+      },
+      "2023": {
+        "mean": 0.794,
+        "n": 8
+      },
+      "2024": {
+        "mean": 0.047,
+        "n": 8
+      },
+      "2025": {
+        "mean": 0.235,
+        "n": 8
+      },
+      "2026": {
+        "mean": 0.4,
+        "n": 5
+      }
+    },
+    "score_vs_bp_change": {
+      "n": 80,
+      "pearson_r": 0.321,
+      "pearson_p": 0.0037,
+      "spearman_r": 0.375,
+      "spearman_p": 0.0006
+    },
+    "delta_vs_bp_change": {
+      "n": 80,
+      "pearson_r": 0.086,
+      "pearson_p": 0.4497,
+      "spearman_r": 0.163,
+      "spearman_p": 0.1497
+    }
+  },
+  "delta_vs_forward_returns": {
+    "crypto_basket": {
+      "T+1_all": {
+        "n": 85,
+        "pearson_r": 0.059,
+        "pearson_p": 0.5927,
+        "spearman_r": -0.039,
+        "spearman_p": 0.7225
+      },
+      "T+1_2016-2019": {
+        "n": 31,
+        "pearson_r": 0.044,
+        "pearson_p": 0.8145,
+        "spearman_r": 0.005,
+        "spearman_p": 0.9776
+      },
+      "T+1_2020-2022": {
+        "n": 25,
+        "pearson_r": 0.207,
+        "pearson_p": 0.3199,
+        "spearman_r": -0.231,
+        "spearman_p": 0.2664
+      },
+      "T+1_2023-2026": {
+        "n": 29,
+        "pearson_r": -0.064,
+        "pearson_p": 0.7398,
+        "spearman_r": 0.078,
+        "spearman_p": 0.6893
+      },
+      "T+5_all": {
+        "n": 85,
+        "pearson_r": 0.081,
+        "pearson_p": 0.4593,
+        "spearman_r": -0.025,
+        "spearman_p": 0.8213
+      },
+      "T+5_2016-2019": {
+        "n": 31,
+        "pearson_r": 0.06,
+        "pearson_p": 0.7491,
+        "spearman_r": -0.125,
+        "spearman_p": 0.5022
+      },
+      "T+5_2020-2022": {
+        "n": 25,
+        "pearson_r": 0.186,
+        "pearson_p": 0.3729,
+        "spearman_r": -0.005,
+        "spearman_p": 0.9793
+      },
+      "T+5_2023-2026": {
+        "n": 29,
+        "pearson_r": -0.054,
+        "pearson_p": 0.7824,
+        "spearman_r": 0.027,
+        "spearman_p": 0.8894
+      },
+      "pooled_T+1_and_T+5": {
+        "n": 170,
+        "pearson_r": 0.068,
+        "pearson_p": 0.375,
+        "spearman_r": -0.026,
+        "spearman_p": 0.7355
+      }
+    },
+    "QQQ": {
+      "T+1_all": {
+        "n": 85,
+        "pearson_r": -0.041,
+        "pearson_p": 0.7108,
+        "spearman_r": -0.035,
+        "spearman_p": 0.7514
+      },
+      "T+1_2016-2019": {
+        "n": 31,
+        "pearson_r": -0.209,
+        "pearson_p": 0.2587,
+        "spearman_r": -0.119,
+        "spearman_p": 0.5226
+      },
+      "T+1_2020-2022": {
+        "n": 25,
+        "pearson_r": -0.019,
+        "pearson_p": 0.9269,
+        "spearman_r": -0.157,
+        "spearman_p": 0.4531
+      },
+      "T+1_2023-2026": {
+        "n": 29,
+        "pearson_r": 0.088,
+        "pearson_p": 0.6495,
+        "spearman_r": 0.265,
+        "spearman_p": 0.1642
+      },
+      "T+5_all": {
+        "n": 85,
+        "pearson_r": 0.033,
+        "pearson_p": 0.7644,
+        "spearman_r": 0.022,
+        "spearman_p": 0.8421
+      },
+      "T+5_2016-2019": {
+        "n": 31,
+        "pearson_r": -0.148,
+        "pearson_p": 0.426,
+        "spearman_r": -0.148,
+        "spearman_p": 0.4268
+      },
+      "T+5_2020-2022": {
+        "n": 25,
+        "pearson_r": 0.259,
+        "pearson_p": 0.2115,
+        "spearman_r": 0.102,
+        "spearman_p": 0.6261
+      },
+      "T+5_2023-2026": {
+        "n": 29,
+        "pearson_r": -0.063,
+        "pearson_p": 0.747,
+        "spearman_r": 0.071,
+        "spearman_p": 0.7143
+      },
+      "pooled_T+1_and_T+5": {
+        "n": 170,
+        "pearson_r": 0.006,
+        "pearson_p": 0.9393,
+        "spearman_r": -0.003,
+        "spearman_p": 0.9701
+      }
+    },
+    "BTC": {
+      "T+1_all": {
+        "n": 85,
+        "pearson_r": 0.02,
+        "pearson_p": 0.8568,
+        "spearman_r": 0.079,
+        "spearman_p": 0.4717
+      },
+      "T+1_2016-2019": {
+        "n": 31,
+        "pearson_r": 0.25,
+        "pearson_p": 0.1745,
+        "spearman_r": 0.032,
+        "spearman_p": 0.8654
+      },
+      "T+1_2020-2022": {
+        "n": 25,
+        "pearson_r": 0.075,
+        "pearson_p": 0.7208,
+        "spearman_r": 0.188,
+        "spearman_p": 0.3684
+      },
+      "T+1_2023-2026": {
+        "n": 29,
+        "pearson_r": -0.283,
+        "pearson_p": 0.1363,
+        "spearman_r": -0.264,
+        "spearman_p": 0.1662
+      },
+      "T+5_all": {
+        "n": 85,
+        "pearson_r": 0.018,
+        "pearson_p": 0.8693,
+        "spearman_r": 0.136,
+        "spearman_p": 0.2133
+      },
+      "T+5_2016-2019": {
+        "n": 31,
+        "pearson_r": -0.055,
+        "pearson_p": 0.7696,
+        "spearman_r": 0.11,
+        "spearman_p": 0.557
+      },
+      "T+5_2020-2022": {
+        "n": 25,
+        "pearson_r": 0.118,
+        "pearson_p": 0.5753,
+        "spearman_r": 0.255,
+        "spearman_p": 0.2188
+      },
+      "T+5_2023-2026": {
+        "n": 29,
+        "pearson_r": -0.092,
+        "pearson_p": 0.6343,
+        "spearman_r": 0.048,
+        "spearman_p": 0.8036
+      },
+      "pooled_T+1_and_T+5": {
+        "n": 170,
+        "pearson_r": 0.018,
+        "pearson_p": 0.8208,
+        "spearman_r": 0.109,
+        "spearman_p": 0.1575
+      }
+    }
+  },
+  "decision_controlled_within_action": {
+    "hold": {
+      "n": 50,
+      "crypto_basket_T+1": {
+        "n": 50,
+        "pearson_r": -0.082,
+        "pearson_p": 0.5734,
+        "spearman_r": -0.125,
+        "spearman_p": 0.3872
+      },
+      "crypto_basket_T+5": {
+        "n": 50,
+        "pearson_r": 0.047,
+        "pearson_p": 0.7482,
+        "spearman_r": 0.035,
+        "spearman_p": 0.8101
+      },
+      "QQQ_T+1": {
+        "n": 50,
+        "pearson_r": -0.148,
+        "pearson_p": 0.3042,
+        "spearman_r": -0.094,
+        "spearman_p": 0.5139
+      },
+      "QQQ_T+5": {
+        "n": 50,
+        "pearson_r": -0.014,
+        "pearson_p": 0.9215,
+        "spearman_r": 0.002,
+        "spearman_p": 0.989
+      },
+      "BTC_T+1": {
+        "n": 50,
+        "pearson_r": -0.02,
+        "pearson_p": 0.8885,
+        "spearman_r": -0.049,
+        "spearman_p": 0.7339
+      },
+      "BTC_T+5": {
+        "n": 50,
+        "pearson_r": 0.116,
+        "pearson_p": 0.4211,
+        "spearman_r": 0.135,
+        "spearman_p": 0.3515
+      }
+    },
+    "hike": {
+      "n": 19,
+      "crypto_basket_T+1": {
+        "n": 19,
+        "pearson_r": 0.384,
+        "pearson_p": 0.1041,
+        "spearman_r": 0.326,
+        "spearman_p": 0.173
+      },
+      "crypto_basket_T+5": {
+        "n": 19,
+        "pearson_r": 0.243,
+        "pearson_p": 0.3158,
+        "spearman_r": -0.033,
+        "spearman_p": 0.892
+      },
+      "QQQ_T+1": {
+        "n": 19,
+        "pearson_r": 0.336,
+        "pearson_p": 0.1599,
+        "spearman_r": 0.319,
+        "spearman_p": 0.183
+      },
+      "QQQ_T+5": {
+        "n": 19,
+        "pearson_r": 0.244,
+        "pearson_p": 0.315,
+        "spearman_r": 0.016,
+        "spearman_p": 0.9487
+      },
+      "BTC_T+1": {
+        "n": 19,
+        "pearson_r": 0.243,
+        "pearson_p": 0.3171,
+        "spearman_r": 0.32,
+        "spearman_p": 0.1815
+      },
+      "BTC_T+5": {
+        "n": 19,
+        "pearson_r": 0.338,
+        "pearson_p": 0.1572,
+        "spearman_r": 0.604,
+        "spearman_p": 0.0061
+      }
+    },
+    "cut": {
+      "n": 11,
+      "crypto_basket_T+1": {
+        "n": 11,
+        "pearson_r": -0.067,
+        "pearson_p": 0.8443,
+        "spearman_r": -0.041,
+        "spearman_p": 0.9045
+      },
+      "crypto_basket_T+5": {
+        "n": 11,
+        "pearson_r": 0.166,
+        "pearson_p": 0.6261,
+        "spearman_r": 0.1,
+        "spearman_p": 0.7688
+      },
+      "QQQ_T+1": {
+        "n": 11,
+        "pearson_r": -0.083,
+        "pearson_p": 0.8092,
+        "spearman_r": 0.014,
+        "spearman_p": 0.9681
+      },
+      "QQQ_T+5": {
+        "n": 11,
+        "pearson_r": 0.338,
+        "pearson_p": 0.3089,
+        "spearman_r": 0.447,
+        "spearman_p": 0.1676
+      },
+      "BTC_T+1": {
+        "n": 11,
+        "pearson_r": -0.055,
+        "pearson_p": 0.8713,
+        "spearman_r": 0.014,
+        "spearman_p": 0.9681
+      },
+      "BTC_T+5": {
+        "n": 11,
+        "pearson_r": -0.076,
+        "pearson_p": 0.824,
+        "spearman_r": -0.059,
+        "spearman_p": 0.8624
+      }
+    }
+  },
+  "regression_text_beyond_decision": {
+    "crypto_basket_T+1": {
+      "n": 80,
+      "beta_delta": 1.78,
+      "se_delta": 2.131,
+      "t_delta": 0.84,
+      "beta_hike_dummy": 0.421,
+      "beta_cut_dummy": 1.135
+    },
+    "crypto_basket_T+5": {
+      "n": 80,
+      "beta_delta": 7.194,
+      "se_delta": 5.719,
+      "t_delta": 1.26,
+      "beta_hike_dummy": -2.173,
+      "beta_cut_dummy": -0.81
+    },
+    "QQQ_T+1": {
+      "n": 80,
+      "beta_delta": 0.308,
+      "se_delta": 0.755,
+      "t_delta": 0.41,
+      "beta_hike_dummy": -0.553,
+      "beta_cut_dummy": 1.312
+    },
+    "QQQ_T+5": {
+      "n": 80,
+      "beta_delta": 1.343,
+      "se_delta": 1.302,
+      "t_delta": 1.03,
+      "beta_hike_dummy": -1.195,
+      "beta_cut_dummy": -0.909
+    },
+    "BTC_T+1": {
+      "n": 80,
+      "beta_delta": 0.906,
+      "se_delta": 1.311,
+      "t_delta": 0.69,
+      "beta_hike_dummy": -0.534,
+      "beta_cut_dummy": -1.113
+    },
+    "BTC_T+5": {
+      "n": 80,
+      "beta_delta": 3.643,
+      "se_delta": 2.832,
+      "t_delta": 1.29,
+      "beta_hike_dummy": -2.992,
+      "beta_cut_dummy": 1.738
+    }
+  },
+  "delta_terciles": {
+    "most_dovish_shift": {
+      "crypto_basket": {
+        "T+1": -1.109,
+        "T+5": -2.41
+      },
+      "QQQ": {
+        "T+1": 0.033,
+        "T+5": -0.646
+      },
+      "BTC": {
+        "T+1": -0.049,
+        "T+5": -0.358
+      },
+      "n": 28
+    },
+    "middle": {
+      "crypto_basket": {
+        "T+1": 0.652,
+        "T+5": 3.095
+      },
+      "QQQ": {
+        "T+1": 0.031,
+        "T+5": 0.986
+      },
+      "BTC": {
+        "T+1": 0.796,
+        "T+5": -0.139
+      },
+      "n": 29
+    },
+    "most_hawkish_shift": {
+      "crypto_basket": {
+        "T+1": -0.712,
+        "T+5": -0.208
+      },
+      "QQQ": {
+        "T+1": -0.064,
+        "T+5": 0.195
+      },
+      "BTC": {
+        "T+1": 0.82,
+        "T+5": 1.202
+      },
+      "n": 28
+    }
+  }
+}
