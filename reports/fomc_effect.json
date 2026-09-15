@@ -1,0 +1,2809 @@
+{
+  "meta": {
+    "generated_at": "2026-09-15T12:56:35",
+    "method": "descriptive FOMC event study; no ML; naive t-stats are descriptive only (overlapping windows, massive multiple comparisons)",
+    "fomc_calendar_source": "hardcoded from federalreserve.gov public record; 2025 action confidence=medium, 2026 actions unknown",
+    "n_events_total": 89,
+    "stock_data": "MSTR/MARA/RIOT 2016-09-12+, COIN 2021-04-14+, QQQ 2016-09-12+ (split-adjusted, verified MSTR 2024-08-08)",
+    "btc_data": "BTC/USDT spot 1d 2018-12-31+, 1h 2019-01-01+",
+    "windows": "stocks: trading-day offsets; BTC: calendar-day offsets; non-trading decision days (2020-03-15) mapped to next trading day for stocks",
+    "multiple_comparison_warning": "89 events x 6 windows x 7 series = ~3700 cells; expect a few 'significant-looking' cells by chance; trust only patterns consistent across adjacent windows/assets"
+  },
+  "baselines_daily_pct": {
+    "basket": 0.2608,
+    "MSTR": 0.1914,
+    "MARA": 0.3029,
+    "RIOT": 0.3089,
+    "COIN": 0.0944,
+    "BTC": 0.1607,
+    "QQQ": 0.0821
+  },
+  "events": [
+    {
+      "date": "2016-01-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2016-09-12",
+      "stock_day_T_mapped": true,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    },
+    {
+      "date": "2016-03-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2016-09-12",
+      "stock_day_T_mapped": true,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    },
+    {
+      "date": "2016-04-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2016-09-12",
+      "stock_day_T_mapped": true,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    },
+    {
+      "date": "2016-06-15",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2016-09-12",
+      "stock_day_T_mapped": true,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    },
+    {
+      "date": "2016-07-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2016-09-12",
+      "stock_day_T_mapped": true,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    },
+    {
+      "date": "2016-09-21",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2016-09-21",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2016-11-02",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2016-11-02",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2016-12-14",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "first hike of cycle",
+      "stock_day_T": "2016-12-14",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-02-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2017-02-01",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-03-15",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2017-03-15",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-05-03",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2017-05-03",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-06-14",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2017-06-14",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-07-26",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2017-07-26",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-09-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "balance-sheet runoff start announced",
+      "stock_day_T": "2017-09-20",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-11-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2017-11-01",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2017-12-13",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2017-12-13",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-01-31",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-01-31",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-03-21",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-03-21",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-05-02",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-05-02",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-06-13",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-06-13",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-08-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-08-01",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-09-26",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-09-26",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-11-08",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-11-08",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2018-12-19",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2018-12-19",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": false
+    },
+    {
+      "date": "2019-01-30",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2019-01-30",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2019-03-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2019-03-20",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2019-04-30",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2019-04-30",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2019-06-19",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2019-06-19",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2019-07-31",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "first cut since 2008",
+      "stock_day_T": "2019-07-31",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2019-09-18",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2019-09-18",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2019-10-30",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2019-10-30",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2019-12-11",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2019-12-11",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-01-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2020-01-29",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-03-03",
+      "action": "cut",
+      "bp": 50,
+      "scheduled": false,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "EMERGENCY cut, unscheduled 1-day meeting",
+      "stock_day_T": "2020-03-03",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-03-15",
+      "action": "cut",
+      "bp": 100,
+      "scheduled": false,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "EMERGENCY cut to 0-0.25, announced Sunday; 3/17-18 meeting cancelled",
+      "stock_day_T": "2020-03-16",
+      "stock_day_T_mapped": true,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-04-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2020-04-29",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-06-10",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2020-06-10",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-07-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2020-07-29",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-09-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2020-09-16",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-11-05",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2020-11-05",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2020-12-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2020-12-16",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-01-27",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2021-01-27",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-03-17",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2021-03-17",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-04-28",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2021-04-28",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-06-16",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2021-06-16",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-07-28",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2021-07-28",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-09-22",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2021-09-22",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-11-03",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "taper announced",
+      "stock_day_T": "2021-11-03",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2021-12-15",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "taper accelerated",
+      "stock_day_T": "2021-12-15",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-01-26",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2022-01-26",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-03-16",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "first hike of cycle",
+      "stock_day_T": "2022-03-16",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-05-04",
+      "action": "hike",
+      "bp": 50,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2022-05-04",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-06-15",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "first 75bp since 1994",
+      "stock_day_T": "2022-06-15",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-07-27",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2022-07-27",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-09-21",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2022-09-21",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-11-02",
+      "action": "hike",
+      "bp": 75,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2022-11-02",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2022-12-14",
+      "action": "hike",
+      "bp": 50,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2022-12-14",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-02-01",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2023-02-01",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-03-22",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2023-03-22",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-05-03",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2023-05-03",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-06-14",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "skip after banking stress",
+      "stock_day_T": "2023-06-14",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-07-26",
+      "action": "hike",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "last hike of cycle",
+      "stock_day_T": "2023-07-26",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-09-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2023-09-20",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-11-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2023-11-01",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2023-12-13",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2023-12-13",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-01-31",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2024-01-31",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-03-20",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2024-03-20",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-05-01",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2024-05-01",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-06-12",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2024-06-12",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-07-31",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2024-07-31",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-09-18",
+      "action": "cut",
+      "bp": 50,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "first cut of cycle, 50bp",
+      "stock_day_T": "2024-09-18",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-11-07",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2024-11-07",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2024-12-18",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2024-12-18",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-01-29",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2025-01-29",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-03-19",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "high",
+      "note": "",
+      "stock_day_T": "2025-03-19",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-05-07",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "medium",
+      "note": "",
+      "stock_day_T": "2025-05-07",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-06-18",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "medium",
+      "note": "",
+      "stock_day_T": "2025-06-18",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-07-30",
+      "action": "hold",
+      "bp": 0,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "medium",
+      "note": "",
+      "stock_day_T": "2025-07-30",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-09-17",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "medium",
+      "note": "first cut of 2025",
+      "stock_day_T": "2025-09-17",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-10-29",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "medium",
+      "note": "",
+      "stock_day_T": "2025-10-29",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2025-12-10",
+      "action": "cut",
+      "bp": 25,
+      "scheduled": true,
+      "date_confidence": "high",
+      "action_confidence": "medium",
+      "note": "",
+      "stock_day_T": "2025-12-10",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2026-01-28",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "2026 decision unknown",
+      "stock_day_T": "2026-01-28",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2026-03-18",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "2026 decision unknown",
+      "stock_day_T": "2026-03-18",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2026-04-29",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "2026 decision unknown",
+      "stock_day_T": "2026-04-29",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2026-06-17",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "2026 decision unknown",
+      "stock_day_T": "2026-06-17",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2026-07-29",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "2026 decision unknown",
+      "stock_day_T": "2026-07-29",
+      "stock_day_T_mapped": false,
+      "stocks_coverage": true,
+      "btc_coverage": true
+    },
+    {
+      "date": "2026-09-16",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "decision due 2026-09-16, beyond data",
+      "stock_day_T": null,
+      "stock_day_T_mapped": false,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    },
+    {
+      "date": "2026-10-28",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "future",
+      "stock_day_T": null,
+      "stock_day_T_mapped": false,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    },
+    {
+      "date": "2026-12-09",
+      "action": "unknown",
+      "bp": null,
+      "scheduled": true,
+      "date_confidence": "medium",
+      "action_confidence": "unknown",
+      "note": "future",
+      "stock_day_T": null,
+      "stock_day_T_mapped": false,
+      "stocks_coverage": false,
+      "btc_coverage": false
+    }
+  ],
+  "window_stats": {
+    "crypto_basket": {
+      "T-3": {
+        "n": 81,
+        "mean_pct": -0.334,
+        "median_pct": -0.731,
+        "std_pct": 4.356,
+        "hit_rate": 0.444,
+        "tstat_naive": -0.69
+      },
+      "T-2": {
+        "n": 81,
+        "mean_pct": 0.202,
+        "median_pct": 0.117,
+        "std_pct": 6.798,
+        "hit_rate": 0.506,
+        "tstat_naive": 0.27
+      },
+      "T-1": {
+        "n": 81,
+        "mean_pct": -0.2,
+        "median_pct": -0.54,
+        "std_pct": 5.01,
+        "hit_rate": 0.444,
+        "tstat_naive": -0.36
+      },
+      "T": {
+        "n": 81,
+        "mean_pct": 0.967,
+        "median_pct": 0.696,
+        "std_pct": 5.441,
+        "hit_rate": 0.543,
+        "tstat_naive": 1.6
+      },
+      "T+1": {
+        "n": 81,
+        "mean_pct": -0.522,
+        "median_pct": -0.821,
+        "std_pct": 5.163,
+        "hit_rate": 0.37,
+        "tstat_naive": -0.91
+      },
+      "T+2": {
+        "n": 81,
+        "mean_pct": -0.658,
+        "median_pct": -0.844,
+        "std_pct": 4.993,
+        "hit_rate": 0.432,
+        "tstat_naive": -1.19
+      },
+      "cum_T-3_to_T-1": {
+        "n": 81,
+        "mean_pct": -0.285,
+        "median_pct": -2.288,
+        "std_pct": 10.091,
+        "hit_rate": 0.407,
+        "tstat_naive": -0.25
+      },
+      "cum_T+1_to_T+2": {
+        "n": 81,
+        "mean_pct": -1.176,
+        "median_pct": -1.312,
+        "std_pct": 7.178,
+        "hit_rate": 0.432,
+        "tstat_naive": -1.47
+      },
+      "baseline_daily_pct": 0.2608
+    },
+    "QQQ": {
+      "T-3": {
+        "n": 81,
+        "mean_pct": -0.105,
+        "median_pct": 0.177,
+        "std_pct": 1.489,
+        "hit_rate": 0.531,
+        "tstat_naive": -0.63
+      },
+      "T-2": {
+        "n": 81,
+        "mean_pct": -0.022,
+        "median_pct": 0.201,
+        "std_pct": 1.594,
+        "hit_rate": 0.617,
+        "tstat_naive": -0.13
+      },
+      "T-1": {
+        "n": 81,
+        "mean_pct": 0.29,
+        "median_pct": 0.168,
+        "std_pct": 1.596,
+        "hit_rate": 0.58,
+        "tstat_naive": 1.64
+      },
+      "T": {
+        "n": 81,
+        "mean_pct": 0.031,
+        "median_pct": 0.163,
+        "std_pct": 2.047,
+        "hit_rate": 0.531,
+        "tstat_naive": 0.14
+      },
+      "T+1": {
+        "n": 81,
+        "mean_pct": 0.046,
+        "median_pct": 0.046,
+        "std_pct": 1.842,
+        "hit_rate": 0.519,
+        "tstat_naive": 0.22
+      },
+      "T+2": {
+        "n": 81,
+        "mean_pct": -0.25,
+        "median_pct": -0.145,
+        "std_pct": 1.393,
+        "hit_rate": 0.432,
+        "tstat_naive": -1.62
+      },
+      "cum_T-3_to_T-1": {
+        "n": 81,
+        "mean_pct": 0.15,
+        "median_pct": 0.398,
+        "std_pct": 2.172,
+        "hit_rate": 0.617,
+        "tstat_naive": 0.62
+      },
+      "cum_T+1_to_T+2": {
+        "n": 81,
+        "mean_pct": -0.206,
+        "median_pct": 0.28,
+        "std_pct": 2.232,
+        "hit_rate": 0.543,
+        "tstat_naive": -0.83
+      },
+      "baseline_daily_pct": 0.0821
+    },
+    "basket_minus_QQQ": {
+      "T-3": {
+        "n": 81,
+        "mean_pct": -0.229,
+        "median_pct": -0.213,
+        "std_pct": 4.012,
+        "hit_rate": 0.457,
+        "tstat_naive": -0.51
+      },
+      "T-2": {
+        "n": 81,
+        "mean_pct": 0.225,
+        "median_pct": -0.006,
+        "std_pct": 6.069,
+        "hit_rate": 0.494,
+        "tstat_naive": 0.33
+      },
+      "T-1": {
+        "n": 81,
+        "mean_pct": -0.49,
+        "median_pct": -0.744,
+        "std_pct": 4.623,
+        "hit_rate": 0.383,
+        "tstat_naive": -0.95
+      },
+      "T": {
+        "n": 81,
+        "mean_pct": 0.936,
+        "median_pct": 0.196,
+        "std_pct": 4.683,
+        "hit_rate": 0.556,
+        "tstat_naive": 1.8
+      },
+      "T+1": {
+        "n": 81,
+        "mean_pct": -0.568,
+        "median_pct": -1.376,
+        "std_pct": 4.079,
+        "hit_rate": 0.407,
+        "tstat_naive": -1.25
+      },
+      "T+2": {
+        "n": 81,
+        "mean_pct": -0.408,
+        "median_pct": -1.15,
+        "std_pct": 4.468,
+        "hit_rate": 0.432,
+        "tstat_naive": -0.82
+      },
+      "cum_T-3_to_T-1": {
+        "n": 81,
+        "mean_pct": -0.45,
+        "median_pct": -1.63,
+        "std_pct": 9.243,
+        "hit_rate": 0.358,
+        "tstat_naive": -0.44
+      },
+      "cum_T+1_to_T+2": {
+        "n": 81,
+        "mean_pct": -0.971,
+        "median_pct": -1.347,
+        "std_pct": 6.091,
+        "hit_rate": 0.407,
+        "tstat_naive": -1.44
+      },
+      "baseline_daily_pct": null
+    },
+    "MSTR": {
+      "T-3": {
+        "n": 81,
+        "mean_pct": 0.048,
+        "median_pct": -0.289,
+        "std_pct": 4.65,
+        "hit_rate": 0.444,
+        "tstat_naive": 0.09
+      },
+      "T-2": {
+        "n": 81,
+        "mean_pct": -0.36,
+        "median_pct": -0.337,
+        "std_pct": 5.746,
+        "hit_rate": 0.42,
+        "tstat_naive": -0.56
+      },
+      "T-1": {
+        "n": 81,
+        "mean_pct": -0.13,
+        "median_pct": 0.312,
+        "std_pct": 4.14,
+        "hit_rate": 0.543,
+        "tstat_naive": -0.28
+      },
+      "T": {
+        "n": 81,
+        "mean_pct": 0.534,
+        "median_pct": 0.095,
+        "std_pct": 4.406,
+        "hit_rate": 0.519,
+        "tstat_naive": 1.09
+      },
+      "T+1": {
+        "n": 81,
+        "mean_pct": -0.482,
+        "median_pct": -0.377,
+        "std_pct": 4.331,
+        "hit_rate": 0.432,
+        "tstat_naive": -1.0
+      },
+      "T+2": {
+        "n": 81,
+        "mean_pct": 0.131,
+        "median_pct": 0.057,
+        "std_pct": 5.724,
+        "hit_rate": 0.506,
+        "tstat_naive": 0.21
+      },
+      "cum_T-3_to_T-1": {
+        "n": 81,
+        "mean_pct": -0.466,
+        "median_pct": -0.207,
+        "std_pct": 8.067,
+        "hit_rate": 0.457,
+        "tstat_naive": -0.52
+      },
+      "cum_T+1_to_T+2": {
+        "n": 81,
+        "mean_pct": -0.353,
+        "median_pct": -0.501,
+        "std_pct": 7.141,
+        "hit_rate": 0.383,
+        "tstat_naive": -0.45
+      },
+      "baseline_daily_pct": 0.1914
+    },
+    "MARA": {
+      "T-3": {
+        "n": 81,
+        "mean_pct": -1.252,
+        "median_pct": -1.527,
+        "std_pct": 5.971,
+        "hit_rate": 0.383,
+        "tstat_naive": -1.89
+      },
+      "T-2": {
+        "n": 81,
+        "mean_pct": 0.07,
+        "median_pct": -0.522,
+        "std_pct": 9.407,
+        "hit_rate": 0.383,
+        "tstat_naive": 0.07
+      },
+      "T-1": {
+        "n": 81,
+        "mean_pct": -0.129,
+        "median_pct": -0.532,
+        "std_pct": 7.244,
+        "hit_rate": 0.407,
+        "tstat_naive": -0.16
+      },
+      "T": {
+        "n": 81,
+        "mean_pct": 1.603,
+        "median_pct": 0.0,
+        "std_pct": 8.639,
+        "hit_rate": 0.494,
+        "tstat_naive": 1.67
+      },
+      "T+1": {
+        "n": 81,
+        "mean_pct": -0.534,
+        "median_pct": -1.435,
+        "std_pct": 7.057,
+        "hit_rate": 0.37,
+        "tstat_naive": -0.68
+      },
+      "T+2": {
+        "n": 81,
+        "mean_pct": -0.9,
+        "median_pct": -1.591,
+        "std_pct": 6.624,
+        "hit_rate": 0.383,
+        "tstat_naive": -1.22
+      },
+      "cum_T-3_to_T-1": {
+        "n": 81,
+        "mean_pct": -1.185,
+        "median_pct": -4.4,
+        "std_pct": 14.814,
+        "hit_rate": 0.346,
+        "tstat_naive": -0.72
+      },
+      "cum_T+1_to_T+2": {
+        "n": 81,
+        "mean_pct": -1.426,
+        "median_pct": -1.099,
+        "std_pct": 9.597,
+        "hit_rate": 0.42,
+        "tstat_naive": -1.34
+      },
+      "baseline_daily_pct": 0.3029
+    },
+    "RIOT": {
+      "T-3": {
+        "n": 81,
+        "mean_pct": 0.208,
+        "median_pct": -0.249,
+        "std_pct": 5.355,
+        "hit_rate": 0.457,
+        "tstat_naive": 0.35
+      },
+      "T-2": {
+        "n": 81,
+        "mean_pct": 0.705,
+        "median_pct": 0.26,
+        "std_pct": 9.469,
+        "hit_rate": 0.519,
+        "tstat_naive": 0.67
+      },
+      "T-1": {
+        "n": 81,
+        "mean_pct": -0.268,
+        "median_pct": -0.905,
+        "std_pct": 6.807,
+        "hit_rate": 0.444,
+        "tstat_naive": -0.35
+      },
+      "T": {
+        "n": 81,
+        "mean_pct": 0.541,
+        "median_pct": 0.036,
+        "std_pct": 6.629,
+        "hit_rate": 0.506,
+        "tstat_naive": 0.73
+      },
+      "T+1": {
+        "n": 81,
+        "mean_pct": -0.387,
+        "median_pct": -0.624,
+        "std_pct": 7.095,
+        "hit_rate": 0.407,
+        "tstat_naive": -0.49
+      },
+      "T+2": {
+        "n": 81,
+        "mean_pct": -1.144,
+        "median_pct": -0.796,
+        "std_pct": 5.942,
+        "hit_rate": 0.407,
+        "tstat_naive": -1.73
+      },
+      "cum_T-3_to_T-1": {
+        "n": 81,
+        "mean_pct": 0.77,
+        "median_pct": -0.38,
+        "std_pct": 14.846,
+        "hit_rate": 0.469,
+        "tstat_naive": 0.47
+      },
+      "cum_T+1_to_T+2": {
+        "n": 81,
+        "mean_pct": -1.558,
+        "median_pct": -1.363,
+        "std_pct": 8.893,
+        "hit_rate": 0.37,
+        "tstat_naive": -1.58
+      },
+      "baseline_daily_pct": 0.3089
+    },
+    "COIN": {
+      "T-3": {
+        "n": 43,
+        "mean_pct": -0.16,
+        "median_pct": -0.435,
+        "std_pct": 5.219,
+        "hit_rate": 0.442,
+        "tstat_naive": -0.2
+      },
+      "T-2": {
+        "n": 43,
+        "mean_pct": -0.243,
+        "median_pct": -0.657,
+        "std_pct": 5.137,
+        "hit_rate": 0.465,
+        "tstat_naive": -0.31
+      },
+      "T-1": {
+        "n": 43,
+        "mean_pct": -0.36,
+        "median_pct": -1.164,
+        "std_pct": 6.771,
+        "hit_rate": 0.419,
+        "tstat_naive": -0.35
+      },
+      "T": {
+        "n": 43,
+        "mean_pct": 1.269,
+        "median_pct": 0.499,
+        "std_pct": 5.567,
+        "hit_rate": 0.535,
+        "tstat_naive": 1.49
+      },
+      "T+1": {
+        "n": 43,
+        "mean_pct": -0.201,
+        "median_pct": 0.074,
+        "std_pct": 6.38,
+        "hit_rate": 0.535,
+        "tstat_naive": -0.21
+      },
+      "T+2": {
+        "n": 43,
+        "mean_pct": -0.32,
+        "median_pct": -0.273,
+        "std_pct": 6.016,
+        "hit_rate": 0.442,
+        "tstat_naive": -0.35
+      },
+      "cum_T-3_to_T-1": {
+        "n": 43,
+        "mean_pct": -0.681,
+        "median_pct": -1.519,
+        "std_pct": 10.767,
+        "hit_rate": 0.442,
+        "tstat_naive": -0.41
+      },
+      "cum_T+1_to_T+2": {
+        "n": 43,
+        "mean_pct": -0.533,
+        "median_pct": -0.593,
+        "std_pct": 8.592,
+        "hit_rate": 0.395,
+        "tstat_naive": -0.41
+      },
+      "baseline_daily_pct": 0.0944
+    },
+    "BTC": {
+      "T-3": {
+        "n": 62,
+        "mean_pct": -0.2,
+        "median_pct": 0.309,
+        "std_pct": 5.614,
+        "hit_rate": 0.565,
+        "tstat_naive": -0.28
+      },
+      "T-2": {
+        "n": 62,
+        "mean_pct": 0.104,
+        "median_pct": 0.122,
+        "std_pct": 4.42,
+        "hit_rate": 0.532,
+        "tstat_naive": 0.19
+      },
+      "T-1": {
+        "n": 62,
+        "mean_pct": 0.131,
+        "median_pct": 0.091,
+        "std_pct": 2.832,
+        "hit_rate": 0.516,
+        "tstat_naive": 0.37
+      },
+      "T": {
+        "n": 62,
+        "mean_pct": 1.074,
+        "median_pct": 0.35,
+        "std_pct": 3.791,
+        "hit_rate": 0.581,
+        "tstat_naive": 2.23
+      },
+      "T+1": {
+        "n": 62,
+        "mean_pct": -0.237,
+        "median_pct": -0.14,
+        "std_pct": 3.233,
+        "hit_rate": 0.419,
+        "tstat_naive": -0.58
+      },
+      "T+2": {
+        "n": 62,
+        "mean_pct": 0.265,
+        "median_pct": 0.245,
+        "std_pct": 2.865,
+        "hit_rate": 0.548,
+        "tstat_naive": 0.73
+      },
+      "baseline_daily_pct": 0.1607
+    }
+  },
+  "day_T_decomposition": {
+    "crypto_basket": {
+      "full_day_pct": {
+        "n": 81,
+        "mean_pct": 0.77,
+        "median_pct": 0.402,
+        "std_pct": 4.75,
+        "hit_rate": 0.543,
+        "tstat_naive": 1.46
+      },
+      "overnight_gap_pct": {
+        "n": 81,
+        "mean_pct": 0.376,
+        "median_pct": 0.208,
+        "std_pct": 2.796,
+        "hit_rate": 0.531,
+        "tstat_naive": 1.21
+      },
+      "intraday_pct": {
+        "n": 81,
+        "mean_pct": 0.407,
+        "median_pct": -0.411,
+        "std_pct": 4.195,
+        "hit_rate": 0.432,
+        "tstat_naive": 0.87
+      }
+    },
+    "QQQ": {
+      "full_day_pct": {
+        "n": 81,
+        "mean_pct": 0.031,
+        "median_pct": 0.163,
+        "std_pct": 2.047,
+        "hit_rate": 0.531,
+        "tstat_naive": 0.14
+      },
+      "overnight_gap_pct": {
+        "n": 81,
+        "mean_pct": 0.158,
+        "median_pct": 0.193,
+        "std_pct": 1.25,
+        "hit_rate": 0.704,
+        "tstat_naive": 1.14
+      },
+      "intraday_pct": {
+        "n": 81,
+        "mean_pct": -0.132,
+        "median_pct": -0.028,
+        "std_pct": 1.316,
+        "hit_rate": 0.494,
+        "tstat_naive": -0.9
+      }
+    }
+  },
+  "buckets_by_action": {
+    "hike": {
+      "n_events": 19,
+      "crypto_basket": {
+        "T-1": {
+          "n": 19,
+          "mean_pct": -0.664,
+          "median_pct": -0.825,
+          "std_pct": 5.175,
+          "hit_rate": 0.421,
+          "tstat_naive": -0.56
+        },
+        "T": {
+          "n": 19,
+          "mean_pct": 1.597,
+          "median_pct": 1.897,
+          "std_pct": 6.197,
+          "hit_rate": 0.632,
+          "tstat_naive": 1.12
+        },
+        "T+1": {
+          "n": 19,
+          "mean_pct": -0.888,
+          "median_pct": -1.682,
+          "std_pct": 5.66,
+          "hit_rate": 0.368,
+          "tstat_naive": -0.68
+        }
+      },
+      "QQQ": {
+        "T-1": {
+          "n": 19,
+          "mean_pct": 0.356,
+          "median_pct": 0.329,
+          "std_pct": 1.126,
+          "hit_rate": 0.684,
+          "tstat_naive": 1.38
+        },
+        "T": {
+          "n": 19,
+          "mean_pct": 0.262,
+          "median_pct": -0.208,
+          "std_pct": 2.072,
+          "hit_rate": 0.421,
+          "tstat_naive": 0.55
+        },
+        "T+1": {
+          "n": 19,
+          "mean_pct": -0.617,
+          "median_pct": -0.238,
+          "std_pct": 2.083,
+          "hit_rate": 0.368,
+          "tstat_naive": -1.29
+        }
+      },
+      "basket_minus_QQQ": {
+        "T-1": {
+          "n": 19,
+          "mean_pct": -1.02,
+          "median_pct": -1.304,
+          "std_pct": 4.748,
+          "hit_rate": 0.316,
+          "tstat_naive": -0.94
+        },
+        "T": {
+          "n": 19,
+          "mean_pct": 1.335,
+          "median_pct": 2.222,
+          "std_pct": 5.06,
+          "hit_rate": 0.632,
+          "tstat_naive": 1.15
+        },
+        "T+1": {
+          "n": 19,
+          "mean_pct": -0.271,
+          "median_pct": -1.668,
+          "std_pct": 3.958,
+          "hit_rate": 0.421,
+          "tstat_naive": -0.3
+        }
+      },
+      "BTC": {
+        "T-1": {
+          "n": 11,
+          "mean_pct": 0.001,
+          "median_pct": -0.035,
+          "std_pct": 1.957,
+          "hit_rate": 0.455,
+          "tstat_naive": 0.0
+        },
+        "T": {
+          "n": 11,
+          "mean_pct": 1.589,
+          "median_pct": 1.243,
+          "std_pct": 3.38,
+          "hit_rate": 0.727,
+          "tstat_naive": 1.56
+        },
+        "T+1": {
+          "n": 11,
+          "mean_pct": -0.871,
+          "median_pct": -0.477,
+          "std_pct": 4.598,
+          "hit_rate": 0.364,
+          "tstat_naive": -0.63
+        }
+      }
+    },
+    "cut": {
+      "n_events": 11,
+      "crypto_basket": {
+        "T-1": {
+          "n": 11,
+          "mean_pct": 2.527,
+          "median_pct": 1.276,
+          "std_pct": 7.075,
+          "hit_rate": 0.727,
+          "tstat_naive": 1.18
+        },
+        "T": {
+          "n": 11,
+          "mean_pct": -1.843,
+          "median_pct": -0.905,
+          "std_pct": 5.216,
+          "hit_rate": 0.182,
+          "tstat_naive": -1.17
+        },
+        "T+1": {
+          "n": 11,
+          "mean_pct": 0.02,
+          "median_pct": -0.612,
+          "std_pct": 3.696,
+          "hit_rate": 0.455,
+          "tstat_naive": 0.02
+        }
+      },
+      "QQQ": {
+        "T-1": {
+          "n": 11,
+          "mean_pct": 1.458,
+          "median_pct": 0.123,
+          "std_pct": 2.902,
+          "hit_rate": 0.636,
+          "tstat_naive": 1.67
+        },
+        "T": {
+          "n": 11,
+          "mean_pct": -1.63,
+          "median_pct": -0.2,
+          "std_pct": 3.779,
+          "hit_rate": 0.364,
+          "tstat_naive": -1.43
+        },
+        "T+1": {
+          "n": 11,
+          "mean_pct": 1.156,
+          "median_pct": 0.117,
+          "std_pct": 2.652,
+          "hit_rate": 0.636,
+          "tstat_naive": 1.45
+        }
+      },
+      "basket_minus_QQQ": {
+        "T-1": {
+          "n": 11,
+          "mean_pct": 1.069,
+          "median_pct": -0.009,
+          "std_pct": 6.742,
+          "hit_rate": 0.455,
+          "tstat_naive": 0.53
+        },
+        "T": {
+          "n": 11,
+          "mean_pct": -0.213,
+          "median_pct": -0.89,
+          "std_pct": 4.054,
+          "hit_rate": 0.455,
+          "tstat_naive": -0.17
+        },
+        "T+1": {
+          "n": 11,
+          "mean_pct": -1.137,
+          "median_pct": -1.422,
+          "std_pct": 2.649,
+          "hit_rate": 0.273,
+          "tstat_naive": -1.42
+        }
+      },
+      "BTC": {
+        "T-1": {
+          "n": 11,
+          "mean_pct": 1.322,
+          "median_pct": 1.248,
+          "std_pct": 4.005,
+          "hit_rate": 0.727,
+          "tstat_naive": 1.09
+        },
+        "T": {
+          "n": 11,
+          "mean_pct": -0.196,
+          "median_pct": -0.303,
+          "std_pct": 3.09,
+          "hit_rate": 0.364,
+          "tstat_naive": -0.21
+        },
+        "T+1": {
+          "n": 11,
+          "mean_pct": -0.281,
+          "median_pct": 0.538,
+          "std_pct": 2.485,
+          "hit_rate": 0.545,
+          "tstat_naive": -0.38
+        }
+      }
+    },
+    "hold": {
+      "n_events": 46,
+      "crypto_basket": {
+        "T-1": {
+          "n": 46,
+          "mean_pct": -0.624,
+          "median_pct": -0.659,
+          "std_pct": 4.464,
+          "hit_rate": 0.391,
+          "tstat_naive": -0.95
+        },
+        "T": {
+          "n": 46,
+          "mean_pct": 1.938,
+          "median_pct": 1.781,
+          "std_pct": 4.958,
+          "hit_rate": 0.652,
+          "tstat_naive": 2.65
+        },
+        "T+1": {
+          "n": 46,
+          "mean_pct": -0.845,
+          "median_pct": -0.784,
+          "std_pct": 5.125,
+          "hit_rate": 0.304,
+          "tstat_naive": -1.12
+        }
+      },
+      "QQQ": {
+        "T-1": {
+          "n": 46,
+          "mean_pct": 0.069,
+          "median_pct": 0.157,
+          "std_pct": 1.256,
+          "hit_rate": 0.543,
+          "tstat_naive": 0.37
+        },
+        "T": {
+          "n": 46,
+          "mean_pct": 0.412,
+          "median_pct": 0.388,
+          "std_pct": 1.241,
+          "hit_rate": 0.63,
+          "tstat_naive": 2.25
+        },
+        "T+1": {
+          "n": 46,
+          "mean_pct": -0.068,
+          "median_pct": 0.126,
+          "std_pct": 1.355,
+          "hit_rate": 0.543,
+          "tstat_naive": -0.34
+        }
+      },
+      "basket_minus_QQQ": {
+        "T-1": {
+          "n": 46,
+          "mean_pct": -0.693,
+          "median_pct": -0.805,
+          "std_pct": 4.214,
+          "hit_rate": 0.391,
+          "tstat_naive": -1.12
+        },
+        "T": {
+          "n": 46,
+          "mean_pct": 1.526,
+          "median_pct": 0.868,
+          "std_pct": 4.67,
+          "hit_rate": 0.609,
+          "tstat_naive": 2.22
+        },
+        "T+1": {
+          "n": 46,
+          "mean_pct": -0.778,
+          "median_pct": -1.14,
+          "std_pct": 4.287,
+          "hit_rate": 0.413,
+          "tstat_naive": -1.23
+        }
+      },
+      "BTC": {
+        "T-1": {
+          "n": 35,
+          "mean_pct": -0.116,
+          "median_pct": -0.094,
+          "std_pct": 2.799,
+          "hit_rate": 0.486,
+          "tstat_naive": -0.25
+        },
+        "T": {
+          "n": 35,
+          "mean_pct": 1.635,
+          "median_pct": 1.152,
+          "std_pct": 4.2,
+          "hit_rate": 0.629,
+          "tstat_naive": 2.3
+        },
+        "T+1": {
+          "n": 35,
+          "mean_pct": 0.155,
+          "median_pct": -0.128,
+          "std_pct": 3.065,
+          "hit_rate": 0.4,
+          "tstat_naive": 0.3
+        }
+      }
+    },
+    "unknown": {
+      "n_events": 5,
+      "crypto_basket": {
+        "T-1": {
+          "n": 5,
+          "mean_pct": -0.537,
+          "median_pct": -1.979,
+          "std_pct": 2.905,
+          "hit_rate": 0.4,
+          "tstat_naive": -0.41
+        },
+        "T": {
+          "n": 5,
+          "mean_pct": -4.169,
+          "median_pct": -4.299,
+          "std_pct": 2.717,
+          "hit_rate": 0.0,
+          "tstat_naive": -3.43
+        },
+        "T+1": {
+          "n": 5,
+          "mean_pct": 2.656,
+          "median_pct": 0.576,
+          "std_pct": 6.637,
+          "hit_rate": 0.8,
+          "tstat_naive": 0.89
+        }
+      },
+      "QQQ": {
+        "T-1": {
+          "n": 5,
+          "mean_pct": -0.497,
+          "median_pct": -0.972,
+          "std_pct": 1.161,
+          "hit_rate": 0.4,
+          "tstat_naive": -0.96
+        },
+        "T": {
+          "n": 5,
+          "mean_pct": -0.699,
+          "median_pct": -1.007,
+          "std_pct": 1.134,
+          "hit_rate": 0.4,
+          "tstat_naive": -1.38
+        },
+        "T+1": {
+          "n": 5,
+          "mean_pct": 1.164,
+          "median_pct": 0.933,
+          "std_pct": 1.711,
+          "hit_rate": 0.6,
+          "tstat_naive": 1.52
+        }
+      },
+      "basket_minus_QQQ": {
+        "T-1": {
+          "n": 5,
+          "mean_pct": -0.04,
+          "median_pct": -0.078,
+          "std_pct": 1.95,
+          "hit_rate": 0.4,
+          "tstat_naive": -0.05
+        },
+        "T": {
+          "n": 5,
+          "mean_pct": -3.47,
+          "median_pct": -3.021,
+          "std_pct": 2.11,
+          "hit_rate": 0.0,
+          "tstat_naive": -3.68
+        },
+        "T+1": {
+          "n": 5,
+          "mean_pct": 1.492,
+          "median_pct": 0.892,
+          "std_pct": 5.564,
+          "hit_rate": 0.6,
+          "tstat_naive": 0.6
+        }
+      },
+      "BTC": {
+        "T-1": {
+          "n": 5,
+          "mean_pct": -0.469,
+          "median_pct": -0.986,
+          "std_pct": 1.054,
+          "hit_rate": 0.4,
+          "tstat_naive": -1.0
+        },
+        "T": {
+          "n": 5,
+          "mean_pct": -1.19,
+          "median_pct": -0.737,
+          "std_pct": 1.55,
+          "hit_rate": 0.4,
+          "tstat_naive": -1.72
+        },
+        "T+1": {
+          "n": 5,
+          "mean_pct": -1.494,
+          "median_pct": -1.848,
+          "std_pct": 2.611,
+          "hit_rate": 0.4,
+          "tstat_naive": -1.28
+        }
+      }
+    }
+  },
+  "era_split_robustness": {
+    "2016-2019": {
+      "n": 27,
+      "basket_T": {
+        "n": 27,
+        "mean_pct": -0.021,
+        "median_pct": -0.121,
+        "std_pct": 4.02,
+        "hit_rate": 0.444,
+        "tstat_naive": -0.03
+      },
+      "basket_T+1": {
+        "n": 27,
+        "mean_pct": -1.359,
+        "median_pct": -1.538,
+        "std_pct": 2.836,
+        "hit_rate": 0.185,
+        "tstat_naive": -2.49
+      },
+      "basket_T+2": {
+        "n": 27,
+        "mean_pct": -1.231,
+        "median_pct": -0.776,
+        "std_pct": 3.376,
+        "hit_rate": 0.407,
+        "tstat_naive": -1.9
+      },
+      "BTC_T": {
+        "n": 8,
+        "mean_pct": 0.958,
+        "median_pct": 1.034,
+        "std_pct": 2.284,
+        "hit_rate": 0.625,
+        "tstat_naive": 1.19
+      }
+    },
+    "2020-2022": {
+      "n": 25,
+      "basket_T": {
+        "n": 25,
+        "mean_pct": 3.414,
+        "median_pct": 3.443,
+        "std_pct": 6.343,
+        "hit_rate": 0.76,
+        "tstat_naive": 2.69
+      },
+      "basket_T+1": {
+        "n": 25,
+        "mean_pct": -1.966,
+        "median_pct": -2.862,
+        "std_pct": 6.494,
+        "hit_rate": 0.36,
+        "tstat_naive": -1.51
+      },
+      "basket_T+2": {
+        "n": 25,
+        "mean_pct": -0.474,
+        "median_pct": -1.289,
+        "std_pct": 5.216,
+        "hit_rate": 0.48,
+        "tstat_naive": -0.45
+      },
+      "BTC_T": {
+        "n": 25,
+        "mean_pct": 2.245,
+        "median_pct": 1.424,
+        "std_pct": 4.696,
+        "hit_rate": 0.64,
+        "tstat_naive": 2.39
+      }
+    },
+    "2023-2026": {
+      "n": 29,
+      "basket_T": {
+        "n": 29,
+        "mean_pct": -0.222,
+        "median_pct": -0.359,
+        "std_pct": 5.229,
+        "hit_rate": 0.448,
+        "tstat_naive": -0.23
+      },
+      "basket_T+1": {
+        "n": 29,
+        "mean_pct": 1.502,
+        "median_pct": 0.576,
+        "std_pct": 5.076,
+        "hit_rate": 0.552,
+        "tstat_naive": 1.59
+      },
+      "basket_T+2": {
+        "n": 29,
+        "mean_pct": -0.283,
+        "median_pct": -0.852,
+        "std_pct": 6.069,
+        "hit_rate": 0.414,
+        "tstat_naive": -0.25
+      },
+      "BTC_T": {
+        "n": 29,
+        "mean_pct": 0.097,
+        "median_pct": 0.056,
+        "std_pct": 2.98,
+        "hit_rate": 0.517,
+        "tstat_naive": 0.18
+      }
+    },
+    "BTC_pre24h_by_era": {
+      "2019-2022": {
+        "n": 33,
+        "mean_pct": 1.351,
+        "median_pct": 1.65,
+        "std_pct": 3.692,
+        "hit_rate": 0.636,
+        "tstat_naive": 2.1
+      },
+      "2023-2026": {
+        "n": 29,
+        "mean_pct": 0.113,
+        "median_pct": 0.226,
+        "std_pct": 1.979,
+        "hit_rate": 0.586,
+        "tstat_naive": 0.31
+      }
+    }
+  },
+  "events_2026_detail": [
+    {
+      "date": "2026-01-28",
+      "basket_T_pct": -1.0067546408398131
+    },
+    {
+      "date": "2026-03-18",
+      "basket_T_pct": -4.414724886785737
+    },
+    {
+      "date": "2026-04-29",
+      "basket_T_pct": -4.298506708379887
+    },
+    {
+      "date": "2026-06-17",
+      "basket_T_pct": -2.7732278591017323
+    },
+    {
+      "date": "2026-07-29",
+      "basket_T_pct": -8.351513556877709
+    }
+  ],
+  "btc_announcement_windows_hourly": {
+    "note": "exact windows around 14:00 ET announcement, BTC spot 1h opens; 2019+",
+    "pre_24h": {
+      "n": 62,
+      "mean_pct": 0.772,
+      "median_pct": 0.582,
+      "std_pct": 3.055,
+      "hit_rate": 0.613,
+      "tstat_naive": 1.99
+    },
+    "post_4h": {
+      "n": 62,
+      "mean_pct": 0.531,
+      "median_pct": 0.298,
+      "std_pct": 2.731,
+      "hit_rate": 0.613,
+      "tstat_naive": 1.53
+    },
+    "post_24h": {
+      "n": 62,
+      "mean_pct": -0.025,
+      "median_pct": -0.113,
+      "std_pct": 3.952,
+      "hit_rate": 0.484,
+      "tstat_naive": -0.05
+    },
+    "per_event": [
+      {
+        "date": "2019-01-30",
+        "action": "hold",
+        "pre_24h_pct": 1.65,
+        "post_4h_pct": -0.035,
+        "post_24h_pct": -1.283
+      },
+      {
+        "date": "2019-03-20",
+        "action": "hold",
+        "pre_24h_pct": -0.063,
+        "post_4h_pct": 0.215,
+        "post_24h_pct": -1.156
+      },
+      {
+        "date": "2019-04-30",
+        "action": "hold",
+        "pre_24h_pct": 0.974,
+        "post_4h_pct": 0.498,
+        "post_24h_pct": 2.027
+      },
+      {
+        "date": "2019-06-19",
+        "action": "hold",
+        "pre_24h_pct": 0.975,
+        "post_4h_pct": 0.784,
+        "post_24h_pct": 2.244
+      },
+      {
+        "date": "2019-07-31",
+        "action": "cut",
+        "pre_24h_pct": 4.321,
+        "post_4h_pct": 0.255,
+        "post_24h_pct": 0.608
+      },
+      {
+        "date": "2019-09-18",
+        "action": "cut",
+        "pre_24h_pct": -0.631,
+        "post_4h_pct": 0.099,
+        "post_24h_pct": -1.63
+      },
+      {
+        "date": "2019-10-30",
+        "action": "cut",
+        "pre_24h_pct": -2.232,
+        "post_4h_pct": 0.286,
+        "post_24h_pct": 1.475
+      },
+      {
+        "date": "2019-12-11",
+        "action": "hold",
+        "pre_24h_pct": -0.514,
+        "post_4h_pct": 0.219,
+        "post_24h_pct": 0.4
+      },
+      {
+        "date": "2020-01-29",
+        "action": "hold",
+        "pre_24h_pct": 4.152,
+        "post_4h_pct": -0.323,
+        "post_24h_pct": 1.355
+      },
+      {
+        "date": "2020-03-03",
+        "action": "cut",
+        "pre_24h_pct": -1.604,
+        "post_4h_pct": 0.715,
+        "post_24h_pct": 0.014
+      },
+      {
+        "date": "2020-03-15",
+        "action": "cut",
+        "pre_24h_pct": -1.755,
+        "post_4h_pct": 11.392,
+        "post_24h_pct": -4.439
+      },
+      {
+        "date": "2020-04-29",
+        "action": "hold",
+        "pre_24h_pct": 12.703,
+        "post_4h_pct": 1.67,
+        "post_24h_pct": -1.809
+      },
+      {
+        "date": "2020-06-10",
+        "action": "hold",
+        "pre_24h_pct": 0.727,
+        "post_4h_pct": 0.749,
+        "post_24h_pct": -4.017
+      },
+      {
+        "date": "2020-07-29",
+        "action": "hold",
+        "pre_24h_pct": 2.123,
+        "post_4h_pct": 1.07,
+        "post_24h_pct": -1.142
+      },
+      {
+        "date": "2020-09-16",
+        "action": "hold",
+        "pre_24h_pct": 2.276,
+        "post_4h_pct": -0.23,
+        "post_24h_pct": -1.627
+      },
+      {
+        "date": "2020-11-05",
+        "action": "hold",
+        "pre_24h_pct": 6.046,
+        "post_4h_pct": 3.976,
+        "post_24h_pct": 3.49
+      },
+      {
+        "date": "2020-12-16",
+        "action": "hold",
+        "pre_24h_pct": 5.406,
+        "post_4h_pct": 3.79,
+        "post_24h_pct": 12.948
+      },
+      {
+        "date": "2021-01-27",
+        "action": "hold",
+        "pre_24h_pct": -7.768,
+        "post_4h_pct": 2.683,
+        "post_24h_pct": 9.804
+      },
+      {
+        "date": "2021-03-17",
+        "action": "hold",
+        "pre_24h_pct": 0.529,
+        "post_4h_pct": 5.194,
+        "post_24h_pct": 6.677
+      },
+      {
+        "date": "2021-04-28",
+        "action": "hold",
+        "pre_24h_pct": -0.067,
+        "post_4h_pct": -0.068,
+        "post_24h_pct": -3.822
+      },
+      {
+        "date": "2021-06-16",
+        "action": "hold",
+        "pre_24h_pct": -3.765,
+        "post_4h_pct": -1.033,
+        "post_24h_pct": -3.767
+      },
+      {
+        "date": "2021-07-28",
+        "action": "hold",
+        "pre_24h_pct": 3.106,
+        "post_4h_pct": 2.91,
+        "post_24h_pct": 1.655
+      },
+      {
+        "date": "2021-09-22",
+        "action": "hold",
+        "pre_24h_pct": 3.448,
+        "post_4h_pct": 0.275,
+        "post_24h_pct": 3.915
+      },
+      {
+        "date": "2021-11-03",
+        "action": "hold",
+        "pre_24h_pct": -1.539,
+        "post_4h_pct": 1.022,
+        "post_24h_pct": -2.573
+      },
+      {
+        "date": "2021-12-15",
+        "action": "hold",
+        "pre_24h_pct": 2.537,
+        "post_4h_pct": 1.918,
+        "post_24h_pct": 0.321
+      },
+      {
+        "date": "2022-01-26",
+        "action": "hold",
+        "pre_24h_pct": 1.718,
+        "post_4h_pct": -3.824,
+        "post_24h_pct": -4.599
+      },
+      {
+        "date": "2022-03-16",
+        "action": "hike",
+        "pre_24h_pct": 2.877,
+        "post_4h_pct": 1.671,
+        "post_24h_pct": 0.865
+      },
+      {
+        "date": "2022-05-04",
+        "action": "hike",
+        "pre_24h_pct": 2.453,
+        "post_4h_pct": 1.939,
+        "post_24h_pct": -5.563
+      },
+      {
+        "date": "2022-06-15",
+        "action": "hike",
+        "pre_24h_pct": -5.566,
+        "post_4h_pct": 5.194,
+        "post_24h_pct": -0.23
+      },
+      {
+        "date": "2022-07-27",
+        "action": "hike",
+        "pre_24h_pct": 3.343,
+        "post_4h_pct": 4.888,
+        "post_24h_pct": 11.014
+      },
+      {
+        "date": "2022-09-21",
+        "action": "hike",
+        "pre_24h_pct": 5.861,
+        "post_4h_pct": -7.052,
+        "post_24h_pct": -4.019
+      },
+      {
+        "date": "2022-11-02",
+        "action": "hike",
+        "pre_24h_pct": -0.008,
+        "post_4h_pct": -1.401,
+        "post_24h_pct": -1.038
+      },
+      {
+        "date": "2022-12-14",
+        "action": "hike",
+        "pre_24h_pct": 2.871,
+        "post_4h_pct": -2.114,
+        "post_24h_pct": -4.507
+      },
+      {
+        "date": "2023-02-01",
+        "action": "hike",
+        "pre_24h_pct": -0.393,
+        "post_4h_pct": 2.766,
+        "post_24h_pct": 4.248
+      },
+      {
+        "date": "2023-03-22",
+        "action": "hike",
+        "pre_24h_pct": 1.885,
+        "post_4h_pct": -5.024,
+        "post_24h_pct": -0.769
+      },
+      {
+        "date": "2023-05-03",
+        "action": "hike",
+        "pre_24h_pct": -0.024,
+        "post_4h_pct": 1.214,
+        "post_24h_pct": 0.929
+      },
+      {
+        "date": "2023-06-14",
+        "action": "hold",
+        "pre_24h_pct": 0.795,
+        "post_4h_pct": -3.48,
+        "post_24h_pct": -3.393
+      },
+      {
+        "date": "2023-07-26",
+        "action": "hike",
+        "pre_24h_pct": -0.024,
+        "post_4h_pct": 0.673,
+        "post_24h_pct": -0.167
+      },
+      {
+        "date": "2023-09-20",
+        "action": "hold",
+        "pre_24h_pct": 0.226,
+        "post_4h_pct": -0.309,
+        "post_24h_pct": -1.999
+      },
+      {
+        "date": "2023-11-01",
+        "action": "hold",
+        "pre_24h_pct": 0.376,
+        "post_4h_pct": 2.523,
+        "post_24h_pct": 0.758
+      },
+      {
+        "date": "2023-12-13",
+        "action": "hold",
+        "pre_24h_pct": 1.99,
+        "post_4h_pct": 1.982,
+        "post_24h_pct": 1.728
+      },
+      {
+        "date": "2024-01-31",
+        "action": "hold",
+        "pre_24h_pct": 0.327,
+        "post_4h_pct": -1.97,
+        "post_24h_pct": -1.531
+      },
+      {
+        "date": "2024-03-20",
+        "action": "hold",
+        "pre_24h_pct": -1.172,
+        "post_4h_pct": 5.567,
+        "post_24h_pct": 2.523
+      },
+      {
+        "date": "2024-05-01",
+        "action": "hold",
+        "pre_24h_pct": -4.877,
+        "post_4h_pct": 0.844,
+        "post_24h_pct": 3.075
+      },
+      {
+        "date": "2024-06-12",
+        "action": "hold",
+        "pre_24h_pct": 4.536,
+        "post_4h_pct": -1.811,
+        "post_24h_pct": -4.126
+      },
+      {
+        "date": "2024-07-31",
+        "action": "hold",
+        "pre_24h_pct": 1.242,
+        "post_4h_pct": -2.561,
+        "post_24h_pct": -5.198
+      },
+      {
+        "date": "2024-09-18",
+        "action": "cut",
+        "pre_24h_pct": -1.551,
+        "post_4h_pct": 0.311,
+        "post_24h_pct": 6.159
+      },
+      {
+        "date": "2024-11-07",
+        "action": "cut",
+        "pre_24h_pct": 1.826,
+        "post_4h_pct": -0.956,
+        "post_24h_pct": 0.272
+      },
+      {
+        "date": "2024-12-18",
+        "action": "cut",
+        "pre_24h_pct": -1.639,
+        "post_4h_pct": -3.485,
+        "post_24h_pct": -5.603
+      },
+      {
+        "date": "2025-01-29",
+        "action": "hold",
+        "pre_24h_pct": 0.634,
+        "post_4h_pct": 0.62,
+        "post_24h_pct": 2.649
+      },
+      {
+        "date": "2025-03-19",
+        "action": "hold",
+        "pre_24h_pct": 3.393,
+        "post_4h_pct": 1.668,
+        "post_24h_pct": -0.163
+      },
+      {
+        "date": "2025-05-07",
+        "action": "hold",
+        "pre_24h_pct": 1.874,
+        "post_4h_pct": 0.844,
+        "post_24h_pct": 4.901
+      },
+      {
+        "date": "2025-06-18",
+        "action": "hold",
+        "pre_24h_pct": 0.499,
+        "post_4h_pct": 0.722,
+        "post_24h_pct": 0.181
+      },
+      {
+        "date": "2025-07-30",
+        "action": "hold",
+        "pre_24h_pct": 0.024,
+        "post_4h_pct": -0.403,
+        "post_24h_pct": -0.063
+      },
+      {
+        "date": "2025-09-17",
+        "action": "cut",
+        "pre_24h_pct": -0.822,
+        "post_4h_pct": 0.462,
+        "post_24h_pct": 1.797
+      },
+      {
+        "date": "2025-10-29",
+        "action": "cut",
+        "pre_24h_pct": -2.955,
+        "post_4h_pct": -0.238,
+        "post_24h_pct": -3.93
+      },
+      {
+        "date": "2025-12-10",
+        "action": "cut",
+        "pre_24h_pct": -1.509,
+        "post_4h_pct": 0.007,
+        "post_24h_pct": -1.938
+      },
+      {
+        "date": "2026-01-28",
+        "action": "unknown",
+        "pre_24h_pct": 1.426,
+        "post_4h_pct": -0.165,
+        "post_24h_pct": -6.775
+      },
+      {
+        "date": "2026-03-18",
+        "action": "unknown",
+        "pre_24h_pct": -3.93,
+        "post_4h_pct": -0.463,
+        "post_24h_pct": -2.432
+      },
+      {
+        "date": "2026-04-29",
+        "action": "unknown",
+        "pre_24h_pct": -0.004,
+        "post_4h_pct": -0.328,
+        "post_24h_pct": 0.087
+      },
+      {
+        "date": "2026-06-17",
+        "action": "unknown",
+        "pre_24h_pct": 0.196,
+        "post_4h_pct": -2.799,
+        "post_24h_pct": -5.297
+      },
+      {
+        "date": "2026-07-29",
+        "action": "unknown",
+        "pre_24h_pct": 0.917,
+        "post_4h_pct": -0.638,
+        "post_24h_pct": 0.937
+      }
+    ]
+  },
+  "tradeability_screen": {
+    "events_per_year": 8,
+    "basket_T_mean_pct": 0.967,
+    "basket_T_excess_vs_baseline_pct": 0.706,
+    "basket_T_excess_vs_QQQ_same_day_pct": 0.936,
+    "basket_T+1_mean_pct": -0.522,
+    "basket_T+1_excess_vs_baseline_pct": -0.783,
+    "benchmark_weekend_gap": {
+      "events_per_year": 9,
+      "mean_per_trade_pct": 5.3
+    },
+    "rule_of_thumb": "edge_per_event(%) x events/yr vs weekend_gap 4-5%/yr cadence; require consistency across adjacent windows before believing any single cell"
+  }
+}
