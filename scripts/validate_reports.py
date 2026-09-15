@@ -443,7 +443,8 @@ def audit_gbm_attribution() -> dict:
         headline=str(dig(rep, "final_verdict") or "")[:200],
         should_have_caught=[
             "pre-2024 月度超额的 t=1.837(<2) 已经写在报告里，却仍被当作'曾经有效'的证据 —— significance 检查应在第一次就报 NOISE。",
-            "把 t=1.837 放回'我们搜过约 20 个方向'的背景里更糟：20 次独立试验下空假设的最优 |t| 期望就有 ~2.45，要求线是 3.02 —— multiple_comparisons 直接判 FAILS。",
+            f"把 t=1.837 放回'我们搜过 {PLATFORM_HYPOTHESES_SEARCHED} 个方向族（变体级上限 {PLATFORM_HYPOTHESES_VARIANTS}）'的背景里更糟："
+            "N=27 时空假设的最优 |t| 期望就有 ~2.57，Bonferroni 要求线 3.11 —— multiple_comparisons 直接判 FAILS。",
             "by_year IC 7 年翻号 3 次（sign consistency 0.571）：multi_window 早就该判 UNSTABLE。",
             "这份报告反而是全场唯一自带复现证据的（verification_vs_source_report: 71/71 月持仓吻合）—— 说明复现探针可做，只是没有成为交付门槛。",
         ],

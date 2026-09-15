@@ -32,7 +32,7 @@
 
 | # | 检查 | 判定线 | 说明 |
 |---|---|---|---|
-| 8 | **多重比较** `multiple_comparisons(N, best)` | 校正后 p ≤ α 才 SURVIVES；否则 FAILS | 平台已搜过 **~20 个方向**（funding、onchain、FOMC 决策+文本、隔夜缺口、订单簿先行、PM 领先、量比、限价入场、三个风控开关、GBM…）。N=20 时空假设下**最优 \|t\| 期望就有 ~2.45**，Bonferroni 要求线 **3.02**。当前全平台**存过的最优 t=1.84** → 没有任何一个结论能通过校正。 |
+| 8 | **多重比较** `multiple_comparisons(N, best)` | 校正后 p ≤ α 才 SURVIVES；否则 FAILS | 平台已搜过 **N=27 个方向族**（funding×2、onchain×2、FOMC×2、gap×3、订单簿、PM、量比、meta-label、GBM×2、动量、入场/仓位×3、出场×2、风控开关×3、DCA、基本面、weekend_gap），**变体级上限 ~60**。N=27 时空假设下**最优 \|t\| 期望就有 ~2.57**，Bonferroni 要求线 **3.11**（N=60 时 3.34）。当前全平台**存过的最优 t=1.84** → 两个口径都 FAILS，没有任何一个结论能通过校正。 |
 | 9 | **复现探针** `reproducibility_probe(stored, rerun, top_n=..)` | top-N 重合率 ≥ 90% 且无分数错配 → REPRODUCIBLE | 正是这个探针抓到了 GBM 危机（2/10 重合）。见 §4 的硬性要求。 |
 
 ---
@@ -215,8 +215,8 @@ poetry run python scripts/validate_reports.py
 - RED：`xsec_gbm_results`、`xsec_gbm_sp500`、`gbm_attribution`、`onchain_btc_backtest`
 - 全仓**没有任何一份报告**回答了 significance / window_stability / score_distribution / baseline_significance（13/13 缺失）
 - **平台级多重比较**：存过的最优 \|t\| = **1.84**（gbm_attribution 的 pre-2024 月度超额），
-  N=20 时要求线 **3.02**，空假设下 20 次试验的最优期望就有 **2.45** → **FAILS：全平台没有一个结论能通过搜索校正。**
+  N=27（方向族）时要求线 **3.11**，空假设下 27 次试验的最优期望就有 **2.57**；N=60（变体级上限）时要求线 **3.34** → **两个口径都 FAILS：全平台没有一个结论能通过搜索校正。**
 - **复现探针**：仅 2/13 报告带复现证据（risk_gate、gbm_attribution，71/71）；旗舰报告 INSUFFICIENT。
 - 事件级检查（新增）：weekend_gap T+1 **t=0.48 / 胜率 Wilson [0.445, 0.798]**；meta-label 50 笔 **t=1.14 / 胜率 44% [0.31, 0.58]**；量比高桶 **z=1.61 vs 要求 2.73（N=8）**。
 
-**本该在第一次就暴露的五个问题**：① IC 的 SE 从未与均值并列（t≈0.84）；② IC 跨年符号翻转的证据早已在 `gbm_attribution` 里（7 年翻 3 次）；③ 分数并列在 shipped `gbm_picks` 里肉眼可见；④ 与动量的显著性对比从未做过，且 t=1.84 在「搜过 20 个方向」的背景下连单次检验线都过不了；⑤ 没有任何报告主动做复现探针——而它才是真正抓住危机的那把尺子。
+**本该在第一次就暴露的五个问题**：① IC 的 SE 从未与均值并列（t≈0.84）；② IC 跨年符号翻转的证据早已在 `gbm_attribution` 里（7 年翻 3 次）；③ 分数并列在 shipped `gbm_picks` 里肉眼可见；④ 与动量的显著性对比从未做过，且 t=1.84 在「搜过 27 个方向族」的背景下连单次检验线都过不了；⑤ 没有任何报告主动做复现探针——而它才是真正抓住危机的那把尺子。
