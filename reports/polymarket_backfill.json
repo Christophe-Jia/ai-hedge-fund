@@ -1,0 +1,2715 @@
+{
+  "generated_at": "2026-09-15T05:40:03.292864+00:00",
+  "elapsed_sec": 931.6,
+  "n_markets_ok": 150,
+  "n_markets_failed": 0,
+  "total_ticks_fetched": 39585650,
+  "note": "Binary markets: YES token only (NO is exact 1-YES mirror, mining finding)",
+  "markets": [
+    {
+      "question": "Will Bitcoin dip to $45,000 by December 31, 2026?",
+      "condition_id": "0x024b68f77bfc019341ee3db8f57c103334e4b9430bba4746d8c94aafd8b36fee",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "9894510651052373088408067031031513212801618531203062911959630395716258202132",
+          "outcome": "Yes",
+          "n_ticks": 422998
+        }
+      ],
+      "n_ticks": 422998,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:23"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $55,000 by December 31, 2026?",
+      "condition_id": "0x752fa61c93f16c4b15e85b0bd438d9c684176b0ea7b319a84c8aca34616e8a8c",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "115462087336983275104521488923966022755348986822352694745153736621832003960847",
+          "outcome": "Yes",
+          "n_ticks": 423001
+        }
+      ],
+      "n_ticks": 423001,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $250,000 by December 31, 2026?",
+      "condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "13433573766910980267981622064090484781359464703732825845886677588040916221533",
+          "outcome": "Yes",
+          "n_ticks": 372861
+        }
+      ],
+      "n_ticks": 372861,
+      "coverage": [
+        "2025-12-29 15:33",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $15,000 by December 31, 2026?",
+      "condition_id": "0xa885bfe10688056a9d0f4e9a1523bfa18f66fda065f0400d714ba54776083713",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "63985397218239656926367525871649971575041102854345777114360978052613472299768",
+          "outcome": "Yes",
+          "n_ticks": 372871
+        }
+      ],
+      "n_ticks": 372871,
+      "coverage": [
+        "2025-12-29 15:32",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $50,000 by December 31, 2026?",
+      "condition_id": "0xce3c54c3e773e8b3bf73e4c12af93205b21195d03b9c386e22f274b9acfc2c56",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "13887983551129862992605123088744175927084435631400400451585519366058907542147",
+          "outcome": "Yes",
+          "n_ticks": 318186
+        }
+      ],
+      "n_ticks": 318186,
+      "coverage": [
+        "2026-02-05 15:02",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $100,000 by December 31, 2026?",
+      "condition_id": "0xdaa4866bae18be58c5a79d2aeeffd035ec78f1bb49dbd88f72993997778a990f",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "56078938060096976448086754249497300447360333783952000147427828224794011030104",
+          "outcome": "Yes",
+          "n_ticks": 423005
+        }
+      ],
+      "n_ticks": 423005,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $35,000 by December 31, 2026?",
+      "condition_id": "0x2745c38ff0617cb345c1d2df19b4f74ea777508e07411e88eeb6ab3affcda2a2",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "19830138103155427354579425893303398904208550475895360582465715721785944321950",
+          "outcome": "Yes",
+          "n_ticks": 423001
+        }
+      ],
+      "n_ticks": 423001,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin hit $150k by December 31, 2026?",
+      "condition_id": "0x02deb9538f5c123373adaa4ee6217b01745f1662bc902e46ac92f3fe6f8741e8",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "93694900555669388759405753550770573998169287228984912881955464376232163096213",
+          "outcome": "Yes",
+          "n_ticks": 579897
+        }
+      ],
+      "n_ticks": 579897,
+      "coverage": [
+        "2025-08-07 16:45",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $1,000,000 by December 31, 2026?",
+      "condition_id": "0xa7d7ed69cfd6107e5e005556730dcf45727c1cdd1001f0378f5e471526181c47",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "18571303954259773157233385333455041418270179723020753158306812650937565180666",
+          "outcome": "Yes",
+          "n_ticks": 299318
+        }
+      ],
+      "n_ticks": 299318,
+      "coverage": [
+        "2026-02-18 17:37",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $1,500 by December 31, 2026?",
+      "condition_id": "0xcf25ccc8360f3952139fb5e3f14cb9bb0636cb53d0e30e947321ceccab7e9780",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "101639751789549589765350117072740510018809594718571111931328241076831078702528",
+          "outcome": "Yes",
+          "n_ticks": 422980
+        }
+      ],
+      "n_ticks": 422980,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:24"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $40,000 by December 31, 2026?",
+      "condition_id": "0x1e5564c1a2a6839cc2780a889437c63786a2c2ec5e95569b710ee659a3e8baa2",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "4255890554350661695724949176183233033027635903850796430457642328613772591960",
+          "outcome": "Yes",
+          "n_ticks": 318181
+        }
+      ],
+      "n_ticks": 318181,
+      "coverage": [
+        "2026-02-05 15:02",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $1,000 by December 31, 2026?",
+      "condition_id": "0xacb33346b59a2a3770e2391b7d1b0e77d8dcdcf840a66f5fa01d28db43c4e369",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "111461019317477869113562870983413193129710955692959493083133606404494525367686",
+          "outcome": "Yes",
+          "n_ticks": 422980
+        }
+      ],
+      "n_ticks": 422980,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $200,000 by December 31, 2026?",
+      "condition_id": "0xac32e73aa9e0dae801d88d4f81efd2ef3fa0f04b815f3a0e74426f0762e668cd",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "61368943128255287414565270336856615453000675377332178800733742873558311943412",
+          "outcome": "Yes",
+          "n_ticks": 423000
+        }
+      ],
+      "n_ticks": 423000,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $90,000 by December 31, 2026?",
+      "condition_id": "0xbb379a14cd03f68c35c279ddbd928a6326f4fd2e21827f8cdaaf59715d6df50e",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "89384721767526056909881321094852287855436067743554155484781205764118128944311",
+          "outcome": "Yes",
+          "n_ticks": 316680
+        }
+      ],
+      "n_ticks": 316680,
+      "coverage": [
+        "2026-02-06 16:03",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Bitcoin all time high by December 31, 2026?",
+      "condition_id": "0x18076e7d0f58a52d3d4f311d0456306edf16d1873cf5eef27d3ff044153e9576",
+      "end_date": "2027-01-01T04:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "102959890468928530190954086704155483076852880798676895426376704430618826404382",
+          "outcome": "Yes",
+          "n_ticks": 391519
+        }
+      ],
+      "n_ticks": 391519,
+      "coverage": [
+        "2025-12-16 16:10",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $120,000 by December 31, 2026?",
+      "condition_id": "0xf9b6b5c3c6e07afe4aad6ed9ce4fa7545f9c2baa9f1dc632cd81a085c99acfe4",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "65965214225073605704712365855887384729237451947822407248598722221769498441791",
+          "outcome": "Yes",
+          "n_ticks": 423003
+        }
+      ],
+      "n_ticks": 423003,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $110,000 by December 31, 2026?",
+      "condition_id": "0x63eaf41ce1f475323e2202d7dfa3b1def8b82cd166f7007c50bfbf47615c7b01",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "74843373582432484858627201602003648342208168490128239235522790524493414154441",
+          "outcome": "Yes",
+          "n_ticks": 423008
+        }
+      ],
+      "n_ticks": 423008,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $800 by December 31, 2026?",
+      "condition_id": "0x717672a48c5f2938631f6e467b9a48aedb03fa380c0198704ef5acfc91721612",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "67402961747318482851880003250046703889973259367600991960666041701083209459254",
+          "outcome": "Yes",
+          "n_ticks": 422982
+        }
+      ],
+      "n_ticks": 422982,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:25"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $500,000 by December 31, 2026?",
+      "condition_id": "0xf3519e50e99fa353443d45060813453b1b717e463b5b76c306e85e8f5b026116",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "91920414851381703961459336798965934286338468050347816160274927361190904665656",
+          "outcome": "Yes",
+          "n_ticks": 299324
+        }
+      ],
+      "n_ticks": 299324,
+      "coverage": [
+        "2026-02-18 17:37",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Bitcoin all time high by September 30, 2026?",
+      "condition_id": "0x6123b5cc75c38ba9783f6c8ea260107b546c7d3454a8f9b5280c9921cc39f3d9",
+      "end_date": "2026-10-01T03:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "50388900663189748675936681554126016850520413670342348778716337126803310768728",
+          "outcome": "Yes",
+          "n_ticks": 391514
+        }
+      ],
+      "n_ticks": 391514,
+      "coverage": [
+        "2025-12-16 16:10",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $130,000 by December 31, 2026?",
+      "condition_id": "0x885a6abefad122348b4fbd503473d7fd1f9035d0438cf988a7591620f316a859",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "106722178102302988256241610384561546855057790384749278490135208236665942286983",
+          "outcome": "Yes",
+          "n_ticks": 423002
+        }
+      ],
+      "n_ticks": 423002,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $25,000 by December 31, 2026?",
+      "condition_id": "0xe326d1abf5fb59b82ecfdff3348e75f90561eace327ba1bdc8d38d045ddbe775",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "58908160299895538838177673280060816284346493901538403975218911918392404378292",
+          "outcome": "Yes",
+          "n_ticks": 423009
+        }
+      ],
+      "n_ticks": 423009,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $150,000 by December 31, 2026?",
+      "condition_id": "0xa7b594ae07d5c1590fa86028fcc2f8705990437237416556c05837a08b2e1cda",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "9408196828451163378822245032645030045707991112669125056198742225498158094445",
+          "outcome": "Yes",
+          "n_ticks": 423002
+        }
+      ],
+      "n_ticks": 423002,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $140,000 by December 31, 2026?",
+      "condition_id": "0xf0a4c0bc8a8162f0ac95b5a5af7fa665d20a19ca0db03b9117514dafc695f15e",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "71296910957902084356560391757722633648005498400799774895345285101862220728868",
+          "outcome": "Yes",
+          "n_ticks": 423007
+        }
+      ],
+      "n_ticks": 423007,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $30,000 by December 31, 2026?",
+      "condition_id": "0x903a1387e6414be5529efc8f7757e30371e6698de9d68fa4ce33252009db69ef",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "32100646597103151520708930825184762124585961199171649862922931416837210460836",
+          "outcome": "Yes",
+          "n_ticks": 318182
+        }
+      ],
+      "n_ticks": 318182,
+      "coverage": [
+        "2026-02-05 15:02",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $10,000 by December 31, 2026?",
+      "condition_id": "0xd8a5843555ba95455a28d895660c07c59b615184bf4ae64893992f3504797d29",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "42439528758178981890895605039938161151582654744978607695897321288347422769852",
+          "outcome": "Yes",
+          "n_ticks": 317731
+        }
+      ],
+      "n_ticks": 317731,
+      "coverage": [
+        "2026-02-05 22:33",
+        "2026-09-15 05:26"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $85,000 by December 31, 2026?",
+      "condition_id": "0x1239389645c8a73b170b78ef3a83d69b6cf1d2711d412829ea8836660b08fc93",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "27201221676173593121678787264361008606480627771007041356248031697735484721466",
+          "outcome": "Yes",
+          "n_ticks": 142176
+        }
+      ],
+      "n_ticks": 142176,
+      "coverage": [
+        "2026-06-08 05:12",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $10,000 by December 31, 2026?",
+      "condition_id": "0x201f51d2d892c41c5bfa6568a0a2f93ab2ea426e87dddfd5fb0191f7ec34a441",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "100865557115198861945068078147655261264339702053336500548943844953071484972262",
+          "outcome": "Yes",
+          "n_ticks": 422981
+        }
+      ],
+      "n_ticks": 422981,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $5,000 by December 31, 2026?",
+      "condition_id": "0xe681a6326237f3b17ce8622728b6cd104281dfe4d2b38f4520fd7f1734cf3469",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "78813286502861287035170675523688055494398144118547987619022209059970667952352",
+          "outcome": "Yes",
+          "n_ticks": 317729
+        }
+      ],
+      "n_ticks": 317729,
+      "coverage": [
+        "2026-02-05 22:33",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $60,000 by December 31, 2026?",
+      "condition_id": "0x6c8bc8cd9b2d64358ad995ccee8e998cf0f81a89c4be0b8e51eadf09c6be60ba",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "104279604547231872129402198190232956636095665469278761891693384128061158683041",
+          "outcome": "Yes",
+          "n_ticks": 80374
+        }
+      ],
+      "n_ticks": 80374,
+      "coverage": [
+        "2026-07-21 06:58",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $190,000 by December 31, 2026?",
+      "condition_id": "0xe71b9d788ce662d967ff2c90749ff8b26cee290455ef6cb84f33d1393ffae115",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "44277901818108806761236452190579702355420207259376614876965091268791774916719",
+          "outcome": "Yes",
+          "n_ticks": 423004
+        }
+      ],
+      "n_ticks": 423004,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $55,000 in September?",
+      "condition_id": "0x22f3847ddb652d34c1b5d0c73a65b49224713e8a51848fdfbd99ec82c2305c25",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "71431098564357170878802434548738944184510805649500901636529803659430638807445",
+          "outcome": "Yes",
+          "n_ticks": 20088
+        }
+      ],
+      "n_ticks": 20088,
+      "coverage": [
+        "2026-09-01 05:21",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $3,500 by December 31, 2026?",
+      "condition_id": "0x42945ea5657d6f6e77969a06661b29d6f6295083d1ef3479b42efd90647c9dfc",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "114795982188663428564917597167716379346421811703835638076510302263064007011486",
+          "outcome": "Yes",
+          "n_ticks": 422987
+        }
+      ],
+      "n_ticks": 422987,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $160,000 by December 31, 2026?",
+      "condition_id": "0x472c9035786b390c08e674fc60bddda488957e1b8aecad3f5480cc531a0754b0",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "82383148892491951057986758727379275490538136042110607950765593149629854993897",
+          "outcome": "Yes",
+          "n_ticks": 423010
+        }
+      ],
+      "n_ticks": 423010,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $95,000 by December 31, 2026?",
+      "condition_id": "0xacec7e5b90ccb1ac4c950e3aff18156d6ce1bb7b0c87c001a281279412dca784",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "37011650970792437921328530439273985710481032638212715110420998355785945483754",
+          "outcome": "Yes",
+          "n_ticks": 142174
+        }
+      ],
+      "n_ticks": 142174,
+      "coverage": [
+        "2026-06-08 05:12",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $20,000 by December 31, 2026?",
+      "condition_id": "0x23fb92bb72604ff35bfe591b5506de47f1bf6632ed55c388baa4843118bf69fc",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "59683974246799525831244219921114455736275705032978487912646746315061494194144",
+          "outcome": "Yes",
+          "n_ticks": 317731
+        }
+      ],
+      "n_ticks": 317731,
+      "coverage": [
+        "2026-02-05 22:33",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $100,000 in September?",
+      "condition_id": "0x913581dc6f16ad7018bbfb51f6e2fa0a4bdd305212ef7976efb5cf0209304cb6",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "8311037427502185580288498577713852658107445693333243027687152653006657478496",
+          "outcome": "Yes",
+          "n_ticks": 20089
+        }
+      ],
+      "n_ticks": 20089,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:27"
+      ],
+      "error": null
+    },
+    {
+      "question": "Ethereum all time high by December 31, 2026?",
+      "condition_id": "0x4ac1e1a9a61da989b9dfe246332309bd5e4a2284fd9d4998526fe6e38f6bfe8f",
+      "end_date": "2027-01-01T04:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "66040506395907152132921713590756499987350357316685221696411123778680518550059",
+          "outcome": "Yes",
+          "n_ticks": 391157
+        }
+      ],
+      "n_ticks": 391157,
+      "coverage": [
+        "2025-12-16 22:14",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $1,250 by December 31, 2026?",
+      "condition_id": "0x766996108017c3b6452c23db79ab1c714d8d9d9da846a4c316f5e047754a229d",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "27649489444549776237545541977549844348288139387147015807064757325433660937185",
+          "outcome": "Yes",
+          "n_ticks": 142165
+        }
+      ],
+      "n_ticks": 142165,
+      "coverage": [
+        "2026-06-08 05:23",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $180,000 by December 31, 2026?",
+      "condition_id": "0x799c35de1e5f3ebd75053643e020e6df9e9a3f477e3d6066eb0a8565f65d547f",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "74565691184914883284595890202312045107598400454020809925536957708002527360857",
+          "outcome": "Yes",
+          "n_ticks": 423005
+        }
+      ],
+      "n_ticks": 423005,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $1,750 by December 31, 2026?",
+      "condition_id": "0xc4c41407dd3e1be7fae485778117cd12832edebb652609cd34ba8eb60b817ee2",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "81719497766946990180917731789563048189911373599759752000681123601132059138851",
+          "outcome": "Yes",
+          "n_ticks": 56698
+        }
+      ],
+      "n_ticks": 56698,
+      "coverage": [
+        "2026-08-06 19:07",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $5,000 by December 31, 2026?",
+      "condition_id": "0x1c4fd67ab2a67f508672a69153559911244048b79a40cbe341d12f985ba90a13",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "93841346952584855760123043248359496404685819909908940687797546325562720625910",
+          "outcome": "Yes",
+          "n_ticks": 422985
+        }
+      ],
+      "n_ticks": 422985,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $82,500 in September?",
+      "condition_id": "0xc4cc6d2ddca13b7194a7737e331aa8109575cdc38d02bd6be31a5a47d1b34520",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "53215408497553350036933045219943771968236137036851543128018382156435662039010",
+          "outcome": "Yes",
+          "n_ticks": 20099
+        }
+      ],
+      "n_ticks": 20099,
+      "coverage": [
+        "2026-09-01 05:11",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $2,250 by December 31, 2026?",
+      "condition_id": "0x99a1879635bc8873891cc472d5e39ca0efaf2017c562ae244810747a7f8edbd5",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "66335306745821529065179061745515953781644081595464464996921948603911228936814",
+          "outcome": "Yes",
+          "n_ticks": 30236
+        }
+      ],
+      "n_ticks": 30236,
+      "coverage": [
+        "2026-08-25 04:09",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $170,000 by December 31, 2026?",
+      "condition_id": "0x9affeb38bce1e9a6de30e9ecada1ecfaf636574d3961cf3b9177299786214234",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "91771200478987002878887468575926960041640880090910228629453422737528263499583",
+          "outcome": "Yes",
+          "n_ticks": 423005
+        }
+      ],
+      "n_ticks": 423005,
+      "coverage": [
+        "2025-11-24 19:22",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $85,000 in September?",
+      "condition_id": "0x2c108f623ac720d8f664bbaf14a9731141aa8955c1e48b02c766b772941674d8",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "81780779224259491605896114548635727637676605965813881291062071590530581918897",
+          "outcome": "Yes",
+          "n_ticks": 20099
+        }
+      ],
+      "n_ticks": 20099,
+      "coverage": [
+        "2026-09-01 05:11",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $4,000 by December 31, 2026?",
+      "condition_id": "0x9775cd557a3cdba4f0478070afa399c0805761dd9aa0e7ce4435a71fed32621c",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "72592268863590940134379238539821436400291742652781853158875216650430188037649",
+          "outcome": "Yes",
+          "n_ticks": 422984
+        }
+      ],
+      "n_ticks": 422984,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:28"
+      ],
+      "error": null
+    },
+    {
+      "question": "Ethereum all time high by September 30, 2026?",
+      "condition_id": "0x710ce15deba099608dd256df512394d11f8d02e5c38644cf88c9cf0752254d7f",
+      "end_date": "2026-10-01T03:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "105833167229640460935727334096345488492393727784088890802944984984125353780635",
+          "outcome": "Yes",
+          "n_ticks": 391155
+        }
+      ],
+      "n_ticks": 391155,
+      "coverage": [
+        "2025-12-16 22:14",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $75,000 in September?",
+      "condition_id": "0x4d9ca2742a07651e2abee20648f041e73c97ef7c2bf048a2c2a202d2a856ced5",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "71614294149761045250341803495546587007139052187428360469103433437522297039820",
+          "outcome": "Yes",
+          "n_ticks": 20099
+        }
+      ],
+      "n_ticks": 20099,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $4,500 by December 31, 2026?",
+      "condition_id": "0xa3143f9c21ecc7a9b036b4e435f48264ff72019a9e3e60dacff4e615020e7e21",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "65019787528582062608620519721284938715030885357831318061954629653913636795950",
+          "outcome": "Yes",
+          "n_ticks": 422990
+        }
+      ],
+      "n_ticks": 422990,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $4,000 in September?",
+      "condition_id": "0x5b5ecbfeef12e5787590f05bdfa0ae26833fe4c99fba4b522c32fae45248da21",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "12944224755440059829809604006040184183718483595915149937889159045619650428546",
+          "outcome": "Yes",
+          "n_ticks": 20095
+        }
+      ],
+      "n_ticks": 20095,
+      "coverage": [
+        "2026-09-01 05:16",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $57,500 in September?",
+      "condition_id": "0x4ee7d3721d55f80f96c85072ff5fec40e02842a4f27f47e8055292300aca3e52",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "86805621617324018225702385040944099780925813312770283595837888343913585369763",
+          "outcome": "Yes",
+          "n_ticks": 20090
+        }
+      ],
+      "n_ticks": 20090,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $6,000 by December 31, 2026?",
+      "condition_id": "0x6132cc91f7a0ad656e890b9040c159f4057f4c44359b3fb68085ec97156c918a",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "16537215226734710045048844527142067159409454306081743842114211928607874903730",
+          "outcome": "Yes",
+          "n_ticks": 422985
+        }
+      ],
+      "n_ticks": 422985,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $8,000 by December 31, 2026?",
+      "condition_id": "0xac0b4316113b50e0e667918aee72fa0eb006342245a52ab6371f3732af5733c8",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "85972108245991027667754125260743289992024613278835089125395027557498850655366",
+          "outcome": "Yes",
+          "n_ticks": 422987
+        }
+      ],
+      "n_ticks": 422987,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $3,200 in September?",
+      "condition_id": "0xd62f4a5a6063a7a562699da464d0478a7dabbf659acc76cc07e767b54c7c78c0",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "13681717102244275505210716695805250711522144313140257628136491096958696437576",
+          "outcome": "Yes",
+          "n_ticks": 20090
+        }
+      ],
+      "n_ticks": 20090,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $95,000 in September?",
+      "condition_id": "0xccbeeab3ef57db883aaf5f347ae969ab647cc7220cd3231980a100aa675cf389",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "14856985972654452030413349006673776143957008179669951683214418101064543140813",
+          "outcome": "Yes",
+          "n_ticks": 20090
+        }
+      ],
+      "n_ticks": 20090,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $65,000 in September?",
+      "condition_id": "0x1f2be6118486a83063777ae3cc88d2e04b8d6f84ec46fcd137596431bcb3cfc9",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "39452210129885373432567248526860370218350063100514381486171852534138077470688",
+          "outcome": "Yes",
+          "n_ticks": 20101
+        }
+      ],
+      "n_ticks": 20101,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:29"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $5,500 by December 31, 2026?",
+      "condition_id": "0xb75b8c777c5fd934d7fa43d4b3a3f630981b68a362a09471f9a6a6e36c38aac8",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "61710247276022470252804012285430368172565001541144070158233974925141072188846",
+          "outcome": "Yes",
+          "n_ticks": 422991
+        }
+      ],
+      "n_ticks": 422991,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $2,000 by December 31, 2026?",
+      "condition_id": "0xb7e5cbd9d857bc23b5d7937aebaef0465bdf4c7f1d119d18c84ed43fdf5c91fd",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "84768145019786095547717415732823502270141145470320952547313245070010555237775",
+          "outcome": "Yes",
+          "n_ticks": 30238
+        }
+      ],
+      "n_ticks": 30238,
+      "coverage": [
+        "2026-08-25 04:09",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $70,000 by December 31, 2026?",
+      "condition_id": "0x6d7203b2161a636a6ad554a986400e29411aecfdb51f91416a0ef9f7b6685e3b",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "26181023444847865740144968881453381639052456965503182671034643115973725837732",
+          "outcome": "Yes",
+          "n_ticks": 30256
+        }
+      ],
+      "n_ticks": 30256,
+      "coverage": [
+        "2026-08-25 03:52",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $70,000 in September?",
+      "condition_id": "0x4bcb9ee94aee5f0578ccf4fb1575607183bc8274eb4c853002e0a0cb8a2236d6",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "114875749498679261537403226281565687128549975073353925622245776771686358996689",
+          "outcome": "Yes",
+          "n_ticks": 20100
+        }
+      ],
+      "n_ticks": 20100,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $60,000 in September?",
+      "condition_id": "0x2c47938eef5f049db49b140a169041b73a1089e1b8cc8d0924fd62e1ccdfa141",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "30935278884980078239307753496107776502869693356265202076409575111562423141628",
+          "outcome": "Yes",
+          "n_ticks": 20089
+        }
+      ],
+      "n_ticks": 20089,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $75,000 by December 31, 2026?",
+      "condition_id": "0x36c99dd22b6f6df65511fb17c15302d075cf5b23efbf60a65aa043662a005b82",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "90190261645413271639577114318013659242344971258336045182881603585384517088662",
+          "outcome": "Yes",
+          "n_ticks": 30255
+        }
+      ],
+      "n_ticks": 30255,
+      "coverage": [
+        "2026-08-25 03:52",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $7,500 by December 31, 2026?",
+      "condition_id": "0x4fc8725f00ba06576d7c78131e4589cc93a4e133128e8ca50c8f7ba34efeaaa1",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "59266530915734656657758247952199625227176177933992066491540382258500351132441",
+          "outcome": "Yes",
+          "n_ticks": 422985
+        }
+      ],
+      "n_ticks": 422985,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $80,000 in September?",
+      "condition_id": "0xc3fb6eaf207d0ea8e5875270cebe8242bac8faa35c320f3d022d48ef4e217392",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "46364303237419899608627414541711384020089010893184759854132936983484917089017",
+          "outcome": "Yes",
+          "n_ticks": 10833
+        }
+      ],
+      "n_ticks": 10833,
+      "coverage": [
+        "2026-09-07 16:33",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $6,500 by December 31, 2026?",
+      "condition_id": "0x0f0499d1049385b1d53ffee6c42a1de7424e551c765211ff2cc6d66329f43a80",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "20019896723419472755266861119515514842516136301878330790787239624526468708441",
+          "outcome": "Yes",
+          "n_ticks": 422986
+        }
+      ],
+      "n_ticks": 422986,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $3,300 in September?",
+      "condition_id": "0xebc5248d6a3bf89a49b48ddcd0f4ab753e7b9411a354d0362105ced2af8ce18b",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "89978632923277089867882385263644099741811189021181397039549195556995401982897",
+          "outcome": "Yes",
+          "n_ticks": 20089
+        }
+      ],
+      "n_ticks": 20089,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the price of Bitcoin be above $68,000 on September 15?",
+      "condition_id": "0x095719fd4394354019396324cfad9030626ba43579fd0c8024a5355e5fdb7a4b",
+      "end_date": "2026-09-15T16:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "68309451775456649638749453548379280279242910126453016181731842824091215466381",
+          "outcome": "Yes",
+          "n_ticks": 9408
+        }
+      ],
+      "n_ticks": 9408,
+      "coverage": [
+        "2026-09-08 16:16",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $72,500 in September?",
+      "condition_id": "0x7c724b5dc9c0d7932049feb52b645f69a4f43a201fe24f8d67d271566e00868d",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "106688365674540998489281854184913506307078735480554715822565422415637066682013",
+          "outcome": "Yes",
+          "n_ticks": 20104
+        }
+      ],
+      "n_ticks": 20104,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:30"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $90,000 in September?",
+      "condition_id": "0x69b547a99088602456fbce087cbc5a503c8b902b3ba58e8873aa771b0bee46a5",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "109310241204748219450206481030209385302693105169008720334568386742768385563899",
+          "outcome": "Yes",
+          "n_ticks": 20101
+        }
+      ],
+      "n_ticks": 20101,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $67,500 in September?",
+      "condition_id": "0xfd46209e98e6d2f27aa3afcb83fd1ee3696090ddae4479f7726e0c64ee630b1b",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "55655375151505092185229917553720689508658165322175681314729759073132052857969",
+          "outcome": "Yes",
+          "n_ticks": 20103
+        }
+      ],
+      "n_ticks": 20103,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $87,500 in September?",
+      "condition_id": "0xff94b7e25f8377d7ad40bbfd172744bec6235b8ffbcaa1f276ec5465191b2216",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "93102073593745160534123412868713328176360151139344483198023062751009656599915",
+          "outcome": "Yes",
+          "n_ticks": 20103
+        }
+      ],
+      "n_ticks": 20103,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $7,000 by December 31, 2026?",
+      "condition_id": "0x4ee2c6081e18cc0d1f3347f6219940bda986657f1d150d17de0677ffc2104de0",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "43741844410693667531851978552018678538840428546850434817267959684290534045068",
+          "outcome": "Yes",
+          "n_ticks": 422988
+        }
+      ],
+      "n_ticks": 422988,
+      "coverage": [
+        "2025-11-24 19:42",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $62,500 in September?",
+      "condition_id": "0xc983f8d9908138977e27fb7d37ecf429a4b9802df76e82d6ad242f7d1adb961c",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "67918441747882013748656507166783712968028910155110870407788478660545727138793",
+          "outcome": "Yes",
+          "n_ticks": 20092
+        }
+      ],
+      "n_ticks": 20092,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the price of Bitcoin be above $70,000 on September 15?",
+      "condition_id": "0x310c681914e8eda70aa66f1f98bd001ac08b60f5abf0dc31608f5cfe9aa53031",
+      "end_date": "2026-09-15T16:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "58586698206671111351541994612941732101497912139425521300244830828474140769434",
+          "outcome": "Yes",
+          "n_ticks": 9409
+        }
+      ],
+      "n_ticks": 9409,
+      "coverage": [
+        "2026-09-08 16:16",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin dip to $65,000 by December 31, 2026?",
+      "condition_id": "0xfd7fcadffdf6a454c940569d4e1e6a9cc8e8682b70b5eb5e7fbbe76bb1844c1c",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "53780045235418715931128205720209124033878539466833083429441668150974549326823",
+          "outcome": "Yes",
+          "n_ticks": 30258
+        }
+      ],
+      "n_ticks": 30258,
+      "coverage": [
+        "2026-08-25 03:52",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $97,500 in September?",
+      "condition_id": "0x77e0be26980ec4b22b11935eae0a23243093487829969fe65ef22a55c4120116",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "1834908198226756283857290953193722770367280082967943909171301362254585863886",
+          "outcome": "Yes",
+          "n_ticks": 20090
+        }
+      ],
+      "n_ticks": 20090,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $2,700 in September?",
+      "condition_id": "0x866ebc4f47fb651d8bf24f22abc116c5dd0e3a3602fda25530c9a503bcd54e6d",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "94951444160178346322853421605075207001141102290202254920879135881357883626421",
+          "outcome": "Yes",
+          "n_ticks": 20105
+        }
+      ],
+      "n_ticks": 20105,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $1,500 in September?",
+      "condition_id": "0xb4a999693634da2d30fb337cee0877c391dfb63f56a7c2b4631e0cdfe7a88df0",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "40023404949478985645937225576672043060995422895653236959642233436713695875746",
+          "outcome": "Yes",
+          "n_ticks": 20090
+        }
+      ],
+      "n_ticks": 20090,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the price of Bitcoin be above $82,000 on September 15?",
+      "condition_id": "0x5d56baee18f083f2a5636d52387fed4b18f4055772bc6f17afb49864e2ec7063",
+      "end_date": "2026-09-15T16:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "56336716904479232830721883370461798389035904253109518060535180658299100488112",
+          "outcome": "Yes",
+          "n_ticks": 9409
+        }
+      ],
+      "n_ticks": 9409,
+      "coverage": [
+        "2026-09-08 16:16",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $3,000 by December 31, 2026?",
+      "condition_id": "0xaf8816b7edf779f8f1d5e6882adc8824ba1f418544bec7b697a92e4f2372357d",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "17572937743553622007574854767800179053257989607150990127742127678112949966531",
+          "outcome": "Yes",
+          "n_ticks": 142172
+        }
+      ],
+      "n_ticks": 142172,
+      "coverage": [
+        "2026-06-08 05:17",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Bitcoin reach $92,500 in September?",
+      "condition_id": "0xbeb1d04b222dc8208cb95182ba74eb736243d8b116166ff10c9b54326160e7ac",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "112921922235707973476041923928532673589478604772681636646576067306847822197079",
+          "outcome": "Yes",
+          "n_ticks": 20102
+        }
+      ],
+      "n_ticks": 20102,
+      "coverage": [
+        "2026-09-01 05:11",
+        "2026-09-15 05:31"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $1,800 in September?",
+      "condition_id": "0x3ab9fe67b86481c563b6c4cac5f6337336f6ed06909e307bd9c2885f99d1863b",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "110443804235550087074979302265186206941014642056440333905382032269316466905556",
+          "outcome": "Yes",
+          "n_ticks": 20091
+        }
+      ],
+      "n_ticks": 20091,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $2,800 in September?",
+      "condition_id": "0x9ac34917a6d7918ad4c1b291d21f14b8d01af593191e37da7454c05b771cb0e8",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "81899326239492953260651866547155804866879238640377494825376012493147322160232",
+          "outcome": "Yes",
+          "n_ticks": 20106
+        }
+      ],
+      "n_ticks": 20106,
+      "coverage": [
+        "2026-09-01 05:12",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum reach $3,100 in September?",
+      "condition_id": "0x782208cf00371f8eb3d401a2d764507d49ed01fa00eaf811d8a5a8fdf66fc126",
+      "end_date": "2026-10-01T04:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "231508456603046352904588664664241877076864052780623081464434719696277582550",
+          "outcome": "Yes",
+          "n_ticks": 20091
+        }
+      ],
+      "n_ticks": 20091,
+      "coverage": [
+        "2026-09-01 05:23",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the price of Bitcoin be above $80,000 on September 15?",
+      "condition_id": "0x08734e5e671b30ec75e20ea0c4251dcb7b16c64d0e599aa91e697d9c29308a4f",
+      "end_date": "2026-09-15T16:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "78522559824257552880870601348883461533279317071758046675252866516911230389460",
+          "outcome": "Yes",
+          "n_ticks": 9410
+        }
+      ],
+      "n_ticks": 9410,
+      "coverage": [
+        "2026-09-08 16:16",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum hit $1,000 or $3,000 first?",
+      "condition_id": "0x094725e5691f06b1895496ab0823b3f843c3be680f870cb721958d4e4d280a55",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "103597772619771602279133713717413925259840477497073497777483261154645161253638",
+          "outcome": "$1,000",
+          "n_ticks": 269095
+        },
+        {
+          "token_id": "4760166089316344351949404133986847346176987275901006817985197202485921415799",
+          "outcome": "$3,000",
+          "n_ticks": 269097
+        }
+      ],
+      "n_ticks": 538192,
+      "coverage": [
+        "2026-03-11 18:17",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will Ethereum dip to $500 by December 31, 2026?",
+      "condition_id": "0x7f1bdc71872693ad0e74f35b4b6c6bdc66d1651c089f8f2beb7e3c53530477b7",
+      "end_date": "2027-01-01T05:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "29334153842174344472416790707402436344015887639701808266313355632712219578177",
+          "outcome": "Yes",
+          "n_ticks": 142145
+        }
+      ],
+      "n_ticks": 142145,
+      "coverage": [
+        "2026-06-08 05:44",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the price of Bitcoin be above $76,000 on September 15?",
+      "condition_id": "0xd8577e71c177925a0af8752bd193d7e092ef7386fda3dfc1d3a5b1e8fc2b4f5a",
+      "end_date": "2026-09-15T16:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "31273648073790124149276796654051678393247930387456087725626613921102228033207",
+          "outcome": "Yes",
+          "n_ticks": 9410
+        }
+      ],
+      "n_ticks": 9410,
+      "coverage": [
+        "2026-09-08 16:16",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decrease interest rates by 25 bps after the September 2026 meeting?",
+      "condition_id": "0xac02cbb049e46d6a3627c0fdf52fa554982a9025d45968207b362acb6ca4b830",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "57748138085022719760345772310040703848567377822400132842014290209986511882046",
+          "outcome": "Yes",
+          "n_ticks": 178504
+        }
+      ],
+      "n_ticks": 178504,
+      "coverage": [
+        "2026-05-13 21:37",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will there be no change in Fed interest rates after the September 2026 meeting?",
+      "condition_id": "0xa3b36b2d6104d34af4e6c6215fc818e43352e78a748fbfb0b85e3a35f71dec9a",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "5615282760875985231868508008056959876238536896643315063916840237042205273721",
+          "outcome": "Yes",
+          "n_ticks": 178507
+        }
+      ],
+      "n_ticks": 178507,
+      "coverage": [
+        "2026-05-13 21:38",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed increase interest rates by 25 bps after the September 2026 meeting?",
+      "condition_id": "0x876506d8b2bd7a0d3fa4fe18c024eee6e1dd81ee24c26795dadd6cfe4a7b5d0d",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "63842529068710005716169325380315470359047749786610778647370693404952498013178",
+          "outcome": "Yes",
+          "n_ticks": 178504
+        }
+      ],
+      "n_ticks": 178504,
+      "coverage": [
+        "2026-05-13 21:38",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed increase interest rates by 50+ bps after the September 2026 meeting?",
+      "condition_id": "0x2e4b58fc18dbffd74d5275d89fb076943f21992763c45dcadd81391b83bde13c",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "88912926533493988427719291698947688154042720958310632316541141466409683822293",
+          "outcome": "Yes",
+          "n_ticks": 178503
+        }
+      ],
+      "n_ticks": 178503,
+      "coverage": [
+        "2026-05-13 21:38",
+        "2026-09-15 05:32"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decrease interest rates by 50+ bps after the September 2026 meeting?",
+      "condition_id": "0x5e464d85eb49f22d876f3ed6168a7db5e2288e9ae1eb91effd2758e994676f86",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "97186030785608128217926542396950266594898339988989015155120280107165449433603",
+          "outcome": "Yes",
+          "n_ticks": 178503
+        }
+      ],
+      "n_ticks": 178503,
+      "coverage": [
+        "2026-05-13 21:37",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Fed rate hike in 2026?",
+      "condition_id": "0x80b3af88cb991980e8da1ce86b9794a0957f96ec98c29319dd7ba65e9744d82b",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "75028752776148090296091099469912621384650554615761384992997579209329182670110",
+          "outcome": "Yes",
+          "n_ticks": 399848
+        }
+      ],
+      "n_ticks": 399848,
+      "coverage": [
+        "2025-12-10 21:26",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will no Fed rate cuts happen in 2026?",
+      "condition_id": "0xd4e77ba6f29fc093509d24f508631abd445ecf506bbdc9c4c80e60256a318527",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "12403602920039269077597917340921667997547115084613238528792639013246536343316",
+          "outcome": "Yes",
+          "n_ticks": 503245
+        }
+      ],
+      "n_ticks": 503245,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 11 Fed rate cuts happen in 2026?",
+      "condition_id": "0x1adf074e048fa613f4ddbc0766088748a48d120a3a713b0183e219032a411ae3",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "56345349743779788266710915561914531858285418844567819631705863717318287635981",
+          "outcome": "Yes",
+          "n_ticks": 503251
+        }
+      ],
+      "n_ticks": 503251,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 10 Fed rate cuts happen in 2026?",
+      "condition_id": "0x757c144993b3cb831e04c42bfcff8c18864c7da4f4688a5939d2f62e031cbc87",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "101699865858660601590309838387762714166224752219273014726406345404403204943713",
+          "outcome": "Yes",
+          "n_ticks": 503246
+        }
+      ],
+      "n_ticks": 503246,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 9 Fed rate cuts happen in 2026?",
+      "condition_id": "0x4ec6fcb43fe1a32163c7da09d54a99ab9bf6abdc6fd49939d7ad67d696a3248b",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "23126031577449775652876745717301519312850542565907124407036782701549610893044",
+          "outcome": "Yes",
+          "n_ticks": 503246
+        }
+      ],
+      "n_ticks": 503246,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 6 Fed rate cuts happen in 2026?",
+      "condition_id": "0x4914bfdd892a48c341b5e0f41ec10475a815f2277273110b16f95e21084bfe75",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "77531340423610587330488971960018210147778793548713753738604838920212617696839",
+          "outcome": "Yes",
+          "n_ticks": 503246
+        }
+      ],
+      "n_ticks": 503246,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 12 or more Fed rate cuts happen in 2026?",
+      "condition_id": "0xffa0accb74987c0dc33a70eb3780c1da160206bcfb3ef5d16c1667bc5c459c78",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "9348234470735473071085620208817441102005165766524508452759679947551704787649",
+          "outcome": "Yes",
+          "n_ticks": 503244
+        }
+      ],
+      "n_ticks": 503244,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:33"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 7 Fed rate cuts happen in 2026?",
+      "condition_id": "0x2368d2604c9c2b95bc98c51bd50c66e5351caebf05b9fe79d3398c387fe29a89",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "83225062900867600837789591190756506957715645312465902979999093167287051133800",
+          "outcome": "Yes",
+          "n_ticks": 503246
+        }
+      ],
+      "n_ticks": 503246,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:34"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 8 Fed rate cuts happen in 2026?",
+      "condition_id": "0xfe28cb84a714b1a964290d7fd2587e71d57e905678c8ab64488449b24be78e52",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "79224949855948800840589557145654317659028242814072850811675646040486360279565",
+          "outcome": "Yes",
+          "n_ticks": 503248
+        }
+      ],
+      "n_ticks": 503248,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:34"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 2 Fed rate cuts happen in 2026?",
+      "condition_id": "0xe0d9f508a249e0070db06eb7d1e1fb17eb23c963f6fb722c4c3f81e23240c1cd",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "72535544017897924722695722172278828562733090748474862987195303914909938482758",
+          "outcome": "Yes",
+          "n_ticks": 503250
+        }
+      ],
+      "n_ticks": 503250,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:34"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 1 Fed rate cut happen in 2026?",
+      "condition_id": "0x5e082f0b57f47a29044aa35b4c5658393122e659d5feae521c06b57cdd7f905c",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "113379839734351069617987084078322474966003108854908079701423911002443710490196",
+          "outcome": "Yes",
+          "n_ticks": 503255
+        }
+      ],
+      "n_ticks": 503255,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:34"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 5 Fed rate cuts happen in 2026?",
+      "condition_id": "0x7ee722a07e0f84405f1267bc1c84eb95bd6348454453abf445618e778af8fd18",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "29213252446661789250484965446100709214117256176608501943249094649759520097655",
+          "outcome": "Yes",
+          "n_ticks": 503248
+        }
+      ],
+      "n_ticks": 503248,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:34"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 3 Fed rate cuts happen in 2026?",
+      "condition_id": "0x8d4966e84ae80f24b2e14643fdd45364e354229e11e2c17903b4b1763cfbe67c",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "95835705062472305459663741402900736177330733688944910993896545106260819635212",
+          "outcome": "Yes",
+          "n_ticks": 503247
+        }
+      ],
+      "n_ticks": 503247,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:34"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will 4 Fed rate cuts happen in 2026?",
+      "condition_id": "0xaece8d6062d3e3eb9845b32441a4ab06eb2ef332c0228bc6a36add450647c7c4",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "73197441127256680134600821323583356037261213281680365433623681075249556019477",
+          "outcome": "Yes",
+          "n_ticks": 503248
+        }
+      ],
+      "n_ticks": 503248,
+      "coverage": [
+        "2025-09-29 22:40",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be \u2265 4.5% at the end of 2026?",
+      "condition_id": "0x3d20f26deb9b9cc7e24e5e06c10234a722d93bac095ce1105c59b44b503078d7",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "44956651579513700220045051729687627381715616102744183825397331989105273067709",
+          "outcome": "Yes",
+          "n_ticks": 352564
+        }
+      ],
+      "n_ticks": 352564,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:34"
+      ],
+      "error": null
+    },
+    {
+      "question": "Fed Rate Hike by September 2026 Meeting?",
+      "condition_id": "0x73d8a8208d23a74937d114a713d6a56cd4161a1068056c52ac74c8419c99da7c",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "85779851379341776458330036851548114381176093953202542863538086591922931585951",
+          "outcome": "Yes",
+          "n_ticks": 240127
+        }
+      ],
+      "n_ticks": 240127,
+      "coverage": [
+        "2026-03-31 21:52",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 4.0% at the end of 2026?",
+      "condition_id": "0xb6abfbc465b88c6085503b3280872545c99c43fc979674bb47b9df1f7c170fd3",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "45298643302120067019009097483686644753682404593036519073434032964867401216713",
+          "outcome": "Yes",
+          "n_ticks": 352566
+        }
+      ],
+      "n_ticks": 352566,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Fed Rate Hike by October 2026 Meeting?",
+      "condition_id": "0x059db22dae2d735516017d47d1def0ea43e5d7221259c3aaa60c090d32566d4e",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "55971470416346250683160735704399570247011109335331406752116975462530324793173",
+          "outcome": "Yes",
+          "n_ticks": 240127
+        }
+      ],
+      "n_ticks": 240127,
+      "coverage": [
+        "2026-03-31 21:52",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decrease interest rates by 25 bps after the October 2026 meeting?",
+      "condition_id": "0x9cf563d7b55aa9aa876d5d7e55126347eee473f0ae56d799e325fdef2bf25297",
+      "end_date": "2026-10-28T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "33268510350568915228897273528353467773422190590579607471427765079749830445947",
+          "outcome": "Yes",
+          "n_ticks": 128111
+        }
+      ],
+      "n_ticks": 128111,
+      "coverage": [
+        "2026-06-18 00:17",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Fed rate cut by September 2026 meeting?",
+      "condition_id": "0xb4022c0b2718eca7ad27195f2d48f06527fa000269d188e1d3001ff8bbc16956",
+      "end_date": "2026-10-08T03:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "3080129411996805379742751525600597838226998464163037042731747436895624822756",
+          "outcome": "Yes",
+          "n_ticks": 288854
+        }
+      ],
+      "n_ticks": 288854,
+      "coverage": [
+        "2026-02-26 00:44",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?",
+      "condition_id": "0xf88da08f18b2026d986d67508141ec7c13614d87a6ff0f5315edfce4df643165",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "77981338513262421050195407227805423999001074679019211738787029756025412233520",
+          "outcome": "Yes",
+          "n_ticks": 352565
+        }
+      ],
+      "n_ticks": 352565,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 3.0% at the end of 2026?",
+      "condition_id": "0xf9ca1f6608ee282342a6c8d108dda15b91fc9cc1cf9e90a548c3ae5f825b425f",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "22030816399818413560467152256926658656366292051273475071688151582132139764281",
+          "outcome": "Yes",
+          "n_ticks": 352565
+        }
+      ],
+      "n_ticks": 352565,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed increase interest rates by 25 bps after the October 2026 meeting?",
+      "condition_id": "0x12aa13b3da17ceae1b0a59b5d5b77121e91bb79b4bb0b52bf6543ed3f8d0953b",
+      "end_date": "2026-10-28T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "55159722761418013044126414276680602270318000841690689684819994448621694923050",
+          "outcome": "Yes",
+          "n_ticks": 128131
+        }
+      ],
+      "n_ticks": 128131,
+      "coverage": [
+        "2026-06-17 23:49",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 4.25% at the end of 2026?",
+      "condition_id": "0x16dd5e4c4bfa3f3095c3ff0def4bed556eba411e3cdbf7b463b3b9a74c1d93a4",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "89500673908097597906591339142232589618046825453146074245854666302243957916021",
+          "outcome": "Yes",
+          "n_ticks": 352566
+        }
+      ],
+      "n_ticks": 352566,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:35"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will there be no change in Fed interest rates after the October 2026 meeting?",
+      "condition_id": "0xdf9bf27ee5757c55b44b8b9826ddc9ec3a8809aa3278634c45edbb7fc8f1a3e3",
+      "end_date": "2026-10-28T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "111061902544814266207267295505639408607400625795891618462682726460921782993748",
+          "outcome": "Yes",
+          "n_ticks": 128112
+        }
+      ],
+      "n_ticks": 128112,
+      "coverage": [
+        "2026-06-18 00:17",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decrease interest rates by 50+ bps after the October 2026 meeting?",
+      "condition_id": "0xa69ef420d8b4075ad8ba8611d02c63cb2ece46f5c8c643af223c272689b0c96f",
+      "end_date": "2026-10-28T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "17010377994663817312158123655937348199252960045746746128731746451645055725586",
+          "outcome": "Yes",
+          "n_ticks": 128075
+        }
+      ],
+      "n_ticks": 128075,
+      "coverage": [
+        "2026-06-18 00:48",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decide differently in the next three decisions (Jun\u2013Jul\u2013Sep)?",
+      "condition_id": "0x1b56e46dba9e7b2bf93db18e7a79de3f97037314a46f8ebc93b541ae5f396200",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "85826665387206167260072765846747779665709734070578023319734585788378738859863",
+          "outcome": "Yes",
+          "n_ticks": 198438
+        }
+      ],
+      "n_ticks": 198438,
+      "coverage": [
+        "2026-04-30 00:11",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed\u2019s lower bound reach 2.75% or lower before 2027?",
+      "condition_id": "0x2bb4294142c311763ca6be27ceffcef132f5ac8281f98a62abe02f6e6a8c0107",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "17682183447223123479988952873452690236608652508609100470364905844731048770925",
+          "outcome": "Yes",
+          "n_ticks": 431561
+        }
+      ],
+      "n_ticks": 431561,
+      "coverage": [
+        "2025-11-18 20:53",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed Pause\u2013Pause\u2013Pause in the next three decisions (Jun\u2013Jul\u2013Sep)?",
+      "condition_id": "0xd17e44ec063959238b3e4587475977a584618f7e18892d7b13b47051dbaa9a35",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "32301123322534888580370968664732988978439792579405897302876890222142550059194",
+          "outcome": "Yes",
+          "n_ticks": 198440
+        }
+      ],
+      "n_ticks": 198440,
+      "coverage": [
+        "2026-04-30 00:11",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decide differently in the next three decisions (Jul\u2013Sep\u2013Oct)?",
+      "condition_id": "0xd32ac3b2db228eb03d6385b5f0747b7013e0ff717a20e63c75fc74824b91d6b2",
+      "end_date": "2026-10-28T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "59159484144436184782558504637743800790439947103571922624781553035427480556855",
+          "outcome": "Yes",
+          "n_ticks": 128144
+        }
+      ],
+      "n_ticks": 128144,
+      "coverage": [
+        "2026-06-17 23:45",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Fed rate cut by December 2026 meeting?",
+      "condition_id": "0xc60022fe066abd6f96c375adb09f38d92c4931f09c10b805354581b4e5465e93",
+      "end_date": "2027-01-08T04:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "85002355202646770038788297383084634166875614093071220064343011133051368772502",
+          "outcome": "Yes",
+          "n_ticks": 288855
+        }
+      ],
+      "n_ticks": 288855,
+      "coverage": [
+        "2026-02-26 00:44",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed\u2019s lower bound reach 3.0% or lower before 2027?",
+      "condition_id": "0xdab002228af15d1cb3a161b3a584165eac9010d4419582c3c7d5d07d847c4256",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "26400080914353717825164535172852152218307205367782177320628813153770947661147",
+          "outcome": "Yes",
+          "n_ticks": 431560
+        }
+      ],
+      "n_ticks": 431560,
+      "coverage": [
+        "2025-11-18 20:53",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed increase interest rates by 50+ bps after the October 2026 meeting?",
+      "condition_id": "0xde5d75ab7702875623ba509bc923241e1211da74a113521b3b70ddac930d7316",
+      "end_date": "2026-10-28T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "18246296022868501258060085368606280205967114341141276439803424448463050819498",
+          "outcome": "Yes",
+          "n_ticks": 128134
+        }
+      ],
+      "n_ticks": 128134,
+      "coverage": [
+        "2026-06-17 23:49",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 2.0% at the end of 2026?",
+      "condition_id": "0x75ad781e57ad5ef7d8e279c838da39ab60351fdc056492375af4e35247d5af25",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "101115517952714930508586870711049128767846487814601539730559627760869397372071",
+          "outcome": "Yes",
+          "n_ticks": 352564
+        }
+      ],
+      "n_ticks": 352564,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:36"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed Pause\u2013Pause\u2013Pause in the next three decisions (Jul\u2013Sep\u2013Oct)?",
+      "condition_id": "0x372ab700cf01a9411d79dbfe13bf952c29f3be870d498313510f6c2aec360b13",
+      "end_date": "2026-10-28T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "95176872280225092653308021190522739699023212407615524419954698258619998809831",
+          "outcome": "Yes",
+          "n_ticks": 128105
+        }
+      ],
+      "n_ticks": 128105,
+      "coverage": [
+        "2026-06-18 00:17",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be \u22641.0% at the end of 2026?",
+      "condition_id": "0x857a2ae8088bc256184d6684adfdc7832d072e526c1e8f0d218c1160770c20e9",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "8428905054197455020031495106070658435380642200638989046327033285092773824082",
+          "outcome": "Yes",
+          "n_ticks": 352568
+        }
+      ],
+      "n_ticks": 352568,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed\u2019s lower bound reach 2.5% or lower before 2027?",
+      "condition_id": "0xaa6145fb75147c5dda9bda894ed80353b14f23149b285893dd41e1edc8c0d4c2",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "33955188520896833048115959811816549716866192906937688660205174290095294083363",
+          "outcome": "Yes",
+          "n_ticks": 431567
+        }
+      ],
+      "n_ticks": 431567,
+      "coverage": [
+        "2025-11-18 20:53",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Fed emergency rate cut before 2027?",
+      "condition_id": "0x93a3b80b1fb485057add882b55d12011ea011fedd9abededad86ac6cb53a2802",
+      "end_date": "2027-01-01T04:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "8618184031231342643840589970076443003283607991865226846156174312081261691762",
+          "outcome": "Yes",
+          "n_ticks": 440051
+        }
+      ],
+      "n_ticks": 440051,
+      "coverage": [
+        "2025-11-12 23:20",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 3.5% at the end of 2026?",
+      "condition_id": "0xfdf784c55879c70a90eab563dde386b6c5965e41be15fa74424f1db623282312",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "76542734491881647384543632699602825265030157099252760960463268833056461102034",
+          "outcome": "Yes",
+          "n_ticks": 352568
+        }
+      ],
+      "n_ticks": 352568,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed increase interest rates by 25 bps after the December 2026 meeting?",
+      "condition_id": "0x8a4196617dcb703e49d9bb36d3847bf6a75fd364dbd19f8d408ac944bf1a03d8",
+      "end_date": "2026-12-09T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "111662129652828266889360374468657435151479595863413519836161861837506140152890",
+          "outcome": "Yes",
+          "n_ticks": 67859
+        }
+      ],
+      "n_ticks": 67859,
+      "coverage": [
+        "2026-07-30 01:10",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 2.5% at the end of 2026?",
+      "condition_id": "0xed67f6f9c7c20366b5e608062ada2b8bcb2f667f96d9acdbfc945bd1e5dfdaea",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "74366238780126511156198005038700786940884582649388457649794697077780927240575",
+          "outcome": "Yes",
+          "n_ticks": 352567
+        }
+      ],
+      "n_ticks": 352567,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?",
+      "condition_id": "0xf17ad24eb4ad57926495b114149c765b9b95bc286eadc91cbbfa901ceb10d0b8",
+      "end_date": "2026-12-09T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "77367448845023382525249480243608609306658725883285195065573683809293972009019",
+          "outcome": "Yes",
+          "n_ticks": 67850
+        }
+      ],
+      "n_ticks": 67850,
+      "coverage": [
+        "2026-07-30 01:13",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Jerome Powell out from Fed Board by December 31?",
+      "condition_id": "0xbb1e75fe2a97b994a0f1b20b8107330f575a752893b3c525439466d64f898463",
+      "end_date": "2027-01-01T04:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "22801850234146882171623964647122386741389461559306988855789494206399090605744",
+          "outcome": "Yes",
+          "n_ticks": 362441
+        }
+      ],
+      "n_ticks": 362441,
+      "coverage": [
+        "2026-01-05 21:28",
+        "2026-09-15 05:37"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 1.75% at the end of 2026?",
+      "condition_id": "0x98283dd207781ce8b3e2bf9890b6e9f7d36fc3eb1a24ac0080833f04fb06f2d6",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "16142510462137475227869367321456992291659620114580902972224851745847257441642",
+          "outcome": "Yes",
+          "n_ticks": 352569
+        }
+      ],
+      "n_ticks": 352569,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 1.25% at the end of 2026?",
+      "condition_id": "0x7a4ddd066c01025c1f97739238a872546c73ac4a32f75f8045f526a8eb27d1a0",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "1157443684511006167585906406655380617190907150100754776816041475587243788670",
+          "outcome": "Yes",
+          "n_ticks": 352571
+        }
+      ],
+      "n_ticks": 352571,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the upper bound of the target federal funds rate be 1.5% at the end of 2026?",
+      "condition_id": "0xb81fde30f892e09596d26670fd93da5a113451e197d059b434c2b27bb5c27b09",
+      "end_date": "2026-12-09T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "24200688643010489802979414720922485726083898678543840432899131608248835588689",
+          "outcome": "Yes",
+          "n_ticks": 352569
+        }
+      ],
+      "n_ticks": 352569,
+      "coverage": [
+        "2026-01-12 18:02",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will there be no change in Fed interest rates after the December 2026 meeting?",
+      "condition_id": "0x723822eb2b143cee54c0bd7c1efba322b21f0051984c266df8879c394f1011c0",
+      "end_date": "2026-12-09T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "42865728742506860386768556888821101266630139112044622335353850919229585308601",
+          "outcome": "Yes",
+          "n_ticks": 67874
+        }
+      ],
+      "n_ticks": 67874,
+      "coverage": [
+        "2026-07-30 00:58",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Fed rate cut by October 2026 meeting?",
+      "condition_id": "0x4092815fea8f91e60586882d45fa2f61bfca8a36d595f47fdea9eec5d2893025",
+      "end_date": "2026-11-08T04:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "44988145651657165705599548149732848615827306030030294113026805446816695818477",
+          "outcome": "Yes",
+          "n_ticks": 288859
+        }
+      ],
+      "n_ticks": 288859,
+      "coverage": [
+        "2026-02-26 00:44",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed\u2019s upper bound reach 5.25% or higher before 2027?",
+      "condition_id": "0x728246cda497e10289a7145245675e2baece6561ba784760b0914108e6e42c04",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "84527066388111912425288008602811350191126153101911595679630810185820390654202",
+          "outcome": "Yes",
+          "n_ticks": 431566
+        }
+      ],
+      "n_ticks": 431566,
+      "coverage": [
+        "2025-11-18 20:53",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed\u2019s lower bound reach 0.25% or lower before 2027?",
+      "condition_id": "0x8be4f92d8396e675e220e15c1ca5bca527bc22dba01d586e2118096c1fe8a4a3",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "27236599830419042459739189692977369938120329479283247973485232547052692856847",
+          "outcome": "Yes",
+          "n_ticks": 431565
+        }
+      ],
+      "n_ticks": 431565,
+      "coverage": [
+        "2025-11-18 20:53",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed\u2019s upper bound reach 4.25% or higher before 2027?",
+      "condition_id": "0x69f7294fab44b1a63575fcdff9b683d3c48a7f92a160aa274af8e2837a356e63",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "61062406867911041129444957488064832751656470638547318929199585136855635802073",
+          "outcome": "Yes",
+          "n_ticks": 431564
+        }
+      ],
+      "n_ticks": 431564,
+      "coverage": [
+        "2025-11-18 20:53",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the 10-year Treasury yield hit 5.0% before 2027?",
+      "condition_id": "0x0e159c0d672526d1d65f524b1c512185924aac8f781b6c68549c2a17dec953e0",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "22397766228589110871783272985290872433765236471932774952155419500943165057456",
+          "outcome": "Yes",
+          "n_ticks": 440071
+        }
+      ],
+      "n_ticks": 440071,
+      "coverage": [
+        "2025-11-12 23:04",
+        "2026-09-15 05:38"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?",
+      "condition_id": "0xb9aee520bf51ac5f00b5c43e54ef9245bc9fcdef866ce8a33025f9a441cc651d",
+      "end_date": "2026-12-09T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "17640596861394454242836532536014033416733783473450136742726948856144855149507",
+          "outcome": "Yes",
+          "n_ticks": 67858
+        }
+      ],
+      "n_ticks": 67858,
+      "coverage": [
+        "2026-07-30 01:08",
+        "2026-09-15 05:39"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?",
+      "condition_id": "0xa5f8a44504de30fa36fff2406b2b27b3d15476ed50448e4fc3ead4861d8a5e3e",
+      "end_date": "2026-12-09T23:59:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "35090254409399344650860070211816464534198960801264823587796928404808383727584",
+          "outcome": "Yes",
+          "n_ticks": 67849
+        }
+      ],
+      "n_ticks": 67849,
+      "coverage": [
+        "2026-07-30 01:16",
+        "2026-09-15 05:39"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed\u2019s lower bound reach 0.5% or lower before 2027?",
+      "condition_id": "0x4e15f0f425d28b87024ba9f19504e074da257e3d231d3222618a67c5c0f600ba",
+      "end_date": "2026-12-31T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "114143552232719777271227815999686326483032207634989652712593588125140631174786",
+          "outcome": "Yes",
+          "n_ticks": 431567
+        }
+      ],
+      "n_ticks": 431567,
+      "coverage": [
+        "2025-11-18 20:53",
+        "2026-09-15 05:39"
+      ],
+      "error": null
+    },
+    {
+      "question": "Will the Fed Pause\u2013Pause\u2013Cut in the next three decisions (Jun\u2013Jul\u2013Sep)?",
+      "condition_id": "0x3d58efa61842054779ee3541eb4394024172a4a111ee0606e6ec535f27bb7082",
+      "end_date": "2026-09-16T00:00:00Z",
+      "tokens_fetched": [
+        {
+          "token_id": "6837649870477624101223064050874677816077332462210303464510912470911823791065",
+          "outcome": "Yes",
+          "n_ticks": 198443
+        }
+      ],
+      "n_ticks": 198443,
+      "coverage": [
+        "2026-04-30 00:11",
+        "2026-09-15 05:39"
+      ],
+      "error": null
+    }
+  ]
+}
