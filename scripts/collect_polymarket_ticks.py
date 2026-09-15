@@ -360,19 +360,25 @@ def fetch_price_ticks(
     """
     Fetch fidelity=1 price history for a token from the CLOB API.
 
+    Timestamps: the store and this function's return value use
+    MILLISECONDS; the CLOB API speaks SECONDS (converted at this
+    boundary). start_ts is expected in ms (as returned by the store).
+
     Incremental mode uses startTs+endTs pairs (short windows only; long
     pairs are rejected by the API). If the gap since start_ts exceeds
     LONG_GAP_SECONDS, fall back to interval=max (~31-day bootstrap).
     The startTs-only full-history capability is reserved for the
     backfill script, never used here.
     """
-    now = int(time.time())
+    now = int(time.time())  # seconds, API domain
     params: dict = {"market": token_id, "fidelity": "1"}
 
-    if start_ts is None or now - start_ts > LONG_GAP_SECONDS:
+    start_ts_s = start_ts // 1000 if start_ts is not None else None
+
+    if start_ts_s is None or now - start_ts_s > LONG_GAP_SECONDS:
         params["interval"] = "max"
     else:
-        params["startTs"] = str(start_ts)
+        params["startTs"] = str(start_ts_s)
         params["endTs"] = str(now)
 
     try:
@@ -400,7 +406,7 @@ def fetch_price_ticks(
         p = entry.get("p") or entry.get("price")
         if t is None or p is None:
             continue
-        ts = int(t)
+        ts = int(t) * 1000  # seconds (API) -> ms (store)
         if start_ts is not None and ts <= start_ts:
             continue
         ticks.append((ts, float(p)))
@@ -501,7 +507,7 @@ def run_collector(
 
     def refresh_markets() -> list[dict]:
         found = discover_markets(keywords)
-        now_ts = int(time.time())
+        now_ts = int(time.time() * 1000)  # ms, store domain
         for m in found:
             upsert_market_meta(
                 meta, m["token_id"], m["condition_id"], m["question"], now_ts, m["end_date"]
@@ -558,8 +564,8 @@ def run_collector(
 
             # Dead-market fallback (Gamma flags unreliable): no tick progress
             # for DEAD_AFTER_SECONDS -> check outcome, retire from polling.
-            latest = store.get_latest_ts(token_id)
-            if latest is not None and now - latest > DEAD_AFTER_SECONDS:
+            latest = store.get_latest_ts(token_id)  # ms
+            if latest is not None and now - latest / 1000.0 > DEAD_AFTER_SECONDS:
                 retire_token(token_id, "no new ticks > 3d")
             elif latest is None and now - first_poll_ts[token_id] > DEAD_AFTER_SECONDS:
                 retire_token(token_id, "never produced ticks > 3d")

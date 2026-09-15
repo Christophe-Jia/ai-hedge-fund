@@ -137,7 +137,7 @@ def inventory_local_db() -> dict:
     cur = con.cursor()
 
     total, tmin, tmax = cur.execute(
-        "SELECT COUNT(*), MIN(ts), MAX(ts) FROM price_ticks"
+        "SELECT COUNT(*), MIN(ts)/1000, MAX(ts)/1000 FROM price_ticks"  # ms -> s
     ).fetchone()
     n_tokens_with_ticks = cur.execute(
         "SELECT COUNT(DISTINCT token_id) FROM price_ticks"
@@ -152,7 +152,7 @@ def inventory_local_db() -> dict:
     rows = cur.execute(
         """
         SELECT m.token_id, m.condition_id, m.question, COUNT(*) n,
-               MIN(p.ts) t0, MAX(p.ts) t1, MIN(p.price) pmin, MAX(p.price) pmax
+               MIN(p.ts)/1000 t0, MAX(p.ts)/1000 t1, MIN(p.price) pmin, MAX(p.price) pmax
         FROM price_ticks p JOIN markets m ON m.token_id = p.token_id
         GROUP BY m.token_id
         """
@@ -199,7 +199,7 @@ def inventory_local_db() -> dict:
         "SELECT token_id FROM markets WHERE token_id LIKE ?", (busiest[:16] + "%",)
     ).fetchone()[0]
     ts_list = [r[0] for r in cur.execute(
-        "SELECT ts FROM price_ticks WHERE token_id = ? ORDER BY ts", (full_tok,)
+        "SELECT ts/1000 FROM price_ticks WHERE token_id = ? ORDER BY ts", (full_tok,)  # ms -> s
     ).fetchall()]
     gaps = [b - a for a, b in zip(ts_list, ts_list[1:])]
     gaps_sorted = sorted(gaps)
@@ -273,7 +273,7 @@ def load_condition_series() -> dict[str, list[tuple[int, float]]]:
     cur = con.cursor()
     rows = cur.execute(
         """
-        SELECT m.condition_id, m.question, p.token_id, p.ts, p.price
+        SELECT m.condition_id, m.question, p.token_id, p.ts/1000 AS ts_s, p.price
         FROM price_ticks p JOIN markets m ON m.token_id = p.token_id
         ORDER BY p.ts
         """

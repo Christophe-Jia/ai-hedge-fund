@@ -150,7 +150,7 @@ def fetch_full_history(token_id: str) -> list[tuple[int, float]] | None:
         history = resp.json().get("history", [])
     except ValueError:
         return None
-    return [(int(e["t"]), float(e["p"])) for e in history if e.get("t") is not None]
+    return [(int(e["t"]) * 1000, float(e["p"])) for e in history if e.get("t") is not None]  # API s -> store ms
 
 
 def backfill_market(
@@ -177,7 +177,7 @@ def backfill_market(
         return stats
 
     # Record metadata for ALL tokens (incl. mirrored NO token)
-    now_ts = int(time.time())
+    now_ts = int(time.time() * 1000)  # ms, store domain
     for tok in tokens:
         upsert_market_meta(
             meta, tok["token_id"], cond, market["question"], now_ts, market["end_date"]
@@ -210,7 +210,7 @@ def backfill_market(
             all_ts.extend([history[0][0], history[-1][0]])
 
     if all_ts:
-        fmt = lambda ts: datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")  # noqa: E731
+        fmt = lambda ts: datetime.fromtimestamp(ts / 1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")  # noqa: E731  # ts is ms
         stats["coverage"] = [fmt(min(all_ts)), fmt(max(all_ts))]
     return stats
 
