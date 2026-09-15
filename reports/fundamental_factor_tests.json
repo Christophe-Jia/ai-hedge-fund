@@ -1,0 +1,1154 @@
+{
+  "meta": {
+    "generated_at": "2026-09-15T12:34:13+00:00",
+    "script": "scripts/test_fundamental_factors.py",
+    "source": "data/fundamentals.db -> fundamental_features (built by scripts/build_fundamental_features.py)",
+    "what_this_is": "纯单因子检验，不是组合回测；不做成本、不做交易规则",
+    "panel": {
+      "rows": 66408,
+      "months": 120,
+      "symbols": 576,
+      "date_range": [
+        "2016-09-30",
+        "2026-08-31"
+      ],
+      "dropped_extreme_returns": 1
+    }
+  },
+  "conventions": {
+    "ic": "月度截面 Spearman 秩相关（feature vs 未来1个月收益）",
+    "min_names": 30,
+    "forward_return": "信号月末次一交易日收盘买入，下一个月末的次一交易日收盘卖出（与 src/selection 的 execution_lag_bars=1 一致）",
+    "prices": "Nasdaq 拆股调整收盘价；市值 = 调整价 × 申报股本 × 拆股因子",
+    "pit": "特征只用 filed_date ≤ 月末的申报（as-filed 最早申报值，非重述值）",
+    "quantiles": "按特征值排序等分5组，Q5=最高特征值；Q5-Q1 仅研究参考",
+    "robust_rule": "|IC t| ≥ 2 且 2016-19 / 2020-22 / 2023-26 三段 IC 均值同号",
+    "era_split": "强制；不使用全样本单一数字下结论",
+    "no_cherry_picking": "不做符号翻转、不事后改口径；负向先验因子（asset_growth, accruals）按原始 IC 报告",
+    "data_hygiene": "剔除月度收益超出 [-1.0, 5.0] 的记录（价格库已知存在个别脏数据）"
+  },
+  "eras": {
+    "2016_2019": {
+      "years": [
+        2016,
+        2019
+      ]
+    },
+    "2020_2022": {
+      "years": [
+        2020,
+        2022
+      ]
+    },
+    "2023_2026": {
+      "years": [
+        2023,
+        2026
+      ]
+    }
+  },
+  "feature_coverage": {
+    "rows": 66408,
+    "months": 120,
+    "symbols": 576,
+    "ttm_method": {
+      "annual": 38148,
+      "ttm_quarters": 25600,
+      "none": 2660
+    },
+    "per_feature": {
+      "ep_ttm": {
+        "non_null_rows": 61132,
+        "coverage_pct": 92.1,
+        "expected_sign": 1,
+        "median": 0.0389
+      },
+      "bp": {
+        "non_null_rows": 63562,
+        "coverage_pct": 95.7,
+        "expected_sign": 1,
+        "median": 0.28
+      },
+      "sp_ttm": {
+        "non_null_rows": 61099,
+        "coverage_pct": 92.0,
+        "expected_sign": 1,
+        "median": 0.3578
+      },
+      "roe": {
+        "non_null_rows": 59875,
+        "coverage_pct": 90.2,
+        "expected_sign": 1,
+        "median": 0.1399
+      },
+      "gross_margin": {
+        "non_null_rows": 32236,
+        "coverage_pct": 48.5,
+        "expected_sign": 1,
+        "median": 0.4009
+      },
+      "asset_turnover": {
+        "non_null_rows": 63631,
+        "coverage_pct": 95.8,
+        "expected_sign": 1,
+        "median": 0.5177
+      },
+      "rev_yoy": {
+        "non_null_rows": 56605,
+        "coverage_pct": 85.2,
+        "expected_sign": 1,
+        "median": 0.0458
+      },
+      "ni_yoy": {
+        "non_null_rows": 50750,
+        "coverage_pct": 76.4,
+        "expected_sign": 1,
+        "median": 0.0324
+      },
+      "asset_growth": {
+        "non_null_rows": 59444,
+        "coverage_pct": 89.5,
+        "expected_sign": -1,
+        "median": 0.0471
+      },
+      "accruals": {
+        "non_null_rows": 62511,
+        "coverage_pct": 94.1,
+        "expected_sign": -1,
+        "median": -0.0345
+      },
+      "ocf_yield": {
+        "non_null_rows": 62120,
+        "coverage_pct": 93.5,
+        "expected_sign": 1,
+        "median": 0.0656
+      },
+      "leverage": {
+        "non_null_rows": 48165,
+        "coverage_pct": 72.5,
+        "expected_sign": -1,
+        "median": 0.6324
+      }
+    },
+    "by_year": {
+      "2016": {
+        "months": 4,
+        "mean_symbols_per_month": 517,
+        "ep_ttm_coverage_pct": 91.7,
+        "bp_coverage_pct": 95.7
+      },
+      "2017": {
+        "months": 12,
+        "mean_symbols_per_month": 525,
+        "ep_ttm_coverage_pct": 91.0,
+        "bp_coverage_pct": 95.6
+      },
+      "2018": {
+        "months": 12,
+        "mean_symbols_per_month": 533,
+        "ep_ttm_coverage_pct": 91.2,
+        "bp_coverage_pct": 95.3
+      },
+      "2019": {
+        "months": 12,
+        "mean_symbols_per_month": 542,
+        "ep_ttm_coverage_pct": 91.6,
+        "bp_coverage_pct": 95.7
+      },
+      "2020": {
+        "months": 12,
+        "mean_symbols_per_month": 549,
+        "ep_ttm_coverage_pct": 92.4,
+        "bp_coverage_pct": 95.8
+      },
+      "2021": {
+        "months": 12,
+        "mean_symbols_per_month": 558,
+        "ep_ttm_coverage_pct": 91.8,
+        "bp_coverage_pct": 95.7
+      },
+      "2022": {
+        "months": 12,
+        "mean_symbols_per_month": 563,
+        "ep_ttm_coverage_pct": 91.6,
+        "bp_coverage_pct": 95.5
+      },
+      "2023": {
+        "months": 12,
+        "mean_symbols_per_month": 565,
+        "ep_ttm_coverage_pct": 92.0,
+        "bp_coverage_pct": 95.7
+      },
+      "2024": {
+        "months": 12,
+        "mean_symbols_per_month": 570,
+        "ep_ttm_coverage_pct": 92.2,
+        "bp_coverage_pct": 95.8
+      },
+      "2025": {
+        "months": 12,
+        "mean_symbols_per_month": 574,
+        "ep_ttm_coverage_pct": 93.2,
+        "bp_coverage_pct": 95.9
+      },
+      "2026": {
+        "months": 8,
+        "mean_symbols_per_month": 575,
+        "ep_ttm_coverage_pct": 94.3,
+        "bp_coverage_pct": 96.2
+      }
+    },
+    "universe_meta": {
+      "universe": "sp500",
+      "pit_union_size": 700,
+      "with_price": 578,
+      "with_cik": 582,
+      "selected": 576,
+      "no_price_data": [
+        "ABMD",
+        "ADT",
+        "AET",
+        "ALXN",
+        "ANDV",
+        "ANSS",
+        "APC",
+        "ARG",
+        "ARNC",
+        "ATVI",
+        "AVB",
+        "BBBY",
+        "BCR",
+        "BF.B",
+        "BHI",
+        "BRCM",
+        "BXLT",
+        "CA",
+        "CAM",
+        "CBS",
+        "CCE",
+        "CERN",
+        "CHK",
+        "CMA",
+        "COG",
+        "COL",
+        "CPGX",
+        "CSRA",
+        "CTLT",
+        "CTRA",
+        "CTXS",
+        "CVC",
+        "CXO",
+        "DAY",
+        "DFS",
+        "DISCA",
+        "DISCK",
+        "DISH",
+        "DLPH",
+        "DNB",
+        "DO",
+        "DPS",
+        "DRE",
+        "EA",
+        "EMC",
+        "ENDP",
+        "EQR",
+        "ESRX",
+        "ESV",
+        "ETFC",
+        "EVHC",
+        "FBHS",
+        "FI",
+        "FL",
+        "FLIR",
+        "FRC",
+        "FTR",
+        "GAS",
+        "GGP",
+        "GMCR",
+        "GPS",
+        "HAR",
+        "HBI",
+        "HES",
+        "HFC",
+        "HOLX",
+        "HOT",
+        "INFO",
+        "IPG",
+        "JNPR",
+        "JWN",
+        "K",
+        "KSU",
+        "LEG",
+        "LLTC",
+        "LM",
+        "LVLT",
+        "MJN",
+        "MMC",
+        "MNK",
+        "MRO",
+        "MXIM",
+        "MYL",
+        "NBL",
+        "NFX",
+        "NLSN",
+        "PBCT",
+        "PCL",
+        "PCP",
+        "PDCO",
+        "POM",
+        "PXD",
+        "RAI",
+        "RHT",
+        "SCG",
+        "SEE",
+        "SIVB",
+        "SNI",
+        "SPLS",
+        "SRCL",
+        "STI",
+        "STJ",
+        "SWN",
+        "TE",
+        "TGNA",
+        "TIF",
+        "TSO",
+        "TSS",
+        "TWC",
+        "TWTR",
+        "TYC",
+        "VAR",
+        "VIAB",
+        "VIAC",
+        "WBA",
+        "WCG",
+        "WFM",
+        "WRK",
+        "WYN",
+        "XL",
+        "XLNX",
+        "YHOO"
+      ],
+      "no_cik_mapping": [
+        "ABMD",
+        "AET",
+        "ALXN",
+        "ANDV",
+        "ANSS",
+        "ARG",
+        "ARNC",
+        "ATVI",
+        "AVB",
+        "BAYRY",
+        "BBBY",
+        "BCR",
+        "BHI",
+        "BRCM",
+        "BXLT",
+        "CA",
+        "CAM",
+        "CBS",
+        "CCE",
+        "CERN",
+        "CHK",
+        "CMA",
+        "COG",
+        "COL",
+        "CPGX",
+        "CSRA",
+        "CTLT",
+        "CTRA",
+        "CTXS",
+        "CVC",
+        "CXO",
+        "DAY",
+        "DFS",
+        "DISCA",
+        "DISCK",
+        "DISH",
+        "DLPH",
+        "DNB",
+        "DO",
+        "DPS",
+        "DRE",
+        "EA",
+        "EMC",
+        "ENDP",
+        "EQR",
+        "ESRX",
+        "ESV",
+        "ETFC",
+        "EVHC",
+        "FBHS",
+        "FI",
+        "FL",
+        "FLIR",
+        "FRC",
+        "FTR",
+        "GAS",
+        "GGP",
+        "GMCR",
+        "GPS",
+        "HAR",
+        "HBI",
+        "HES",
+        "HFC",
+        "HOLX",
+        "HOT",
+        "INFO",
+        "IPG",
+        "JNPR",
+        "JWN",
+        "K",
+        "KSU",
+        "LEG",
+        "LLTC",
+        "LM",
+        "LVLT",
+        "MJN",
+        "MMC",
+        "MNK",
+        "MRO",
+        "MXIM",
+        "MYL",
+        "NBL",
+        "NFX",
+        "NLSN",
+        "PBCT",
+        "PCL",
+        "PCP",
+        "PDCO",
+        "PXD",
+        "RAI",
+        "RHT",
+        "SBNY",
+        "SCG",
+        "SEE",
+        "SIVB",
+        "SNI",
+        "SPLS",
+        "SRCL",
+        "STJ",
+        "SWN",
+        "TGNA",
+        "TIF",
+        "TSO",
+        "TSS",
+        "TWC",
+        "TWTR",
+        "TYC",
+        "VAR",
+        "VIAB",
+        "VIAC",
+        "WBA",
+        "WCG",
+        "WFM",
+        "WRK",
+        "WYN",
+        "XL",
+        "XLNX",
+        "YHOO"
+      ]
+    },
+    "note": "coverage is computed over (month-end, symbol) rows that have EDGAR facts; early years are thinner because fewer XBRL facts had been filed yet"
+  },
+  "split_adjustment": {
+    "detected_total": 142,
+    "detected_before_sample_start": 62,
+    "detected_in_sample": 80,
+    "symbols_with_in_sample_split": 64,
+    "method": "两级检测：先在看样子是「as-filed 最早值」的申报股本序列上找干净的倍数台阶，再要求该倍数被「同一期间被后续申报重述」独立证实。拆股会追溯重述拆股前各期的股本（ASC 260 强制），而以股票支付的并购增发不会——这就能把 TSLA 3:1 与 VZ-2014 / MAR-2016 / TMUS-2020 的并购增发区分开（后者完全不留重述痕迹）",
+    "validated": {
+      "checked": 17,
+      "found": 17,
+      "cases": "AAPL 7:1&4:1, NVDA 4:1&10:1, TSLA 5:1&3:1, GOOGL/AMZN 20:1, CMG 50:1, ORLY 15:1, AVGO/LRCX/SMCI 10:1, WMT/SHW 3:1, ODFL/PANW 2:1, FTNT 5:1, DECK 6:1, ANET 4:1(x2)"
+    },
+    "residual_limitation": "残余不精确两类：(1) 除拆股外，分拆(spin-off)也会重述股本，因此 DD(1/3)、HON(1/2)、AMCR(1/5) 这类分拆被当成股本调整（方向正确、倍数近似）；(2) 生效日取「新股本水平首次出现的报告期期末」，可能有 0-3 个月误差。受影响的只是分拆/拆股当季的个别标的市值，且样本起点前的拆股不影响 2016+ 面板"
+  },
+  "factors": {
+    "ep_ttm": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": 0.002,
+        "ic_std": 0.1261,
+        "ic_t": 0.17,
+        "ic_positive_rate": 0.445
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": -0.0138,
+          "ic_std": 0.1455,
+          "ic_t": -0.6,
+          "ic_positive_rate": 0.4
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": -0.0013,
+          "ic_std": 0.1248,
+          "ic_t": -0.06,
+          "ic_positive_rate": 0.472
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0193,
+          "ic_std": 0.1073,
+          "ic_t": 1.18,
+          "ic_positive_rate": 0.465
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.558,
+        "Q2_mean_pct": 1.066,
+        "Q3_mean_pct": 1.152,
+        "Q4_mean_pct": 1.17,
+        "Q5_mean_pct": 1.055,
+        "Q5_minus_Q1_mean_pct": -0.503,
+        "Q5_minus_Q1_t": -1.69,
+        "Q5_minus_Q1_positive_rate": 0.412
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0138, 2020_2022=-0.0013, 2023_2026=+0.0193）",
+      "tier": "C_reject"
+    },
+    "bp": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": -0.0176,
+        "ic_std": 0.1674,
+        "ic_t": -1.14,
+        "ic_positive_rate": 0.462
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": -0.0627,
+          "ic_std": 0.1458,
+          "ic_t": -2.72,
+          "ic_positive_rate": 0.35
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": 0.0091,
+          "ic_std": 0.2027,
+          "ic_t": 0.27,
+          "ic_positive_rate": 0.528
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0021,
+          "ic_std": 0.1477,
+          "ic_t": 0.09,
+          "ic_positive_rate": 0.512
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.522,
+        "Q2_mean_pct": 1.236,
+        "Q3_mean_pct": 1.083,
+        "Q4_mean_pct": 0.959,
+        "Q5_mean_pct": 1.188,
+        "Q5_minus_Q1_mean_pct": -0.334,
+        "Q5_minus_Q1_t": -0.85,
+        "Q5_minus_Q1_positive_rate": 0.437
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0627, 2020_2022=+0.0091, 2023_2026=+0.0021）",
+      "tier": "C_reject"
+    },
+    "sp_ttm": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": -0.0005,
+        "ic_std": 0.1618,
+        "ic_t": -0.03,
+        "ic_positive_rate": 0.462
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": -0.0415,
+          "ic_std": 0.1616,
+          "ic_t": -1.62,
+          "ic_positive_rate": 0.35
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": 0.0377,
+          "ic_std": 0.1845,
+          "ic_t": 1.23,
+          "ic_positive_rate": 0.556
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0057,
+          "ic_std": 0.1344,
+          "ic_t": 0.28,
+          "ic_positive_rate": 0.488
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.254,
+        "Q2_mean_pct": 1.133,
+        "Q3_mean_pct": 1.066,
+        "Q4_mean_pct": 1.166,
+        "Q5_mean_pct": 1.451,
+        "Q5_minus_Q1_mean_pct": 0.197,
+        "Q5_minus_Q1_t": 0.53,
+        "Q5_minus_Q1_positive_rate": 0.479
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0415, 2020_2022=+0.0377, 2023_2026=+0.0057）",
+      "tier": "C_reject"
+    },
+    "roe": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": 0.015,
+        "ic_std": 0.1049,
+        "ic_t": 1.56,
+        "ic_positive_rate": 0.588
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": 0.0294,
+          "ic_std": 0.0809,
+          "ic_t": 2.3,
+          "ic_positive_rate": 0.675
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": 0.0031,
+          "ic_std": 0.1526,
+          "ic_t": 0.12,
+          "ic_positive_rate": 0.556
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0114,
+          "ic_std": 0.0713,
+          "ic_t": 1.05,
+          "ic_positive_rate": 0.535
+        }
+      },
+      "era_sign_consistent": true,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.5,
+        "Q2_mean_pct": 0.897,
+        "Q3_mean_pct": 1.077,
+        "Q4_mean_pct": 1.236,
+        "Q5_mean_pct": 1.259,
+        "Q5_minus_Q1_mean_pct": -0.241,
+        "Q5_minus_Q1_t": -0.82,
+        "Q5_minus_Q1_positive_rate": 0.496
+      },
+      "robust": false,
+      "verdict": "不稳健：IC 均值 +0.0150, t=1.56 < 2",
+      "tier": "B_candidate"
+    },
+    "gross_margin": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": 0.0054,
+        "ic_std": 0.1329,
+        "ic_t": 0.45,
+        "ic_positive_rate": 0.555
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": 0.0363,
+          "ic_std": 0.1143,
+          "ic_t": 2.01,
+          "ic_positive_rate": 0.75
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": -0.0211,
+          "ic_std": 0.1491,
+          "ic_t": -0.85,
+          "ic_positive_rate": 0.417
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": -0.0011,
+          "ic_std": 0.1321,
+          "ic_t": -0.05,
+          "ic_positive_rate": 0.488
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.577,
+        "Q2_mean_pct": 1.364,
+        "Q3_mean_pct": 1.028,
+        "Q4_mean_pct": 1.356,
+        "Q5_mean_pct": 1.371,
+        "Q5_minus_Q1_mean_pct": -0.206,
+        "Q5_minus_Q1_t": -0.68,
+        "Q5_minus_Q1_positive_rate": 0.496
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0363, 2020_2022=-0.0211, 2023_2026=-0.0011）",
+      "tier": "C_reject"
+    },
+    "asset_turnover": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": 0.0166,
+        "ic_std": 0.1127,
+        "ic_t": 1.61,
+        "ic_positive_rate": 0.529
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": 0.0264,
+          "ic_std": 0.1128,
+          "ic_t": 1.48,
+          "ic_positive_rate": 0.525
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": 0.032,
+          "ic_std": 0.1228,
+          "ic_t": 1.56,
+          "ic_positive_rate": 0.667
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": -0.0053,
+          "ic_std": 0.1025,
+          "ic_t": -0.34,
+          "ic_positive_rate": 0.419
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 0.877,
+        "Q2_mean_pct": 1.229,
+        "Q3_mean_pct": 1.299,
+        "Q4_mean_pct": 1.368,
+        "Q5_mean_pct": 1.357,
+        "Q5_minus_Q1_mean_pct": 0.48,
+        "Q5_minus_Q1_t": 2.0,
+        "Q5_minus_Q1_positive_rate": 0.546
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0264, 2020_2022=+0.0320, 2023_2026=-0.0053）",
+      "tier": "C_reject"
+    },
+    "rev_yoy": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 107,
+        "ic_mean": 0.0127,
+        "ic_std": 0.1264,
+        "ic_t": 1.04,
+        "ic_positive_rate": 0.57
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 28,
+          "ic_mean": 0.0264,
+          "ic_std": 0.1039,
+          "ic_t": 1.35,
+          "ic_positive_rate": 0.643
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": -0.0089,
+          "ic_std": 0.1682,
+          "ic_t": -0.32,
+          "ic_positive_rate": 0.444
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0217,
+          "ic_std": 0.0959,
+          "ic_t": 1.49,
+          "ic_positive_rate": 0.628
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 107,
+        "Q1_mean_pct": 1.312,
+        "Q2_mean_pct": 0.922,
+        "Q3_mean_pct": 1.063,
+        "Q4_mean_pct": 1.073,
+        "Q5_mean_pct": 1.57,
+        "Q5_minus_Q1_mean_pct": 0.259,
+        "Q5_minus_Q1_t": 0.76,
+        "Q5_minus_Q1_positive_rate": 0.514
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0264, 2020_2022=-0.0089, 2023_2026=+0.0217）",
+      "tier": "C_reject"
+    },
+    "ni_yoy": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 107,
+        "ic_mean": 0.0072,
+        "ic_std": 0.1093,
+        "ic_t": 0.68,
+        "ic_positive_rate": 0.589
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 28,
+          "ic_mean": 0.0081,
+          "ic_std": 0.0805,
+          "ic_t": 0.53,
+          "ic_positive_rate": 0.5
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": -0.024,
+          "ic_std": 0.1448,
+          "ic_t": -0.99,
+          "ic_positive_rate": 0.556
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0327,
+          "ic_std": 0.0837,
+          "ic_t": 2.56,
+          "ic_positive_rate": 0.674
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 107,
+        "Q1_mean_pct": 1.027,
+        "Q2_mean_pct": 1.059,
+        "Q3_mean_pct": 1.014,
+        "Q4_mean_pct": 1.155,
+        "Q5_mean_pct": 1.068,
+        "Q5_minus_Q1_mean_pct": 0.042,
+        "Q5_minus_Q1_t": 0.15,
+        "Q5_minus_Q1_positive_rate": 0.598
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0081, 2020_2022=-0.0240, 2023_2026=+0.0327）",
+      "tier": "C_reject"
+    },
+    "asset_growth": {
+      "description": null,
+      "expected_sign": -1,
+      "overall": {
+        "n_months": 107,
+        "ic_mean": 0.0239,
+        "ic_std": 0.1134,
+        "ic_t": 2.18,
+        "ic_positive_rate": 0.664
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 28,
+          "ic_mean": 0.0564,
+          "ic_std": 0.0811,
+          "ic_t": 3.68,
+          "ic_positive_rate": 0.821
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": -0.0052,
+          "ic_std": 0.1558,
+          "ic_t": -0.2,
+          "ic_positive_rate": 0.556
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0271,
+          "ic_std": 0.081,
+          "ic_t": 2.19,
+          "ic_positive_rate": 0.651
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 107,
+        "Q1_mean_pct": 1.004,
+        "Q2_mean_pct": 0.982,
+        "Q3_mean_pct": 0.982,
+        "Q4_mean_pct": 1.207,
+        "Q5_mean_pct": 1.65,
+        "Q5_minus_Q1_mean_pct": 0.646,
+        "Q5_minus_Q1_t": 2.06,
+        "Q5_minus_Q1_positive_rate": 0.607
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0564, 2020_2022=-0.0052, 2023_2026=+0.0271）",
+      "tier": "C_reject"
+    },
+    "accruals": {
+      "description": null,
+      "expected_sign": -1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": -0.0017,
+        "ic_std": 0.0765,
+        "ic_t": -0.24,
+        "ic_positive_rate": 0.529
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": -0.0027,
+          "ic_std": 0.085,
+          "ic_t": -0.2,
+          "ic_positive_rate": 0.475
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": -0.0148,
+          "ic_std": 0.0752,
+          "ic_t": -1.18,
+          "ic_positive_rate": 0.472
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0102,
+          "ic_std": 0.0688,
+          "ic_t": 0.97,
+          "ic_positive_rate": 0.628
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.659,
+        "Q2_mean_pct": 1.122,
+        "Q3_mean_pct": 0.958,
+        "Q4_mean_pct": 1.036,
+        "Q5_mean_pct": 1.282,
+        "Q5_minus_Q1_mean_pct": -0.377,
+        "Q5_minus_Q1_t": -1.89,
+        "Q5_minus_Q1_positive_rate": 0.445
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0027, 2020_2022=-0.0148, 2023_2026=+0.0102）",
+      "tier": "C_reject"
+    },
+    "ocf_yield": {
+      "description": null,
+      "expected_sign": 1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": -0.0062,
+        "ic_std": 0.1624,
+        "ic_t": -0.41,
+        "ic_positive_rate": 0.462
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": -0.0503,
+          "ic_std": 0.156,
+          "ic_t": -2.04,
+          "ic_positive_rate": 0.3
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": 0.03,
+          "ic_std": 0.1916,
+          "ic_t": 0.94,
+          "ic_positive_rate": 0.583
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0046,
+          "ic_std": 0.1336,
+          "ic_t": 0.23,
+          "ic_positive_rate": 0.512
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.54,
+        "Q2_mean_pct": 1.074,
+        "Q3_mean_pct": 1.016,
+        "Q4_mean_pct": 0.902,
+        "Q5_mean_pct": 1.474,
+        "Q5_minus_Q1_mean_pct": -0.066,
+        "Q5_minus_Q1_t": -0.17,
+        "Q5_minus_Q1_positive_rate": 0.487
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0503, 2020_2022=+0.0300, 2023_2026=+0.0046）",
+      "tier": "C_reject"
+    },
+    "leverage": {
+      "description": null,
+      "expected_sign": -1,
+      "overall": {
+        "n_months": 119,
+        "ic_mean": 0.0114,
+        "ic_std": 0.1024,
+        "ic_t": 1.22,
+        "ic_positive_rate": 0.529
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 40,
+          "ic_mean": 0.0098,
+          "ic_std": 0.0975,
+          "ic_t": 0.64,
+          "ic_positive_rate": 0.45
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": 0.0027,
+          "ic_std": 0.1186,
+          "ic_t": 0.14,
+          "ic_positive_rate": 0.472
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.0202,
+          "ic_std": 0.0935,
+          "ic_t": 1.42,
+          "ic_positive_rate": 0.651
+        }
+      },
+      "era_sign_consistent": true,
+      "quantiles": {
+        "n_months": 119,
+        "Q1_mean_pct": 1.286,
+        "Q2_mean_pct": 1.02,
+        "Q3_mean_pct": 1.236,
+        "Q4_mean_pct": 1.427,
+        "Q5_mean_pct": 1.466,
+        "Q5_minus_Q1_mean_pct": 0.181,
+        "Q5_minus_Q1_t": 0.69,
+        "Q5_minus_Q1_positive_rate": 0.563
+      },
+      "robust": false,
+      "verdict": "不稳健：IC 均值 +0.0114, t=1.22 < 2",
+      "tier": "C_reject"
+    },
+    "reference_mom_12_1": {
+      "description": null,
+      "expected_sign": null,
+      "overall": {
+        "n_months": 107,
+        "ic_mean": 0.0162,
+        "ic_std": 0.1999,
+        "ic_t": 0.84,
+        "ic_positive_rate": 0.551
+      },
+      "by_era": {
+        "2016_2019": {
+          "n_months": 28,
+          "ic_mean": 0.0256,
+          "ic_std": 0.2187,
+          "ic_t": 0.62,
+          "ic_positive_rate": 0.5
+        },
+        "2020_2022": {
+          "n_months": 36,
+          "ic_mean": -0.0219,
+          "ic_std": 0.2177,
+          "ic_t": -0.6,
+          "ic_positive_rate": 0.5
+        },
+        "2023_2026": {
+          "n_months": 43,
+          "ic_mean": 0.042,
+          "ic_std": 0.1691,
+          "ic_t": 1.63,
+          "ic_positive_rate": 0.628
+        }
+      },
+      "era_sign_consistent": false,
+      "quantiles": {
+        "n_months": 107,
+        "Q1_mean_pct": 1.101,
+        "Q2_mean_pct": 1.002,
+        "Q3_mean_pct": 1.043,
+        "Q4_mean_pct": 1.026,
+        "Q5_mean_pct": 1.652,
+        "Q5_minus_Q1_mean_pct": 0.551,
+        "Q5_minus_Q1_t": 1.09,
+        "Q5_minus_Q1_positive_rate": 0.579
+      },
+      "robust": false,
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0256, 2020_2022=-0.0219, 2023_2026=+0.0420）",
+      "tier": "C_reject"
+    }
+  },
+  "summary": {
+    "robust_factors": [],
+    "candidate_factors": [
+      "roe"
+    ],
+    "rejected_factors": [
+      "ep_ttm",
+      "bp",
+      "sp_ttm",
+      "gross_margin",
+      "asset_turnover",
+      "rev_yoy",
+      "ni_yoy",
+      "asset_growth",
+      "accruals",
+      "ocf_yield",
+      "leverage"
+    ],
+    "not_robust_factors": [
+      "roe",
+      "ep_ttm",
+      "bp",
+      "sp_ttm",
+      "gross_margin",
+      "asset_turnover",
+      "rev_yoy",
+      "ni_yoy",
+      "asset_growth",
+      "accruals",
+      "ocf_yield",
+      "leverage"
+    ],
+    "reference_price_momentum": {
+      "n_months": 107,
+      "ic_mean": 0.0162,
+      "ic_std": 0.1999,
+      "ic_t": 0.84,
+      "ic_positive_rate": 0.551
+    },
+    "tier_rule": {
+      "A_robust": "|IC t| ≥ 2 且三段 IC 均值同号（本报告采用的稳健标准）",
+      "B_candidate": "|IC t| ≥ 1 且三段同号 且方向与学术先验一致 —— 值得进一步检验，不等于有 edge",
+      "C_reject": "其余全部，含自身方向与先验相反的因子（如 leverage 为正）"
+    },
+    "verdict": "无因子达到 A 级（0/12）。B 级候选：roe。其余按纪律归入 C 级，不建议进特征库。",
+    "framing": "对照：本仓自身价格动量 12-1 在同一面板上 IC=+0.0162 (t=0.84)，同样不显著。因此「基本面因子不显著」不应单独解读为基本面无用，而应解读为：在 576 只大盘股 2016-2026 的月度截面上，单因子边际信息普遍接近噪声水平；要判断增量价值，应做「与现有 13 个价量特征 + 动量的增量 IC / 组合层面」检验，而不是看单因子 t 值",
+    "era_reading": "ep_ttm 从 2016-19 的 -0.0138 翻到 2023-26 的 +0.0193（bp 同向：-0.0627 → +0.0021），与仓库其他结论（FOMC 效应是 ZIRP 产物、GBM 风格轮动）一致：价值类因子在这十年里是「regime 变量」而不是稳定因子"
+  }
+}
