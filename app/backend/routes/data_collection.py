@@ -81,7 +81,7 @@ def _query_sqlite_stats() -> List[Dict[str, Any]]:
                         "table": table,
                         "rows": count,
                         "latest_ts": latest,
-                        "ts_is_seconds": True,
+                        "ts_is_seconds": False,  # ohlcv/funding ts is milliseconds
                         "size_bytes": size,
                     })
                 except Exception:
@@ -111,6 +111,7 @@ def _query_sqlite_stats() -> List[Dict[str, Any]]:
             conn.close()
 
     # orderbook_trades.db
+    # Same fast-path rationale as polymarket: aggTrades tables are large.
     db_path = DATA_DIR / "orderbook_trades.db"
     if db_path.exists():
         size = db_path.stat().st_size
@@ -118,7 +119,7 @@ def _query_sqlite_stats() -> List[Dict[str, Any]]:
         try:
             for table, ts_col in [("trades", "ts_ms"), ("order_book_snapshots", "ts_ms")]:
                 try:
-                    count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                    count = conn.execute(f"SELECT MAX(rowid) FROM {table}").fetchone()[0] or 0
                     latest = conn.execute(f"SELECT MAX({ts_col}) FROM {table}").fetchone()[0]
                     rows.append({
                         "store": "orderbook_trades",
@@ -134,19 +135,22 @@ def _query_sqlite_stats() -> List[Dict[str, Any]]:
             conn.close()
 
     # polymarket_ticks.db
+    # NOTE: price_ticks holds 40M+ rows (13GB); COUNT(*) full-scans and can
+    # exceed HTTP timeouts. rowid-max is O(1) and equals the count because
+    # rows are never deleted (INSERT OR IGNORE upserts only).
     db_path = DATA_DIR / "polymarket_ticks.db"
     if db_path.exists():
         size = db_path.stat().st_size
         conn = sqlite3.connect(str(db_path))
         try:
-            count = conn.execute("SELECT COUNT(*) FROM price_ticks").fetchone()[0]
+            count = conn.execute("SELECT MAX(rowid) FROM price_ticks").fetchone()[0] or 0
             latest = conn.execute("SELECT MAX(ts) FROM price_ticks").fetchone()[0]
             rows.append({
                 "store": "polymarket_ticks",
                 "table": "price_ticks",
                 "rows": count,
                 "latest_ts": latest,
-                "ts_is_seconds": True,
+                "ts_is_seconds": False,  # ms since the b4c7f51 unification
                 "size_bytes": size,
             })
         except Exception:
