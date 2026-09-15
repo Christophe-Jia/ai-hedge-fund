@@ -25,6 +25,7 @@
 | # | 检查 | 判定线 | 说明 |
 |---|---|---|---|
 | 6 | **事件级显著性** `event_significance(trade_returns)` | 与 `significance` 同线（\|t\| ≥ 2）；同时输出 **bootstrap 均值 CI** 与**胜率 Wilson 区间**；n<30 标记 `small_sample` | weekend_gap 只有 25 笔：T+1 口径 **t=0.48**、胜率 64% 的 Wilson 区间 **[0.445, 0.798]** 跨过 50% → NOISE。报告中 Sharpe 0.288 的数字掩盖了「25 笔讲不出故事」。 |
+| 6b | **小样本判据优先级**（team-lead 规则） | **n < 30 时以 bootstrap 均值 CI 为主判据**；正态近似与 Bonferroni 阈值只作**上界参考** | 极小样本下 t 分布尾巴更厚，正态近似会低估不确定性（GBM/周末缺口两案都踩过）。两者并列输出，结论以 bootstrap CI 为准。 |
 | 7 | **事件分窗** `event_window_stats(trades, {"2021-23": .., "2024-26": ..})` | 各子段**事件数 + 收益分布**，跨段符号一致率 ≥ 80% | 低频策略必须证明「不是某一段行情的产物」；分段把 25 笔拆成 13+12，任何一段都不能单独支撑结论。 |
 
 ### 1.3 所有策略（≥1.1 新增）
@@ -156,6 +157,37 @@ if probe["verdict"] != "REPRODUCIBLE":
 | **RED** | 数字**自相矛盾或不可复现**：IC 与 Sharpe 不可能同时成立、显著的**负**结果、**同一策略**换窗符号翻转、top-N 边界由并列决定、孤立参数峰、**复现探针 NON_REPRODUCIBLE**。 |
 
 > 缺字段 ≠ 数字错。缺字段是 AMBER（交付卫生），数字互斥/不可复现才是 RED（结论不可用）。
+
+### 6.1 部署门槛（关键操作规则：AMBER 阻止策略，但不阻止报告）
+
+RED/AMBER 是**报告分诊**（给报告分类），不是**上线许可**。两者用途不同：
+
+| 用途 | 规则 |
+|---|---|
+| 报告分诊 | RED = 自称结论被证伪；AMBER = 结论未被证伪也未被证实；GREEN = 可交付 |
+| **上真钱门槛** | 一个**策略**（不是报告）必须 `significance = PASS` **且** `window_stability = PASS` **且** `boundary_stability = 无并列决定边界`——**三项全 PASS 才可部署**；AMBER 级别的问题足以阻止部署 |
+
+理由（两个实例教训）：
+- **GBM**：`significance` 不可计算（缺字段）→ 属 AMBER，但它照样上线了 paper trading，因为没人把「AMBER」当成阻断条件
+- **weekend_gap**：p=0.053 属 NOISE → 按分诊是 AMBER，但它被写成 playbook v1.0 让用户上真钱——如果当时有「NOISE 阻断部署」这条硬规则，红队审计的发现本可以在第一天就生效
+
+**因此：AMBER 阻止交付策略，但不阻止交付报告。** 报告可以带 AMBER 存在（用于记录与迭代），策略不行。
+
+为避免这条规则又变成「只写在文档里的散文」，它已实现为可执行函数 `deployment_gate()`：
+
+```python
+from src.validation import deployment_gate
+
+gate = deployment_gate({
+    "significance":        {"verdict": "NOISE"},              # 不是 PASS 就阻断
+    "multi_window":        {"verdict": "STABLE", "scope": "windows"},
+    "boundary":            {"verdict": "STABLE", "has_exact_ties": False},
+})
+assert gate["verdict"] == "DEPLOYMENT_BLOCKED"
+```
+
+判定：三个门槛全 PASS → `LIVE_ALLOWED`；任一未过或无法判定 → `DEPLOYMENT_BLOCKED`（`reasons` 里给出是哪一条）。
+`multi_window` 若 `scope="variants"`（消融/变体族而非同一策略换窗），窗口门槛判为**未解决**，同样阻断。
 
 ---
 

@@ -47,12 +47,28 @@ REPORTS = ROOT / "reports"
 PICKS_DIR = REPORTS / "gbm_picks"
 OUT = REPORTS / "validation_audit.json"
 
-# How many distinct lines of research this platform has actually searched:
-# funding rate, on-chain fundamentals, FOMC (decisions + hawkishness text),
-# overnight gap, order-book lead, Polymarket lead, volume confirmation,
-# limit-entry timing, 3 risk gates, GBM (sp100/sp500), meta-labelling,
-# weekend_gap, exit rules/mechanisms, DCA/leverage, book event study, ...
-PLATFORM_HYPOTHESES_SEARCHED = 20
+# How many distinct lines of research this platform has actually searched.
+# FAMILY-LEVEL count (team-lead enumeration, 2026-09-15) — a "family" is one
+# research direction, however many variants it spawned:
+#   1 funding (absolute thresholds)      15 GBM (S&P100)
+#   2 funding (rolling percentiles)      16 GBM (S&P500 expansion)
+#   3 onchain (crypto-stock basket)      17 momentum M1/M2
+#   4 onchain (trade BTC directly)       18 limit-entry timing
+#   5 FOMC decision-day effect           19 tranche/scale-in entry
+#   6 FOMC statement text (lexicon/LLM)  20 score-weighted sizing
+#   7 overnight gap (market_close)       21 exit-rule family
+#   8 overnight gap (overnight-only)     22 exit-mechanism family
+#   9 merged gap (weekend + overnight)   23 VIX gate
+#  10 order-book leading behaviour       24 momentum-regime gate
+#  11 Polymarket mid-price lead          25 MVRV valuation gate
+#  12 volume confirmation                26 DCA leverage-policy family
+#  13 meta-labelling (ML event filter)   27 fundamental factor batch
+#  14 weekend_gap itself
+# VARIANT-LEVEL (family x intra-family degrees of freedom) is ~60+: e.g.
+# weekend_gap alone spans 4 thresholds x 4 symbols x 6 exit rules; the exit
+# family has 6 variants; the risk gates have 15; fundamentals has 12 factors.
+PLATFORM_HYPOTHESES_SEARCHED = 27          # family-level (headline)
+PLATFORM_HYPOTHESES_VARIANTS = 60          # variant-level (upper bound)
 
 
 # ----------------------------------------------------------------------------
@@ -805,6 +821,25 @@ def main() -> int:
         platform["best_source"] = best[1]
     else:
         platform = multiple_comparisons(PLATFORM_HYPOTHESES_SEARCHED, None, label="best |t| across stored reports")
+
+    # Variant-level upper bound (family x intra-family degrees of freedom ~60).
+    platform_variants = multiple_comparisons(
+        PLATFORM_HYPOTHESES_VARIANTS,
+        {"t_stat": best[3], "n": best[2]} if best else None,
+        label="variant-level upper bound (family x intra-family dof ~60)",
+    )
+    platform["n_hypotheses_family_level"] = PLATFORM_HYPOTHESES_SEARCHED
+    platform["n_hypotheses_variant_level"] = PLATFORM_HYPOTHESES_VARIANTS
+    platform["variant_level_check"] = platform_variants
+    platform["interpretation"] = (
+        "Multiple-comparison correction penalises the SEARCH, not reality. Its correct reading is "
+        "'do not trust any single conclusion that merely survived a search' — NOT 'everything is false'. "
+        "The two legitimate escapes: (1) ex-ante theory-driven hypotheses (a hypothesis written down "
+        "before looking at the data carries a different prior and is not penalised the same way); "
+        "(2) FORWARD validation — genuinely new out-of-sample evidence is the only thing that raises "
+        "confidence. The platform's durable value is the infrastructure plus this discipline, not any "
+        "particular edge mined from history."
+    )
 
     out = {
         "meta": {

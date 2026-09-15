@@ -85,21 +85,40 @@
     ],
     "platform_search": {
       "label": "best |t| stored anywhere: gbm_attribution",
-      "n_hypotheses": 20,
+      "n_hypotheses": 27,
       "observed_t": 1.8373148664978474,
       "observed_p": 0.07420512258358092,
       "df": 37,
       "alpha": 0.05,
-      "corrected_alpha": 0.0025,
+      "corrected_alpha": 0.001851851851851852,
       "bonferroni_p": 1.0,
-      "required_t": 3.023341439739153,
-      "expected_best_abs_t_under_null": 2.4477468306808166,
-      "null_threshold_p": 0.0024999999999999467,
+      "required_t": 3.1130172634086892,
+      "expected_best_abs_t_under_null": 2.567425506613319,
+      "null_threshold_p": 0.0018518518518517713,
       "family_wise_survivor": false,
       "fdr_bh": null,
       "verdict": "FAILS",
-      "interpretation": "|t|=1.84 vs required 3.02 for N=20; under the null the best of 20 independent tests is already ~2.45, so this is inside the search noise",
-      "best_source": "gbm_attribution"
+      "interpretation": "Multiple-comparison correction penalises the SEARCH, not reality. Its correct reading is 'do not trust any single conclusion that merely survived a search' — NOT 'everything is false'. The two legitimate escapes: (1) ex-ante theory-driven hypotheses (a hypothesis written down before looking at the data carries a different prior and is not penalised the same way); (2) FORWARD validation — genuinely new out-of-sample evidence is the only thing that raises confidence. The platform's durable value is the infrastructure plus this discipline, not any particular edge mined from history.",
+      "best_source": "gbm_attribution",
+      "n_hypotheses_family_level": 27,
+      "n_hypotheses_variant_level": 60,
+      "variant_level_check": {
+        "label": "variant-level upper bound (family x intra-family dof ~60)",
+        "n_hypotheses": 60,
+        "observed_t": 1.8373148664978474,
+        "observed_p": 0.07420512258358092,
+        "df": 37,
+        "alpha": 0.05,
+        "corrected_alpha": 0.0008333333333333334,
+        "bonferroni_p": 1.0,
+        "required_t": 3.3414789560386264,
+        "expected_best_abs_t_under_null": 2.8615885665909766,
+        "null_threshold_p": 0.0008333333333332416,
+        "family_wise_survivor": false,
+        "fdr_bh": null,
+        "verdict": "FAILS",
+        "interpretation": "|t|=1.84 vs required 3.34 for N=60; under the null the best of 60 independent tests is already ~2.86, so this is inside the search noise"
+      }
     },
     "headline": "4/13 strategies are RED. The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), red_team (no significance / window / boundary fields) and boundary (exact score ties in shipped picks)."
   },
@@ -1230,20 +1249,20 @@
         },
         "multiple_comparisons": {
           "label": "pre-2024 monthly excess t vs platform-wide search",
-          "n_hypotheses": 20,
+          "n_hypotheses": 27,
           "observed_t": 1.8373,
           "observed_p": 0.07420736525929078,
           "df": 37,
           "alpha": 0.05,
-          "corrected_alpha": 0.0025,
+          "corrected_alpha": 0.001851851851851852,
           "bonferroni_p": 1.0,
-          "required_t": 3.023341439739153,
-          "expected_best_abs_t_under_null": 2.4477468306808166,
-          "null_threshold_p": 0.0024999999999999467,
+          "required_t": 3.1130172634086892,
+          "expected_best_abs_t_under_null": 2.567425506613319,
+          "null_threshold_p": 0.0018518518518517713,
           "family_wise_survivor": false,
           "fdr_bh": null,
           "verdict": "FAILS",
-          "interpretation": "|t|=1.84 vs required 3.02 for N=20; under the null the best of 20 independent tests is already ~2.45, so this is inside the search noise"
+          "interpretation": "|t|=1.84 vs required 3.11 for N=27; under the null the best of 27 independent tests is already ~2.57, so this is inside the search noise"
         }
       },
       "should_have_caught": [
@@ -1255,7 +1274,7 @@
       "red_flags": [
         "headline metric indistinguishable from zero (t=1.8373148664978474, n=38)",
         "metric flips sign across test windows (sign consistency 0.5714285714285714)",
-        "does not survive the search of N=20 hypotheses (|t|=1.8373 vs required 3.023341439739153)",
+        "does not survive the search of N=27 hypotheses (|t|=1.8373 vs required 3.1130172634086892)",
         "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
       ],
       "verdict": "RED"
