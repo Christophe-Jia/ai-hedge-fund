@@ -1,0 +1,1936 @@
+{
+  "generated_at": "2026-09-15T05:00:57.768410+00:00",
+  "title": "Polymarket data asset inventory + exploratory mining",
+  "collector": "scripts/collect_polymarket_ticks.py (read-only reference)",
+  "inventory": {
+    "exists": true,
+    "path": "/Users/jeffryjia/Vibe/ai-hedge-fund/data/polymarket_ticks.db",
+    "db_size_mb": 62.7,
+    "total_ticks": 200531,
+    "coverage_start": "2026-02-02 13:00:11",
+    "coverage_end": "2026-03-02 12:57:27",
+    "coverage_days": 28.0,
+    "tokens_with_ticks": 50,
+    "tokens_in_metadata": 100,
+    "conditions_with_ticks": 25,
+    "conditions_in_metadata": 50,
+    "dead_market_tokens_no_ticks": 50,
+    "dead_market_conditions": 25,
+    "category_counts_conditions": {
+      "sports": 19,
+      "geopolitics": 3,
+      "politics": 2,
+      "tech": 1
+    },
+    "tick_cadence": {
+      "sampled_token": "6198213865465827...",
+      "n_gaps": 4022,
+      "median_gap_s": 600,
+      "p90_gap_s": 602,
+      "max_gap_s": 2400,
+      "min_gap_s": 27
+    },
+    "out_of_range_prices": 0,
+    "markets": [
+      {
+        "condition_id": "0xa4f53bf6ef803cb4ffef6a98c14394a2ac05bf514cb6c0f4557bd050f782b38d",
+        "question": "Will the Golden State Warriors win the NBA Western Conference Finals?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8045,
+        "yes_price_min": 0.936,
+        "yes_price_max": 0.991
+      },
+      {
+        "condition_id": "0xfbf7ab9e6b6d324ffe436bab8c7a1e10aeb8200e10c1e1dbb35d2959becebc1e",
+        "question": "Will the Golden State Warriors win the 2026 NBA Finals?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8045,
+        "yes_price_min": 0.978,
+        "yes_price_max": 0.9915
+      },
+      {
+        "condition_id": "0x139b893a7ae21eaec72e887ba88910831944b4662512428c122c4ad0a5c125ac",
+        "question": "Will the Ottawa Senators win the 2026 NHL Stanley Cup?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.9665,
+        "yes_price_max": 0.9915
+      },
+      {
+        "condition_id": "0x14e33853b4c3a94fe457426779177518c9da32cd6466a78d8fd1bb7348d07a5c",
+        "question": "Will Collin Murray-Boyles win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.9935,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0x2096cd3bedb878cbfb5d30308968616a1dfd80e17b278ca6bdc72f9dde4776a7",
+        "question": "Will Cooper Flagg win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.32,
+        "yes_price_max": 0.905
+      },
+      {
+        "condition_id": "0x29445a22570a7072c932f09667807d5f875b3fa33e413634a8ba056680c122f1",
+        "question": "Will Jeremiah Fears win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.9955,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0x84edef36bded182da6a395ac6c785dba8f3e09b6c5ad041385b2042536cbef25",
+        "question": "Will Iran win the 2026 FIFA World Cup?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.9965,
+        "yes_price_max": 0.9975
+      },
+      {
+        "condition_id": "0xd9b502ee5b8ec6276a4ba48c08698012581f1780cb3dfc3b65d0afdeba712501",
+        "question": "Will Tre Johnson win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.985,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0xdce84960dce38aa4a5800a5eba7c9ac34d2ce49ba9d44c42572c472d468af264",
+        "question": "Will Raphael Warnock win the 2028 Democratic presidential nomination?",
+        "category": "politics",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.9905,
+        "yes_price_max": 0.9925
+      },
+      {
+        "condition_id": "0xe9674aadfabfa7171bcee4e38b66f1a7d7e0af538d3718301e7b3cf111e9b5dd",
+        "question": "Will OpenAI launch a new consumer hardware product by March 31, 2026?",
+        "category": "tech",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8044,
+        "yes_price_min": 0.535,
+        "yes_price_max": 0.9785
+      },
+      {
+        "condition_id": "0x9c1a953fe92c8357f1b646ba25d983aa83e90c525992db14fb726fa895cb5763",
+        "question": "Russia-Ukraine Ceasefire before GTA VI?",
+        "category": "geopolitics",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8043,
+        "yes_price_min": 0.555,
+        "yes_price_max": 0.625
+      },
+      {
+        "condition_id": "0xeac5b83f5a220a179df631b51cff9d3f0431144c9174a688340f326a1545ad3a",
+        "question": "Will Jase Richardson win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8043,
+        "yes_price_min": 0.998,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0xfee07be730188c94cd3644ed6f107fa3ea2dfab9989ce8d39aeeae064766abe3",
+        "question": "Will Jon Stewart win the 2028 Democratic presidential nomination?",
+        "category": "politics",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8043,
+        "yes_price_min": 0.9775,
+        "yes_price_max": 0.9785
+      },
+      {
+        "condition_id": "0x12825eba8d16dbefc612f5c8ad866790c303c6c632c546fa191974c99b9b565a",
+        "question": "Will V.J. Edgecombe win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8038,
+        "yes_price_min": 0.976,
+        "yes_price_max": 0.9985
+      },
+      {
+        "condition_id": "0x9fe87b4bec41ca0b2e5f09b79e59f9aba6a88feab636db30b70fa103c1b54e5a",
+        "question": "Will Kon Knueppel win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8038,
+        "yes_price_min": 0.3345,
+        "yes_price_max": 0.9335
+      },
+      {
+        "condition_id": "0x3ae773d76d652f80ed69c1478ca2349249ea0d2182bca1d6ed66deb23c36c3b7",
+        "question": "Will Derik Queen win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8022,
+        "yes_price_min": 0.989,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0x33882fdaa147a31a1231293615b6e249ee8cf790fce9d8dc14f312f7b3cc0e30",
+        "question": "Will Anthony Edwards win the 2025\u20132026 NBA MVP?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8016,
+        "yes_price_min": 0.9945,
+        "yes_price_max": 0.9975
+      },
+      {
+        "condition_id": "0x590f66d94c8b88900d59fba5a6f95525530988960be15b003114cbb14a0c5fce",
+        "question": "Will Cedric Coward win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 8009,
+        "yes_price_min": 0.997,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0xcd018a674216fb8b534a8a5cd2edd5f8413810dc52901f3d268995ea65cf47c2",
+        "question": "Will Ace Bailey win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 7998,
+        "yes_price_min": 0.995,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0xb1784e3f7c831565155db9811c82b8f91392611424bb0c382373b5fc50a0072b",
+        "question": "Will Dylan Harper win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 7996,
+        "yes_price_min": 0.9975,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0x1d54eb5eac2cee8f595f3097c65da7d07f8ab5dee63d7c0c6883eb70e1e9af30",
+        "question": "Russia x Ukraine ceasefire by March 31, 2026?",
+        "category": "geopolitics",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 7984,
+        "yes_price_min": 0.875,
+        "yes_price_max": 0.9755
+      },
+      {
+        "condition_id": "0xe9d14cd6648b506c7411a09de22c2581ad681d0a5afd6ed6b2847c5025c1f6bd",
+        "question": "Will Khaman Maluach win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 7983,
+        "yes_price_min": 0.9835,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0x49dd88d90ecd4b05eac72f129e56689c1a1bcd670ecce2ac5e1670459cf37f5b",
+        "question": "Will Walter Clayton Jr. win the 2025\u201326 NBA Rookie of the Year award?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 7971,
+        "yes_price_min": 0.977,
+        "yes_price_max": 0.9995
+      },
+      {
+        "condition_id": "0xfef0954af0d43ea46c1ac246ac009dbcd0f76d36fd93b78d3586b23b386028ef",
+        "question": "Will Ukraine qualify for the 2026 FIFA World Cup?",
+        "category": "sports",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 7956,
+        "yes_price_min": 0.565,
+        "yes_price_max": 0.745
+      },
+      {
+        "condition_id": "0x6bd56627aa21311850825edb27e53434a0e17a4f782be0086bc07f71eee00d0d",
+        "question": "Putin out as President of Russia by end of 2026?",
+        "category": "geopolitics",
+        "n_tokens_with_ticks": 2,
+        "n_ticks": 7949,
+        "yes_price_min": 0.87,
+        "yes_price_max": 0.905
+      }
+    ]
+  },
+  "supplementary_files": {
+    "dir": "/Users/jeffryjia/Vibe/ai-hedge-fund/data/polymarket",
+    "exists": true,
+    "files": {
+      "price_history": {
+        "n_files": 144
+      },
+      "price_history_feb2026": {
+        "n_files": 46
+      },
+      "analysis_iran_feb2026.json": {
+        "bytes": 823203
+      },
+      "markets_feb2026.json": {
+        "bytes": 297412
+      },
+      "markets_jan2025.json": {
+        "bytes": 920330
+      },
+      "btc_1h_feb2026.csv": {
+        "bytes": 19110
+      }
+    },
+    "prior_iran_analysis": {
+      "generated_at": "2026-03-02T09:49:21.973329+00:00",
+      "event_focus": "US/Israel-Iran strike 2026-02-28",
+      "n_markets": 43,
+      "note": "one-off anomaly/event study, not committed, not re-runnable"
+    }
+  },
+  "local_explorations": {
+    "yes_no_complement": {
+      "n_paired_timestamps": 3180,
+      "n_exactly_1": 3180,
+      "mean_sum": 1.0,
+      "median_abs_dev": 0.0,
+      "p95_abs_dev": 0.0,
+      "max_abs_dev": 0.0,
+      "interpretation": "YES+NO sums equal exactly 1.0 at every paired timestamp \u2014 the API appears to derive the complementary token's series from the same book (mid prices are perfect mirrors). The NO token adds no independent information; bid-ask wedge is NOT measurable from these mids (would need order-book snapshots)."
+    },
+    "extreme_probability": {
+      "n_conditions": 25,
+      "n_locked_gt50pct_time_in_extreme": 20,
+      "locked_markets": [
+        {
+          "condition_id": "0xfbf7ab9e6b6d324ffe436bab8c7a1e10aeb8200e10c1e1dbb35d2959becebc1e",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.978,
+          "yes_price_max": 0.9915
+        },
+        {
+          "condition_id": "0xcd018a674216fb8b534a8a5cd2edd5f8413810dc52901f3d268995ea65cf47c2",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.995,
+          "yes_price_max": 0.9995
+        },
+        {
+          "condition_id": "0x14e33853b4c3a94fe457426779177518c9da32cd6466a78d8fd1bb7348d07a5c",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.9935,
+          "yes_price_max": 0.9995
+        },
+        {
+          "condition_id": "0xa4f53bf6ef803cb4ffef6a98c14394a2ac05bf514cb6c0f4557bd050f782b38d",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.936,
+          "yes_price_max": 0.991
+        },
+        {
+          "condition_id": "0x84edef36bded182da6a395ac6c785dba8f3e09b6c5ad041385b2042536cbef25",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.9965,
+          "yes_price_max": 0.9975
+        },
+        {
+          "condition_id": "0xdce84960dce38aa4a5800a5eba7c9ac34d2ce49ba9d44c42572c472d468af264",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.9905,
+          "yes_price_max": 0.9925
+        },
+        {
+          "condition_id": "0xd9b502ee5b8ec6276a4ba48c08698012581f1780cb3dfc3b65d0afdeba712501",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.985,
+          "yes_price_max": 0.9995
+        },
+        {
+          "condition_id": "0x29445a22570a7072c932f09667807d5f875b3fa33e413634a8ba056680c122f1",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.9955,
+          "yes_price_max": 0.9995
+        },
+        {
+          "condition_id": "0x139b893a7ae21eaec72e887ba88910831944b4662512428c122c4ad0a5c125ac",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.9665,
+          "yes_price_max": 0.9915
+        },
+        {
+          "condition_id": "0xfee07be730188c94cd3644ed6f107fa3ea2dfab9989ce8d39aeeae064766abe3",
+          "question": null,
+          "frac_ticks_above_0.9": 1.0,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.9775,
+          "yes_price_max": 0.9785
+        }
+      ],
+      "n_genuinely_contested_crossed_40_60": 2,
+      "contested_markets": [
+        {
+          "condition_id": "0x2096cd3bedb878cbfb5d30308968616a1dfd80e17b278ca6bdc72f9dde4776a7",
+          "question": null,
+          "frac_ticks_above_0.9": 0.002,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.32,
+          "yes_price_max": 0.905
+        },
+        {
+          "condition_id": "0x9fe87b4bec41ca0b2e5f09b79e59f9aba6a88feab636db30b70fa103c1b54e5a",
+          "question": null,
+          "frac_ticks_above_0.9": 0.04,
+          "frac_ticks_below_0.1": 0.0,
+          "yes_price_min": 0.3345,
+          "yes_price_max": 0.9335
+        }
+      ],
+      "note": "68% of tracked markets spent >50% of the time pinned >0.9 or <0.1 \u2014 the keyword-scan discovery captured mostly already-decided markets. Collection window ended 2026-03-02, so resolution behaviour (final convergence to 0/1) is NOT observable in this data."
+    },
+    "geopolitics_vs_btc_lead_lag": {
+      "markets": {
+        "[politics] Will Raphael Warnock win the 2028 Democratic presidential nomination?": {
+          "category": "politics",
+          "n_hourly_obs": 672,
+          "yes_price_range": [
+            0.9905,
+            0.9925
+          ],
+          "lead_lag_vs_btc_1h": {
+            "n_hours": 672,
+            "lag_table": [
+              {
+                "lag_hours": -12,
+                "r": 0.0167,
+                "n": 659,
+                "tstat_ignoring_autocorr": 0.43
+              },
+              {
+                "lag_hours": -11,
+                "r": -0.0047,
+                "n": 660,
+                "tstat_ignoring_autocorr": -0.12
+              },
+              {
+                "lag_hours": -10,
+                "r": -0.0312,
+                "n": 661,
+                "tstat_ignoring_autocorr": -0.8
+              },
+              {
+                "lag_hours": -9,
+                "r": -0.0084,
+                "n": 662,
+                "tstat_ignoring_autocorr": -0.22
+              },
+              {
+                "lag_hours": -8,
+                "r": -0.0096,
+                "n": 663,
+                "tstat_ignoring_autocorr": -0.25
+              },
+              {
+                "lag_hours": -7,
+                "r": 0.0093,
+                "n": 664,
+                "tstat_ignoring_autocorr": 0.24
+              },
+              {
+                "lag_hours": -6,
+                "r": 0.0489,
+                "n": 665,
+                "tstat_ignoring_autocorr": 1.26
+              },
+              {
+                "lag_hours": -5,
+                "r": 0.0627,
+                "n": 666,
+                "tstat_ignoring_autocorr": 1.62
+              },
+              {
+                "lag_hours": -4,
+                "r": 0.0015,
+                "n": 667,
+                "tstat_ignoring_autocorr": 0.04
+              },
+              {
+                "lag_hours": -3,
+                "r": 0.0308,
+                "n": 668,
+                "tstat_ignoring_autocorr": 0.8
+              },
+              {
+                "lag_hours": -2,
+                "r": 0.0784,
+                "n": 669,
+                "tstat_ignoring_autocorr": 2.03
+              },
+              {
+                "lag_hours": -1,
+                "r": -0.0264,
+                "n": 670,
+                "tstat_ignoring_autocorr": -0.68
+              },
+              {
+                "lag_hours": 0,
+                "r": 0.084,
+                "n": 671,
+                "tstat_ignoring_autocorr": 2.18
+              },
+              {
+                "lag_hours": 1,
+                "r": 0.0051,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.13
+              },
+              {
+                "lag_hours": 2,
+                "r": 0.0146,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.38
+              },
+              {
+                "lag_hours": 3,
+                "r": 0.0883,
+                "n": 671,
+                "tstat_ignoring_autocorr": 2.29
+              },
+              {
+                "lag_hours": 4,
+                "r": 0.0172,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.45
+              },
+              {
+                "lag_hours": 5,
+                "r": -0.0673,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.74
+              },
+              {
+                "lag_hours": 6,
+                "r": 0.0197,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.51
+              },
+              {
+                "lag_hours": 7,
+                "r": -0.0288,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.75
+              },
+              {
+                "lag_hours": 8,
+                "r": -0.098,
+                "n": 671,
+                "tstat_ignoring_autocorr": -2.55
+              },
+              {
+                "lag_hours": 9,
+                "r": 0.0612,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.58
+              },
+              {
+                "lag_hours": 10,
+                "r": 0.071,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.84
+              },
+              {
+                "lag_hours": 11,
+                "r": -0.0136,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.35
+              },
+              {
+                "lag_hours": 12,
+                "r": -0.0458,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.18
+              }
+            ],
+            "peak": {
+              "lag_hours": 8,
+              "r": -0.098,
+              "n": 671,
+              "tstat_ignoring_autocorr": -2.55
+            },
+            "caveat": "hourly overlapping observations; t-stats ignore autocorrelation and multiple comparison across lags \u2014 treat as descriptive, not tests"
+          }
+        },
+        "[geopolitics] Russia-Ukraine Ceasefire before GTA VI?": {
+          "category": "geopolitics",
+          "n_hourly_obs": 672,
+          "yes_price_range": [
+            0.555,
+            0.625
+          ],
+          "lead_lag_vs_btc_1h": {
+            "n_hours": 672,
+            "lag_table": [
+              {
+                "lag_hours": -12,
+                "r": -0.0205,
+                "n": 659,
+                "tstat_ignoring_autocorr": -0.53
+              },
+              {
+                "lag_hours": -11,
+                "r": 0.0906,
+                "n": 660,
+                "tstat_ignoring_autocorr": 2.33
+              },
+              {
+                "lag_hours": -10,
+                "r": -0.052,
+                "n": 661,
+                "tstat_ignoring_autocorr": -1.34
+              },
+              {
+                "lag_hours": -9,
+                "r": -0.0145,
+                "n": 662,
+                "tstat_ignoring_autocorr": -0.37
+              },
+              {
+                "lag_hours": -8,
+                "r": 0.0245,
+                "n": 663,
+                "tstat_ignoring_autocorr": 0.63
+              },
+              {
+                "lag_hours": -7,
+                "r": 0.0163,
+                "n": 664,
+                "tstat_ignoring_autocorr": 0.42
+              },
+              {
+                "lag_hours": -6,
+                "r": 0.0117,
+                "n": 665,
+                "tstat_ignoring_autocorr": 0.3
+              },
+              {
+                "lag_hours": -5,
+                "r": 0.0319,
+                "n": 666,
+                "tstat_ignoring_autocorr": 0.82
+              },
+              {
+                "lag_hours": -4,
+                "r": -0.0499,
+                "n": 667,
+                "tstat_ignoring_autocorr": -1.29
+              },
+              {
+                "lag_hours": -3,
+                "r": 0.0234,
+                "n": 668,
+                "tstat_ignoring_autocorr": 0.6
+              },
+              {
+                "lag_hours": -2,
+                "r": 0.0653,
+                "n": 669,
+                "tstat_ignoring_autocorr": 1.69
+              },
+              {
+                "lag_hours": -1,
+                "r": -0.0498,
+                "n": 670,
+                "tstat_ignoring_autocorr": -1.29
+              },
+              {
+                "lag_hours": 0,
+                "r": -0.0544,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.41
+              },
+              {
+                "lag_hours": 1,
+                "r": 0.0322,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.83
+              },
+              {
+                "lag_hours": 2,
+                "r": -0.0747,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.94
+              },
+              {
+                "lag_hours": 3,
+                "r": -0.0039,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.1
+              },
+              {
+                "lag_hours": 4,
+                "r": 0.0187,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.48
+              },
+              {
+                "lag_hours": 5,
+                "r": -0.0849,
+                "n": 671,
+                "tstat_ignoring_autocorr": -2.21
+              },
+              {
+                "lag_hours": 6,
+                "r": -0.0431,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.12
+              },
+              {
+                "lag_hours": 7,
+                "r": 0.0426,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.1
+              },
+              {
+                "lag_hours": 8,
+                "r": -0.0622,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.61
+              },
+              {
+                "lag_hours": 9,
+                "r": 0.0006,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.02
+              },
+              {
+                "lag_hours": 10,
+                "r": -0.0068,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.17
+              },
+              {
+                "lag_hours": 11,
+                "r": 0.0214,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.55
+              },
+              {
+                "lag_hours": 12,
+                "r": 0.0442,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.14
+              }
+            ],
+            "peak": {
+              "lag_hours": -11,
+              "r": 0.0906,
+              "n": 660,
+              "tstat_ignoring_autocorr": 2.33
+            },
+            "caveat": "hourly overlapping observations; t-stats ignore autocorrelation and multiple comparison across lags \u2014 treat as descriptive, not tests"
+          }
+        },
+        "[politics] Will Jon Stewart win the 2028 Democratic presidential nomination?": {
+          "category": "politics",
+          "n_hourly_obs": 672,
+          "yes_price_range": [
+            0.9775,
+            0.9785
+          ],
+          "lead_lag_vs_btc_1h": {
+            "n_hours": 672,
+            "lag_table": [
+              {
+                "lag_hours": -12,
+                "r": 0.0505,
+                "n": 659,
+                "tstat_ignoring_autocorr": 1.3
+              },
+              {
+                "lag_hours": -11,
+                "r": -0.0046,
+                "n": 660,
+                "tstat_ignoring_autocorr": -0.12
+              },
+              {
+                "lag_hours": -10,
+                "r": 0.0242,
+                "n": 661,
+                "tstat_ignoring_autocorr": 0.62
+              },
+              {
+                "lag_hours": -9,
+                "r": 0.0276,
+                "n": 662,
+                "tstat_ignoring_autocorr": 0.71
+              },
+              {
+                "lag_hours": -8,
+                "r": -0.0822,
+                "n": 663,
+                "tstat_ignoring_autocorr": -2.12
+              },
+              {
+                "lag_hours": -7,
+                "r": -0.0154,
+                "n": 664,
+                "tstat_ignoring_autocorr": -0.4
+              },
+              {
+                "lag_hours": -6,
+                "r": 0.0328,
+                "n": 665,
+                "tstat_ignoring_autocorr": 0.84
+              },
+              {
+                "lag_hours": -5,
+                "r": 0.0401,
+                "n": 666,
+                "tstat_ignoring_autocorr": 1.03
+              },
+              {
+                "lag_hours": -4,
+                "r": -0.0373,
+                "n": 667,
+                "tstat_ignoring_autocorr": -0.96
+              },
+              {
+                "lag_hours": -3,
+                "r": -0.093,
+                "n": 668,
+                "tstat_ignoring_autocorr": -2.41
+              },
+              {
+                "lag_hours": -2,
+                "r": 0.0336,
+                "n": 669,
+                "tstat_ignoring_autocorr": 0.87
+              },
+              {
+                "lag_hours": -1,
+                "r": -0.0517,
+                "n": 670,
+                "tstat_ignoring_autocorr": -1.34
+              },
+              {
+                "lag_hours": 0,
+                "r": 0.0107,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.28
+              },
+              {
+                "lag_hours": 1,
+                "r": -0.0973,
+                "n": 671,
+                "tstat_ignoring_autocorr": -2.53
+              },
+              {
+                "lag_hours": 2,
+                "r": -0.0238,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.62
+              },
+              {
+                "lag_hours": 3,
+                "r": -0.0009,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.02
+              },
+              {
+                "lag_hours": 4,
+                "r": -0.0443,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.15
+              },
+              {
+                "lag_hours": 5,
+                "r": 0.0401,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.04
+              },
+              {
+                "lag_hours": 6,
+                "r": 0.0007,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.02
+              },
+              {
+                "lag_hours": 7,
+                "r": 0.0169,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.44
+              },
+              {
+                "lag_hours": 8,
+                "r": 0.0046,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.12
+              },
+              {
+                "lag_hours": 9,
+                "r": -0.0612,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.59
+              },
+              {
+                "lag_hours": 10,
+                "r": -0.0088,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.23
+              },
+              {
+                "lag_hours": 11,
+                "r": 0.0343,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.89
+              },
+              {
+                "lag_hours": 12,
+                "r": 0.0473,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.22
+              }
+            ],
+            "peak": {
+              "lag_hours": 1,
+              "r": -0.0973,
+              "n": 671,
+              "tstat_ignoring_autocorr": -2.53
+            },
+            "caveat": "hourly overlapping observations; t-stats ignore autocorrelation and multiple comparison across lags \u2014 treat as descriptive, not tests"
+          }
+        },
+        "[tech] Will OpenAI launch a new consumer hardware product by March 31, 2026?": {
+          "category": "tech",
+          "n_hourly_obs": 672,
+          "yes_price_range": [
+            0.601,
+            0.975
+          ],
+          "lead_lag_vs_btc_1h": {
+            "n_hours": 672,
+            "lag_table": [
+              {
+                "lag_hours": -12,
+                "r": -0.0442,
+                "n": 659,
+                "tstat_ignoring_autocorr": -1.13
+              },
+              {
+                "lag_hours": -11,
+                "r": -0.0401,
+                "n": 660,
+                "tstat_ignoring_autocorr": -1.03
+              },
+              {
+                "lag_hours": -10,
+                "r": -0.0228,
+                "n": 661,
+                "tstat_ignoring_autocorr": -0.58
+              },
+              {
+                "lag_hours": -9,
+                "r": 0.0708,
+                "n": 662,
+                "tstat_ignoring_autocorr": 1.82
+              },
+              {
+                "lag_hours": -8,
+                "r": 0.0081,
+                "n": 663,
+                "tstat_ignoring_autocorr": 0.21
+              },
+              {
+                "lag_hours": -7,
+                "r": 0.0252,
+                "n": 664,
+                "tstat_ignoring_autocorr": 0.65
+              },
+              {
+                "lag_hours": -6,
+                "r": -0.0602,
+                "n": 665,
+                "tstat_ignoring_autocorr": -1.55
+              },
+              {
+                "lag_hours": -5,
+                "r": -0.0104,
+                "n": 666,
+                "tstat_ignoring_autocorr": -0.27
+              },
+              {
+                "lag_hours": -4,
+                "r": -0.0344,
+                "n": 667,
+                "tstat_ignoring_autocorr": -0.89
+              },
+              {
+                "lag_hours": -3,
+                "r": 0.0091,
+                "n": 668,
+                "tstat_ignoring_autocorr": 0.23
+              },
+              {
+                "lag_hours": -2,
+                "r": 0.0072,
+                "n": 669,
+                "tstat_ignoring_autocorr": 0.19
+              },
+              {
+                "lag_hours": -1,
+                "r": -0.0117,
+                "n": 670,
+                "tstat_ignoring_autocorr": -0.3
+              },
+              {
+                "lag_hours": 0,
+                "r": 0.0452,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.17
+              },
+              {
+                "lag_hours": 1,
+                "r": -0.0159,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.41
+              },
+              {
+                "lag_hours": 2,
+                "r": -0.0148,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.38
+              },
+              {
+                "lag_hours": 3,
+                "r": -0.0082,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.21
+              },
+              {
+                "lag_hours": 4,
+                "r": -0.0473,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.23
+              },
+              {
+                "lag_hours": 5,
+                "r": 0.045,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.16
+              },
+              {
+                "lag_hours": 6,
+                "r": -0.0117,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.3
+              },
+              {
+                "lag_hours": 7,
+                "r": 0.0041,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.1
+              },
+              {
+                "lag_hours": 8,
+                "r": -0.0069,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.18
+              },
+              {
+                "lag_hours": 9,
+                "r": 0.0565,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.46
+              },
+              {
+                "lag_hours": 10,
+                "r": 0.0028,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.07
+              },
+              {
+                "lag_hours": 11,
+                "r": 0.0255,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.66
+              },
+              {
+                "lag_hours": 12,
+                "r": -0.0033,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.09
+              }
+            ],
+            "peak": {
+              "lag_hours": -9,
+              "r": 0.0708,
+              "n": 662,
+              "tstat_ignoring_autocorr": 1.82
+            },
+            "caveat": "hourly overlapping observations; t-stats ignore autocorrelation and multiple comparison across lags \u2014 treat as descriptive, not tests"
+          }
+        },
+        "[geopolitics] Russia x Ukraine ceasefire by March 31, 2026?": {
+          "category": "geopolitics",
+          "n_hourly_obs": 672,
+          "yes_price_range": [
+            0.875,
+            0.9755
+          ],
+          "lead_lag_vs_btc_1h": {
+            "n_hours": 672,
+            "lag_table": [
+              {
+                "lag_hours": -12,
+                "r": -0.0023,
+                "n": 659,
+                "tstat_ignoring_autocorr": -0.06
+              },
+              {
+                "lag_hours": -11,
+                "r": -0.0298,
+                "n": 660,
+                "tstat_ignoring_autocorr": -0.77
+              },
+              {
+                "lag_hours": -10,
+                "r": -0.0263,
+                "n": 661,
+                "tstat_ignoring_autocorr": -0.68
+              },
+              {
+                "lag_hours": -9,
+                "r": -0.0717,
+                "n": 662,
+                "tstat_ignoring_autocorr": -1.85
+              },
+              {
+                "lag_hours": -8,
+                "r": 0.025,
+                "n": 663,
+                "tstat_ignoring_autocorr": 0.64
+              },
+              {
+                "lag_hours": -7,
+                "r": 0.0402,
+                "n": 664,
+                "tstat_ignoring_autocorr": 1.04
+              },
+              {
+                "lag_hours": -6,
+                "r": 0.0474,
+                "n": 665,
+                "tstat_ignoring_autocorr": 1.22
+              },
+              {
+                "lag_hours": -5,
+                "r": -0.1185,
+                "n": 666,
+                "tstat_ignoring_autocorr": -3.08
+              },
+              {
+                "lag_hours": -4,
+                "r": -0.0829,
+                "n": 667,
+                "tstat_ignoring_autocorr": -2.15
+              },
+              {
+                "lag_hours": -3,
+                "r": 0.0339,
+                "n": 668,
+                "tstat_ignoring_autocorr": 0.87
+              },
+              {
+                "lag_hours": -2,
+                "r": -0.1233,
+                "n": 669,
+                "tstat_ignoring_autocorr": -3.21
+              },
+              {
+                "lag_hours": -1,
+                "r": 0.0387,
+                "n": 670,
+                "tstat_ignoring_autocorr": 1.0
+              },
+              {
+                "lag_hours": 0,
+                "r": 0.0997,
+                "n": 671,
+                "tstat_ignoring_autocorr": 2.59
+              },
+              {
+                "lag_hours": 1,
+                "r": -0.132,
+                "n": 671,
+                "tstat_ignoring_autocorr": -3.44
+              },
+              {
+                "lag_hours": 2,
+                "r": 0.1146,
+                "n": 671,
+                "tstat_ignoring_autocorr": 2.98
+              },
+              {
+                "lag_hours": 3,
+                "r": -0.0333,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.86
+              },
+              {
+                "lag_hours": 4,
+                "r": -0.034,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.88
+              },
+              {
+                "lag_hours": 5,
+                "r": 0.0147,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.38
+              },
+              {
+                "lag_hours": 6,
+                "r": -0.0814,
+                "n": 671,
+                "tstat_ignoring_autocorr": -2.11
+              },
+              {
+                "lag_hours": 7,
+                "r": -0.121,
+                "n": 671,
+                "tstat_ignoring_autocorr": -3.15
+              },
+              {
+                "lag_hours": 8,
+                "r": 0.0302,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.78
+              },
+              {
+                "lag_hours": 9,
+                "r": 0.0752,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.95
+              },
+              {
+                "lag_hours": 10,
+                "r": 0.0061,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.16
+              },
+              {
+                "lag_hours": 11,
+                "r": -0.0263,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.68
+              },
+              {
+                "lag_hours": 12,
+                "r": 0.0874,
+                "n": 671,
+                "tstat_ignoring_autocorr": 2.27
+              }
+            ],
+            "peak": {
+              "lag_hours": 1,
+              "r": -0.132,
+              "n": 671,
+              "tstat_ignoring_autocorr": -3.44
+            },
+            "caveat": "hourly overlapping observations; t-stats ignore autocorrelation and multiple comparison across lags \u2014 treat as descriptive, not tests"
+          }
+        },
+        "[geopolitics] Putin out as President of Russia by end of 2026?": {
+          "category": "geopolitics",
+          "n_hourly_obs": 672,
+          "yes_price_range": [
+            0.875,
+            0.905
+          ],
+          "lead_lag_vs_btc_1h": {
+            "n_hours": 672,
+            "lag_table": [
+              {
+                "lag_hours": -12,
+                "r": 0.0183,
+                "n": 659,
+                "tstat_ignoring_autocorr": 0.47
+              },
+              {
+                "lag_hours": -11,
+                "r": -0.0418,
+                "n": 660,
+                "tstat_ignoring_autocorr": -1.07
+              },
+              {
+                "lag_hours": -10,
+                "r": 0.0775,
+                "n": 661,
+                "tstat_ignoring_autocorr": 1.99
+              },
+              {
+                "lag_hours": -9,
+                "r": -0.0658,
+                "n": 662,
+                "tstat_ignoring_autocorr": -1.69
+              },
+              {
+                "lag_hours": -8,
+                "r": 0.0103,
+                "n": 663,
+                "tstat_ignoring_autocorr": 0.27
+              },
+              {
+                "lag_hours": -7,
+                "r": -0.045,
+                "n": 664,
+                "tstat_ignoring_autocorr": -1.16
+              },
+              {
+                "lag_hours": -6,
+                "r": 0.0313,
+                "n": 665,
+                "tstat_ignoring_autocorr": 0.81
+              },
+              {
+                "lag_hours": -5,
+                "r": -0.0177,
+                "n": 666,
+                "tstat_ignoring_autocorr": -0.46
+              },
+              {
+                "lag_hours": -4,
+                "r": 0.0362,
+                "n": 667,
+                "tstat_ignoring_autocorr": 0.93
+              },
+              {
+                "lag_hours": -3,
+                "r": -0.021,
+                "n": 668,
+                "tstat_ignoring_autocorr": -0.54
+              },
+              {
+                "lag_hours": -2,
+                "r": 0.0059,
+                "n": 669,
+                "tstat_ignoring_autocorr": 0.15
+              },
+              {
+                "lag_hours": -1,
+                "r": -0.0116,
+                "n": 670,
+                "tstat_ignoring_autocorr": -0.3
+              },
+              {
+                "lag_hours": 0,
+                "r": -0.0026,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.07
+              },
+              {
+                "lag_hours": 1,
+                "r": -0.0258,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.67
+              },
+              {
+                "lag_hours": 2,
+                "r": 0.0541,
+                "n": 671,
+                "tstat_ignoring_autocorr": 1.4
+              },
+              {
+                "lag_hours": 3,
+                "r": -0.0118,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.3
+              },
+              {
+                "lag_hours": 4,
+                "r": -0.0669,
+                "n": 671,
+                "tstat_ignoring_autocorr": -1.74
+              },
+              {
+                "lag_hours": 5,
+                "r": 0.0239,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.62
+              },
+              {
+                "lag_hours": 6,
+                "r": 0.0359,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.93
+              },
+              {
+                "lag_hours": 7,
+                "r": -0.0188,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.49
+              },
+              {
+                "lag_hours": 8,
+                "r": 0.0225,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.58
+              },
+              {
+                "lag_hours": 9,
+                "r": 0.0061,
+                "n": 671,
+                "tstat_ignoring_autocorr": 0.16
+              },
+              {
+                "lag_hours": 10,
+                "r": -0.0056,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.15
+              },
+              {
+                "lag_hours": 11,
+                "r": -0.0111,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.29
+              },
+              {
+                "lag_hours": 12,
+                "r": -0.0027,
+                "n": 671,
+                "tstat_ignoring_autocorr": -0.07
+              }
+            ],
+            "peak": {
+              "lag_hours": -10,
+              "r": 0.0775,
+              "n": 661,
+              "tstat_ignoring_autocorr": 1.99
+            },
+            "caveat": "hourly overlapping observations; t-stats ignore autocorrelation and multiple comparison across lags \u2014 treat as descriptive, not tests"
+          }
+        }
+      },
+      "note": "8 non-sports markets vs BTC 1h spot over the Feb 2026 window (~670 hourly obs each). Zero crypto-price and zero macro markets were collected, so the platform's primary question (PM crypto prob vs BTC spot) cannot be answered from the local asset \u2014 see api_feasibility instead. With ~670 hourly points per market and 49 lags each, these correlations are descriptive only."
+    }
+  },
+  "api_feasibility": {
+    "closed_2020_market_backfill": {
+      "n_points": 0,
+      "verdict": "EMPTY \u2014 closed markets do not serve price history"
+    },
+    "open_market_interval_max": {
+      "n_points": 4452,
+      "lookback_days": 31.0,
+      "verdict": "interval=max is capped at ~30 days at fidelity=1/10/60"
+    },
+    "open_market_startTs_only_backfill": {
+      "n_points": 574817,
+      "coverage": [
+        "2025-08-11 05:01:02",
+        "2026-09-15 05:00:16"
+      ],
+      "effective_granularity_s": 60,
+      "verdict": "startTs-only (no endTs) bypasses the 30d cap \u2014 full history back to market creation (~13 months, true 1-minute granularity) is fetchable; startTs+endTs pairs are rejected when the interval is 'too long'"
+    },
+    "tag_based_event_families_top5": {
+      "crypto": [
+        {
+          "title": "When will Bitcoin hit $150k?",
+          "volume_usd": 27248010.0,
+          "n_markets": 9
+        },
+        {
+          "title": "Will MetaMask launch a token by ___ ?",
+          "volume_usd": 8683715.0,
+          "n_markets": 4
+        },
+        {
+          "title": "Will Base launch a token by ___ ?",
+          "volume_usd": 7963441.0,
+          "n_markets": 6
+        },
+        {
+          "title": "Opensea FDV above ___ one day after launch?",
+          "volume_usd": 6762400.0,
+          "n_markets": 8
+        },
+        {
+          "title": "Pump.fun airdrop by ....? ",
+          "volume_usd": 2775868.0,
+          "n_markets": 8
+        }
+      ],
+      "fed-rates": [
+        {
+          "title": "Fed Decision in September?",
+          "volume_usd": 165811214.0,
+          "n_markets": 5
+        },
+        {
+          "title": "How many Fed rate cuts in 2026?",
+          "volume_usd": 52486363.0,
+          "n_markets": 13
+        },
+        {
+          "title": "Fed rate hike in 2026?",
+          "volume_usd": 9453625.0,
+          "n_markets": 1
+        },
+        {
+          "title": "What will the Fed rate be at the end of 2026?",
+          "volume_usd": 6849282.0,
+          "n_markets": 15
+        },
+        {
+          "title": "Fed rate cut by...?",
+          "volume_usd": 3518658.0,
+          "n_markets": 8
+        }
+      ]
+    },
+    "btc150k_vs_spot_lead_lag": {
+      "market": "Will Bitcoin hit $150k by December 31, 2026? (YES token)",
+      "n_pm_hourly_obs": 9599,
+      "pm_prob_range": [
+        0.0075,
+        0.755
+      ],
+      "btc_source": "local data/btc_history.db BTC/USDT spot 1h",
+      "hourly": {
+        "n_hours": 9598,
+        "lag_table": [
+          {
+            "lag_hours": -24,
+            "r": -0.0059,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -0.58
+          },
+          {
+            "lag_hours": -23,
+            "r": 0.0051,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 0.5
+          },
+          {
+            "lag_hours": -22,
+            "r": 0.0175,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.71
+          },
+          {
+            "lag_hours": -21,
+            "r": 0.0041,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 0.4
+          },
+          {
+            "lag_hours": -20,
+            "r": -0.0057,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -0.56
+          },
+          {
+            "lag_hours": -19,
+            "r": -0.0063,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -0.62
+          },
+          {
+            "lag_hours": -18,
+            "r": 0.0164,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.6
+          },
+          {
+            "lag_hours": -17,
+            "r": 0.0176,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.72
+          },
+          {
+            "lag_hours": -16,
+            "r": 0.0274,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 2.69
+          },
+          {
+            "lag_hours": -15,
+            "r": -0.0271,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -2.66
+          },
+          {
+            "lag_hours": -14,
+            "r": 0.0191,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.88
+          },
+          {
+            "lag_hours": -13,
+            "r": 0.0014,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 0.14
+          },
+          {
+            "lag_hours": -12,
+            "r": -0.0056,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -0.54
+          },
+          {
+            "lag_hours": -11,
+            "r": 0.0108,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.06
+          },
+          {
+            "lag_hours": -10,
+            "r": -0.0003,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -0.02
+          },
+          {
+            "lag_hours": -9,
+            "r": 0.009,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 0.88
+          },
+          {
+            "lag_hours": -8,
+            "r": 0.0093,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 0.91
+          },
+          {
+            "lag_hours": -7,
+            "r": -0.0001,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -0.01
+          },
+          {
+            "lag_hours": -6,
+            "r": 0.0151,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.48
+          },
+          {
+            "lag_hours": -5,
+            "r": 0.0075,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 0.73
+          },
+          {
+            "lag_hours": -4,
+            "r": 0.0045,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 0.44
+          },
+          {
+            "lag_hours": -3,
+            "r": 0.0165,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.62
+          },
+          {
+            "lag_hours": -2,
+            "r": -0.0013,
+            "n": 9596,
+            "tstat_ignoring_autocorr": -0.12
+          },
+          {
+            "lag_hours": -1,
+            "r": 0.0164,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 1.61
+          },
+          {
+            "lag_hours": 0,
+            "r": 0.0244,
+            "n": 9596,
+            "tstat_ignoring_autocorr": 2.39
+          },
+          {
+            "lag_hours": 1,
+            "r": 0.0164,
+            "n": 9595,
+            "tstat_ignoring_autocorr": 1.6
+          },
+          {
+            "lag_hours": 2,
+            "r": -0.0149,
+            "n": 9594,
+            "tstat_ignoring_autocorr": -1.46
+          },
+          {
+            "lag_hours": 3,
+            "r": 0.0024,
+            "n": 9593,
+            "tstat_ignoring_autocorr": 0.23
+          },
+          {
+            "lag_hours": 4,
+            "r": -0.012,
+            "n": 9592,
+            "tstat_ignoring_autocorr": -1.18
+          },
+          {
+            "lag_hours": 5,
+            "r": 0.0166,
+            "n": 9591,
+            "tstat_ignoring_autocorr": 1.63
+          },
+          {
+            "lag_hours": 6,
+            "r": -0.022,
+            "n": 9590,
+            "tstat_ignoring_autocorr": -2.16
+          },
+          {
+            "lag_hours": 7,
+            "r": 0.0034,
+            "n": 9589,
+            "tstat_ignoring_autocorr": 0.34
+          },
+          {
+            "lag_hours": 8,
+            "r": 0.0006,
+            "n": 9588,
+            "tstat_ignoring_autocorr": 0.06
+          },
+          {
+            "lag_hours": 9,
+            "r": 0.0033,
+            "n": 9587,
+            "tstat_ignoring_autocorr": 0.32
+          },
+          {
+            "lag_hours": 10,
+            "r": 0.0129,
+            "n": 9586,
+            "tstat_ignoring_autocorr": 1.27
+          },
+          {
+            "lag_hours": 11,
+            "r": -0.0025,
+            "n": 9585,
+            "tstat_ignoring_autocorr": -0.25
+          },
+          {
+            "lag_hours": 12,
+            "r": 0.0042,
+            "n": 9584,
+            "tstat_ignoring_autocorr": 0.41
+          },
+          {
+            "lag_hours": 13,
+            "r": 0.0011,
+            "n": 9583,
+            "tstat_ignoring_autocorr": 0.11
+          },
+          {
+            "lag_hours": 14,
+            "r": -0.0044,
+            "n": 9582,
+            "tstat_ignoring_autocorr": -0.43
+          },
+          {
+            "lag_hours": 15,
+            "r": -0.003,
+            "n": 9581,
+            "tstat_ignoring_autocorr": -0.29
+          },
+          {
+            "lag_hours": 16,
+            "r": -0.01,
+            "n": 9580,
+            "tstat_ignoring_autocorr": -0.97
+          },
+          {
+            "lag_hours": 17,
+            "r": -0.0047,
+            "n": 9579,
+            "tstat_ignoring_autocorr": -0.46
+          },
+          {
+            "lag_hours": 18,
+            "r": 0.0102,
+            "n": 9578,
+            "tstat_ignoring_autocorr": 1.0
+          },
+          {
+            "lag_hours": 19,
+            "r": 0.0113,
+            "n": 9577,
+            "tstat_ignoring_autocorr": 1.1
+          },
+          {
+            "lag_hours": 20,
+            "r": -0.0176,
+            "n": 9576,
+            "tstat_ignoring_autocorr": -1.72
+          },
+          {
+            "lag_hours": 21,
+            "r": 0.0004,
+            "n": 9575,
+            "tstat_ignoring_autocorr": 0.04
+          },
+          {
+            "lag_hours": 22,
+            "r": 0.0012,
+            "n": 9574,
+            "tstat_ignoring_autocorr": 0.12
+          },
+          {
+            "lag_hours": 23,
+            "r": -0.0075,
+            "n": 9573,
+            "tstat_ignoring_autocorr": -0.73
+          },
+          {
+            "lag_hours": 24,
+            "r": 0.0085,
+            "n": 9572,
+            "tstat_ignoring_autocorr": 0.83
+          }
+        ],
+        "peak": {
+          "lag_hours": -16,
+          "r": 0.0274,
+          "n": 9596,
+          "tstat_ignoring_autocorr": 2.69
+        },
+        "caveat": "hourly overlapping observations; t-stats ignore autocorrelation and multiple comparison across lags \u2014 treat as descriptive, not tests"
+      },
+      "daily": {
+        "n_days": 401,
+        "lag_table": [
+          {
+            "lag_days": -7,
+            "r": 0.0632,
+            "n": 394,
+            "tstat_ignoring_autocorr": 1.25
+          },
+          {
+            "lag_days": -6,
+            "r": -0.0409,
+            "n": 395,
+            "tstat_ignoring_autocorr": -0.81
+          },
+          {
+            "lag_days": -5,
+            "r": 0.0101,
+            "n": 396,
+            "tstat_ignoring_autocorr": 0.2
+          },
+          {
+            "lag_days": -4,
+            "r": 0.0112,
+            "n": 397,
+            "tstat_ignoring_autocorr": 0.22
+          },
+          {
+            "lag_days": -3,
+            "r": 0.031,
+            "n": 398,
+            "tstat_ignoring_autocorr": 0.62
+          },
+          {
+            "lag_days": -2,
+            "r": 0.0811,
+            "n": 399,
+            "tstat_ignoring_autocorr": 1.62
+          },
+          {
+            "lag_days": -1,
+            "r": 0.0127,
+            "n": 400,
+            "tstat_ignoring_autocorr": 0.25
+          },
+          {
+            "lag_days": 0,
+            "r": 0.2246,
+            "n": 400,
+            "tstat_ignoring_autocorr": 4.6
+          },
+          {
+            "lag_days": 1,
+            "r": -0.0535,
+            "n": 399,
+            "tstat_ignoring_autocorr": -1.07
+          },
+          {
+            "lag_days": 2,
+            "r": -0.0394,
+            "n": 398,
+            "tstat_ignoring_autocorr": -0.79
+          },
+          {
+            "lag_days": 3,
+            "r": 0.0376,
+            "n": 397,
+            "tstat_ignoring_autocorr": 0.75
+          },
+          {
+            "lag_days": 4,
+            "r": 0.023,
+            "n": 396,
+            "tstat_ignoring_autocorr": 0.46
+          },
+          {
+            "lag_days": 5,
+            "r": 0.0881,
+            "n": 395,
+            "tstat_ignoring_autocorr": 1.75
+          },
+          {
+            "lag_days": 6,
+            "r": -0.0311,
+            "n": 394,
+            "tstat_ignoring_autocorr": -0.62
+          },
+          {
+            "lag_days": 7,
+            "r": -0.0176,
+            "n": 393,
+            "tstat_ignoring_autocorr": -0.35
+          }
+        ],
+        "peak": {
+          "lag_days": 0,
+          "r": 0.2246,
+          "n": 400,
+          "tstat_ignoring_autocorr": 4.6
+        }
+      },
+      "verdict": "CONTEMPORANEOUS ONLY: daily corr at lag 0 is r=0.2246 (t~4.6) while every non-zero lag is |r|<0.09 with sign flips. Polymarket implied probability reacts to BTC spot same-day; NO lead in either direction. For a price-derived deadline market this is expected (probability is mechanically a function of spot) \u2014 it kills the hypothesis that prediction-market mids lead spot for this market type; any genuine 'PM leads' test needs event/news markets or order-book flow, not mid prices."
+    }
+  },
+  "recommendations": {
+    "restart_collector_immediately": "CLOB prices-history returns NOTHING for closed markets (2020 markets and even a market closed 2.5 months ago are empty) \u2014 uncollected ticks on markets that later close are lost forever. The collector has been stopped since 2026-03-02 (6.5 months of data not captured).",
+    "replace_keyword_scan_with_tag_based_discovery": "Keyword scan + MAX_MARKETS=50 wasted 50% of slots on dead 2020 markets (Gamma active/closed flags are unreliable) and filled most remaining slots with sports (17/25). It captured ZERO Fed/macro and ZERO crypto-price markets despite those keywords. Use /events?tag_slug=crypto and tag_slug=fed-rates instead (verified: 'How many Fed rate cuts in 2026?' $52M volume, 'When will Bitcoin hit $150k?' $27M volume, both live families).",
+    "local_filtering_of_gamma_flags": "Filter markets by endDate > now and closed == false locally; observed closed markets with active=true (e.g. 'BTC $150k by March 31, 2026' still active:true in Sep 2026), and resolved-2020 markets returned under closed=false.",
+    "poll_frequency": "Stored fidelity=1 ticks have a ~10-min effective median gap; the 30-second poll adds nothing. A 5-minute poll with the same storage is sufficient (halves request volume ~ 288/day/market).",
+    "backfill_window": "For still-open markets, a startTs-only request (NO endTs \u2014 startTs+endTs pairs longer than a few days are rejected with HTTP 400 'interval too long') fetches full history back to creation (~13 months, true 1-min granularity for the BTC-150k family) \u2014 a one-time backfill of the current BTC/ETH deadline families is possible today but shrinks as markets close.",
+    "store_resolution_outcomes": "The markets table has no outcome/end-date columns; on close, record the resolved outcome so event studies (probability -> reality) become possible. Currently unresolvable from the DB alone.",
+    "honest_assessment": "Local asset (200.5k ticks, 28 days, 25 markets, 68% sports, 0 crypto, 0 macro) cannot answer the platform's core questions. The one-off Iran-strike analysis of 2026-03-02 exists but is not reproducible. Feasibility of the PM-crypto-vs-BTC lead-lag question is demonstrated in api_feasibility via backfill; a few more months of tag-based collection would make it a real study."
+  }
+}
