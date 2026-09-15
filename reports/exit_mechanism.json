@@ -1,0 +1,1107 @@
+{
+  "meta": {
+    "generated_at": "2026-09-15T09:40:29.260515+00:00",
+    "script": "scripts/exit_mechanism_backtest.py",
+    "holdings_source": "reports/xsec_gbm_results.json gbm_holdings (71 months, entry days 2020-11-02 .. 2026-09-01)",
+    "selection_unchanged": true,
+    "price_data": "Nasdaq daily OHLC (split-adjusted, dividend-unadjusted)",
+    "costs": "IbkrCostModel: $0.005/share min $1 + 5bps half-spread",
+    "score_reconstruction": "locked walk-forward, seed 42, deterministic; top-10 verified == gbm_holdings for 71 months",
+    "midmonth_discipline": "rescore date S: features at S-1, sell at S close; model trained on month-end label rows whose 21d label window closed strictly before S (no lookahead, one month fresher than the entry model); one fit per month",
+    "conventions": {
+      "baseline": "full liquidation + re-entry of new top-10 equal weight at each month's entry-day OPEN (current paper-trading convention)",
+      "kept_positions": "shares untouched at rebalance (no trade, no rebalancing trade); new names split the available cash equally to fill to 10 positions",
+      "demotion_sells": "rescore-day CLOSE (features from S-1); proceeds in cash (0%) until month end, no early re-entry",
+      "unfilled_capital": "0% (cash) until next rebalance",
+      "last_month_partial": "2026-09 valued at last available close; rescore never uses today's partial bar",
+      "decomposition": "every variant also run with a zero-cost model; delta_gross isolates the holding-pattern effect, cost_saved isolates the turnover saving"
+    },
+    "multiple_comparison_warning": "15 variants tested (incl. fine-grid neighbourhood probes K12/K18 for hysteresis and K25/K35 for combo); isolated parameter peaks treated as noise"
+  },
+  "baseline": {
+    "params": {
+      "entry": "next-day open market"
+    },
+    "perf": {
+      "total_return_pct": 269.07,
+      "cagr_pct": 24.94,
+      "ann_vol_pct": 20.85,
+      "sharpe": 0.969,
+      "max_dd_pct": -24.1
+    },
+    "monthly_sharpe": 0.922,
+    "delta_monthly_sharpe": 0.0,
+    "yearly_returns_pct": {
+      "2020": 20.3,
+      "2021": 49.98,
+      "2022": -9.94,
+      "2023": 33.02,
+      "2024": 17.74,
+      "2025": 41.83,
+      "2026": 2.26
+    },
+    "cagr_by_window_pct": {
+      "full": 24.94,
+      "h1": 31.62,
+      "h2": 19.925
+    },
+    "delta_vs_baseline_bps": {
+      "full": 0.0,
+      "h1": 0.0,
+      "h2": 0.0
+    },
+    "turnover": {
+      "avg_monthly_one_side_turnover_pct": 98.73,
+      "total_costs_usd": 17705.0,
+      "cost_drag_bps_yr": 136.0
+    },
+    "max_single_name_weight_pct": 14.7,
+    "decomposition": {
+      "delta_net_full_bps": 0.0,
+      "delta_gross_full_bps": 0.0,
+      "cost_saved_bps_yr": 0.0,
+      "identity_residual_bps": 0.0,
+      "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+    }
+  },
+  "mechanisms": {
+    "1_hysteresis": {
+      "description": "\u5f3a\u8005\u7eed\u6301: \u6708\u672b\u91cd\u9009\u65f6\u73b0\u6709\u6301\u4ed3\u5206\u6570\u4ecd\u6392\u5168\u6c60\u524d K \u540d\u5219\u4fdd\u7559(\u4e0d\u4ea4\u6613,\u6743\u91cd\u6f02\u79fb), \u65b0\u540d\u5355 = \u4fdd\u7559 + \u8865\u8db3\u6700\u4f18\u975e\u6301\u6709\u81f3 10 \u53ea",
+      "variants": {
+        "K10": {
+          "params": {
+            "K": 10
+          },
+          "perf": {
+            "total_return_pct": 271.97,
+            "cagr_pct": 25.107,
+            "ann_vol_pct": 21.01,
+            "sharpe": 0.97,
+            "max_dd_pct": -24.98
+          },
+          "monthly_sharpe": 0.919,
+          "delta_monthly_sharpe": -0.002,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 49.3,
+            "2022": -10.12,
+            "2023": 34.51,
+            "2024": 18.42,
+            "2025": 43.35,
+            "2026": 0.99
+          },
+          "cagr_by_window_pct": {
+            "full": 25.107,
+            "h1": 31.747,
+            "h2": 20.102
+          },
+          "delta_vs_baseline_bps": {
+            "full": 16.7,
+            "h1": 12.8,
+            "h2": 17.7
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 67.47,
+            "total_costs_usd": 11594.0,
+            "cost_drag_bps_yr": 89.1
+          },
+          "max_single_name_weight_pct": 14.6,
+          "decomposition": {
+            "delta_net_full_bps": 16.7,
+            "delta_gross_full_bps": -34.3,
+            "cost_saved_bps_yr": 47.0,
+            "identity_residual_bps": 4.0,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 3.04,
+            "months_with_at_least_one_kept": 61,
+            "max_consecutive_carry": 11
+          }
+        },
+        "K12": {
+          "params": {
+            "K": 12
+          },
+          "perf": {
+            "total_return_pct": 295.14,
+            "cagr_pct": 26.403,
+            "ann_vol_pct": 20.84,
+            "sharpe": 1.026,
+            "max_dd_pct": -23.24
+          },
+          "monthly_sharpe": 0.977,
+          "delta_monthly_sharpe": 0.055,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 50.09,
+            "2022": -5.49,
+            "2023": 35.27,
+            "2024": 20.55,
+            "2025": 40.77,
+            "2026": 0.95
+          },
+          "cagr_by_window_pct": {
+            "full": 26.403,
+            "h1": 34.53,
+            "h2": 20.287
+          },
+          "delta_vs_baseline_bps": {
+            "full": 146.3,
+            "h1": 291.1,
+            "h2": 36.2
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 65.17,
+            "total_costs_usd": 11736.0,
+            "cost_drag_bps_yr": 90.2
+          },
+          "max_single_name_weight_pct": 16.4,
+          "decomposition": {
+            "delta_net_full_bps": 146.3,
+            "delta_gross_full_bps": 93.0,
+            "cost_saved_bps_yr": 45.9,
+            "identity_residual_bps": 7.4,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 3.3,
+            "months_with_at_least_one_kept": 62,
+            "max_consecutive_carry": 11
+          }
+        },
+        "K15": {
+          "params": {
+            "K": 15
+          },
+          "perf": {
+            "total_return_pct": 290.25,
+            "cagr_pct": 26.135,
+            "ann_vol_pct": 20.68,
+            "sharpe": 1.022,
+            "max_dd_pct": -22.95
+          },
+          "monthly_sharpe": 0.965,
+          "delta_monthly_sharpe": 0.043,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 40.24,
+            "2022": -3.62,
+            "2023": 37.9,
+            "2024": 25.23,
+            "2025": 33.75,
+            "2026": 3.99
+          },
+          "cagr_by_window_pct": {
+            "full": 26.135,
+            "h1": 33.233,
+            "h2": 20.789
+          },
+          "delta_vs_baseline_bps": {
+            "full": 119.5,
+            "h1": 161.3,
+            "h2": 86.4
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 59.04,
+            "total_costs_usd": 10295.0,
+            "cost_drag_bps_yr": 79.1
+          },
+          "max_single_name_weight_pct": 17.5,
+          "decomposition": {
+            "delta_net_full_bps": 119.5,
+            "delta_gross_full_bps": 53.8,
+            "cost_saved_bps_yr": 56.9,
+            "identity_residual_bps": 8.8,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 3.89,
+            "months_with_at_least_one_kept": 65,
+            "max_consecutive_carry": 14
+          }
+        },
+        "K18": {
+          "params": {
+            "K": 18
+          },
+          "perf": {
+            "total_return_pct": 274.07,
+            "cagr_pct": 25.227,
+            "ann_vol_pct": 21.04,
+            "sharpe": 0.973,
+            "max_dd_pct": -24.27
+          },
+          "monthly_sharpe": 0.909,
+          "delta_monthly_sharpe": -0.012,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 42.72,
+            "2022": -7.3,
+            "2023": 42.92,
+            "2024": 24.13,
+            "2025": 30.27,
+            "2026": 1.78
+          },
+          "cagr_by_window_pct": {
+            "full": 25.227,
+            "h1": 33.304,
+            "h2": 19.098
+          },
+          "delta_vs_baseline_bps": {
+            "full": 28.7,
+            "h1": 168.4,
+            "h2": -82.7
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 53.38,
+            "total_costs_usd": 9211.0,
+            "cost_drag_bps_yr": 70.8
+          },
+          "max_single_name_weight_pct": 21.7,
+          "decomposition": {
+            "delta_net_full_bps": 28.7,
+            "delta_gross_full_bps": -47.0,
+            "cost_saved_bps_yr": 65.3,
+            "identity_residual_bps": 10.4,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 4.44,
+            "months_with_at_least_one_kept": 68,
+            "max_consecutive_carry": 19
+          }
+        },
+        "K20": {
+          "params": {
+            "K": 20
+          },
+          "perf": {
+            "total_return_pct": 243.16,
+            "cagr_pct": 23.399,
+            "ann_vol_pct": 21.11,
+            "sharpe": 0.901,
+            "max_dd_pct": -26.22
+          },
+          "monthly_sharpe": 0.841,
+          "delta_monthly_sharpe": -0.081,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 42.72,
+            "2022": -9.12,
+            "2023": 41.96,
+            "2024": 20.46,
+            "2025": 26.46,
+            "2026": 1.78
+          },
+          "cagr_by_window_pct": {
+            "full": 23.399,
+            "h1": 32.407,
+            "h2": 16.583
+          },
+          "delta_vs_baseline_bps": {
+            "full": -154.1,
+            "h1": 78.7,
+            "h2": -334.2
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 52.04,
+            "total_costs_usd": 8676.0,
+            "cost_drag_bps_yr": 66.7
+          },
+          "max_single_name_weight_pct": 21.6,
+          "decomposition": {
+            "delta_net_full_bps": -154.1,
+            "delta_gross_full_bps": -233.4,
+            "cost_saved_bps_yr": 69.4,
+            "identity_residual_bps": 9.9,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 4.56,
+            "months_with_at_least_one_kept": 68,
+            "max_consecutive_carry": 19
+          }
+        },
+        "K30": {
+          "params": {
+            "K": 30
+          },
+          "perf": {
+            "total_return_pct": 207.1,
+            "cagr_pct": 21.085,
+            "ann_vol_pct": 20.65,
+            "sharpe": 0.824,
+            "max_dd_pct": -33.38
+          },
+          "monthly_sharpe": 0.782,
+          "delta_monthly_sharpe": -0.139,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 41.57,
+            "2022": -22.63,
+            "2023": 43.34,
+            "2024": 22.6,
+            "2025": 28.53,
+            "2026": 3.26
+          },
+          "cagr_by_window_pct": {
+            "full": 21.085,
+            "h1": 23.32,
+            "h2": 19.406
+          },
+          "delta_vs_baseline_bps": {
+            "full": -385.5,
+            "h1": -830.0,
+            "h2": -51.9
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 42.95,
+            "total_costs_usd": 6420.0,
+            "cost_drag_bps_yr": 49.3
+          },
+          "max_single_name_weight_pct": 24.0,
+          "decomposition": {
+            "delta_net_full_bps": -385.5,
+            "delta_gross_full_bps": -482.7,
+            "cost_saved_bps_yr": 86.7,
+            "identity_residual_bps": 10.5,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 5.46,
+            "months_with_at_least_one_kept": 69,
+            "max_consecutive_carry": 19
+          }
+        }
+      }
+    },
+    "2_midmonth_demotion": {
+      "description": "\u5f31\u8005\u65e9\u64a4: \u6bcf freq \u4e2a\u4ea4\u6613\u65e5\u4ee5\u6700\u65b0\u7279\u5f81\u91cd\u6253\u5206(\u6a21\u578b\u7528\u6807\u7b7e\u5df2\u5b9e\u73b0\u4e14\u65e9\u4e8e\u91cd\u6253\u5206\u65e5\u7684\u6708\u672b\u6837\u672c\u8bad\u7ec3), \u6301\u4ed3\u6389\u51fa\u524d K \u540d\u5f53\u65e5\u6536\u76d8\u5356\u51fa, \u73b0\u91d1\u6301\u6709\u5230\u6708\u672b",
+      "variants": {
+        "K30_f5": {
+          "params": {
+            "K": 30,
+            "freq_days": 5
+          },
+          "perf": {
+            "total_return_pct": 118.67,
+            "cagr_pct": 14.272,
+            "ann_vol_pct": 14.39,
+            "sharpe": 0.702,
+            "max_dd_pct": -26.2
+          },
+          "monthly_sharpe": 0.597,
+          "delta_monthly_sharpe": -0.325,
+          "yearly_returns_pct": {
+            "2020": 1.25,
+            "2021": 44.25,
+            "2022": -14.77,
+            "2023": 20.91,
+            "2024": 7.73,
+            "2025": 26.26,
+            "2026": 6.82
+          },
+          "cagr_by_window_pct": {
+            "full": 14.272,
+            "h1": 16.834,
+            "h2": 12.06
+          },
+          "delta_vs_baseline_bps": {
+            "full": -1066.8,
+            "h1": -1478.6,
+            "h2": -786.6
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 100.19,
+            "total_costs_usd": 13442.0,
+            "cost_drag_bps_yr": 103.3
+          },
+          "max_single_name_weight_pct": 14.1,
+          "decomposition": {
+            "delta_net_full_bps": -1066.8,
+            "delta_gross_full_bps": -1079.5,
+            "cost_saved_bps_yr": 32.8,
+            "identity_residual_bps": -20.0,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "n_demotion_sells": 442,
+            "avg_rank_at_demotion": 64.2,
+            "avg_days_held_before_demotion": 8.0,
+            "demotion_rate_per_month": 6.23
+          }
+        },
+        "K30_f10": {
+          "params": {
+            "K": 30,
+            "freq_days": 10
+          },
+          "perf": {
+            "total_return_pct": 171.1,
+            "cagr_pct": 18.538,
+            "ann_vol_pct": 15.98,
+            "sharpe": 0.878,
+            "max_dd_pct": -22.24
+          },
+          "monthly_sharpe": 0.768,
+          "delta_monthly_sharpe": -0.153,
+          "yearly_returns_pct": {
+            "2020": 2.48,
+            "2021": 50.08,
+            "2022": -14.88,
+            "2023": 34.46,
+            "2024": 9.32,
+            "2025": 36.47,
+            "2026": 3.22
+          },
+          "cagr_by_window_pct": {
+            "full": 18.538,
+            "h1": 21.43,
+            "h2": 15.833
+          },
+          "delta_vs_baseline_bps": {
+            "full": -640.2,
+            "h1": -1018.9,
+            "h2": -409.2
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 99.43,
+            "total_costs_usd": 15661.0,
+            "cost_drag_bps_yr": 120.3
+          },
+          "max_single_name_weight_pct": 14.6,
+          "decomposition": {
+            "delta_net_full_bps": -640.2,
+            "delta_gross_full_bps": -649.5,
+            "cost_saved_bps_yr": 15.7,
+            "identity_residual_bps": -6.5,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "n_demotion_sells": 359,
+            "avg_rank_at_demotion": 65.6,
+            "avg_days_held_before_demotion": 11.7,
+            "demotion_rate_per_month": 5.06
+          }
+        },
+        "K50_f5": {
+          "params": {
+            "K": 50,
+            "freq_days": 5
+          },
+          "perf": {
+            "total_return_pct": 136.99,
+            "cagr_pct": 15.851,
+            "ann_vol_pct": 15.43,
+            "sharpe": 0.754,
+            "max_dd_pct": -23.66
+          },
+          "monthly_sharpe": 0.619,
+          "delta_monthly_sharpe": -0.303,
+          "yearly_returns_pct": {
+            "2020": 2.48,
+            "2021": 45.24,
+            "2022": -12.75,
+            "2023": 22.86,
+            "2024": 5.03,
+            "2025": 35.13,
+            "2026": 4.66
+          },
+          "cagr_by_window_pct": {
+            "full": 15.851,
+            "h1": 19.654,
+            "h2": 12.944
+          },
+          "delta_vs_baseline_bps": {
+            "full": -908.9,
+            "h1": -1196.5,
+            "h2": -698.1
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 99.89,
+            "total_costs_usd": 14023.0,
+            "cost_drag_bps_yr": 107.8
+          },
+          "max_single_name_weight_pct": 14.7,
+          "decomposition": {
+            "delta_net_full_bps": -908.9,
+            "delta_gross_full_bps": -920.0,
+            "cost_saved_bps_yr": 28.3,
+            "identity_residual_bps": -17.2,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "n_demotion_sells": 334,
+            "avg_rank_at_demotion": 79.4,
+            "avg_days_held_before_demotion": 9.1,
+            "demotion_rate_per_month": 4.7
+          }
+        },
+        "K50_f10": {
+          "params": {
+            "K": 50,
+            "freq_days": 10
+          },
+          "perf": {
+            "total_return_pct": 189.28,
+            "cagr_pct": 19.857,
+            "ann_vol_pct": 16.83,
+            "sharpe": 0.908,
+            "max_dd_pct": -23.97
+          },
+          "monthly_sharpe": 0.786,
+          "delta_monthly_sharpe": -0.135,
+          "yearly_returns_pct": {
+            "2020": 5.66,
+            "2021": 48.36,
+            "2022": -11.57,
+            "2023": 34.41,
+            "2024": 9.83,
+            "2025": 39.1,
+            "2026": 1.62
+          },
+          "cagr_by_window_pct": {
+            "full": 19.857,
+            "h1": 24.963,
+            "h2": 15.928
+          },
+          "delta_vs_baseline_bps": {
+            "full": -508.3,
+            "h1": -665.7,
+            "h2": -399.7
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 99.33,
+            "total_costs_usd": 16306.0,
+            "cost_drag_bps_yr": 125.3
+          },
+          "max_single_name_weight_pct": 14.7,
+          "decomposition": {
+            "delta_net_full_bps": -508.3,
+            "delta_gross_full_bps": -515.8,
+            "cost_saved_bps_yr": 10.7,
+            "identity_residual_bps": -3.3,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "n_demotion_sells": 252,
+            "avg_rank_at_demotion": 79.0,
+            "avg_days_held_before_demotion": 12.2,
+            "demotion_rate_per_month": 3.55
+          }
+        }
+      }
+    },
+    "3_winner_extension": {
+      "description": "\u8d62\u5bb6\u5ef6\u957f: \u6708\u672b\u4ecd\u5728 top-5 \u7684\u6301\u4ed3\u7eed\u6301\u4e00\u4e2a\u6708, \u6700\u591a\u8fde\u7eed\u5ef6\u957f 1 \u6b21",
+      "variants": {
+        "top5_max1": {
+          "params": {
+            "rule": "keep if rank<=5, max 1 consecutive extension"
+          },
+          "perf": {
+            "total_return_pct": 271.31,
+            "cagr_pct": 25.069,
+            "ann_vol_pct": 20.88,
+            "sharpe": 0.973,
+            "max_dd_pct": -23.65
+          },
+          "monthly_sharpe": 0.926,
+          "delta_monthly_sharpe": 0.004,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 50.57,
+            "2022": -9.55,
+            "2023": 33.2,
+            "2024": 18.16,
+            "2025": 42.18,
+            "2026": 1.35
+          },
+          "cagr_by_window_pct": {
+            "full": 25.069,
+            "h1": 32.001,
+            "h2": 19.849
+          },
+          "delta_vs_baseline_bps": {
+            "full": 12.9,
+            "h1": 38.1,
+            "h2": -7.6
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 85.18,
+            "total_costs_usd": 15184.0,
+            "cost_drag_bps_yr": 116.7
+          },
+          "max_single_name_weight_pct": 14.8,
+          "decomposition": {
+            "delta_net_full_bps": 12.9,
+            "delta_gross_full_bps": -8.4,
+            "cost_saved_bps_yr": 19.4,
+            "identity_residual_bps": 1.9,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 1.32,
+            "months_with_at_least_one_kept": 47,
+            "max_consecutive_carry": 1
+          }
+        }
+      }
+    },
+    "combo_1_3": {
+      "description": "\u673a\u52361+3: rank<=5 \u65e0\u9650\u7eed\u6301, \u6216 (rank<=K \u4e14\u5c1a\u672a\u8fde\u7eed\u7eed\u6301\u8fc7\u4e00\u6b21)",
+      "variants": {
+        "K15": {
+          "params": {
+            "K": 15
+          },
+          "perf": {
+            "total_return_pct": 303.17,
+            "cagr_pct": 26.837,
+            "ann_vol_pct": 20.6,
+            "sharpe": 1.052,
+            "max_dd_pct": -24.2
+          },
+          "monthly_sharpe": 0.971,
+          "delta_monthly_sharpe": 0.05,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 45.15,
+            "2022": -6.8,
+            "2023": 33.05,
+            "2024": 24.74,
+            "2025": 46.58,
+            "2026": 1.92
+          },
+          "cagr_by_window_pct": {
+            "full": 26.837,
+            "h1": 31.329,
+            "h2": 23.489
+          },
+          "delta_vs_baseline_bps": {
+            "full": 189.7,
+            "h1": -29.0,
+            "h2": 356.4
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 68.1,
+            "total_costs_usd": 12157.0,
+            "cost_drag_bps_yr": 93.4
+          },
+          "max_single_name_weight_pct": 15.0,
+          "decomposition": {
+            "delta_net_full_bps": 189.7,
+            "delta_gross_full_bps": 140.3,
+            "cost_saved_bps_yr": 42.6,
+            "identity_residual_bps": 6.8,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 3.01,
+            "months_with_at_least_one_kept": 63,
+            "max_consecutive_carry": 8
+          }
+        },
+        "K20": {
+          "params": {
+            "K": 20
+          },
+          "perf": {
+            "total_return_pct": 273.48,
+            "cagr_pct": 25.194,
+            "ann_vol_pct": 20.64,
+            "sharpe": 0.987,
+            "max_dd_pct": -23.3
+          },
+          "monthly_sharpe": 0.91,
+          "delta_monthly_sharpe": -0.012,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 44.84,
+            "2022": -4.05,
+            "2023": 27.07,
+            "2024": 20.07,
+            "2025": 42.05,
+            "2026": 3.16
+          },
+          "cagr_by_window_pct": {
+            "full": 25.194,
+            "h1": 31.399,
+            "h2": 20.52
+          },
+          "delta_vs_baseline_bps": {
+            "full": 25.4,
+            "h1": -22.0,
+            "h2": 59.5
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 64.51,
+            "total_costs_usd": 11155.0,
+            "cost_drag_bps_yr": 85.7
+          },
+          "max_single_name_weight_pct": 15.0,
+          "decomposition": {
+            "delta_net_full_bps": 25.4,
+            "delta_gross_full_bps": -32.0,
+            "cost_saved_bps_yr": 50.3,
+            "identity_residual_bps": 7.1,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 3.38,
+            "months_with_at_least_one_kept": 66,
+            "max_consecutive_carry": 8
+          }
+        },
+        "K25": {
+          "params": {
+            "K": 25
+          },
+          "perf": {
+            "total_return_pct": 299.23,
+            "cagr_pct": 26.625,
+            "ann_vol_pct": 20.48,
+            "sharpe": 1.049,
+            "max_dd_pct": -23.3
+          },
+          "monthly_sharpe": 0.972,
+          "delta_monthly_sharpe": 0.05,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 46.68,
+            "2022": -4.03,
+            "2023": 29.44,
+            "2024": 20.62,
+            "2025": 44.22,
+            "2026": 4.79
+          },
+          "cagr_by_window_pct": {
+            "full": 26.625,
+            "h1": 31.745,
+            "h2": 22.788
+          },
+          "delta_vs_baseline_bps": {
+            "full": 168.5,
+            "h1": 12.5,
+            "h2": 286.3
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 61.9,
+            "total_costs_usd": 10959.0,
+            "cost_drag_bps_yr": 84.2
+          },
+          "max_single_name_weight_pct": 14.9,
+          "decomposition": {
+            "delta_net_full_bps": 168.5,
+            "delta_gross_full_bps": 107.5,
+            "cost_saved_bps_yr": 51.8,
+            "identity_residual_bps": 9.2,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 3.65,
+            "months_with_at_least_one_kept": 68,
+            "max_consecutive_carry": 8
+          }
+        },
+        "K30": {
+          "params": {
+            "K": 30
+          },
+          "perf": {
+            "total_return_pct": 294.13,
+            "cagr_pct": 26.348,
+            "ann_vol_pct": 20.59,
+            "sharpe": 1.034,
+            "max_dd_pct": -22.54
+          },
+          "monthly_sharpe": 0.951,
+          "delta_monthly_sharpe": 0.029,
+          "yearly_returns_pct": {
+            "2020": 20.2,
+            "2021": 45.95,
+            "2022": -2.56,
+            "2023": 26.63,
+            "2024": 18.82,
+            "2025": 41.72,
+            "2026": 8.12
+          },
+          "cagr_by_window_pct": {
+            "full": 26.348,
+            "h1": 32.249,
+            "h2": 21.918
+          },
+          "delta_vs_baseline_bps": {
+            "full": 140.8,
+            "h1": 62.9,
+            "h2": 199.3
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 59.39,
+            "total_costs_usd": 10408.0,
+            "cost_drag_bps_yr": 80.0
+          },
+          "max_single_name_weight_pct": 15.1,
+          "decomposition": {
+            "delta_net_full_bps": 140.8,
+            "delta_gross_full_bps": 74.6,
+            "cost_saved_bps_yr": 56.1,
+            "identity_residual_bps": 10.1,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 3.9,
+            "months_with_at_least_one_kept": 68,
+            "max_consecutive_carry": 8
+          }
+        },
+        "K35": {
+          "params": {
+            "K": 35
+          },
+          "perf": {
+            "total_return_pct": 273.8,
+            "cagr_pct": 25.212,
+            "ann_vol_pct": 20.56,
+            "sharpe": 0.991,
+            "max_dd_pct": -23.04
+          },
+          "monthly_sharpe": 0.905,
+          "delta_monthly_sharpe": -0.016,
+          "yearly_returns_pct": {
+            "2020": 19.48,
+            "2021": 41.12,
+            "2022": -2.46,
+            "2023": 25.34,
+            "2024": 19.7,
+            "2025": 41.69,
+            "2026": 6.92
+          },
+          "cagr_by_window_pct": {
+            "full": 25.212,
+            "h1": 29.729,
+            "h2": 21.847
+          },
+          "delta_vs_baseline_bps": {
+            "full": 27.2,
+            "h1": -189.1,
+            "h2": 192.2
+          },
+          "turnover": {
+            "avg_monthly_one_side_turnover_pct": 57.32,
+            "total_costs_usd": 9673.0,
+            "cost_drag_bps_yr": 74.3
+          },
+          "max_single_name_weight_pct": 15.1,
+          "decomposition": {
+            "delta_net_full_bps": 27.2,
+            "delta_gross_full_bps": -44.2,
+            "cost_saved_bps_yr": 61.7,
+            "identity_residual_bps": 9.7,
+            "note": "delta_gross = same run with zero costs (holding-pattern / weight-drift effect); cost_saved = baseline costs minus variant costs, bps of avg equity per year; net \u2248 gross + saved"
+          },
+          "diagnostics": {
+            "avg_positions_kept_per_month": 4.11,
+            "months_with_at_least_one_kept": 68,
+            "max_consecutive_carry": 8
+          }
+        }
+      }
+    }
+  },
+  "midmonth_score_stability": {
+    "n_rescore_dates": 255,
+    "mean_spearman_vs_month_end": 0.27,
+    "median_spearman_vs_month_end": 0.278,
+    "note": "\u6a21\u578b\u5206\u6570\u5bf9 5-20 \u65e5\u5185\u7684\u7279\u5f81\u6f02\u79fb\u6781\u5176\u654f\u611f(\u9636\u8dc3\u51fd\u6570\u96c6\u6210+\u5927\u91cf\u5e76\u5217\u5206\u6570), \u6708\u4e2d\u91cd\u6253\u5206\u4e0e\u6708\u672b\u5206\u6570\u79e9\u76f8\u5173\u5747\u503c\u4ec5 ~0.27 \u2014\u2014 \u673a\u52362\u6309\u6b64\u566a\u58f0\u884c\u52a8, \u8fd9\u662f\u5176\u5927\u5e45\u4e3a\u8d1f\u7684\u6839\u56e0; \u5bf9\u7167: \u540c\u4e00\u6a21\u578b5\u5929\u540e\u91cd\u6253\u5206\u79e9\u76f8\u5173\u4e5f\u4ec5 ~0.6(\u5df2\u5355\u72ec\u9a8c\u8bc1)"
+  },
+  "multiple_comparison": {
+    "delta_threshold_bps": 30.0,
+    "variant_deltas": {
+      "hyst_K10": {
+        "delta_full_bps": 16.7,
+        "delta_h1_bps": 12.8,
+        "delta_h2_bps": 17.7,
+        "neighbour_mean_delta_full_bps": 1.5,
+        "passes_all_windows_ge_30bps": false
+      },
+      "hyst_K12": {
+        "delta_full_bps": 146.3,
+        "delta_h1_bps": 291.1,
+        "delta_h2_bps": 36.2,
+        "neighbour_mean_delta_full_bps": 0.7,
+        "passes_all_windows_ge_30bps": true
+      },
+      "hyst_K15": {
+        "delta_full_bps": 119.5,
+        "delta_h1_bps": 161.3,
+        "delta_h2_bps": 86.4,
+        "neighbour_mean_delta_full_bps": 0.9,
+        "passes_all_windows_ge_30bps": true
+      },
+      "hyst_K18": {
+        "delta_full_bps": 28.7,
+        "delta_h1_bps": 168.4,
+        "delta_h2_bps": -82.7,
+        "neighbour_mean_delta_full_bps": -0.2,
+        "passes_all_windows_ge_30bps": false
+      },
+      "hyst_K20": {
+        "delta_full_bps": -154.1,
+        "delta_h1_bps": 78.7,
+        "delta_h2_bps": -334.2,
+        "neighbour_mean_delta_full_bps": -1.8,
+        "passes_all_windows_ge_30bps": false
+      },
+      "hyst_K30": {
+        "delta_full_bps": -385.5,
+        "delta_h1_bps": -830.0,
+        "delta_h2_bps": -51.9,
+        "neighbour_mean_delta_full_bps": -1.5,
+        "passes_all_windows_ge_30bps": false
+      },
+      "combo_K15": {
+        "delta_full_bps": 189.7,
+        "delta_h1_bps": -29.0,
+        "delta_h2_bps": 356.4,
+        "neighbour_mean_delta_full_bps": 0.3,
+        "passes_all_windows_ge_30bps": false
+      },
+      "combo_K20": {
+        "delta_full_bps": 25.4,
+        "delta_h1_bps": -22.0,
+        "delta_h2_bps": 59.5,
+        "neighbour_mean_delta_full_bps": 1.8,
+        "passes_all_windows_ge_30bps": false
+      },
+      "combo_K25": {
+        "delta_full_bps": 168.5,
+        "delta_h1_bps": 12.5,
+        "delta_h2_bps": 286.3,
+        "neighbour_mean_delta_full_bps": 0.8,
+        "passes_all_windows_ge_30bps": false
+      },
+      "combo_K30": {
+        "delta_full_bps": 140.8,
+        "delta_h1_bps": 62.9,
+        "delta_h2_bps": 199.3,
+        "neighbour_mean_delta_full_bps": 1.0,
+        "passes_all_windows_ge_30bps": true
+      },
+      "combo_K35": {
+        "delta_full_bps": 27.2,
+        "delta_h1_bps": -189.1,
+        "delta_h2_bps": 192.2,
+        "neighbour_mean_delta_full_bps": 1.4,
+        "passes_all_windows_ge_30bps": false
+      },
+      "demote_K30_f5": {
+        "delta_full_bps": -1066.8,
+        "delta_h1_bps": -1478.6,
+        "delta_h2_bps": -786.6,
+        "neighbour_mean_delta_full_bps": -7.7,
+        "passes_all_windows_ge_30bps": false
+      },
+      "demote_K30_f10": {
+        "delta_full_bps": -640.2,
+        "delta_h1_bps": -1018.9,
+        "delta_h2_bps": -409.2,
+        "neighbour_mean_delta_full_bps": -7.9,
+        "passes_all_windows_ge_30bps": false
+      },
+      "demote_K50_f5": {
+        "delta_full_bps": -908.9,
+        "delta_h1_bps": -1196.5,
+        "delta_h2_bps": -698.1,
+        "neighbour_mean_delta_full_bps": -7.9,
+        "passes_all_windows_ge_30bps": false
+      },
+      "demote_K50_f10": {
+        "delta_full_bps": -508.3,
+        "delta_h1_bps": -665.7,
+        "delta_h2_bps": -399.7,
+        "neighbour_mean_delta_full_bps": -7.7,
+        "passes_all_windows_ge_30bps": false
+      },
+      "ext_top5_max1": {
+        "delta_full_bps": 12.9,
+        "delta_h1_bps": 38.1,
+        "delta_h2_bps": -7.6,
+        "neighbour_mean_delta_full_bps": null,
+        "passes_all_windows_ge_30bps": false
+      }
+    }
+  },
+  "baseline_cross_check": {
+    "entry_timing_baseline": {
+      "total_return_pct": 269.07,
+      "cagr_pct": 24.94,
+      "ann_vol_pct": 20.85,
+      "sharpe": 0.969,
+      "max_dd_pct": -24.1
+    },
+    "this_sim_baseline": {
+      "total_return_pct": 269.07,
+      "cagr_pct": 24.94,
+      "ann_vol_pct": 20.85,
+      "sharpe": 0.969,
+      "max_dd_pct": -24.1
+    },
+    "note": "identical convention (full liquidation + re-entry at entry-day open, IBKR costs); small deltas = data refreshed since that run"
+  },
+  "verdict": {
+    "threshold": ">= 30 bps/yr vs baseline (net of costs) on full window AND both halves, with parameter-neighbourhood consistency AND family-level era consistency (median variant delta > 0 in BOTH halves)",
+    "halves": {
+      "h1": "2020-11 .. 2023-06",
+      "h2": "2023-07 .. 2026-09"
+    },
+    "mech1_hysteresis": {
+      "n_variants": 6,
+      "variants_passing_all_windows": [
+        "hyst_K12",
+        "hyst_K15"
+      ],
+      "variants_passing_with_consistent_neighbourhood": [
+        "hyst_K12",
+        "hyst_K15"
+      ],
+      "family_median_delta_h1_bps": 120.0,
+      "family_median_delta_h2_bps": -17.1,
+      "family_era_consistent": false,
+      "real_increment": false
+    },
+    "mech2_midmonth_demotion": {
+      "n_variants": 4,
+      "variants_passing_all_windows": [],
+      "variants_passing_with_consistent_neighbourhood": [],
+      "family_median_delta_h1_bps": -1107.7,
+      "family_median_delta_h2_bps": -553.6,
+      "family_era_consistent": false,
+      "real_increment": false
+    },
+    "mech3_winner_extension": {
+      "n_variants": 1,
+      "variants_passing_all_windows": [],
+      "variants_passing_with_consistent_neighbourhood": [],
+      "family_median_delta_h1_bps": 38.1,
+      "family_median_delta_h2_bps": -7.6,
+      "family_era_consistent": false,
+      "real_increment": false
+    },
+    "combo_1_3": {
+      "n_variants": 5,
+      "variants_passing_all_windows": [
+        "combo_K30"
+      ],
+      "variants_passing_with_consistent_neighbourhood": [
+        "combo_K30"
+      ],
+      "family_median_delta_h1_bps": -22.0,
+      "family_median_delta_h2_bps": 199.3,
+      "family_era_consistent": false,
+      "real_increment": false
+    },
+    "summary": "\u603b\u5224\u51b3: \u5168\u90e8\u56db\u79cd\u51fa\u573a\u673a\u5236\u5747\u4e0d\u6784\u6210\u771f\u589e\u91cf \u2014\u2014 \u6708\u672b\u5168\u6e05\u4ed3\u91cd\u9009\u5c31\u662f\u5f53\u524d\u6700\u4f18\u7684\u51fa\u573a\u89c4\u5219 (paper trading \u65e0\u9700\u6539\u52a8)\u3002 || \u673a\u52361 \u5f3a\u8005\u7eed\u6301: K12/K15 \u5355\u70b9\u901a\u8fc7\u4e09\u7a97 (\u0394full +146/+120bps), \u4f46\u8fd9\u662f era \u96c6\u4e2d\u7684\u5047\u8c61: \u5bb6\u65cf\u4e2d\u4f4d \u0394h1 +120bps vs \u0394h2 -17bps \u2014\u2014 \u8fb9\u9645\u5168\u90e8\u6765\u81ea 2020-2023 \u534a\u7a97, 2023-2026\u5f52\u96f6/\u7ffb\u8d1f; \u4e14\u7ed3\u6784\u6027\u951a\u70b9 K10 (\u7eaf\u91cd\u53e0\u4fdd\u7559, \u65e0\u8fdf\u6ede\u5e26) \u4ec5 +17bps (\u7701\u6210\u672c +47 \u88ab\u6301\u4ed3\u6548\u5e94 -34 \u62b5\u6d88), \u8bf4\u660e\u6536\u76ca\u4e0d\u5728'\u7701\u6362\u624b'\u800c\u5728'\u6301\u6709\u7b2c11-15\u540d'\u2014\u2014\u6a21\u578b\u5df2\u660e\u786e\u8bf4\u8fd9\u4e9b\u540d\u5b57\u6389\u51fa top-10, \u7eed\u6301\u662f\u5bf9\u6a21\u578b\u81ea\u5df1\u7684\u5426\u5b9a, K18/K20/K30 \u5355\u8c03\u8f6c\u8d1f\u8bc1\u5b9e\u8fd9\u662f\u566a\u58f0\u7ea7\u5200\u950b\u3002 || \u673a\u52362 \u5f31\u8005\u65e9\u64a4: \u5168\u7f51\u683c\u4e00\u81f4\u5927\u5e45\u4e3a\u8d1f (\u0394 -508 ~ -1067bps/yr, K \u4e0e freq \u53cc\u5411\u5e73\u6ed1), \u6700\u5e72\u51c0\u7684\u5426\u5b9a\u3002\u6839\u56e0\u5df2\u5b9a\u4f4d: \u6708\u4e2d\u91cd\u6253\u5206\u4e0e\u6708\u672b\u5206\u6570\u79e9\u76f8\u5173\u5747\u503c\u4ec5 0.27 (255 \u4e2a\u91cd\u6253\u5206\u65e5\u5b9e\u6d4b), \u540c\u4e00\u6a21\u578b5\u5929\u540e\u91cd\u6253\u5206\u79e9\u76f8\u5173\u4e5f\u4ec5 ~0.6 \u2014\u2014 \u6708\u4e2d\u5206\u6570\u4e3b\u8981\u662f\u7279\u5f81\u6296\u52a8\u566a\u58f0; \u6309\u566a\u58f0\u5356\u51fa = \u7cfb\u7edf\u6027\u5356\u51fa 5 \u65e5\u56de\u64a4\u540d\u5355, \u800c\u8fd9\u4e9b\u540d\u5b57\u77ed\u671f\u5747\u503c\u56de\u5f52 (\u6a21\u578b\u81ea\u5df1\u7684 mom_1m \u9006\u8f6c\u7279\u5f81), \u5356\u5728\u5751\u5e95\u3002 || \u673a\u52363 \u8d62\u5bb6\u5ef6\u957f: ~0 (+13bps, gross -8 + \u7701\u6210\u672c +19), \u65e0\u589e\u91cf\u3002 || \u7ec4\u54081+3: K30 \u5355\u70b9\u901a\u8fc7\u4e09\u7a97 (+141/+63/+199), \u4f46\u5bb6\u65cf\u4e2d\u4f4d \u0394h1 -22bps \u2014\u2014 \u4e0e\u673a\u52361\u955c\u50cf, \u8fb9\u9645\u53ea\u5728 2023-2026 \u534a\u7a97, 16 \u4e2a\u53d8\u4f53\u591a\u91cd\u6bd4\u8f83\u4e0b\u7684\u5b64\u7acb\u901a\u8fc7, \u6309\u7eaa\u5f8b\u5224\u4e3a\u566a\u58f0\u3002 || \u7ed3\u6784\u6027\u7ed3\u8bba: \u8be5 GBM \u7684\u4fe1\u606f\u4ee5\u6708\u5ea6\u8282\u594f\u5237\u65b0\u4e00\u6b21\u5373\u4e3a\u6700\u4f18\u7c92\u5ea6 \u2014\u2014 \u6708\u5185\u5206\u6570\u6f02\u79fb\u662f\u566a\u58f0 (\u4e0d\u5e94\u636e\u5176\u884c\u52a8, \u673a\u52362\u8bc1\u4f2a), top-10 \u8fb9\u754c\u5c31\u662f\u6b63\u786e\u7684\u6301\u6709\u8fb9\u754c (\u653e\u5bbd\u5230 11-15 \u4e0d\u7a33, \u673a\u52361\u8bc1\u4f2a), top-5 \u5ef6\u957f\u65e0\u589e\u76ca (\u673a\u52363\u8bc1\u4f2a)\u3002\u51fa\u573a\u7aef\u4e0e\u5165\u573a\u7aef\u7ed3\u8bba\u4e00\u81f4: \u7b80\u5355\u89c4\u5219 + \u6708\u672b\u4e00\u6b21\u5237\u65b0\u3002\u552f\u4e00\u65e0\u4e89\u8bae\u7684\u771f\u5b9e\u6536\u76ca\u662f'\u91cd\u53e0\u6301\u4ed3\u4e0d\u4ea4\u6613'\u7701\u4e0b\u7684 ~47bps/yr \u6210\u672c, \u4f46\u5176\u51c0\u6548\u5e94 (+17bps) \u4f4e\u4e8e 30bps \u5224\u51b3\u7ebf, \u4e0d\u6784\u6210\u5207\u6362\u7406\u7531\u3002"
+  }
+}
