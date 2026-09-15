@@ -28,8 +28,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from scripts.build_fundamental_features import (  # noqa: E402
+    MAX_STALE_DAYS,
     build_raw_panel,
     derive_features,
+    fresh_state,
     latest_instant,
     replay_state,
     ttm,
@@ -172,6 +174,41 @@ def test_growth_is_nan_when_the_base_is_missing():
     panel = _panel(dates, {"AAA": rev})
     out = derive_features(panel).set_index(["date", "symbol"]).sort_index()
     assert np.isnan(out.loc[(dates[12], "AAA"), "rev_yoy"])
+
+
+# ---------------------------------------------------------------------------
+# Staleness guard
+# ---------------------------------------------------------------------------
+
+def test_fresh_state_drops_facts_that_stopped_being_reported():
+    """A delisted filer's decade-old numbers must not look current.
+
+    Without this cutoff the as-filed replay carries the last available value
+    forward forever, so E/P becomes `16-year-old earnings / today's market
+    cap` — a garbage factor value that still counts as "covered".
+    """
+    per_tag = {
+        "Assets": {("", "2020-06-30"): 100.0},
+        "NetIncomeLoss": {("2019-01-01", "2019-12-31"): 10.0},
+    }
+    fresh = fresh_state(per_tag, "2020-09-30")
+    assert set(fresh) == {"Assets", "NetIncomeLoss"}
+
+    # three years on, nothing is still being reported
+    assert fresh_state(per_tag, "2023-09-30") == {}
+
+
+def test_fresh_state_keeps_the_exact_cutoff_boundary():
+    per_tag = {"Assets": {("", "2018-01-01"): 5.0}}
+    from datetime import date
+    on_cutoff = date(2018, 1, 1).toordinal() + MAX_STALE_DAYS
+    assert fresh_state(per_tag, str(date.fromordinal(on_cutoff))) != {}
+    assert fresh_state(per_tag, str(date.fromordinal(on_cutoff + 1))) == {}
+
+
+def test_fresh_state_ignores_tags_the_panel_does_not_read():
+    per_tag = {"SomeUnusedTag": {("", "2020-06-30"): 1.0}}
+    assert fresh_state(per_tag, "2020-09-30") == {}
 
 
 # ---------------------------------------------------------------------------

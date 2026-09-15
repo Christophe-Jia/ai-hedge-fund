@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-09-15T12:34:13+00:00",
+    "generated_at": "2026-09-15T12:38:05+00:00",
     "script": "scripts/test_fundamental_factors.py",
     "source": "data/fundamentals.db -> fundamental_features (built by scripts/build_fundamental_features.py)",
     "what_this_is": "纯单因子检验，不是组合回测；不做成本、不做交易规则",
@@ -52,150 +52,174 @@
     "months": 120,
     "symbols": 576,
     "ttm_method": {
-      "annual": 38148,
-      "ttm_quarters": 25600,
-      "none": 2660
+      "annual": 35850,
+      "ttm_quarters": 23988,
+      "none": 6570
+    },
+    "input_staleness_days": {
+      "shares_age": {
+        "n": 61722,
+        "median": 60.0,
+        "p90": 95.0,
+        "p95": 108.0,
+        "p99": 188.79000000000087,
+        "max": 897.0,
+        "over_120d_pct": 3.97,
+        "over_365d_pct": 0.57
+      },
+      "flow_age": {
+        "n": 59838,
+        "median": 123.0,
+        "p90": 363.0,
+        "p95": 395.0,
+        "p99": 455.0,
+        "max": 883.0,
+        "over_120d_pct": 57.38,
+        "over_365d_pct": 7.21
+      },
+      "max_allowed_days": 900,
+      "note": "每个特征值所依据的最近一期 period_end 距信号日的天数；超过 MAX_STALE_DAYS 的输入已在 fresh_state() 丢弃（否则已停报公司十年前的财报会被一路带到 2026 年）。flow_age 中位数偏大是正常的：TTM 在拿不到四个季度时会退到最近年报，年中年报天然滞后数月"
     },
     "per_feature": {
       "ep_ttm": {
-        "non_null_rows": 61132,
-        "coverage_pct": 92.1,
+        "non_null_rows": 55503,
+        "coverage_pct": 83.6,
         "expected_sign": 1,
-        "median": 0.0389
+        "median": 0.0395
       },
       "bp": {
-        "non_null_rows": 63562,
-        "coverage_pct": 95.7,
+        "non_null_rows": 61214,
+        "coverage_pct": 92.2,
         "expected_sign": 1,
-        "median": 0.28
+        "median": 0.2745
       },
       "sp_ttm": {
-        "non_null_rows": 61099,
-        "coverage_pct": 92.0,
+        "non_null_rows": 57983,
+        "coverage_pct": 87.3,
         "expected_sign": 1,
-        "median": 0.3578
+        "median": 0.3569
       },
       "roe": {
-        "non_null_rows": 59875,
-        "coverage_pct": 90.2,
+        "non_null_rows": 56257,
+        "coverage_pct": 84.7,
         "expected_sign": 1,
-        "median": 0.1399
+        "median": 0.1434
       },
       "gross_margin": {
-        "non_null_rows": 32236,
-        "coverage_pct": 48.5,
+        "non_null_rows": 27540,
+        "coverage_pct": 41.5,
         "expected_sign": 1,
-        "median": 0.4009
+        "median": 0.4171
       },
       "asset_turnover": {
-        "non_null_rows": 63631,
-        "coverage_pct": 95.8,
+        "non_null_rows": 62813,
+        "coverage_pct": 94.6,
         "expected_sign": 1,
-        "median": 0.5177
+        "median": 0.5305
       },
       "rev_yoy": {
-        "non_null_rows": 56605,
-        "coverage_pct": 85.2,
+        "non_null_rows": 55756,
+        "coverage_pct": 84.0,
         "expected_sign": 1,
-        "median": 0.0458
+        "median": 0.0544
       },
       "ni_yoy": {
-        "non_null_rows": 50750,
-        "coverage_pct": 76.4,
+        "non_null_rows": 47064,
+        "coverage_pct": 70.9,
         "expected_sign": 1,
-        "median": 0.0324
+        "median": 0.0614
       },
       "asset_growth": {
-        "non_null_rows": 59444,
+        "non_null_rows": 59409,
         "coverage_pct": 89.5,
         "expected_sign": -1,
         "median": 0.0471
       },
       "accruals": {
-        "non_null_rows": 62511,
-        "coverage_pct": 94.1,
+        "non_null_rows": 55110,
+        "coverage_pct": 83.0,
         "expected_sign": -1,
-        "median": -0.0345
+        "median": -0.0344
       },
       "ocf_yield": {
-        "non_null_rows": 62120,
-        "coverage_pct": 93.5,
+        "non_null_rows": 55981,
+        "coverage_pct": 84.3,
         "expected_sign": 1,
-        "median": 0.0656
+        "median": 0.0653
       },
       "leverage": {
-        "non_null_rows": 48165,
-        "coverage_pct": 72.5,
+        "non_null_rows": 46655,
+        "coverage_pct": 70.3,
         "expected_sign": -1,
-        "median": 0.6324
+        "median": 0.6384
       }
     },
     "by_year": {
       "2016": {
         "months": 4,
         "mean_symbols_per_month": 517,
-        "ep_ttm_coverage_pct": 91.7,
-        "bp_coverage_pct": 95.7
+        "ep_ttm_coverage_pct": 82.6,
+        "bp_coverage_pct": 92.7
       },
       "2017": {
         "months": 12,
         "mean_symbols_per_month": 525,
-        "ep_ttm_coverage_pct": 91.0,
-        "bp_coverage_pct": 95.6
+        "ep_ttm_coverage_pct": 82.4,
+        "bp_coverage_pct": 92.8
       },
       "2018": {
         "months": 12,
         "mean_symbols_per_month": 533,
-        "ep_ttm_coverage_pct": 91.2,
-        "bp_coverage_pct": 95.3
+        "ep_ttm_coverage_pct": 81.8,
+        "bp_coverage_pct": 92.0
       },
       "2019": {
         "months": 12,
         "mean_symbols_per_month": 542,
-        "ep_ttm_coverage_pct": 91.6,
-        "bp_coverage_pct": 95.7
+        "ep_ttm_coverage_pct": 82.8,
+        "bp_coverage_pct": 92.3
       },
       "2020": {
         "months": 12,
         "mean_symbols_per_month": 549,
-        "ep_ttm_coverage_pct": 92.4,
-        "bp_coverage_pct": 95.8
+        "ep_ttm_coverage_pct": 84.1,
+        "bp_coverage_pct": 92.3
       },
       "2021": {
         "months": 12,
         "mean_symbols_per_month": 558,
-        "ep_ttm_coverage_pct": 91.8,
-        "bp_coverage_pct": 95.7
+        "ep_ttm_coverage_pct": 83.2,
+        "bp_coverage_pct": 92.0
       },
       "2022": {
         "months": 12,
         "mean_symbols_per_month": 563,
-        "ep_ttm_coverage_pct": 91.6,
-        "bp_coverage_pct": 95.5
+        "ep_ttm_coverage_pct": 83.0,
+        "bp_coverage_pct": 91.5
       },
       "2023": {
         "months": 12,
         "mean_symbols_per_month": 565,
-        "ep_ttm_coverage_pct": 92.0,
-        "bp_coverage_pct": 95.7
+        "ep_ttm_coverage_pct": 83.1,
+        "bp_coverage_pct": 91.8
       },
       "2024": {
         "months": 12,
         "mean_symbols_per_month": 570,
-        "ep_ttm_coverage_pct": 92.2,
-        "bp_coverage_pct": 95.8
+        "ep_ttm_coverage_pct": 83.8,
+        "bp_coverage_pct": 92.0
       },
       "2025": {
         "months": 12,
         "mean_symbols_per_month": 574,
-        "ep_ttm_coverage_pct": 93.2,
-        "bp_coverage_pct": 95.9
+        "ep_ttm_coverage_pct": 85.3,
+        "bp_coverage_pct": 92.4
       },
       "2026": {
         "months": 8,
         "mean_symbols_per_month": 575,
-        "ep_ttm_coverage_pct": 94.3,
-        "bp_coverage_pct": 96.2
+        "ep_ttm_coverage_pct": 87.7,
+        "bp_coverage_pct": 92.7
       }
     },
     "universe_meta": {
@@ -470,48 +494,48 @@
       "expected_sign": 1,
       "overall": {
         "n_months": 119,
-        "ic_mean": 0.002,
-        "ic_std": 0.1261,
-        "ic_t": 0.17,
+        "ic_mean": 0.0003,
+        "ic_std": 0.1343,
+        "ic_t": 0.02,
         "ic_positive_rate": 0.445
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": -0.0138,
-          "ic_std": 0.1455,
-          "ic_t": -0.6,
-          "ic_positive_rate": 0.4
+          "ic_mean": -0.0221,
+          "ic_std": 0.1556,
+          "ic_t": -0.9,
+          "ic_positive_rate": 0.35
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": -0.0013,
-          "ic_std": 0.1248,
-          "ic_t": -0.06,
+          "ic_mean": -0.0022,
+          "ic_std": 0.1367,
+          "ic_t": -0.1,
           "ic_positive_rate": 0.472
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0193,
-          "ic_std": 0.1073,
-          "ic_t": 1.18,
-          "ic_positive_rate": 0.465
+          "ic_mean": 0.0231,
+          "ic_std": 0.1079,
+          "ic_t": 1.41,
+          "ic_positive_rate": 0.512
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 1.558,
-        "Q2_mean_pct": 1.066,
-        "Q3_mean_pct": 1.152,
-        "Q4_mean_pct": 1.17,
-        "Q5_mean_pct": 1.055,
-        "Q5_minus_Q1_mean_pct": -0.503,
-        "Q5_minus_Q1_t": -1.69,
-        "Q5_minus_Q1_positive_rate": 0.412
+        "Q1_mean_pct": 1.651,
+        "Q2_mean_pct": 1.073,
+        "Q3_mean_pct": 1.146,
+        "Q4_mean_pct": 1.195,
+        "Q5_mean_pct": 1.047,
+        "Q5_minus_Q1_mean_pct": -0.605,
+        "Q5_minus_Q1_t": -1.89,
+        "Q5_minus_Q1_positive_rate": 0.387
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0138, 2020_2022=-0.0013, 2023_2026=+0.0193）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0221, 2020_2022=-0.0022, 2023_2026=+0.0231）",
       "tier": "C_reject"
     },
     "bp": {
@@ -519,48 +543,48 @@
       "expected_sign": 1,
       "overall": {
         "n_months": 119,
-        "ic_mean": -0.0176,
-        "ic_std": 0.1674,
-        "ic_t": -1.14,
-        "ic_positive_rate": 0.462
+        "ic_mean": -0.0186,
+        "ic_std": 0.1711,
+        "ic_t": -1.18,
+        "ic_positive_rate": 0.445
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": -0.0627,
-          "ic_std": 0.1458,
-          "ic_t": -2.72,
+          "ic_mean": -0.062,
+          "ic_std": 0.1498,
+          "ic_t": -2.62,
           "ic_positive_rate": 0.35
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": 0.0091,
-          "ic_std": 0.2027,
-          "ic_t": 0.27,
-          "ic_positive_rate": 0.528
+          "ic_mean": 0.0107,
+          "ic_std": 0.2054,
+          "ic_t": 0.31,
+          "ic_positive_rate": 0.5
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0021,
-          "ic_std": 0.1477,
-          "ic_t": 0.09,
-          "ic_positive_rate": 0.512
+          "ic_mean": -0.0027,
+          "ic_std": 0.1532,
+          "ic_t": -0.12,
+          "ic_positive_rate": 0.488
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 1.522,
-        "Q2_mean_pct": 1.236,
-        "Q3_mean_pct": 1.083,
-        "Q4_mean_pct": 0.959,
-        "Q5_mean_pct": 1.188,
-        "Q5_minus_Q1_mean_pct": -0.334,
-        "Q5_minus_Q1_t": -0.85,
-        "Q5_minus_Q1_positive_rate": 0.437
+        "Q1_mean_pct": 1.514,
+        "Q2_mean_pct": 1.3,
+        "Q3_mean_pct": 1.077,
+        "Q4_mean_pct": 0.957,
+        "Q5_mean_pct": 1.195,
+        "Q5_minus_Q1_mean_pct": -0.319,
+        "Q5_minus_Q1_t": -0.78,
+        "Q5_minus_Q1_positive_rate": 0.445
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0627, 2020_2022=+0.0091, 2023_2026=+0.0021）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0620, 2020_2022=+0.0107, 2023_2026=-0.0027）",
       "tier": "C_reject"
     },
     "sp_ttm": {
@@ -569,47 +593,47 @@
       "overall": {
         "n_months": 119,
         "ic_mean": -0.0005,
-        "ic_std": 0.1618,
-        "ic_t": -0.03,
-        "ic_positive_rate": 0.462
+        "ic_std": 0.1653,
+        "ic_t": -0.04,
+        "ic_positive_rate": 0.454
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": -0.0415,
-          "ic_std": 0.1616,
-          "ic_t": -1.62,
+          "ic_mean": -0.042,
+          "ic_std": 0.1671,
+          "ic_t": -1.59,
           "ic_positive_rate": 0.35
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": 0.0377,
-          "ic_std": 0.1845,
-          "ic_t": 1.23,
+          "ic_mean": 0.0404,
+          "ic_std": 0.1844,
+          "ic_t": 1.31,
           "ic_positive_rate": 0.556
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0057,
-          "ic_std": 0.1344,
-          "ic_t": 0.28,
-          "ic_positive_rate": 0.488
+          "ic_mean": 0.0037,
+          "ic_std": 0.1394,
+          "ic_t": 0.18,
+          "ic_positive_rate": 0.465
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 1.254,
-        "Q2_mean_pct": 1.133,
-        "Q3_mean_pct": 1.066,
-        "Q4_mean_pct": 1.166,
-        "Q5_mean_pct": 1.451,
-        "Q5_minus_Q1_mean_pct": 0.197,
-        "Q5_minus_Q1_t": 0.53,
-        "Q5_minus_Q1_positive_rate": 0.479
+        "Q1_mean_pct": 1.315,
+        "Q2_mean_pct": 1.106,
+        "Q3_mean_pct": 1.052,
+        "Q4_mean_pct": 1.216,
+        "Q5_mean_pct": 1.454,
+        "Q5_minus_Q1_mean_pct": 0.139,
+        "Q5_minus_Q1_t": 0.36,
+        "Q5_minus_Q1_positive_rate": 0.471
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0415, 2020_2022=+0.0377, 2023_2026=+0.0057）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0420, 2020_2022=+0.0404, 2023_2026=+0.0037）",
       "tier": "C_reject"
     },
     "roe": {
@@ -617,48 +641,48 @@
       "expected_sign": 1,
       "overall": {
         "n_months": 119,
-        "ic_mean": 0.015,
-        "ic_std": 0.1049,
-        "ic_t": 1.56,
-        "ic_positive_rate": 0.588
+        "ic_mean": 0.0145,
+        "ic_std": 0.1113,
+        "ic_t": 1.42,
+        "ic_positive_rate": 0.605
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": 0.0294,
-          "ic_std": 0.0809,
-          "ic_t": 2.3,
+          "ic_mean": 0.0263,
+          "ic_std": 0.0798,
+          "ic_t": 2.08,
           "ic_positive_rate": 0.675
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": 0.0031,
-          "ic_std": 0.1526,
-          "ic_t": 0.12,
-          "ic_positive_rate": 0.556
+          "ic_mean": 0.0027,
+          "ic_std": 0.1676,
+          "ic_t": 0.1,
+          "ic_positive_rate": 0.528
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0114,
-          "ic_std": 0.0713,
-          "ic_t": 1.05,
-          "ic_positive_rate": 0.535
+          "ic_mean": 0.0134,
+          "ic_std": 0.0722,
+          "ic_t": 1.21,
+          "ic_positive_rate": 0.605
         }
       },
       "era_sign_consistent": true,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 1.5,
-        "Q2_mean_pct": 0.897,
-        "Q3_mean_pct": 1.077,
-        "Q4_mean_pct": 1.236,
-        "Q5_mean_pct": 1.259,
-        "Q5_minus_Q1_mean_pct": -0.241,
-        "Q5_minus_Q1_t": -0.82,
-        "Q5_minus_Q1_positive_rate": 0.496
+        "Q1_mean_pct": 1.51,
+        "Q2_mean_pct": 0.931,
+        "Q3_mean_pct": 1.11,
+        "Q4_mean_pct": 1.21,
+        "Q5_mean_pct": 1.258,
+        "Q5_minus_Q1_mean_pct": -0.252,
+        "Q5_minus_Q1_t": -0.81,
+        "Q5_minus_Q1_positive_rate": 0.513
       },
       "robust": false,
-      "verdict": "不稳健：IC 均值 +0.0150, t=1.56 < 2",
+      "verdict": "不稳健：IC 均值 +0.0145, t=1.42 < 2",
       "tier": "B_candidate"
     },
     "gross_margin": {
@@ -666,48 +690,48 @@
       "expected_sign": 1,
       "overall": {
         "n_months": 119,
-        "ic_mean": 0.0054,
-        "ic_std": 0.1329,
-        "ic_t": 0.45,
+        "ic_mean": 0.0069,
+        "ic_std": 0.1491,
+        "ic_t": 0.51,
         "ic_positive_rate": 0.555
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": 0.0363,
-          "ic_std": 0.1143,
-          "ic_t": 2.01,
-          "ic_positive_rate": 0.75
+          "ic_mean": 0.0415,
+          "ic_std": 0.1344,
+          "ic_t": 1.95,
+          "ic_positive_rate": 0.675
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": -0.0211,
-          "ic_std": 0.1491,
-          "ic_t": -0.85,
+          "ic_mean": -0.0225,
+          "ic_std": 0.1597,
+          "ic_t": -0.84,
           "ic_positive_rate": 0.417
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": -0.0011,
-          "ic_std": 0.1321,
-          "ic_t": -0.05,
-          "ic_positive_rate": 0.488
+          "ic_mean": -0.0007,
+          "ic_std": 0.1498,
+          "ic_t": -0.03,
+          "ic_positive_rate": 0.558
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 1.577,
-        "Q2_mean_pct": 1.364,
-        "Q3_mean_pct": 1.028,
-        "Q4_mean_pct": 1.356,
-        "Q5_mean_pct": 1.371,
-        "Q5_minus_Q1_mean_pct": -0.206,
-        "Q5_minus_Q1_t": -0.68,
-        "Q5_minus_Q1_positive_rate": 0.496
+        "Q1_mean_pct": 1.658,
+        "Q2_mean_pct": 1.248,
+        "Q3_mean_pct": 1.115,
+        "Q4_mean_pct": 1.299,
+        "Q5_mean_pct": 1.369,
+        "Q5_minus_Q1_mean_pct": -0.289,
+        "Q5_minus_Q1_t": -0.88,
+        "Q5_minus_Q1_positive_rate": 0.513
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0363, 2020_2022=-0.0211, 2023_2026=-0.0011）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0415, 2020_2022=-0.0225, 2023_2026=-0.0007）",
       "tier": "C_reject"
     },
     "asset_turnover": {
@@ -716,47 +740,47 @@
       "overall": {
         "n_months": 119,
         "ic_mean": 0.0166,
-        "ic_std": 0.1127,
-        "ic_t": 1.61,
-        "ic_positive_rate": 0.529
+        "ic_std": 0.1122,
+        "ic_t": 1.62,
+        "ic_positive_rate": 0.538
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": 0.0264,
-          "ic_std": 0.1128,
-          "ic_t": 1.48,
-          "ic_positive_rate": 0.525
+          "ic_mean": 0.0253,
+          "ic_std": 0.1114,
+          "ic_t": 1.44,
+          "ic_positive_rate": 0.55
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": 0.032,
-          "ic_std": 0.1228,
-          "ic_t": 1.56,
-          "ic_positive_rate": 0.667
+          "ic_mean": 0.031,
+          "ic_std": 0.126,
+          "ic_t": 1.48,
+          "ic_positive_rate": 0.694
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": -0.0053,
-          "ic_std": 0.1025,
-          "ic_t": -0.34,
-          "ic_positive_rate": 0.419
+          "ic_mean": -0.0035,
+          "ic_std": 0.0999,
+          "ic_t": -0.23,
+          "ic_positive_rate": 0.395
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 0.877,
-        "Q2_mean_pct": 1.229,
-        "Q3_mean_pct": 1.299,
-        "Q4_mean_pct": 1.368,
-        "Q5_mean_pct": 1.357,
-        "Q5_minus_Q1_mean_pct": 0.48,
-        "Q5_minus_Q1_t": 2.0,
-        "Q5_minus_Q1_positive_rate": 0.546
+        "Q1_mean_pct": 0.885,
+        "Q2_mean_pct": 1.224,
+        "Q3_mean_pct": 1.344,
+        "Q4_mean_pct": 1.329,
+        "Q5_mean_pct": 1.368,
+        "Q5_minus_Q1_mean_pct": 0.483,
+        "Q5_minus_Q1_t": 1.99,
+        "Q5_minus_Q1_positive_rate": 0.538
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0264, 2020_2022=+0.0320, 2023_2026=-0.0053）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0253, 2020_2022=+0.0310, 2023_2026=-0.0035）",
       "tier": "C_reject"
     },
     "rev_yoy": {
@@ -764,48 +788,48 @@
       "expected_sign": 1,
       "overall": {
         "n_months": 107,
-        "ic_mean": 0.0127,
-        "ic_std": 0.1264,
-        "ic_t": 1.04,
-        "ic_positive_rate": 0.57
+        "ic_mean": 0.0122,
+        "ic_std": 0.1344,
+        "ic_t": 0.94,
+        "ic_positive_rate": 0.533
       },
       "by_era": {
         "2016_2019": {
           "n_months": 28,
-          "ic_mean": 0.0264,
-          "ic_std": 0.1039,
-          "ic_t": 1.35,
-          "ic_positive_rate": 0.643
+          "ic_mean": 0.0287,
+          "ic_std": 0.1154,
+          "ic_t": 1.32,
+          "ic_positive_rate": 0.607
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": -0.0089,
-          "ic_std": 0.1682,
-          "ic_t": -0.32,
-          "ic_positive_rate": 0.444
+          "ic_mean": -0.0116,
+          "ic_std": 0.1774,
+          "ic_t": -0.39,
+          "ic_positive_rate": 0.417
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0217,
-          "ic_std": 0.0959,
-          "ic_t": 1.49,
-          "ic_positive_rate": 0.628
+          "ic_mean": 0.0214,
+          "ic_std": 0.1001,
+          "ic_t": 1.4,
+          "ic_positive_rate": 0.581
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 107,
-        "Q1_mean_pct": 1.312,
-        "Q2_mean_pct": 0.922,
-        "Q3_mean_pct": 1.063,
-        "Q4_mean_pct": 1.073,
-        "Q5_mean_pct": 1.57,
-        "Q5_minus_Q1_mean_pct": 0.259,
-        "Q5_minus_Q1_t": 0.76,
-        "Q5_minus_Q1_positive_rate": 0.514
+        "Q1_mean_pct": 1.297,
+        "Q2_mean_pct": 1.018,
+        "Q3_mean_pct": 0.975,
+        "Q4_mean_pct": 1.093,
+        "Q5_mean_pct": 1.559,
+        "Q5_minus_Q1_mean_pct": 0.262,
+        "Q5_minus_Q1_t": 0.71,
+        "Q5_minus_Q1_positive_rate": 0.533
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0264, 2020_2022=-0.0089, 2023_2026=+0.0217）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0287, 2020_2022=-0.0116, 2023_2026=+0.0214）",
       "tier": "C_reject"
     },
     "ni_yoy": {
@@ -813,48 +837,48 @@
       "expected_sign": 1,
       "overall": {
         "n_months": 107,
-        "ic_mean": 0.0072,
-        "ic_std": 0.1093,
-        "ic_t": 0.68,
-        "ic_positive_rate": 0.589
+        "ic_mean": 0.0064,
+        "ic_std": 0.1145,
+        "ic_t": 0.58,
+        "ic_positive_rate": 0.57
       },
       "by_era": {
         "2016_2019": {
           "n_months": 28,
-          "ic_mean": 0.0081,
-          "ic_std": 0.0805,
-          "ic_t": 0.53,
-          "ic_positive_rate": 0.5
+          "ic_mean": 0.0064,
+          "ic_std": 0.0851,
+          "ic_t": 0.4,
+          "ic_positive_rate": 0.464
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": -0.024,
-          "ic_std": 0.1448,
-          "ic_t": -0.99,
-          "ic_positive_rate": 0.556
+          "ic_mean": -0.0258,
+          "ic_std": 0.151,
+          "ic_t": -1.02,
+          "ic_positive_rate": 0.528
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0327,
-          "ic_std": 0.0837,
-          "ic_t": 2.56,
+          "ic_mean": 0.0334,
+          "ic_std": 0.0884,
+          "ic_t": 2.48,
           "ic_positive_rate": 0.674
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 107,
-        "Q1_mean_pct": 1.027,
-        "Q2_mean_pct": 1.059,
-        "Q3_mean_pct": 1.014,
-        "Q4_mean_pct": 1.155,
-        "Q5_mean_pct": 1.068,
-        "Q5_minus_Q1_mean_pct": 0.042,
-        "Q5_minus_Q1_t": 0.15,
-        "Q5_minus_Q1_positive_rate": 0.598
+        "Q1_mean_pct": 1.01,
+        "Q2_mean_pct": 1.109,
+        "Q3_mean_pct": 1.002,
+        "Q4_mean_pct": 1.135,
+        "Q5_mean_pct": 1.082,
+        "Q5_minus_Q1_mean_pct": 0.072,
+        "Q5_minus_Q1_t": 0.25,
+        "Q5_minus_Q1_positive_rate": 0.57
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0081, 2020_2022=-0.0240, 2023_2026=+0.0327）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0064, 2020_2022=-0.0258, 2023_2026=+0.0334）",
       "tier": "C_reject"
     },
     "asset_growth": {
@@ -862,24 +886,24 @@
       "expected_sign": -1,
       "overall": {
         "n_months": 107,
-        "ic_mean": 0.0239,
+        "ic_mean": 0.024,
         "ic_std": 0.1134,
-        "ic_t": 2.18,
-        "ic_positive_rate": 0.664
+        "ic_t": 2.19,
+        "ic_positive_rate": 0.654
       },
       "by_era": {
         "2016_2019": {
           "n_months": 28,
-          "ic_mean": 0.0564,
+          "ic_mean": 0.0566,
           "ic_std": 0.0811,
-          "ic_t": 3.68,
-          "ic_positive_rate": 0.821
+          "ic_t": 3.69,
+          "ic_positive_rate": 0.786
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": -0.0052,
-          "ic_std": 0.1558,
-          "ic_t": -0.2,
+          "ic_mean": -0.0049,
+          "ic_std": 0.1559,
+          "ic_t": -0.19,
           "ic_positive_rate": 0.556
         },
         "2023_2026": {
@@ -893,17 +917,17 @@
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 107,
-        "Q1_mean_pct": 1.004,
-        "Q2_mean_pct": 0.982,
-        "Q3_mean_pct": 0.982,
-        "Q4_mean_pct": 1.207,
+        "Q1_mean_pct": 1.002,
+        "Q2_mean_pct": 0.986,
+        "Q3_mean_pct": 0.981,
+        "Q4_mean_pct": 1.208,
         "Q5_mean_pct": 1.65,
-        "Q5_minus_Q1_mean_pct": 0.646,
-        "Q5_minus_Q1_t": 2.06,
-        "Q5_minus_Q1_positive_rate": 0.607
+        "Q5_minus_Q1_mean_pct": 0.648,
+        "Q5_minus_Q1_t": 2.07,
+        "Q5_minus_Q1_positive_rate": 0.626
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0564, 2020_2022=-0.0052, 2023_2026=+0.0271）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=+0.0566, 2020_2022=-0.0049, 2023_2026=+0.0271）",
       "tier": "C_reject"
     },
     "accruals": {
@@ -911,48 +935,48 @@
       "expected_sign": -1,
       "overall": {
         "n_months": 119,
-        "ic_mean": -0.0017,
-        "ic_std": 0.0765,
-        "ic_t": -0.24,
-        "ic_positive_rate": 0.529
+        "ic_mean": -0.0041,
+        "ic_std": 0.0831,
+        "ic_t": -0.54,
+        "ic_positive_rate": 0.504
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": -0.0027,
-          "ic_std": 0.085,
-          "ic_t": -0.2,
-          "ic_positive_rate": 0.475
+          "ic_mean": -0.0127,
+          "ic_std": 0.0954,
+          "ic_t": -0.85,
+          "ic_positive_rate": 0.425
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": -0.0148,
-          "ic_std": 0.0752,
-          "ic_t": -1.18,
-          "ic_positive_rate": 0.472
+          "ic_mean": -0.0152,
+          "ic_std": 0.0777,
+          "ic_t": -1.17,
+          "ic_positive_rate": 0.444
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0102,
-          "ic_std": 0.0688,
-          "ic_t": 0.97,
+          "ic_mean": 0.0133,
+          "ic_std": 0.0737,
+          "ic_t": 1.18,
           "ic_positive_rate": 0.628
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 1.659,
-        "Q2_mean_pct": 1.122,
-        "Q3_mean_pct": 0.958,
-        "Q4_mean_pct": 1.036,
-        "Q5_mean_pct": 1.282,
-        "Q5_minus_Q1_mean_pct": -0.377,
-        "Q5_minus_Q1_t": -1.89,
-        "Q5_minus_Q1_positive_rate": 0.445
+        "Q1_mean_pct": 1.724,
+        "Q2_mean_pct": 1.128,
+        "Q3_mean_pct": 0.951,
+        "Q4_mean_pct": 1.041,
+        "Q5_mean_pct": 1.234,
+        "Q5_minus_Q1_mean_pct": -0.49,
+        "Q5_minus_Q1_t": -2.24,
+        "Q5_minus_Q1_positive_rate": 0.412
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0027, 2020_2022=-0.0148, 2023_2026=+0.0102）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0127, 2020_2022=-0.0152, 2023_2026=+0.0133）",
       "tier": "C_reject"
     },
     "ocf_yield": {
@@ -960,48 +984,48 @@
       "expected_sign": 1,
       "overall": {
         "n_months": 119,
-        "ic_mean": -0.0062,
-        "ic_std": 0.1624,
-        "ic_t": -0.41,
-        "ic_positive_rate": 0.462
+        "ic_mean": -0.0075,
+        "ic_std": 0.1668,
+        "ic_t": -0.49,
+        "ic_positive_rate": 0.429
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": -0.0503,
-          "ic_std": 0.156,
-          "ic_t": -2.04,
-          "ic_positive_rate": 0.3
+          "ic_mean": -0.0501,
+          "ic_std": 0.1613,
+          "ic_t": -1.97,
+          "ic_positive_rate": 0.275
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": 0.03,
-          "ic_std": 0.1916,
-          "ic_t": 0.94,
+          "ic_mean": 0.0324,
+          "ic_std": 0.1934,
+          "ic_t": 1.0,
           "ic_positive_rate": 0.583
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0046,
-          "ic_std": 0.1336,
-          "ic_t": 0.23,
-          "ic_positive_rate": 0.512
+          "ic_mean": -0.0013,
+          "ic_std": 0.1402,
+          "ic_t": -0.06,
+          "ic_positive_rate": 0.442
         }
       },
       "era_sign_consistent": false,
       "quantiles": {
         "n_months": 119,
-        "Q1_mean_pct": 1.54,
-        "Q2_mean_pct": 1.074,
-        "Q3_mean_pct": 1.016,
-        "Q4_mean_pct": 0.902,
-        "Q5_mean_pct": 1.474,
-        "Q5_minus_Q1_mean_pct": -0.066,
-        "Q5_minus_Q1_t": -0.17,
+        "Q1_mean_pct": 1.602,
+        "Q2_mean_pct": 1.038,
+        "Q3_mean_pct": 0.972,
+        "Q4_mean_pct": 0.951,
+        "Q5_mean_pct": 1.433,
+        "Q5_minus_Q1_mean_pct": -0.17,
+        "Q5_minus_Q1_t": -0.41,
         "Q5_minus_Q1_positive_rate": 0.487
       },
       "robust": false,
-      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0503, 2020_2022=+0.0300, 2023_2026=+0.0046）",
+      "verdict": "不稳健：三段 IC 符号不一致（2016_2019=-0.0501, 2020_2022=+0.0324, 2023_2026=-0.0013）",
       "tier": "C_reject"
     },
     "leverage": {
@@ -1009,31 +1033,31 @@
       "expected_sign": -1,
       "overall": {
         "n_months": 119,
-        "ic_mean": 0.0114,
-        "ic_std": 0.1024,
-        "ic_t": 1.22,
-        "ic_positive_rate": 0.529
+        "ic_mean": 0.012,
+        "ic_std": 0.1054,
+        "ic_t": 1.25,
+        "ic_positive_rate": 0.538
       },
       "by_era": {
         "2016_2019": {
           "n_months": 40,
-          "ic_mean": 0.0098,
-          "ic_std": 0.0975,
-          "ic_t": 0.64,
-          "ic_positive_rate": 0.45
+          "ic_mean": 0.0085,
+          "ic_std": 0.0988,
+          "ic_t": 0.54,
+          "ic_positive_rate": 0.475
         },
         "2020_2022": {
           "n_months": 36,
-          "ic_mean": 0.0027,
-          "ic_std": 0.1186,
-          "ic_t": 0.14,
+          "ic_mean": 0.0038,
+          "ic_std": 0.1248,
+          "ic_t": 0.18,
           "ic_positive_rate": 0.472
         },
         "2023_2026": {
           "n_months": 43,
-          "ic_mean": 0.0202,
-          "ic_std": 0.0935,
-          "ic_t": 1.42,
+          "ic_mean": 0.0223,
+          "ic_std": 0.0949,
+          "ic_t": 1.54,
           "ic_positive_rate": 0.651
         }
       },
@@ -1041,16 +1065,16 @@
       "quantiles": {
         "n_months": 119,
         "Q1_mean_pct": 1.286,
-        "Q2_mean_pct": 1.02,
-        "Q3_mean_pct": 1.236,
-        "Q4_mean_pct": 1.427,
-        "Q5_mean_pct": 1.466,
-        "Q5_minus_Q1_mean_pct": 0.181,
-        "Q5_minus_Q1_t": 0.69,
+        "Q2_mean_pct": 1.022,
+        "Q3_mean_pct": 1.288,
+        "Q4_mean_pct": 1.408,
+        "Q5_mean_pct": 1.462,
+        "Q5_minus_Q1_mean_pct": 0.176,
+        "Q5_minus_Q1_t": 0.66,
         "Q5_minus_Q1_positive_rate": 0.563
       },
       "robust": false,
-      "verdict": "不稳健：IC 均值 +0.0114, t=1.22 < 2",
+      "verdict": "不稳健：IC 均值 +0.0120, t=1.25 < 2",
       "tier": "C_reject"
     },
     "reference_mom_12_1": {

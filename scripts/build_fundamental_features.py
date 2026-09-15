@@ -91,7 +91,11 @@ QUARTER_DAYS = (75, 105)
 ANNUAL_DAYS = (340, 400)
 TTM_SPAN_DAYS = (300, 400)
 QUARTER_GAP_DAYS = (55, 130)
-MAX_STALE_DAYS = 900  # beyond this the filer has stopped reporting
+# A filer that has not reported in ~2.5 years is no longer a going concern for
+# this panel. Without this cutoff the as-filed replay happily carries a
+# decade-old net income forward (observed max staleness: 16 years), which
+# yields nonsense E/P and B/P for delisted names whose prices still exist.
+MAX_STALE_DAYS = 900
 
 # Preferred unit per tag so a multi-unit tag cannot mix dollars with shares.
 TAG_UNIT = {
@@ -184,6 +188,31 @@ def latest_instant(per_tag: dict, tags: tuple[str, ...]) -> tuple[float, str, st
     return best
 
 
+# Tags the panel actually reads — used to keep the staleness filter cheap.
+NEEDED_TAGS = (SHARES_TAGS + EQUITY_TAGS + REVENUE_TAGS
+               + ("Assets", "Liabilities", "CashAndCashEquivalentsAtCarryingValue",
+                  "NetIncomeLoss", "GrossProfit",
+                  "NetCashProvidedByUsedInOperatingActivities"))
+
+
+def fresh_state(per_tag: dict, month_end: str,
+                max_age_days: int = MAX_STALE_DAYS) -> dict:
+    """Drop facts whose period ended more than `max_age_days` before the signal.
+
+    Applied to every input (share count, balance sheet and flows) so a
+    delisted filer's ancient numbers cannot masquerade as current ones.
+    """
+    out: dict = {}
+    for tag in NEEDED_TAGS:
+        obs = per_tag.get(tag)
+        if not obs:
+            continue
+        kept = {k: v for k, v in obs.items() if _days(k[1], month_end) <= max_age_days}
+        if kept:
+            out[tag] = kept
+    return out
+
+
 def ttm(per_tag: dict, tag: str) -> tuple[float | None, str, str | None]:
     """(value, method, latest_period_end) for a trailing-twelve-month flow."""
     quarters, annuals = [], []
@@ -237,13 +266,18 @@ def build_raw_panel(symbols: list[str], month_ends: list[str],
     from scripts.fetch_edgar_fundamentals import get_splits, split_factor_as_of
 
     rows: list[dict] = []
+    n_stale = 0
     for n, sym in enumerate(symbols, 1):
         facts = load_symbol_facts(conn, sym)
         snaps = replay_state(facts, month_ends)
         splits = get_splits(sym, conn)
         for m in month_ends:
-            per_tag = snaps.get(m) or {}
+            raw = snaps.get(m) or {}
+            if not raw:
+                continue
+            per_tag = fresh_state(raw, m)
             if not per_tag:
+                n_stale += 1
                 continue
             rec: dict = {"date": m, "symbol": sym}
 
@@ -284,6 +318,8 @@ def build_raw_panel(symbols: list[str], month_ends: list[str],
             rows.append(rec)
         if n % 100 == 0:
             print(f"    panel {n}/{len(symbols)} symbols", flush=True)
+    print(f"    staleness guard (>{MAX_STALE_DAYS}d): dropped {n_stale} "
+          f"symbol-months entirely", flush=True)
     return pd.DataFrame(rows)
 
 
@@ -366,6 +402,22 @@ def derive_features(panel: pd.DataFrame) -> pd.DataFrame:
 # Output
 # ---------------------------------------------------------------------------
 
+def _pctl(s: pd.Series) -> dict:
+    s = pd.to_numeric(s, errors="coerce").dropna()
+    if s.empty:
+        return {"n": 0}
+    return {
+        "n": int(len(s)),
+        "median": float(s.median()),
+        "p90": float(s.quantile(0.90)),
+        "p95": float(s.quantile(0.95)),
+        "p99": float(s.quantile(0.99)),
+        "max": float(s.max()),
+        "over_120d_pct": round(float((s > 120).mean()) * 100, 2),
+        "over_365d_pct": round(float((s > 365).mean()) * 100, 2),
+    }
+
+
 def coverage_report(df: pd.DataFrame, month_ends: list[str]) -> dict:
     """Per-feature and per-year availability — early years are thin, quantify it."""
     per_feature: dict[str, dict] = {}
@@ -398,6 +450,18 @@ def coverage_report(df: pd.DataFrame, month_ends: list[str]) -> dict:
         "symbols": int(df["symbol"].nunique()),
         "ttm_method": ({k: int(v) for k, v in df["ni_method"].value_counts().items()}
                        if "ni_method" in df else {}),
+        # How stale is the newest filing behind each month's numbers? Market cap
+        # is price x shares, so a stale share count would bias E/P and B/P.
+        # Rows beyond MAX_STALE_DAYS are already dropped by fresh_state().
+        "input_staleness_days": {
+            "shares_age": _pctl(df["shares_age_days"]) if "shares_age_days" in df else {"n": 0},
+            "flow_age": _pctl(df["flow_age_days"]) if "flow_age_days" in df else {"n": 0},
+            "max_allowed_days": MAX_STALE_DAYS,
+            "note": ("每个特征值所依据的最近一期 period_end 距信号日的天数；"
+                     "超过 MAX_STALE_DAYS 的输入已在 fresh_state() 丢弃（否则已停报公司"
+                     "十年前的财报会被一路带到 2026 年）。flow_age 中位数偏大是正常的："
+                     "TTM 在拿不到四个季度时会退到最近年报，年中年报天然滞后数月"),
+        },
         "per_feature": per_feature,
         "by_year": dict(sorted(by_year.items())),
     }
@@ -405,6 +469,7 @@ def coverage_report(df: pd.DataFrame, month_ends: list[str]) -> dict:
 
 def write_table(df: pd.DataFrame, conn: sqlite3.Connection) -> None:
     cols = ["date", "symbol", "market_cap", "close", "shares", "split_factor",
+            "shares_age_days", "flow_age_days",
             "ttm_net_income", "ttm_revenue", "ttm_gross_profit", "ttm_ocf",
             "equity", "assets", "liabilities", "cash", "fwd_ret_1m",
             "ni_method"] + FEATURES
