@@ -10,7 +10,14 @@ Data notes:
 - Closes are raw exchange closes (unadjusted). For the supported ETFs there
   have been no splits in the past decade, so prices are split-consistent;
   individual STOCKS can and do split — cross-sectional price momentum is
-  robust to this, but absolute price levels are not split-adjusted.
+  robust to this, and **the API DOES serve split-adjusted prices**
+  (verified 2026-09-15: AAPL 2020-08-28 = 124.81 = 499.23/4;
+  NVDA 2024-06-07 = 120.89 = /10; TSLA 2022-08-24 = 297.10 = /3).
+  Therefore a raw close is NOT a historical price level: for market cap or
+  any absolute-price feature you MUST apply the split factor — see
+  data/fundamentals.db `splits` table (142 splits, 17/17 known splits
+  matched, built from EDGAR as-filed share counts + restatement
+  corroboration by scripts/fetch_edgar_fundamentals.py).
 - Dividends are NOT reinvested: pass `div_yield_annual` to
   `get_close_series()` for an approximate total-return series
   (VOO ~1.3%/yr, QQQ ~0.6%/yr as of 2026).
