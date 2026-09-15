@@ -51,6 +51,10 @@ torch = "^2.1.0"
 schedule = "^1.2.0"
 # Cross-sectional GBM stock selection (see scripts/xsec_gbm_selection.py)
 lightgbm = "^4.7.0"
+# Used by the ML experiment scripts (meta_label_weekend.py etc.); was
+# installed ad-hoc during the meta-label experiment (1.9.1 in the venv but
+# missing here) — pinned to keep the environment reproducible.
+scikit-learn = ">=1.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
