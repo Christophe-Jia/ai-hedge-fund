@@ -113,9 +113,27 @@ Retro-fit example (weekend_gap):
 
 ## 6. Known limitations (record, don't hide)
 
-- **Correlated variants.** Raw count over-states independent trials; LdP's
-  effective-N (eigenvalue formula `(Σ√λ)²/Σλ`) is the refinement. This proposal
-  records the *raw* count and leaves `n_effective` as a future field — better an
-  auditable raw number than a fabricated effective one.
+- **Correlated variants — and why the default direction is safe.**
+  Raw count over-states the number of *independent* trials when variants are
+  highly correlated. LdP's effective-N (eigenvalue formula `(Σ√λ)²/Σλ`) is the
+  refinement, but this proposal records the **raw** count and leaves
+  `n_effective` as a future field.
+
+  The bias direction is deliberate and must be stated so no one can use it to
+  reopen a failed result:
+
+  > correlated variants → raw N **over-states** independent trials → the DSR
+  > noise ceiling is **too high** → the test is **too strict** → a "fail" is
+  > safe, a "pass" is real.
+
+  "Too strict, never too lenient" is the safe direction for a deflation gate.
+  Therefore **raw N is the default and MUST NOT be quietly replaced by a smaller
+  effective N**. Any future `n_effective` may only be used when it is
+  *reproducible* (the trial return matrix is stored, so the eigenvalues can be
+  recomputed), and only as an explicit, labelled refinement. Using "the
+  effective N is smaller, so it actually passes" *without* a stored matrix is
+  just post-hoc choice of the pass line again — the exact failure mode this
+  registry exists to prevent.
 - **New overhead at registration.** One integer + an optional decomposition; the
   cost is small and paid at exactly the moment the hypothesis is frozen.
+
