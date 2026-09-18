@@ -46,11 +46,14 @@ EXIT_RULES = REPORTS / "exit_rules_backtest.json"
 _EXACT_MAX = {10: 1.538753, 100: 2.507594, 1000: 3.241436, 10000: 3.851616}
 # Simplified anchor table quoted in the task (a lower bound; see docstring).
 _TASK_TABLE = {10: 1.50, 100: 2.20, 1000: 2.80, 10000: 3.20}
-# Tolerance envelope.  The function under test is the *first-order* EVT
-# approximation, whose truncation error against the exact max is 0.036 (N=10),
-# 0.023 (N=100), 0.014 (N=1000), 0.009 (N=10000).  A +/-0.02 assertion is below
-# that truncation error, so it would test the approximation's known error rather
-# than the implementation; 0.05 is the honest envelope.
+# Tolerance envelope.  This is NOT implementation slack — it is set equal to the
+# *intrinsic truncation error* of the object under test.  `expected_max_sharpe`
+# is the first-order Bailey & López de Prado EVT approximation; its error against
+# the exact expectation is 0.036 (N=10), 0.023 (N=100), 0.014 (N=1000),
+# 0.009 (N=10000).  Asserting +/-0.02 would measure that known approximation
+# error, not whether the implementation is correct; 0.05 is the honest envelope
+# (and we deliberately do NOT swap in a higher-order approximation, which would
+# depart from the standard formula).
 _EVT_TOL = 0.05
 
 
