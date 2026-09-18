@@ -49,6 +49,12 @@ Modes (auto-selected):
      与 reports/xsec_gbm_results.json 的 gbm_holdings 对比并打印
      MATCH / MISMATCH。
 
+每份 picks 文件额外冻结整池分数（`pool_scores` + `pool_hash`），并在同月已有
+旧快照时自动跑 `reproducibility_probe(旧, 新, top_n)` 落 `reproducibility`：
+2026-09 危机的边界翻转（加 1 行/21 只股票 → 2/10 重合）此前无法事后重算，因为
+只存了 top-N。此字段是对 failure-benchmark ledger「Gap 2」的补齐——在两次可比
+快照积累前，该洞仍登记在 known_gaps。
+
 首个 live 月特例：2026-10 的选股于 2026-09-15 提前生成（数据截至
 feature_date，比正式月末运行少约两周），2026-09 的选股用 --as-of 复现
 （与回测 2026-09-01 持仓一致）后同样 settle，paper 记录自 2026-09 起连续。
@@ -63,6 +69,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -88,6 +95,7 @@ from scripts.xsec_gbm_selection import (
     universe_for_date,
 )
 from src.data.nasdaq_store import NasdaqDailyStore
+from src.validation import reproducibility_probe
 
 PICKS_DIR = ROOT / "reports" / "gbm_picks"
 LOG_PATH = PICKS_DIR / "log.jsonl"
@@ -113,6 +121,56 @@ def period_to_month(p: int) -> str:
 
 def now_iso() -> str:
     return datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
+
+
+# ---------------------------------------------------------------------------
+# pool snapshot + reproducibility (failure-benchmark ledger Gap 2)
+#
+# The 2026-09 GBM crisis was a *boundary churn*: adding one row (BAYRY) or 21
+# names flipped an entire month's top-10 (2/10 overlap).  It could not be
+# re-derived afterwards because the runner only persisted the top-N picks, never
+# the full score cross-section it was cut from.  So each run now freezes the
+# whole pool's scores + a stable hash, and compares against any prior snapshot
+# for the same month.  Until two comparable snapshots exist the ledger keeps
+# this registered as known_gap `gbm-asof-boundary-churn` (honest: the hole is
+# the missing data, not a missing check).
+# ---------------------------------------------------------------------------
+
+def stable_pool_hash(pool_scores: dict[str, float]) -> str:
+    """Stable hash of a score vector (order-independent, rounded to 6dp)."""
+    items = sorted((str(k), round(float(v), 6)) for k, v in pool_scores.items())
+    return hashlib.sha256(json.dumps(items, separators=(",", ":")).encode()).hexdigest()[:16]
+
+
+def compare_to_prior_snapshot(
+    prior_path: Path, pool_scores: dict[str, float], top_n: int, month: str
+) -> dict | None:
+    """Run reproducibility_probe against an existing picks file for the month.
+
+    Returns None when there is no prior snapshot (first run for the month).
+    Falls back to the prior file's top-N ``picks`` when it predates the
+    ``pool_scores`` field (both sides are compared at top_n, so the comparison
+    stays like-for-like).
+    """
+    if not prior_path.exists():
+        return None
+    try:
+        prior = json.loads(prior_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return None
+    prior_pool = prior.get("pool_scores")
+    if not isinstance(prior_pool, dict) or not prior_pool:
+        prior_pool = {p["symbol"]: p.get("score") for p in prior.get("picks", []) if "symbol" in p}
+    if not prior_pool:
+        return None
+    res = reproducibility_probe(
+        prior_pool, pool_scores, top_n=int(top_n),
+        label=f"GBM picks {month}: prior snapshot vs this run",
+    )
+    res["prior_generated_at"] = prior.get("generated_at")
+    res["prior_pool_hash"] = prior.get("pool_hash")
+    res["prior_source"] = "pool_scores" if prior.get("pool_scores") else "picks_top_n"
+    return res
 
 
 def refresh_universe(union: list[str]) -> None:
@@ -269,6 +327,10 @@ def produce_picks(month: str, top_n: int, refresh: bool) -> dict:
         picks.append({"rank": rank, "symbol": sym,
                       "score": round(float(score), 5), "features": snap})
 
+    # --- freeze the full pool snapshot (Gap 2: boundary-churn regression) --
+    pool_scores = {str(sym): round(float(sc), 5) for sym, sc in s.items()}
+    pool_hash = stable_pool_hash(pool_scores)
+
     notes = []
     if mode == "live":
         notes.append(
@@ -300,8 +362,11 @@ def produce_picks(month: str, top_n: int, refresh: bool) -> dict:
             "seed": SEED,
         },
         "pool_size": int(len(test)),
+        "pool_hash": pool_hash,
+        "pool_scores": pool_scores,
         "top_features": [{"feature": f, "gain_share": round(v, 4)} for f, v in top5],
         "picks": picks,
+        "reproducibility": None,
         "settle": None,
         "notes": notes,
     }
@@ -309,9 +374,18 @@ def produce_picks(month: str, top_n: int, refresh: bool) -> dict:
     # --- persist ----------------------------------------------------------
     PICKS_DIR.mkdir(parents=True, exist_ok=True)
     out_path = PICKS_DIR / f"{target}.json"
+    # Re-running the same month (e.g. --as-of reproduce vs the live early run)
+    # is exactly the boundary-churn probe: compare against the prior snapshot.
+    doc["reproducibility"] = compare_to_prior_snapshot(out_path, pool_scores, top_n, str(target))
     out_path.write_text(json.dumps(doc, indent=2, default=jsonable))
     update_log(doc)
     print(f"  picks -> {out_path}  (+ log.jsonl)")
+    if doc["reproducibility"] is not None:
+        rep = doc["reproducibility"]
+        print(f"  reproducibility vs prior snapshot: {rep['verdict']} "
+              f"(top-{top_n} overlap {rep['overlap_ratio']:.2f}"
+              + (f", {rep['n_value_mismatches']} score mismatches" if rep.get("n_value_mismatches") else "")
+              + ")")
 
     # --- human-readable table ---------------------------------------------
     print(f"\n  === GBM picks {target} (paper trading, top {top_n}) ===")

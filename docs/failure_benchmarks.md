@@ -123,6 +123,8 @@ poetry run pytest tests/validation/test_failure_benchmarks.py -q
 |---|---|---|---|
 | `gbm-asof-boundary-churn` | 加 1 行 / 21 只股票翻转整月 top-10（2/10） | 存档只有两个月的 picks，并列块没跨过 top-N 切点 → `boundary_stability` 判 STABLE（只报 `has_exact_ties`） | 把扰动 universe 的分数快照与 shipped picks 一起存档，再用 `boundary_stability` / `reproducibility_probe` 直接比对 |
 
+> **补齐进行中（2026-09-18，Gap 2 方案 A）**：`scripts/run_monthly_gbm.py` 现在每次运行都冻结**整池**分数（`pool_scores` + `pool_hash`），并在同月已有旧快照时自动跑 `reproducibility_probe(旧, 新, top_n)` 落 `reproducibility`。但洞**仍然开放**——要等两次可比快照积累出来才能重算 churn，因此该条仍留在 `known_gaps`，元测试继续断言它是洞（等有数据后再按飞轮升格为 benchmark）。
+
 > **已闭合的洞（2026-09-18）**：`funding-ftx-loss-tail` 曾是 Gap 1。根因是「单事件驱动」只定义在**毛利侧**（`SINGLE_EVENT_DRIVEN` 的分母是 gross positive return），所以一笔灾难性**亏损**（FTX -21.1% = 68% 毛亏损）结构性不可见。修复是它的镜像：`loss_concentration_profile`（`SINGLE_LOSS_SHARE=0.50`、`TOP2_LOSS_CONCENTRATION_SHARE=0.60`，分母 = `sum(|负收益|)`），并在 `robustness_battery` 的 flags 里加入 `SINGLE_LOSS_DRIVEN`。**多笔小亏累积不触发**（top-1 占比低），只有单笔巨亏触发。
 
 Meta-test `test_known_gap_is_still_open` 断言这些洞**现在仍然是洞**。哪天有人把框架补上，那条测试会变红，逼着把 gap 升格成 benchmark——飞轮两个方向都转。
