@@ -39,14 +39,20 @@ from src.validation import (  # noqa: E402
     proportion_z,
     red_team_checklist,
     reproducibility_probe,
+    robustness_battery,
     significance_from_stats,
     wilson_interval,
+)
+from src.validation.robustness import (  # noqa: E402
+    FLAG_FEW_WINNERS,
+    FLAG_UNSTABLE_RESAMPLE,
 )
 from src.validation._extract import dig  # noqa: E402
 
 REPORTS = ROOT / "reports"
 PICKS_DIR = REPORTS / "gbm_picks"
 OUT = REPORTS / "validation_audit.json"
+ROBUSTNESS_OUT = REPORTS / "robustness_battery.json"
 
 # How many distinct lines of research this platform has actually searched.
 # FAMILY-LEVEL count (team-lead enumeration, 2026-09-15) — a "family" is one
@@ -165,6 +171,17 @@ def _severity(entry: dict) -> str:
     rt = checks.get("red_team") or {}
     if rt.get("verdict") in {"FAIL", "WARN"}:
         amber = True
+    # Robustness battery: a conclusion carried by one or two observations is
+    # RED (the strategy is those observations). Other fragility is AMBER; a
+    # report that stores no return series is a process gap -> AMBER.
+    rb = checks.get("robustness") or {}
+    rb_flags = rb.get("flags") or []
+    if rb.get("verdict") == "SINGLE_EVENT_DRIVEN" or "SINGLE_EVENT_DRIVEN" in rb_flags:
+        red = True
+    elif FLAG_FEW_WINNERS in rb_flags or rb.get("flag") == FLAG_FEW_WINNERS:
+        red = True
+    elif rb.get("verdict") in {"FRAGILE", "INSUFFICIENT"}:
+        amber = True
 
     return "RED" if red else ("AMBER" if amber else "GREEN")
 
@@ -211,11 +228,35 @@ def _red_flags(entry: dict) -> list[str]:
     rt = checks.get("red_team") or {}
     if rt.get("verdict") in {"FAIL", "WARN"}:
         flags.append(f"red-team checklist: {rt.get('n_unanswered')}/{rt.get('n_questions')} mandatory questions unanswered ({', '.join(rt.get('high_severity_unanswered', []))})")
+    rb = checks.get("robustness") or {}
+    rb_flags = rb.get("flags") or []
+    if rb.get("verdict") == "SINGLE_EVENT_DRIVEN" or "SINGLE_EVENT_DRIVEN" in rb_flags:
+        share = (rb.get("concentration") or {}).get("top1_share")
+        share_txt = f"{share:.0%}" if isinstance(share, (int, float)) else ">50%"
+        flags.append(f"robustness: a single observation is {share_txt} of gross return (SINGLE_EVENT_DRIVEN)")
+    elif FLAG_FEW_WINNERS in rb_flags:
+        k = (rb.get("leave_k_best_out") or {}).get("n_best_to_sustain")
+        flags.append(f"robustness: the conclusion needs its best {k} observation(s) — removing them loses significance (FRAGILE_BY_FEW_WINNERS)")
+    elif rb.get("verdict") == "FRAGILE":
+        flags.append(f"robustness: FRAGILE under perturbation ({', '.join(rb_flags)})")
+    elif rb.get("verdict") == "INSUFFICIENT":
+        flags.append("robustness: report stores no per-observation return series — perturbation checks not computable")
     return flags
 
 
 def _entry(name: str, role: str, _report: dict, checks: dict, should_have_caught: list[str], headline: str) -> dict:
     """Assemble one audit entry (the report itself is not echoed into the output)."""
+    # Every strategy gets a robustness slot; audits that can extract a return
+    # series override it. Missing series -> INSUFFICIENT (never fabricated).
+    checks.setdefault(
+        "robustness",
+        {
+            "label": name,
+            "verdict": "INSUFFICIENT",
+            "flags": [],
+            "note": "no per-observation/per-period return series stored in this report",
+        },
+    )
     entry = {
         "name": name,
         "role": role,
@@ -238,6 +279,34 @@ def _events_check(records: list[dict], ret_key: str, *, label: str, n_resamples:
     if not rets:
         return {"label": label, "verdict": "INSUFFICIENT", "note": f"no '{ret_key}' values stored"}
     return event_significance(rets, label=label, n_resamples=n_resamples)
+
+
+def _robustness_check(
+    returns: Any,
+    *,
+    label: str,
+    kind: str = "events",
+    eras: Any = None,
+) -> dict:
+    """Perturbation battery from a stored per-observation return series.
+
+    ``returns`` may be None / empty when the report simply does not store the
+    series — that is reported as INSUFFICIENT (never fabricated).  A series of
+    fewer than 5 observations is likewise INSUFFICIENT (the battery itself
+    enforces the same line).
+    """
+    vals = [_num(x) for x in (returns or [])]
+    vals = [x for x in vals if x is not None]
+    if not vals:
+        return {
+            "label": label,
+            "kind": kind,
+            "verdict": "INSUFFICIENT",
+            "flags": [],
+            "n": 0,
+            "note": "no per-observation/per-period return series stored in this report",
+        }
+    return robustness_battery(vals, eras=eras, label=label, kind=kind)
 
 
 def _event_windows_check(records: list[dict], windows: dict, date_key: str, ret_key: str, *, label: str, n_resamples: int = 3000) -> dict:
@@ -351,6 +420,14 @@ def audit_gbm_sp100() -> dict:
 
     checks["reproducibility"] = _reproducibility_check(rep, label="GBM sp100 flagship: as-of / rerun probe")
     checks["red_team"] = red_team_checklist(rep)
+    ic_by_year = dig(rep, "monthly_ic.by_year") or {}
+    if isinstance(ic_by_year, dict) and ic_by_year:
+        checks["robustness"] = _robustness_check(
+            list(ic_by_year.values()),
+            label="GBM top10 monthly IC by year (7 annual means; the full monthly series is not stored)",
+            kind="period",
+            eras=list(ic_by_year.keys()),
+        )
 
     return _entry(
         "xsec_gbm_results",
@@ -397,6 +474,14 @@ def audit_gbm_sp500() -> dict:
     )
     checks["red_team"] = red_team_checklist(rep)
     checks["reproducibility"] = _reproducibility_check(rep, label="GBM SP500: as-of / rerun probe")
+    ic_by_year = dig(rep, "monthly_ic.by_year") or {}
+    if isinstance(ic_by_year, dict) and ic_by_year:
+        checks["robustness"] = _robustness_check(
+            list(ic_by_year.values()),
+            label="SP500 GBM monthly IC by year (annual means; full monthly series not stored)",
+            kind="period",
+            eras=list(ic_by_year.keys()),
+        )
     return _entry(
         "xsec_gbm_sp500",
         "美股选股 (SP500 universe 泛化)",
@@ -431,6 +516,16 @@ def audit_gbm_attribution() -> dict:
     )
     checks["red_team"] = red_team_checklist(rep)
     checks["reproducibility"] = _reproducibility_check(rep, label="GBM attribution: holdings vs source rerun")
+    rolling_ic = dig(rep, "matrix2_ic_drift.rolling_12m_ic") or {}
+    if isinstance(rolling_ic, dict) and rolling_ic:
+        keys = [str(k) for k in rolling_ic.keys()]
+        eras = ["pre_2024" if k < "2024" else "2024_plus" for k in keys]
+        checks["robustness"] = _robustness_check(
+            list(rolling_ic.values()),
+            label="GBM rolling 12m IC (59 overlapping monthly obs)",
+            kind="period",
+            eras=eras,
+        )
     checks["multiple_comparisons"] = _mc_check(
         _num(boot.get("t_stat")), int(boot.get("n_months") or 0), PLATFORM_HYPOTHESES_SEARCHED,
         label="pre-2024 monthly excess t vs platform-wide search",
@@ -557,6 +652,15 @@ def audit_exit_rules() -> dict:
                 wins, int(best[1]), len(full), label=f"best exit-rule win rate ({best[0]:.0f}%) among {len(full)} rules tested"
             )
 
+    # The red-team finding, automated: the 13 long-leg trades need their best 2.
+    long_only = dig(rep, "trades_full_window.long_only.t_plus_1") or []
+    if long_only:
+        checks["robustness"] = _robustness_check(
+            [t.get("ret_pct") for t in long_only],
+            label="weekend_gap long-leg per-trade returns (13 trades)",
+            kind="events",
+        )
+
     return _entry(
         "exit_rules_backtest",
         "出场规则对比 (weekend_gap)",
@@ -659,6 +763,11 @@ def audit_meta_label() -> dict:
             "return_pct",
             label="meta-label per-period distribution",
         )
+    checks["robustness"] = _robustness_check(
+        [e.get("ret_net_pct") for e in events],
+        label="meta-label per-event net returns (50 events)",
+        kind="events",
+    )
     return _entry(
         "meta_label_results",
         "weekend_gap meta-labeling",
@@ -779,6 +888,192 @@ def _clean(obj: Any) -> Any:
     return obj
 
 
+# ----------------------------------------------------------------------------
+# robustness-battery calibration report
+# ----------------------------------------------------------------------------
+
+def _robustness_calibration() -> dict:
+    """Run the battery on the platform's known findings.
+
+    This is the battery's own calibration test: if it does not catch weekend_gap
+    (which the red team caught by hand) it is not good enough.  Expected answers
+    are recorded alongside the actual verdict so a regression is visible in the
+    file itself, not only in the test suite.
+    """
+    cases: list[dict] = []
+
+    def _add(
+        name: str,
+        source: str,
+        returns: list[float],
+        *,
+        kind: str,
+        expectation: str,
+        eras: list | None = None,
+        expect_flag: str | None = None,
+        expect_k: int | None = None,
+        note: str = "",
+    ) -> None:
+        vals = [_num(x) for x in returns]
+        vals = [v for v in vals if v is not None]
+        res = robustness_battery(vals, eras=eras, label=name, kind=kind) if vals else {
+            "label": name, "kind": kind, "n": 0, "verdict": "INSUFFICIENT", "flags": [],
+            "baseline": {}, "summary": "no series",
+        }
+        flags = res.get("flags") or []
+        lbf = res.get("leave_k_best_out") or {}
+        conc = res.get("concentration") or {}
+        k = lbf.get("n_best_to_sustain")
+        met = True
+        if expect_flag is not None:
+            met = met and (expect_flag in flags)
+        if expect_k is not None:
+            met = met and (k == expect_k)
+        cases.append(
+            {
+                "name": name,
+                "source": source,
+                "n": res.get("n"),
+                "kind": kind,
+                "expectation": expectation,
+                "verdict": res.get("verdict"),
+                "flags": flags,
+                "expectation_met": bool(met),
+                "baseline_t": (res.get("baseline") or {}).get("t_stat"),
+                "baseline_verdict": (res.get("baseline") or {}).get("verdict"),
+                "n_best_to_sustain": k,
+                "first_failure_k": lbf.get("first_failure_k"),
+                "top1_share": conc.get("top1_share"),
+                "top2_share": conc.get("top2_share"),
+                "summary": res.get("summary"),
+                "note": note,
+                "battery": res,
+            }
+        )
+
+    # 1. weekend_gap long leg — the red-team finding, automated.
+    exit_rules = _load("exit_rules_backtest.json") or {}
+    long_only = dig(exit_rules, "trades_full_window.long_only.t_plus_1") or []
+    if long_only:
+        _add(
+            "weekend_gap long leg (13 trades)",
+            "reports/exit_rules_backtest.json:trades_full_window.long_only.t_plus_1[].ret_pct",
+            [t.get("ret_pct") for t in long_only],
+            kind="events",
+            expectation="FRAGILE_BY_FEW_WINNERS with n_best_to_sustain == 2",
+            expect_flag=FLAG_FEW_WINNERS,
+            expect_k=2,
+            note="13 long-only trades; removing the 2 best takes the two-sided p from 0.026 to ~0.11",
+        )
+
+    # 1b. cross-check: the red team's published event-return list.
+    red_team = _load("red_team_weekend_gap.json") or {}
+    rt_events = dig(red_team, "q2_significance.event_returns_pct") or []
+    if rt_events:
+        _add(
+            "weekend_gap red-team published series (13 events)",
+            "reports/red_team_weekend_gap.json:q2_significance.event_returns_pct",
+            rt_events,
+            kind="events",
+            expectation="FRAGILE_BY_FEW_WINNERS (baseline t=2.146 -> 1 observation suffices)",
+            expect_flag=FLAG_FEW_WINNERS,
+            expect_k=1,
+            note="cross-check of the hand-run red-team series; its baseline is more marginal than the stored long-only trade list",
+        )
+
+    # 2. meta-label per-event net returns — should be NOISE / FRAGILE.
+    meta = _load("meta_label_results.json") or {}
+    meta_events = meta.get("events") or []
+    if meta_events:
+        _add(
+            "meta-label per-event net returns (50 events)",
+            "reports/meta_label_results.json:events[].ret_net_pct",
+            [e.get("ret_net_pct") for e in meta_events],
+            kind="events",
+            expectation="NOISE baseline / FRAGILE (no positive edge to concentrate)",
+            note="honest negative result: AUC~0.5, event mean indistinguishable from zero",
+        )
+
+    # 3-5. monthly / annual series: concentration profiles.
+    gbm = _load("xsec_gbm_results.json") or {}
+    by_year = dig(gbm, "monthly_ic.by_year") or {}
+    if isinstance(by_year, dict) and by_year:
+        _add(
+            "GBM top10 monthly IC by year (7 annual means)",
+            "reports/xsec_gbm_results.json:monthly_ic.by_year",
+            list(by_year.values()),
+            kind="period",
+            eras=list(by_year.keys()),
+            expectation="concentration profile for the flagship monthly-IC series",
+            note="the report does not store the full monthly IC series, only annual means",
+        )
+    gbm_yearly = dig(gbm, "yearly_returns_pct.gbm_top10") or {}
+    if isinstance(gbm_yearly, dict) and gbm_yearly:
+        _add(
+            "GBM top10 yearly returns",
+            "reports/xsec_gbm_results.json:yearly_returns_pct.gbm_top10",
+            list(gbm_yearly.values()),
+            kind="period",
+            eras=list(gbm_yearly.keys()),
+            expectation="concentration profile of the yearly strategy return",
+        )
+
+    attrib = _load("gbm_attribution.json") or {}
+    mom = dig(attrib, "momentum_regime.mom_spread_by_year_pct") or {}
+    if isinstance(mom, dict) and mom:
+        _add(
+            "momentum spread by year (10 years)",
+            "reports/gbm_attribution.json:momentum_regime.mom_spread_by_year_pct",
+            list(mom.values()),
+            kind="period",
+            eras=list(mom.keys()),
+            expectation="concentration profile of the momentum benchmark spread",
+        )
+    rolling = dig(attrib, "matrix2_ic_drift.rolling_12m_ic") or {}
+    if isinstance(rolling, dict) and rolling:
+        keys = [str(k) for k in rolling.keys()]
+        _add(
+            "GBM rolling 12m IC (59 overlapping monthly obs)",
+            "reports/gbm_attribution.json:matrix2_ic_drift.rolling_12m_ic",
+            list(rolling.values()),
+            kind="period",
+            eras=["pre_2024" if k < "2024" else "2024_plus" for k in keys],
+            expectation="the only genuine monthly-frequency GBM series stored anywhere",
+            note="overlapping 12m windows: serial correlation inflates the naive t-statistic",
+        )
+
+    met = sum(1 for c in cases if c["expectation_met"])
+    return {
+        "meta": {
+            "harness": "src.validation.robustness",
+            "script": "scripts/validate_reports.py",
+            "note": "calibration of the perturbation battery against known platform findings; "
+            "expected answers are recorded so a regression is visible in the file",
+            "n_cases": len(cases),
+            "n_expectations_met": met,
+            "all_expectations_met": met == len(cases),
+            "thresholds": {
+                "t_threshold": 2.0,
+                "fragile_k_max": 2,
+                "sign_flip_rate_max": 0.10,
+                "single_event_share": 0.50,
+                "top2_concentration_share": 0.60,
+                "min_n": 5,
+            },
+        },
+        "headline": {
+            "weekend_gap_caught": any(
+                c["name"].startswith("weekend_gap long leg") and FLAG_FEW_WINNERS in c["flags"] for c in cases
+            ),
+            "weekend_gap_n_best_to_sustain": next(
+                (c["n_best_to_sustain"] for c in cases if c["name"].startswith("weekend_gap long leg")), None
+            ),
+            "meta_label_verdict": next((c["verdict"] for c in cases if c["name"].startswith("meta-label")), None),
+        },
+        "cases": cases,
+    }
+
+
 def main() -> int:
     entries = []
     for fn in AUDITS:
@@ -796,6 +1091,30 @@ def main() -> int:
     for e in entries:
         gate = e.get("deployment_gate") or {}
         deploy[gate.get("verdict", "DEPLOYMENT_BLOCKED")] = deploy.get(gate.get("verdict", "DEPLOYMENT_BLOCKED"), 0) + 1
+
+    # robustness battery roll-up: how many strategies survive perturbation, how
+    # many are decided by their best two observations, how many store no series.
+    rob_counts = {"ROBUST": 0, "FRAGILE": 0, "SINGLE_EVENT_DRIVEN": 0, "INSUFFICIENT": 0}
+    fragile_by_few_winners: list[str] = []
+    robustness_rows: list[dict] = []
+    for e in entries:
+        rb = (e.get("checks") or {}).get("robustness") or {}
+        v = rb.get("verdict", "INSUFFICIENT")
+        rob_counts[v] = rob_counts.get(v, 0) + 1
+        if FLAG_FEW_WINNERS in (rb.get("flags") or []):
+            fragile_by_few_winners.append(e["name"])
+        robustness_rows.append(
+            {
+                "name": e["name"],
+                "verdict": v,
+                "flags": rb.get("flags") or [],
+                "n": rb.get("n"),
+                "baseline_t": _num((rb.get("baseline") or {}).get("t_stat")),
+                "n_best_to_sustain": ((rb.get("leave_k_best_out") or {}).get("n_best_to_sustain")),
+                "top1_share": _num((rb.get("concentration") or {}).get("top1_share")),
+                "top2_share": _num((rb.get("concentration") or {}).get("top2_share")),
+            }
+        )
 
     # systemic gaps: how many reports leave each mandatory question unanswered
     gap_counts: dict[str, int] = {}
@@ -863,6 +1182,10 @@ def main() -> int:
                 "neighborhood_overfit_isolation": 0.5,
                 "boundary_flip_rate": 0.20,
                 "internal_consistency_max_ratio": 3.0,
+                "robustness_fragile_k_max": 2,
+                "robustness_sign_flip_rate_max": 0.10,
+                "robustness_single_event_share": 0.50,
+                "robustness_min_n": 5,
             },
         },
         "summary": {
@@ -877,6 +1200,14 @@ def main() -> int:
             ),
             "systemic_gaps": systemic,
             "platform_search": platform,
+            "robustness_counts": rob_counts,
+            "robustness_fragile_by_few_winners": fragile_by_few_winners,
+            "robustness_note": (
+                "perturbation battery: FRAGILE_BY_FEW_WINNERS (conclusion dies when its best <=2 "
+                "observations are removed) and SINGLE_EVENT_DRIVEN (one observation > 50% of gross "
+                "return) map to RED; other FRAGILE and INSUFFICIENT map to AMBER"
+            ),
+            "robustness": robustness_rows,
             "headline": (
                 f"{counts.get('RED', 0)}/{len(entries)} strategies are RED. "
                 "The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), "
@@ -888,10 +1219,25 @@ def main() -> int:
     out = _clean(out)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False))
 
+    # battery calibration artifact (same known-answer cases as the test suite)
+    cal = _clean(_robustness_calibration())
+    ROBUSTNESS_OUT.write_text(json.dumps(cal, ensure_ascii=False, indent=2, allow_nan=False))
+
     # console summary
     print(f"wrote {OUT.relative_to(ROOT)}")
+    print(f"wrote {ROBUSTNESS_OUT.relative_to(ROOT)}")
     print(f"  verdicts: {counts}")
     print(f"  deployment gate: {deploy}")
+    print(
+        "  robustness battery: "
+        + ", ".join(f"{k}={v}" for k, v in rob_counts.items())
+        + f"; fragile_by_few_winners={fragile_by_few_winners}"
+    )
+    print(
+        f"  calibration: {cal['meta']['n_expectations_met']}/{cal['meta']['n_cases']} expectations met; "
+        f"weekend_gap caught={cal['headline']['weekend_gap_caught']} "
+        f"(k={cal['headline']['weekend_gap_n_best_to_sustain']})"
+    )
     for e in entries:
         gate = (e.get("deployment_gate") or {}).get("verdict")
         print(f"  [{e.get('verdict')}|{gate}] {e['name']}: {'; '.join(e.get('red_flags', [])[:2])}")

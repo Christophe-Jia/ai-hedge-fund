@@ -1,8 +1,9 @@
 # 策略验证规范（Validation Standard）
 
-**v1.1 — 2026-09-15** | 起因：GBM 选股线的可信度危机。既有的 purged walk-forward / 超参锁定 / 成本模型防住了**作弊**，却没防住**噪音**：Sharpe 0.963 与月均 IC 0.0082（SE≈0.0095，t≈0.84）在同一份报告里躺了两天；换个测试窗 IC 就翻号；`--as-of 2021-06` 因分数并列报出 2/10 MISMATCH。
+**v1.2 — 2026-09-18**（在 v1.1 基础上增补）｜**v1.1 — 2026-09-15** 起因：GBM 选股线的可信度危机。既有的 purged walk-forward / 超参锁定 / 成本模型防住了**作弊**，却没防住**噪音**：Sharpe 0.963 与月均 IC 0.0082（SE≈0.0095，t≈0.84）在同一份报告里躺了两天；换个测试窗 IC 就翻号；`--as-of 2021-06` 因分数并列报出 2/10 MISMATCH。
+**v1.2 增补**「抗扰动检验（鲁棒性套餐）」（§1.4）：把 weekend_gap 红队**手工**做过的「去掉最好的 2 笔」制度化，让每个策略 / 信号自动接受同一套扰动检验。
 
-> **核心原则：一份策略报告，如果没有回答下面 9 个检查 + 15 条红队问题，并且通过独立红队评审，就等于没写完，不具有决策资格。**
+> **核心原则：一份策略报告，如果没有回答下面 14 个检查 + 15 条红队问题，并且通过独立红队评审，就等于没写完，不具有决策资格。**
 
 ---
 
@@ -35,6 +36,43 @@
 | 8 | **多重比较** `multiple_comparisons(N, best)` | 校正后 p ≤ α 才 SURVIVES；否则 FAILS | 平台已搜过 **N=27 个方向族**（funding×2、onchain×2、FOMC×2、gap×3、订单簿、PM、量比、meta-label、GBM×2、动量、入场/仓位×3、出场×2、风控开关×3、DCA、基本面、weekend_gap），**变体级上限 ~60**。N=27 时空假设下**最优 \|t\| 期望就有 ~2.57**，Bonferroni 要求线 **3.11**（N=60 时 3.34）。当前全平台**存过的最优 t=1.84** → 两个口径都 FAILS，没有任何一个结论能通过校正。 |
 | 9 | **复现探针** `reproducibility_probe(stored, rerun, top_n=..)` | top-N 重合率 ≥ 90% 且无分数错配 → REPRODUCIBLE | 正是这个探针抓到了 GBM 危机（2/10 重合）。见 §4 的硬性要求。 |
 
+### 1.4 抗扰动检验（鲁棒性套餐，v1.2 新增）
+
+前 9 条回答「这个数字统计上成立吗」；这一节回答**下一步**的问题：「这个数字是真的，还是少数几笔观测的算术结果？」
+两者独立：一个 t=2.5、p=0.03 的结论完全可能由 2 笔交易撑起（weekend_gap 就是）。
+
+实现：`src/validation/robustness.py`，入口 `robustness_battery(returns, eras=..)`。
+`returns` 是**逐笔事件收益**或**逐期（月度/年度）收益**序列——两者统计处理完全相同，只有标签不同（`kind="events"` / `kind="period"`）。
+每次扰动重算都复用与 `significance()` 相同的 Student-t 判定线（|t| ≥ 2），所以「扛得住套餐」= 在任何一种扰动下头号检验仍然成立。
+
+| # | 检查 | 函数 | 判定线 | 防哪种失败 |
+|---|---|---|---|---|
+| 10 | **去掉最好的 k 笔** | `leave_k_best_out(returns, k)` | k 从 0 到 `min(5, n//4)`；若结论在 **k ≤ 2** 就失去显著性/翻号 → 标 `FRAGILE_BY_FEW_WINNERS`，并给出「需要几笔最好交易才能撑起结论」 | weekend_gap 红队手工发现：去掉最好的 2 笔，双侧 p 从 0.053 变 0.18 → 部署决策被推翻。13 笔做多腿实测 k=2。 |
+| 11 | **去掉最差的 k 笔** | `leave_k_worst_out(returns, k)` | 对称：结论是否靠少数几笔**亏损**反向支撑（去掉后翻号/失去显著性）→ `FRAGILE_BY_FEW_LOSERS` | 防止「负结论只是几笔大亏造成」；对正结论通常只会更强，所以这是对照，不是主判据。 |
+| 12 | **随机丢弃 x%** | `drop_fraction_sweep(returns, fractions=(0.1..0.7), n_trials=50, seed=42)` | 报告各丢弃率下均值/t 的分位与**符号翻转率**；**稳健的结论在丢 70% 数据后仍同号**（翻转率 ≤ 10%） | 点估计的符号可能是小样本巧合；固定 seed 保证可复现。 |
+| 13 | **留一年代** | `leave_one_era_out(returns, eras)` | 逐段剔除后重算；某一段被剔除就翻号/失去显著性 → `FRAGILE_BY_ERA` | 来自 FOMC 教训：效应可能全是 2020-22 ZIRP 环境的产物；回答「未来没有那种环境还成立吗」。 |
+| 14 | **集中度画像** | `concentration_profile(returns)` | top-1/2/3 笔占**毛利**比例、HHI、有效笔数、最大单笔占比、去掉 top 5% 后的收益；单笔 ≥ 50% 毛利 → `SINGLE_EVENT_DRIVEN`；top-2 ≥ 60% 记 WARN | 专治「2 笔占 63% 毛利」；让「策略其实是一笔交易」在纸面上无法隐藏。 |
+
+总判定 `robustness_battery`（优先级从上到下）：
+
+| 判定 | 条件 |
+|---|---|
+| `INSUFFICIENT` | n < 5：扰动统计变成组合数学，不做诊断 |
+| `SINGLE_EVENT_DRIVEN` | 单笔 ≥ 50% 毛利 |
+| `FRAGILE` | 任一扰动标志触发（`FRAGILE_BY_FEW_WINNERS` / `FRAGILE_BY_FEW_LOSERS` / `UNSTABLE_UNDER_RESAMPLING` / `FRAGILE_BY_ERA`） |
+| `ROBUST` | 全部扰动下头号检验仍成立 |
+
+**RED / AMBER 归属（写进 `_severity`）**：
+
+| 鲁棒性结果 | 严重度 | 理由 |
+|---|---|---|
+| `SINGLE_EVENT_DRIVEN` | **RED** | 报告自称的策略其实是一笔观测，结论不成立。 |
+| `FRAGILE_BY_FEW_WINNERS`（k ≤ 2） | **RED** | 结论由 ≤2 笔观测决定；这不是稳健性不足，而是结论本身错误。weekend_gap 因此从 AMBER 升为 RED。 |
+| 其他 `FRAGILE`（resample / era / few-losers） | **AMBER** | 结论「未被证明稳健」，需补充证据，但尚不构成自相矛盾。 |
+| `INSUFFICIENT`（报告没存逐笔/逐期序列） | **AMBER** | 流程缺陷：与「缺必答字段」同类。**禁止伪造序列**。 |
+
+> 已核对的判定线常量写在 `src/validation/robustness.py` 顶部（`FRAGILE_K_MAX=2`、`SIGN_FLIP_RATE_MAX=0.10`、`SINGLE_EVENT_SHARE=0.50`、`TOP2_CONCENTRATION_SHARE=0.60`、`MIN_N_BATTERY=5`），每条都带注释说明理由。
+
 ---
 
 ## 2. 任何报告必须包含的字段
@@ -60,6 +98,15 @@
 
   "multiple_comparisons": { "n_hypotheses": 20, "observed_t": 1.84, "required_t": 3.02, "verdict": "FAILS" },
   "reproducibility":      { "verdict": "REPRODUCIBLE", "top_n": 10, "overlap_ratio": 1.0, "n_value_mismatches": 0 },
+
+  // v1.2: robustness battery (per-event or per-period return series required)
+  "robustness": {
+    "verdict": "FRAGILE",                       // ROBUST / FRAGILE / SINGLE_EVENT_DRIVEN / INSUFFICIENT
+    "flags": ["FRAGILE_BY_FEW_WINNERS"],
+    "leave_k_best_out":   { "n_best_to_sustain": 2, "first_failure_k": 2 },
+    "concentration":      { "top1_share": 0.22, "top2_share": 0.39 },
+    "drop_fraction_sweep":{ "sign_stable_through": 0.7 }
+  },
 
   "baseline_significance": { "baseline": "momentum_12_1", "t_stat": 1.84 },
   "cost_sensitivity":      { "zero_cost_sharpe": 1.01, "cost_drag_bps_yr": 136 },
@@ -153,8 +200,8 @@ if probe["verdict"] != "REPRODUCIBLE":
 | 级别 | 含义 |
 |---|---|
 | **GREEN** | 所有可计算的检查通过，且高严重度字段齐备 → 可交付。 |
-| **AMBER** | 结论「未被证明」：显著性 NOISE/不可计算、**多重比较校正后不显著**、变体族符号不一致、事件样本太小、或必答字段缺失（流程缺陷）。 |
-| **RED** | 数字**自相矛盾或不可复现**：IC 与 Sharpe 不可能同时成立、显著的**负**结果、**同一策略**换窗符号翻转、top-N 边界由并列决定、孤立参数峰、**复现探针 NON_REPRODUCIBLE**。 |
+| **AMBER** | 结论「未被证明」：显著性 NOISE/不可计算、**多重比较校正后不显著**、变体族符号不一致、事件样本太小、必答字段缺失（流程缺陷）、鲁棒性 `FRAGILE`（非少数事件型）或 `INSUFFICIENT`（未存逐笔/逐期序列）。 |
+| **RED** | 数字**自相矛盾或不可复现**：IC 与 Sharpe 不可能同时成立、显著的**负**结果、**同一策略**换窗符号翻转、top-N 边界由并列决定、孤立参数峰、**复现探针 NON_REPRODUCIBLE**、**鲁棒性 `SINGLE_EVENT_DRIVEN`**（一笔观测 > 50% 毛利）、**鲁棒性 `FRAGILE_BY_FEW_WINNERS` 且 k ≤ 2**（结论由最好的 ≤2 笔观测决定）。 |
 
 > 缺字段 ≠ 数字错。缺字段是 AMBER（交付卫生），数字互斥/不可复现才是 RED（结论不可用）。
 
@@ -198,6 +245,7 @@ assert gate["verdict"] == "DEPLOYMENT_BLOCKED"
 poetry run pytest tests/validation/ -q
 
 # 对 reports/ 下既有报告做回顾性体检 → reports/validation_audit.json
+# 同时产出鲁棒性套餐校准报告 → reports/robustness_battery.json
 poetry run python scripts/validate_reports.py
 ```
 
@@ -220,3 +268,22 @@ poetry run python scripts/validate_reports.py
 - 事件级检查（新增）：weekend_gap T+1 **t=0.48 / 胜率 Wilson [0.445, 0.798]**；meta-label 50 笔 **t=1.14 / 胜率 44% [0.31, 0.58]**；量比高桶 **z=1.61 vs 要求 2.73（N=8）**。
 
 **本该在第一次就暴露的五个问题**：① IC 的 SE 从未与均值并列（t≈0.84）；② IC 跨年符号翻转的证据早已在 `gbm_attribution` 里（7 年翻 3 次）；③ 分数并列在 shipped `gbm_picks` 里肉眼可见；④ 与动量的显著性对比从未做过，且 t=1.84 在「搜过 27 个方向族」的背景下连单次检验线都过不了；⑤ 没有任何报告主动做复现探针——而它才是真正抓住危机的那把尺子。
+
+---
+
+## 8.1 v1.2 抗扰动体检（2026-09-18）
+
+在 §8 的 9 项检查之外跑 §1.4 的鲁棒性套餐，逐策略结果（完整数据见 `reports/robustness_battery.json` 的 `cases`，逐策略条目见 `reports/validation_audit.json` 的 `checks.robustness`）：
+
+| 策略 | 序列 | n | 判定 | 标志 |
+|---|---|---|---|---|
+| `exit_rules_backtest`（weekend_gap 做多腿） | 13 笔逐笔 | 13 | **FRAGILE** | `FRAGILE_BY_FEW_WINNERS`（**k=2**：去掉最好的 2 笔，双侧 p 从 0.026 → 0.109） |
+| `meta_label_results` | 50 笔逐笔 | 50 | FRAGILE | `UNSTABLE_UNDER_RESAMPLING`（基线本就 NOISE，t=1.14） |
+| `xsec_gbm_results` | 7 个年度 IC 均值 | 7 | FRAGILE | `UNSTABLE_UNDER_RESAMPLING`；top-2 = 60% 毛利 |
+| `xsec_gbm_sp500` | 7 个年度 IC 均值 | 7 | SINGLE_EVENT_DRIVEN | 单年占 60% 毛利 |
+| `gbm_attribution`（rolling 12m IC） | 59 个重叠月度观测 | 59 | ROBUST | 注意：重叠窗口导致序列相关，朴素 t=4.54 被高估 |
+| 其余 8 份报告 | 未存逐笔/逐期序列 | — | INSUFFICIENT | 报告只存汇总数字，扰动检验无法计算（禁止伪造） |
+
+- 体检总览由 **4 RED / 9 AMBER** 变为 **5 RED / 8 AMBER**：新增的 RED 是 `exit_rules_backtest` —— 鲁棒性套餐**抓住了红队手工才发现的问题**（k=2）。
+- 鲁棒性计数：`ROBUST=1, FRAGILE=3, SINGLE_EVENT_DRIVEN=1, INSUFFICIENT=8`。
+- 校准测试 `reports/robustness_battery.json`：**7/7 期望全部命中**，其中 weekend_gap 的 `n_best_to_sustain=2`。

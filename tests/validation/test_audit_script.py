@@ -233,3 +233,47 @@ def test_all_audits_produce_a_verdict_and_jsonable_output():
         entry = fn()
         assert entry["verdict"] in {"RED", "AMBER", "GREEN", "ERROR"}
         json.dumps(vr._clean(entry), allow_nan=False)
+
+
+# --- v1.2 robustness battery wiring -----------------------------------------
+
+
+def test_every_audit_carries_a_robustness_check():
+    for fn in vr.AUDITS:
+        entry = fn()
+        rb = entry["checks"].get("robustness")
+        assert rb is not None, entry["name"]
+        assert rb["verdict"] in {"ROBUST", "FRAGILE", "SINGLE_EVENT_DRIVEN", "INSUFFICIENT"}
+
+
+def test_exit_rules_robustness_is_fragile_by_few_winners():
+    """The red-team weekend_gap finding is now caught automatically (k=2)."""
+    entry = vr.audit_exit_rules()
+    rb = entry["checks"]["robustness"]
+    assert rb["verdict"] == "FRAGILE"
+    assert "FRAGILE_BY_FEW_WINNERS" in rb["flags"]
+    assert rb["leave_k_best_out"]["n_best_to_sustain"] == 2
+    assert entry["verdict"] == "RED"
+
+
+def test_robustness_fragile_by_few_winners_maps_to_red():
+    checks = {"robustness": {"verdict": "FRAGILE", "flags": ["FRAGILE_BY_FEW_WINNERS"]}}
+    assert vr._severity(_entry(checks)) == "RED"
+
+
+def test_robustness_single_event_driven_maps_to_red():
+    checks = {"robustness": {"verdict": "SINGLE_EVENT_DRIVEN", "flags": ["SINGLE_EVENT_DRIVEN"]}}
+    assert vr._severity(_entry(checks)) == "RED"
+
+
+def test_generic_robustness_fragility_is_amber():
+    checks = {"robustness": {"verdict": "FRAGILE", "flags": ["UNSTABLE_UNDER_RESAMPLING"]}}
+    assert vr._severity(_entry(checks)) == "AMBER"
+    assert vr._severity(_entry({"robustness": {"verdict": "INSUFFICIENT"}})) == "AMBER"
+
+
+def test_robustness_calibration_catches_weekend_gap():
+    cal = vr._robustness_calibration()
+    assert cal["headline"]["weekend_gap_caught"] is True
+    assert cal["headline"]["weekend_gap_n_best_to_sustain"] == 2
+    assert cal["meta"]["all_expectations_met"] is True
