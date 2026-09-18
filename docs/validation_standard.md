@@ -75,7 +75,9 @@
 
 ### 1.5 统计去膨胀（PSR / DSR / MutIC，v1.3 新增）
 
-§1.3 的多重比较用的是**自制 Bonferroni-on-t**（把 27 个假设族写进账本后要求 |t|=3.11）。它有一个盲点：**把重尾/负偏的收益当成正态**——而我们的失败恰恰是重尾（weekend_gap 靠 2 笔撑起、S&P500 扩池靠困境股彩票）。业界标准是 **Bailey & López de Prado 的 PSR / DSR**，它显式修正偏度与峰度，并把基准从 0 提升到「N 次纯噪音试验的最大 Sharpe 期望」。
+§1.3 的多重比较用的是**自制 Bonferroni-on-t**（把 27 个假设族写进账本后要求 |t|=3.11）。它有两个盲点：**（a）把非正态收益当成正态**——PSR 显式修正偏度/峰度；**（b）基准是 0 而不是搜索噪音**——DSR 把基准提升到「N 次纯噪音试验的最大 Sharpe 期望」。业界标准是 **Bailey & López de Prado 的 PSR / DSR**。
+
+> **实测纠正（2026-09-18）**：任务书曾假设我们的失败源于重尾（weekend_gap 靠 2 笔）。实测 weekend_gap 做多腿 13 笔**偏度 ~0.07（近对称）、原始峰度 2.21（比正态还薄尾）**——它不是肥尾问题。它的 DSR 失败来自「**n=13 面对 126 个变体的搜索**」。教训：先量分布，再谈分布假设；不要用一个未验证的分布故事解释失败。
 
 实现：`src/validation/deflation.py`（入口 `deflation_report(returns, n_trials)` / `deflation_from_stats(sr, n, n_trials)`）。
 
@@ -98,10 +100,12 @@
 
 **两个必须写明的口径（否则 DSR 会静默失效）：**
 
-1. **SR 与 n 同频**：日频 SR 配日频 n，或年化 SR 配「年数」。混用（年化 SR + 期数 n）会把 PSR 抬高约 √(每年期数)，足以让失败结论显得通过。审计脚本对每份报告都显式标注用的是哪种口径（`checks.deflation.frequency`），并在把报告里存的**年化** Sharpe 转回期频时除以 √periods_per_year（例：`exit_mechanism` 的 `monthly_sharpe` 其实是年化值，代码里 `_per_period_sr(...,12)` 转回月度）。
+1. **SR 与 n 同频**：日频 SR 配日频 n，或年化 SR 配「年数」。混用（年化 SR + 期数 n）会把 PSR 抬高约 √(每年期数)，足以让失败结论显得通过。审计脚本对每份报告都显式标注用的是哪种口径（`checks.deflation.frequency`），并在把报告里存的**年化** Sharpe 转回期频时除以 √periods_per_year（例：`exit_mechanism` 的 `monthly_sharpe` 其实是年化值，代码里 `_per_period_sr(...,12)` 转回月度）。**该陷阱已加自动告警**：凡字段名声称期频（monthly/daily/weekly）却被频率转换过的输入，会在审计里标为 `summary.frequency_suspects` 并写入该策略的 `red_flags`。
 2. **峰度用「原始峰度」**（正态=3），不是超额峰度：PSR 分母的 `(γ₄−1)/4` 只有在 γ₄=3 时才退化为正态下的 `sqrt(1+0.5·SR²)`。传超额峰度（正态=0）是最常见的实现 bug。
 
-**EVT 天花板锚点（σ_SR=1）**：公式值 1.575 / 2.531 / 3.255 / 3.861（N=10/100/1000/10000），与「N 个标准正态最大值期望」的**精确解** 1.539 / 2.508 / 3.241 / 3.852 相差 ≤0.04（精确解由 2×10⁶ 次蒙特卡洛与数值积分两种独立方法验证）。注：任务书里给的简化表（1.50/2.20/2.80/3.20）在 N=10 与精确值一致，但 N≥100 系统性偏低——测试把它作为**下界**断言（公式值均 ≥ 表值），公式本身以精确解为准。
+**EVT 天花板锚点（σ_SR=1）**：公式值 1.5746 / 2.5306 / 3.2551 / 3.8607（N=10/100/1000/10000），与「N 个标准正态最大值期望」的**精确解** 1.538753 / 2.507594 / 3.241436 / 3.851616 相差 ≤0.036（精确解由 `scipy.integrate.quad` 对 `∫x·N·φ(x)·Φ(x)^(N−1)dx` 确定性积分得到，误差 <1e-8，另有 2×10⁶ 次蒙特卡洛佐证）。
+
+> **⚠️ 来源分歧（请勿按外部表格"修正"本函数）**：网上流传的一张表（SOPHIE《Formulaic Alpha Mining》）给出 ~1.50/2.20/2.80/3.20。独立验证表明它**既不是** B&LdP 公式的输出，也**不是** N 个正态最大值精确解，且与公式的比值（0.95/0.87/0.86/0.83）不是常数——说明它不是「同一公式配不同 σ」。本实现以公式 + 精确解为准；那张表在测试里只作**下界**断言。若将来有人看到不一致想"修"回表值，请先读 `src/validation/deflation.py:expected_max_sharpe` 的警告段与 `reports/deflation_audit.json:meta.source_discrepancy`。
 
 **平台级交叉验证（关键）**：给定平台存过的最优 |t|=**1.84**（gbm_attribution pre-2024 月度超额，n=38 月），
 - Bonferroni-on-t：N=27 时空假设最优 |t| 期望 **2.57**、要求线 **3.11** → **FAILS**；
@@ -337,7 +341,7 @@ poetry run python scripts/validate_reports.py
 | `xsec_gbm_sp500` | 8（同网格） | 71（月） | 0.105 | 0.808 | 0.279 | FAILS |
 | `gbm_attribution` | 8（同网格） | 38（月） | 0.298 | 0.962 | **0.624** | FAILS |
 | `outofsample_backtest` | 3（OOS 场景） | 544（日） | 0.020 | 0.680 | **0.350** | FAILS |
-| `exit_rules_backtest`（weekend_gap 做多腿） | 96（4 阈值×4 标的×6 出场） | 13（逐笔） | 0.704 | 0.990 | **0.362** | FAILS |
+| `exit_rules_backtest`（weekend_gap 做多腿） | 126（6 出场×3 标的×7 阈值；registry 无变体数） | 13（逐笔） | 0.704 | 0.990 | **0.325** | FAILS |
 | `exit_mechanism` | 15（报告自述） | 71（月） | 0.266 | 0.994 | 0.662 | FAILS |
 | `risk_gate` | 15（6+3+6 开关变体） | 71（月） | 0.271 | 0.987 | 0.675 | FAILS |
 | `meta_label_results` | 4（2 模型×2 CV） | 50（逐笔） | 0.161 | 0.895 | 0.531 | FAILS |
@@ -353,7 +357,10 @@ poetry run python scripts/validate_reports.py
   - Bonferroni-on-t：N=27 时要求线 3.11、空假设最优期望 2.57 → **FAILS**；
   - DSR：期频 SR=0.298，E[max SR]=0.341 → PSR=0.962、**DSR=0.399 ≤ 0.95 → FAILS**；
   - `reports/deflation_audit.json:platform_cross_check.consistent = true`。
-- **口径陷阱实录**：`exit_mechanism` 的 `baseline.monthly_sharpe=0.922` 名字像期频，其实是**年化**值；若直接当期频 SR 会得到 DSR≈1.0（假通过）。代码里用 `_per_period_sr(...,12)` 转回月度后 DSR=0.662（FAILS）。这正是 §1.5 强调 SR/n 必须同频的真实案例。
+- **口径陷阱实录（已制度化）**：`exit_mechanism` 的 `baseline.monthly_sharpe=0.922` 名字像期频，其实是**年化**值；若直接当期频 SR 会得到 DSR≈1.0（假通过）。代码里用 `_per_period_sr(...,12)` 转回月度后 DSR=0.662（FAILS）。这正是 §1.5 强调 SR/n 必须同频的真实案例。
+  - **检查清单未改动**：评估过给 `checklist.py` 加第 16 条必答问题（频率口径），但会打破 `tests/validation/test_checklist.py`（`test_complete_report_passes` 断言 `n_unanswered==0`、`test_medium_only_gaps_yield_warn` 断言固定 `COMPLETE_REPORT` 为 WARN）→ 按预案**不改 checklist**。
+  - **改用启发式告警**：`scripts/validate_reports.py` 对任何「被频率转换过、且字段名却声称是期频（monthly/daily/weekly）」的输入打标，写入 `deflation_audit.json:summary.frequency_suspects` 与该策略的 `red_flags`。当前命中 **1 个：`exit_mechanism`**。
+- **来源分歧留档**：曾流传的 EVT 锚点表（1.50/2.20/2.80/3.20）经独立验证**不是** B&LdP 公式的输出，也与 N 个正态最大值精确解不符；本框架以公式 + scipy 确定性积分精确解（1.538753/2.507594/3.241436/3.851616，误差 <1e-8）为准，该表仅作下界。完整记录见 `deflation_audit.json:meta.source_discrepancy`。纪律：**引用来源 → 独立验证 → 发现来源表格有误 → 以可验证的一侧为准**。
 
 ---
 

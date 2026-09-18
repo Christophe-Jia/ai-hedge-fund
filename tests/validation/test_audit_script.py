@@ -308,10 +308,11 @@ def test_gbm_flagship_deflation_is_flagged():
     assert any("deflation" in f for f in entry["red_flags"])
 
 
-def test_weekend_gap_long_leg_deflation_uses_the_96_variant_grid():
+def test_weekend_gap_long_leg_deflation_uses_the_grounded_grid():
     df = vr.audit_exit_rules()["checks"]["deflation"]
     assert df["verdict"] == "FAILS"
-    assert df["n_trials"] == 96
+    # 6 exit rules x 3 traded targets x 7 thresholds = 126 (registry has no variant count)
+    assert df["n_trials"] == 126
     assert df["n"] == 13
 
 
@@ -335,3 +336,24 @@ def test_deflation_audit_artifact_shape():
     assert art["summary"]["counts"]["SURVIVES"] == 0
     assert art["summary"]["counts"]["INSUFFICIENT"] == 1
     assert art["platform_cross_check"]["consistent"] is True
+
+
+def test_frequency_footgun_is_flagged_heuristically():
+    """exit_mechanism.monthly_sharpe is named like a period figure but is annualised."""
+    entry = vr.audit_exit_mechanism()
+    df = entry["checks"]["deflation"]
+    assert df["frequency_converted"] is True
+    assert df["suspicious_frequency_naming"] is True
+    assert any("frequency" in f for f in entry["red_flags"])
+
+
+def test_deflation_audit_records_source_discrepancy_and_tail_finding():
+    entries = [fn() for fn in vr.AUDITS]
+    art = vr._deflation_audit(entries, (1.8373, "gbm_attribution pre-2024", 38, 1.8373))
+    sd = art["meta"]["source_discrepancy"]
+    assert sd["exact_values"]["N=10"] == 1.538753
+    assert sd["circulating_table"]["N=10"] == 1.50
+    assert "formula" in sd["decision"]
+    tail = art["meta"]["weekend_gap_tail_finding"]
+    assert "platykurtic" in tail["measured"]
+    assert "exit_mechanism" in art["summary"]["frequency_suspects"]

@@ -501,7 +501,9 @@
           "interpretation": "SR=0.278 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.989; E[max SR] N=8 (sr_std=0.122)=0.178; DSR=0.795 -> inside the search noise",
           "n_trials_basis": "INNER_CV_GRID A-H = 8 configs (scripts/xsec_gbm_selection.py:126)",
           "source": "reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal (no monthly return series stored)",
-          "claims_edge": true
+          "claims_edge": true,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": false
         },
         "red_team": {
           "n_questions": 15,
@@ -1657,7 +1659,9 @@
           "interpretation": "SR=0.105 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.808; E[max SR] N=8 (sr_std=0.120)=0.175; DSR=0.279 -> inside the search noise",
           "n_trials_basis": "same INNER_CV_GRID A-H = 8 configs; the universe swap (S&P100->S&P500) is an extra degree of freedom not counted here",
           "source": "reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
-          "claims_edge": false
+          "claims_edge": false,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": false
         },
         "robustness": {
           "label": "SP500 GBM monthly IC by year (annual means; full monthly series not stored)",
@@ -2582,7 +2586,9 @@
           "interpretation": "SR=0.298 over n=38 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.962; E[max SR] N=8 (sr_std=0.168)=0.245; DSR=0.624 -> inside the search noise",
           "n_trials_basis": "same GBM INNER_CV_GRID A-H = 8 configs",
           "source": "pre-2024 monthly excess mean 1.622% / std 5.441% over 38 months (per-period SR, no annualisation); skew/kurtosis assumed normal",
-          "claims_edge": true
+          "claims_edge": true,
+          "frequency_converted": false,
+          "suspicious_frequency_naming": false
         },
         "robustness": {
           "label": "GBM rolling 12m IC (59 overlapping monthly obs)",
@@ -3540,7 +3546,9 @@
           "interpretation": "SR=-0.032 over n=862 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.176; E[max SR] N=7 (sr_std=0.034)=0.047; DSR=0.010 -> inside the search noise",
           "n_trials_basis": "7 scenario/ablation variants (report's own scenario set)",
           "source": "reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
-          "claims_edge": false
+          "claims_edge": false,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": false
         },
         "robustness": {
           "label": "combined_signals",
@@ -3913,7 +3921,9 @@
           "interpretation": "SR=-0.032 over n=884 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.170; E[max SR] N=5 (sr_std=0.034)=0.040; DSR=0.016 -> inside the search noise",
           "n_trials_basis": "5 portfolio variants (equal / 2x / single-leg) reproduced by the independent implementation",
           "source": "reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
-          "claims_edge": false
+          "claims_edge": false,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": false
         },
         "robustness": {
           "label": "combined_signals_replication",
@@ -4290,7 +4300,9 @@
           "interpretation": "SR=0.020 over n=544 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.680; E[max SR] N=3 (sr_std=0.043)=0.037; DSR=0.350 -> inside the search noise",
           "n_trials_basis": "3 OOS scenarios (combined_2sig / weekend_gap / funding single legs)",
           "source": "reported OOS annualised Sharpe 0.318 -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
-          "claims_edge": true
+          "claims_edge": true,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": false
         },
         "robustness": {
           "label": "outofsample_backtest",
@@ -5180,7 +5192,7 @@
         },
         "deflation": {
           "label": "weekend_gap long-leg per-trade returns (13 trades)",
-          "n_trials": 96,
+          "n_trials": 126,
           "frequency": "per-period: SR and n are both per-period (no annualisation)",
           "threshold": 0.95,
           "n": 13,
@@ -5194,12 +5206,12 @@
           "sr_std": 0.32247470364294284,
           "sr_std_is_estimate": true,
           "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) — the null sampling std of the Sharpe estimator; a lower bound on the true trial dispersion, so this is the lenient reading (pass sr_std from the trial cross-section for an audit)",
-          "expected_max_sharpe": 0.8114130340444949,
+          "expected_max_sharpe": 0.8419404273189816,
           "psr": 0.9898826396121881,
-          "dsr": 0.3617105094245009,
+          "dsr": 0.3247118780225976,
           "verdict": "FAILS",
-          "interpretation": "per-period SR=0.704 over n=13 (skew=0.07, raw kurt=2.21); PSR(SR>0)=0.990; noise ceiling E[max SR] for N=96 trials (sr_std=0.322) = 0.811; DSR=0.362 <= 0.95 -> inside the search noise",
-          "n_trials_basis": "4 thresholds x 4 symbols x 6 exit rules ~= 96 (weekend_gap variant grid)",
+          "interpretation": "per-period SR=0.704 over n=13 (skew=0.07, raw kurt=2.21); PSR(SR>0)=0.990; noise ceiling E[max SR] for N=126 trials (sr_std=0.322) = 0.842; DSR=0.325 <= 0.95 -> inside the search noise",
+          "n_trials_basis": "6 exit rules (scripts/backtest_exit_rules.py:74) x 3 traded targets COIN/MSTR/MARA (backtest_exit_rules.py:64) x 7 thresholds 3-10% (red_team_weekend_gap.py:158) = 126. Source priority registry > report-countable > platform constant: the registry records the weekend_gap family as ONE pre-registered hypothesis with a 3-threshold band (4.5/5.0/5.5) but NO variant count, so the countable grid is used (the earlier '~96' was 4 thresholds x 4 symbols x 6 exits; the script shows 3 traded targets and a 7-point sweep).",
           "source": "trades_full_window.long_only.t_plus_1[].ret_pct",
           "claims_edge": true
         }
@@ -5214,7 +5226,7 @@
         "does not survive the search of N=6 hypotheses (|t|=1.4000000000000001 vs required 2.6382572734767513)",
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
         "robustness: the conclusion needs its best 2 observation(s) — removing them loses significance (FRAGILE_BY_FEW_WINNERS)",
-        "deflation: DSR=0.3617105094245009 <= 0.95 over N=96 trials (PSR=0.9898826396121881, sr_std=0.32247470364294284) — the result is inside its search's noise ceiling and the report claims an edge"
+        "deflation: DSR=0.3247118780225976 <= 0.95 over N=126 trials (PSR=0.9898826396121881, sr_std=0.32247470364294284) — the result is inside its search's noise ceiling and the report claims an edge"
       ],
       "verdict": "RED",
       "deployment_gate": {
@@ -5614,7 +5626,10 @@
           "interpretation": "SR=0.266 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.986; E[max SR] N=15 (sr_std=0.122)=0.215; DSR=0.662 -> inside the search noise",
           "n_trials_basis": "report's own '15 variants tested' (mechanism families 1-3 + combo, incl. fine-grid probes)",
           "source": "baseline.monthly_sharpe is ANNUALISED (monthly returns x sqrt(12)); converted back to monthly SR/sqrt(12); skew/kurtosis assumed normal",
-          "claims_edge": false
+          "claims_edge": false,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": true,
+          "frequency_note": "stored field 'baseline.monthly_sharpe' is named like a per-period figure but was annualised (converted back by /sqrt(periods_per_year)) — verify the frequency convention"
         },
         "robustness": {
           "label": "exit_mechanism",
@@ -5630,7 +5645,8 @@
       "red_flags": [
         "red-team checklist: 11/15 mandatory questions unanswered (data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
         "robustness: report stores no per-observation return series — perturbation checks not computable",
-        "deflation: DSR=0.6619306919649425 <= 0.95 over N=15 trials (PSR=0.9856805497155061, sr_std=0.12162120155082612) — the result is inside its search's noise ceiling"
+        "deflation: DSR=0.6619306919649425 <= 0.95 over N=15 trials (PSR=0.9856805497155061, sr_std=0.12162120155082612) — the result is inside its search's noise ceiling",
+        "frequency: stored field 'baseline.monthly_sharpe' is named like a per-period figure but was annualised (converted back by /sqrt(periods_per_year)) — verify the frequency convention"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -6104,7 +6120,9 @@
           "interpretation": "SR=0.271 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.987; E[max SR] N=15 (sr_std=0.122)=0.215; DSR=0.675 -> inside the search noise",
           "n_trials_basis": "6 VIX + 3 momentum-regime + 6 MVRV gate variants = 15",
           "source": "reported annualised baseline Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; the report's verdict is that all gates FAIL",
-          "claims_edge": false
+          "claims_edge": false,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": false
         },
         "robustness": {
           "label": "risk_gate",
@@ -8157,7 +8175,9 @@
           "interpretation": "SR=-0.021 over n=2632 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.136; E[max SR] N=2 (sr_std=0.019)=0.010; DSR=0.053 -> inside the search noise",
           "n_trials_basis": "2 on-chain directions searched (crypto-stock basket vs trading BTC directly; platform family enumeration #3/#4)",
           "source": "reported annualised Sharpe -> daily SR/sqrt(365); skew/kurtosis assumed normal; the strategy is a large negative result",
-          "claims_edge": false
+          "claims_edge": false,
+          "frequency_converted": true,
+          "suspicious_frequency_naming": false
         },
         "robustness": {
           "label": "onchain_btc_backtest",

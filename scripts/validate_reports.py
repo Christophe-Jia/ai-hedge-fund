@@ -268,6 +268,8 @@ def _red_flags(entry: dict) -> list[str]:
         )
     elif df.get("verdict") == "INSUFFICIENT":
         flags.append(f"deflation: not computable ({df.get('note')})")
+    if df.get("suspicious_frequency_naming"):
+        flags.append(f"frequency: {df.get('frequency_note')}")
     return flags
 
 
@@ -388,6 +390,8 @@ def _deflation_stats(
     frequency: str,
     skew: float = 0.0,
     kurtosis: float = NORMAL_KURTOSIS,
+    frequency_converted: bool = False,
+    stored_name: str | None = None,
 ) -> dict:
     if sr is None or n is None or int(n) < 2:
         return _deflation_missing(label=label, basis=basis, source=source, claims_edge=claims_edge,
@@ -397,6 +401,19 @@ def _deflation_stats(
     res["n_trials_basis"] = basis
     res["source"] = source
     res["claims_edge"] = bool(claims_edge)
+    # Frequency-footgun heuristic: flag when we had to convert a stored Sharpe to
+    # per-period AND its field name claims a period frequency (e.g.
+    # ``baseline.monthly_sharpe`` that is actually annualised).  This exact trap
+    # turned exit_mechanism's DSR from 0.662 (FAILS) into a fake ~1.0 pass.
+    res["frequency_converted"] = bool(frequency_converted)
+    res["suspicious_frequency_naming"] = bool(
+        frequency_converted and stored_name and any(tok in stored_name.lower() for tok in ("monthly", "daily", "weekly"))
+    )
+    if res["suspicious_frequency_naming"]:
+        res["frequency_note"] = (
+            f"stored field '{stored_name}' is named like a per-period figure but was annualised "
+            f"(converted back by /sqrt(periods_per_year)) — verify the frequency convention"
+        )
     return res
 
 
@@ -531,6 +548,8 @@ def audit_gbm_sp100() -> dict:
         source="reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal (no monthly return series stored)",
         claims_edge=True,
         frequency="per-period (monthly): n = 71 walk-forward test months",
+        frequency_converted=True,
+        stored_name="comparison_full_test_window.gbm_top10.sharpe",
     )
     checks["red_team"] = red_team_checklist(rep)
     ic_by_year = dig(rep, "monthly_ic.by_year") or {}
@@ -595,6 +614,8 @@ def audit_gbm_sp500() -> dict:
         source="reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
         claims_edge=False,
         frequency="per-period (monthly): n = 71 walk-forward test months",
+        frequency_converted=True,
+        stored_name="comparison_full_test_window.gbm_top10.sharpe",
     )
     ic_by_year = dig(rep, "monthly_ic.by_year") or {}
     if isinstance(ic_by_year, dict) and ic_by_year:
@@ -699,6 +720,8 @@ def audit_combined_signals() -> dict:
         source="reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
         claims_edge=False,
         frequency="per-period (daily): n = 862 trading days",
+        frequency_converted=True,
+        stored_name="scenarios.combined_all3.sharpe",
     )
     return _entry(
         "combined_signals",
@@ -731,6 +754,8 @@ def audit_combined_signals_replication() -> dict:
         source="reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
         claims_edge=False,
         frequency="per-period (daily): n = 884 trading days",
+        frequency_converted=True,
+        stored_name="results.combo_equal.sharpe",
     )
     return _entry(
         "combined_signals_replication",
@@ -768,6 +793,8 @@ def audit_outofsample() -> dict:
         source="reported OOS annualised Sharpe 0.318 -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
         claims_edge=True,
         frequency="per-period (daily): n = 544 out-of-sample trading days",
+        frequency_converted=True,
+        stored_name="windows.out_of_sample.scenarios.combined_2sig.sharpe",
     )
     return _entry(
         "outofsample_backtest",
@@ -826,9 +853,17 @@ def audit_exit_rules() -> dict:
             kind="events",
         )
         checks["deflation"] = _deflation_series(
-            [t.get("ret_pct") for t in long_only], 96,
+            [t.get("ret_pct") for t in long_only], 126,
             label="weekend_gap long-leg per-trade returns (13 trades)",
-            basis="4 thresholds x 4 symbols x 6 exit rules ~= 96 (weekend_gap variant grid)",
+            basis=(
+                "6 exit rules (scripts/backtest_exit_rules.py:74) x 3 traded targets "
+                "COIN/MSTR/MARA (backtest_exit_rules.py:64) x 7 thresholds 3-10% "
+                "(red_team_weekend_gap.py:158) = 126. Source priority registry > report-countable "
+                "> platform constant: the registry records the weekend_gap family as ONE "
+                "pre-registered hypothesis with a 3-threshold band (4.5/5.0/5.5) but NO variant "
+                "count, so the countable grid is used (the earlier '~96' was 4 thresholds x 4 "
+                "symbols x 6 exits; the script shows 3 traded targets and a 7-point sweep)."
+            ),
             source="trades_full_window.long_only.t_plus_1[].ret_pct",
             claims_edge=True,
         )
@@ -875,6 +910,8 @@ def audit_exit_mechanism() -> dict:
         source="baseline.monthly_sharpe is ANNUALISED (monthly returns x sqrt(12)); converted back to monthly SR/sqrt(12); skew/kurtosis assumed normal",
         claims_edge=False,
         frequency="per-period (monthly): annualised Sharpe converted to monthly; n = 71 walk-forward test months",
+        frequency_converted=True,
+        stored_name="baseline.monthly_sharpe",
     )
     return _entry(
         "exit_mechanism",
@@ -913,6 +950,8 @@ def audit_risk_gate() -> dict:
         source="reported annualised baseline Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; the report's verdict is that all gates FAIL",
         claims_edge=False,
         frequency="per-period (monthly): n = 71 months",
+        frequency_converted=True,
+        stored_name="baseline_5050.sharpe",
     )
     return _entry(
         "risk_gate",
@@ -1070,6 +1109,8 @@ def audit_onchain_btc() -> dict:
         source="reported annualised Sharpe -> daily SR/sqrt(365); skew/kurtosis assumed normal; the strategy is a large negative result",
         claims_edge=False,
         frequency="per-period (daily): n = 2632 days",
+        frequency_converted=True,
+        stored_name="overall.strategy.sharpe",
     )
     return _entry(
         "onchain_btc_backtest",
@@ -1383,6 +1424,8 @@ def _deflation_audit(entries: list[dict], best: tuple[float, str, int, float] | 
     """Per-strategy DSR table + platform cross-check -> reports/deflation_audit.json."""
     counts = {"SURVIVES": 0, "FAILS": 0, "INSUFFICIENT": 0}
     red_by_deflation: list[str] = []
+    frequency_converted: list[str] = []
+    frequency_suspects: list[str] = []
     rows: list[dict] = []
     for e in entries:
         df = (e.get("checks") or {}).get("deflation") or {}
@@ -1390,6 +1433,10 @@ def _deflation_audit(entries: list[dict], best: tuple[float, str, int, float] | 
         counts[v] = counts.get(v, 0) + 1
         if v == "FAILS" and df.get("claims_edge"):
             red_by_deflation.append(e["name"])
+        if df.get("frequency_converted"):
+            frequency_converted.append(e["name"])
+        if df.get("suspicious_frequency_naming"):
+            frequency_suspects.append(e["name"])
         rows.append(
             {
                 "name": e["name"],
@@ -1406,6 +1453,8 @@ def _deflation_audit(entries: list[dict], best: tuple[float, str, int, float] | 
                 "skew": df.get("skew"),
                 "kurtosis": df.get("kurtosis"),
                 "frequency": df.get("frequency"),
+                "frequency_converted": bool(df.get("frequency_converted")),
+                "suspicious_frequency_naming": bool(df.get("suspicious_frequency_naming")),
                 "source": df.get("source"),
                 "note": df.get("note"),
             }
@@ -1428,6 +1477,54 @@ def _deflation_audit(entries: list[dict], best: tuple[float, str, int, float] | 
                 "N=1000": expected_max_sharpe(1000, 1.0),
                 "N=10000": expected_max_sharpe(10000, 1.0),
             },
+            "source_discrepancy": {
+                "what": "A circulating table (SOPHIE 'Formulaic Alpha Mining') quotes expected max Sharpe "
+                "~1.50/2.20/2.80/3.20 for N=10/100/1000/10000. Those values are NOT the output of the "
+                "standard Bailey & Lopez de Prado EVT formula and are not consistent with it under any "
+                "single sigma rescaling (ratios 0.95/0.87/0.86/0.83).",
+                "how_resolved": "Follow the verifiable side: implement the formula, and validate it against "
+                "the exact expected maximum of N iid standard normals computed by deterministic quadrature "
+                "of int x*N*phi(x)*Phi(x)^(N-1) dx (scipy.integrate.quad, error < 1e-8), cross-checked by "
+                "a 2e6-draw Monte Carlo.",
+                "formula_values_sigma1": {
+                    "N=10": expected_max_sharpe(10, 1.0),
+                    "N=100": expected_max_sharpe(100, 1.0),
+                    "N=1000": expected_max_sharpe(1000, 1.0),
+                    "N=10000": expected_max_sharpe(10000, 1.0),
+                },
+                "exact_values": {"N=10": 1.538753, "N=100": 2.507594, "N=1000": 3.241436, "N=10000": 3.851616},
+                "circulating_table": {"N=10": 1.50, "N=100": 2.20, "N=1000": 2.80, "N=10000": 3.20},
+                "max_formula_vs_exact_gap": 0.036,
+                "decision": "formula + verified exact values are authoritative; the circulating table is a "
+                "loose lower bound and MUST NOT be used to 'correct' expected_max_sharpe",
+                "methodology": "cite a source -> verify it independently -> find the source table is wrong -> "
+                "trust the verifiable side. Same discipline as the rest of this framework.",
+            },
+            "frequency_footgun": {
+                "what": "exit_mechanism.baseline.monthly_sharpe=0.922 is NAMED like a per-period figure but "
+                "is actually annualised (monthly returns x sqrt(12)). Using it as a per-period SR gives a "
+                "fake DSR~1.0 PASS; converting back by /sqrt(12) gives DSR=0.662 FAILS.",
+                "why_it_matters": "A naming/units error alone can turn a false result into a pass — the same "
+                "disease as everything else this week (the verdict decided by convention, not by fact).",
+                "heuristic_implemented": "validate_reports.py flags any deflation input that had to be "
+                "frequency-converted while its stored field name claims a period frequency "
+                "(monthly/daily/weekly). See summary.frequency_suspects.",
+                "checklist_change_evaluated": "NOT made: adding a 16th red-team question would break "
+                "test_checklist.py (test_complete_report_passes asserts n_unanswered==0 and "
+                "test_medium_only_gaps_yield_warn asserts WARN on the fixed COMPLETE_REPORT fixture). "
+                "Fallback (docs warning + heuristic) used instead.",
+            },
+            "weekend_gap_tail_finding": {
+                "corrects": "the task brief said weekend_gap's failure is driven by heavy tails / negative skew",
+                "measured": "long-only 13 trades: skew ~0.07 (near symmetric), RAW kurtosis 2.21 "
+                "(platykurtic — NOT fat-tailed)",
+                "real_cause": "n=13 against a ~126-variant search (DSR=0.362 at N=126); the failure is a "
+                "small-sample-versus-search problem, not a tail problem",
+            },
+            "n_trials_source_priority": "registry (hypotheses/registry.jsonl) > variants countable from the "
+            "report/scripts > platform constants (PLATFORM_HYPOTHESES_SEARCHED=27 / _VARIANTS=60). The "
+            "registry currently records only family-level hypotheses (no variant counts), so countable "
+            "grids are used and cited per strategy.",
         },
         "summary": {
             "counts": counts,
@@ -1435,8 +1532,11 @@ def _deflation_audit(entries: list[dict], best: tuple[float, str, int, float] | 
             "n_dsr_fails": counts["FAILS"],
             "n_insufficient": counts["INSUFFICIENT"],
             "red_by_deflation_when_edge_claimed": red_by_deflation,
+            "frequency_converted": frequency_converted,
+            "frequency_suspects": frequency_suspects,
             "note": "DSR<=0.95 is RED only when the report claims an edge; for an honest negative result it is AMBER; "
-            "missing series / missing N is AMBER",
+            "missing series / missing N is AMBER. frequency_suspects = inputs whose stored field name claimed a "
+            "period frequency but were actually annualised (the frequency footgun).",
         },
         "platform_cross_check": _platform_deflation_cross_check(best),
         "strategies": rows,

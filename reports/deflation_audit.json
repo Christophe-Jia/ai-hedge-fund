@@ -14,7 +14,44 @@
       "N=100": 2.5306028932011424,
       "N=1000": 3.2551215136522846,
       "N=10000": 3.8606648555100636
-    }
+    },
+    "source_discrepancy": {
+      "what": "A circulating table (SOPHIE 'Formulaic Alpha Mining') quotes expected max Sharpe ~1.50/2.20/2.80/3.20 for N=10/100/1000/10000. Those values are NOT the output of the standard Bailey & Lopez de Prado EVT formula and are not consistent with it under any single sigma rescaling (ratios 0.95/0.87/0.86/0.83).",
+      "how_resolved": "Follow the verifiable side: implement the formula, and validate it against the exact expected maximum of N iid standard normals computed by deterministic quadrature of int x*N*phi(x)*Phi(x)^(N-1) dx (scipy.integrate.quad, error < 1e-8), cross-checked by a 2e6-draw Monte Carlo.",
+      "formula_values_sigma1": {
+        "N=10": 1.5745983013449716,
+        "N=100": 2.5306028932011424,
+        "N=1000": 3.2551215136522846,
+        "N=10000": 3.8606648555100636
+      },
+      "exact_values": {
+        "N=10": 1.538753,
+        "N=100": 2.507594,
+        "N=1000": 3.241436,
+        "N=10000": 3.851616
+      },
+      "circulating_table": {
+        "N=10": 1.5,
+        "N=100": 2.2,
+        "N=1000": 2.8,
+        "N=10000": 3.2
+      },
+      "max_formula_vs_exact_gap": 0.036,
+      "decision": "formula + verified exact values are authoritative; the circulating table is a loose lower bound and MUST NOT be used to 'correct' expected_max_sharpe",
+      "methodology": "cite a source -> verify it independently -> find the source table is wrong -> trust the verifiable side. Same discipline as the rest of this framework."
+    },
+    "frequency_footgun": {
+      "what": "exit_mechanism.baseline.monthly_sharpe=0.922 is NAMED like a per-period figure but is actually annualised (monthly returns x sqrt(12)). Using it as a per-period SR gives a fake DSR~1.0 PASS; converting back by /sqrt(12) gives DSR=0.662 FAILS.",
+      "why_it_matters": "A naming/units error alone can turn a false result into a pass — the same disease as everything else this week (the verdict decided by convention, not by fact).",
+      "heuristic_implemented": "validate_reports.py flags any deflation input that had to be frequency-converted while its stored field name claims a period frequency (monthly/daily/weekly). See summary.frequency_suspects.",
+      "checklist_change_evaluated": "NOT made: adding a 16th red-team question would break test_checklist.py (test_complete_report_passes asserts n_unanswered==0 and test_medium_only_gaps_yield_warn asserts WARN on the fixed COMPLETE_REPORT fixture). Fallback (docs warning + heuristic) used instead."
+    },
+    "weekend_gap_tail_finding": {
+      "corrects": "the task brief said weekend_gap's failure is driven by heavy tails / negative skew",
+      "measured": "long-only 13 trades: skew ~0.07 (near symmetric), RAW kurtosis 2.21 (platykurtic — NOT fat-tailed)",
+      "real_cause": "n=13 against a ~126-variant search (DSR=0.362 at N=126); the failure is a small-sample-versus-search problem, not a tail problem"
+    },
+    "n_trials_source_priority": "registry (hypotheses/registry.jsonl) > variants countable from the report/scripts > platform constants (PLATFORM_HYPOTHESES_SEARCHED=27 / _VARIANTS=60). The registry currently records only family-level hypotheses (no variant counts), so countable grids are used and cited per strategy."
   },
   "summary": {
     "counts": {
@@ -31,7 +68,20 @@
       "outofsample_backtest",
       "exit_rules_backtest"
     ],
-    "note": "DSR<=0.95 is RED only when the report claims an edge; for an honest negative result it is AMBER; missing series / missing N is AMBER"
+    "frequency_converted": [
+      "xsec_gbm_results",
+      "xsec_gbm_sp500",
+      "combined_signals",
+      "combined_signals_replication",
+      "outofsample_backtest",
+      "exit_mechanism",
+      "risk_gate",
+      "onchain_btc_backtest"
+    ],
+    "frequency_suspects": [
+      "exit_mechanism"
+    ],
+    "note": "DSR<=0.95 is RED only when the report claims an edge; for an honest negative result it is AMBER; missing series / missing N is AMBER. frequency_suspects = inputs whose stored field name claimed a period frequency but were actually annualised (the frequency footgun)."
   },
   "platform_cross_check": {
     "n_hypotheses_family_level": 27,
@@ -88,6 +138,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (monthly): n = 71 walk-forward test months",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": false,
       "source": "reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal (no monthly return series stored)",
       "note": null
     },
@@ -106,6 +158,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (monthly): n = 71 walk-forward test months",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": false,
       "source": "reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
       "note": null
     },
@@ -124,6 +178,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (monthly): SR and n both monthly, no annualisation",
+      "frequency_converted": false,
+      "suspicious_frequency_naming": false,
       "source": "pre-2024 monthly excess mean 1.622% / std 5.441% over 38 months (per-period SR, no annualisation); skew/kurtosis assumed normal",
       "note": null
     },
@@ -142,6 +198,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (daily): n = 862 trading days",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": false,
       "source": "reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
       "note": null
     },
@@ -160,6 +218,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (daily): n = 884 trading days",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": false,
       "source": "reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
       "note": null
     },
@@ -178,6 +238,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (daily): n = 544 out-of-sample trading days",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": false,
       "source": "reported OOS annualised Sharpe 0.318 -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
       "note": null
     },
@@ -185,17 +247,19 @@
       "name": "exit_rules_backtest",
       "verdict": "FAILS",
       "claims_edge": true,
-      "n_trials": 96,
-      "n_trials_basis": "4 thresholds x 4 symbols x 6 exit rules ~= 96 (weekend_gap variant grid)",
+      "n_trials": 126,
+      "n_trials_basis": "6 exit rules (scripts/backtest_exit_rules.py:74) x 3 traded targets COIN/MSTR/MARA (backtest_exit_rules.py:64) x 7 thresholds 3-10% (red_team_weekend_gap.py:158) = 126. Source priority registry > report-countable > platform constant: the registry records the weekend_gap family as ONE pre-registered hypothesis with a 3-threshold band (4.5/5.0/5.5) but NO variant count, so the countable grid is used (the earlier '~96' was 4 thresholds x 4 symbols x 6 exits; the script shows 3 traded targets and a 7-point sweep).",
       "n": 13,
       "sr": 0.7041011488063993,
       "psr": 0.9898826396121881,
-      "dsr": 0.3617105094245009,
+      "dsr": 0.3247118780225976,
       "sr_std": 0.32247470364294284,
-      "expected_max_sharpe": 0.8114130340444949,
+      "expected_max_sharpe": 0.8419404273189816,
       "skew": 0.06600812812227524,
       "kurtosis": 2.2093996186785803,
       "frequency": "per-period: SR and n are both per-period (no annualisation)",
+      "frequency_converted": false,
+      "suspicious_frequency_naming": false,
       "source": "trades_full_window.long_only.t_plus_1[].ret_pct",
       "note": null
     },
@@ -214,6 +278,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (monthly): annualised Sharpe converted to monthly; n = 71 walk-forward test months",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": true,
       "source": "baseline.monthly_sharpe is ANNUALISED (monthly returns x sqrt(12)); converted back to monthly SR/sqrt(12); skew/kurtosis assumed normal",
       "note": null
     },
@@ -232,6 +298,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (monthly): n = 71 months",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": false,
       "source": "reported annualised baseline Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; the report's verdict is that all gates FAIL",
       "note": null
     },
@@ -250,6 +318,8 @@
       "skew": 1.2869915544403263,
       "kurtosis": 4.115957934006687,
       "frequency": "per-period: SR and n are both per-period (no annualisation)",
+      "frequency_converted": false,
+      "suspicious_frequency_naming": false,
       "source": "reports/meta_label_results.json:events[].ret_net_pct",
       "note": null
     },
@@ -268,6 +338,8 @@
       "skew": null,
       "kurtosis": null,
       "frequency": null,
+      "frequency_converted": false,
+      "suspicious_frequency_naming": false,
       "source": "report stores bucket win rates and mean returns but no Sharpe and no per-leg return series",
       "note": "no Sharpe and no return series stored -> DSR not computable (never fabricated)"
     },
@@ -286,6 +358,8 @@
       "skew": 0.637667887819206,
       "kurtosis": 3.921122419918164,
       "frequency": "per-period: SR and n are both per-period (no annualisation)",
+      "frequency_converted": false,
+      "suspicious_frequency_naming": false,
       "source": "variants.absolute_50_neg5.events[].ret_pct (best variant by reported Sharpe)",
       "note": null
     },
@@ -304,6 +378,8 @@
       "skew": 0.0,
       "kurtosis": 3.0,
       "frequency": "per-period (daily): n = 2632 days",
+      "frequency_converted": true,
+      "suspicious_frequency_naming": false,
       "source": "reported annualised Sharpe -> daily SR/sqrt(365); skew/kurtosis assumed normal; the strategy is a large negative result",
       "note": null
     }

@@ -4,10 +4,10 @@ Synthetic cases have known answers:
   - PSR values are hand-computable from the closed form (the normal-case
     denominator ``sqrt(1 + 0.5*SR^2)`` is checked explicitly).
   - The EVT max approximation is checked against the *exact* expected maximum of
-    N iid standard normals, obtained by independent numerical integration of
-    ``E[max] = int x N phi(x) Phi(x)^(N-1) dx`` (and cross-checked with a 2e6
-    draw Monte Carlo); the task's simplified anchor table is verified as a lower
-    bound (see the module docstring for why the two differ at N >= 100).
+    N iid standard normals, hardcoded from deterministic quadrature of
+    ``E[max] = int x*N*phi(x)*Phi(x)^(N-1) dx`` (scipy.integrate.quad); the
+    task's simplified anchor table is verified as a lower bound (see the module
+    docstring for why the two differ at N >= 100).
   - A strong deterministic edge survives deflation; a weak one does not.
 Real-data calibration at the bottom (weekend_gap must fail deflation).
 """
@@ -40,10 +40,18 @@ from src.validation.deflation import (
 REPORTS = Path(__file__).resolve().parents[2] / "reports"
 EXIT_RULES = REPORTS / "exit_rules_backtest.json"
 
-# Exact E[max] of N iid standard normals, by numerical integration.
-_EXACT_MAX = {10: 1.5388, 100: 2.5076, 1000: 3.2414, 10000: 3.8516}
+# Exact E[max] of N iid standard normals, from deterministic quadrature of
+# ``int x*N*phi(x)*Phi(x)^(N-1) dx`` (scipy.integrate.quad, error < 1e-8).
+# These are the reference values; no Monte Carlo randomness is involved.
+_EXACT_MAX = {10: 1.538753, 100: 2.507594, 1000: 3.241436, 10000: 3.851616}
 # Simplified anchor table quoted in the task (a lower bound; see docstring).
 _TASK_TABLE = {10: 1.50, 100: 2.20, 1000: 2.80, 10000: 3.20}
+# Tolerance envelope.  The function under test is the *first-order* EVT
+# approximation, whose truncation error against the exact max is 0.036 (N=10),
+# 0.023 (N=100), 0.014 (N=1000), 0.009 (N=10000).  A +/-0.02 assertion is below
+# that truncation error, so it would test the approximation's known error rather
+# than the implementation; 0.05 is the honest envelope.
+_EVT_TOL = 0.05
 
 
 # --- probabilistic_sharpe_ratio ---------------------------------------------
@@ -91,13 +99,15 @@ def test_psr_invalid_inputs_return_nan():
 
 @pytest.mark.parametrize("n,exact", _EXACT_MAX.items())
 def test_expected_max_sharpe_matches_exact_gaussian_max(n, exact):
-    assert expected_max_sharpe(n, 1.0) == pytest.approx(exact, abs=0.05)
+    assert expected_max_sharpe(n, 1.0) == pytest.approx(exact, abs=_EVT_TOL)
 
 
 @pytest.mark.parametrize("n,lower", _TASK_TABLE.items())
 def test_expected_max_sharpe_satisfies_task_anchor_table_as_lower_bound(n, lower):
-    # The quoted table is a (rounded, conservative) floor; the exact value is
-    # never below it.  At N=10 the two coincide within 0.15.
+    # The published SOPHIE table reports ~1.50/2.20/2.80/3.20+.  We verified
+    # those are NOT the output of the standard B&LdP formula and not consistent
+    # with the exact expected maximum (formula/exact give 1.57/2.53/3.26/3.86
+    # and 1.539/2.508/3.241/3.852).  Treat them as loose lower bounds.
     assert expected_max_sharpe(n, 1.0) >= lower
 
 
@@ -248,16 +258,18 @@ def test_deflation_from_stats_skew_lowers_dsr_vs_normal():
 
 @pytest.mark.skipif(not EXIT_RULES.exists(), reason="exit_rules report not present")
 def test_weekend_gap_long_leg_fails_deflation():
-    """The playbook's long leg: positive Sharpe, but heavy right skew and only 13
-    trades over a ~96-variant search — it must not clear the DSR line."""
+    """The playbook's long leg: positive Sharpe, but only 13 trades against a
+    126-variant search (6 exits x 3 targets x 7 thresholds) — it must not clear
+    the DSR line.  Note the distribution is near-symmetric and platykurtic, so
+    the failure is small-sample-vs-search, not a fat-tail correction."""
     rep = json.loads(EXIT_RULES.read_text())
     trades = (((rep.get("trades_full_window") or {}).get("long_only") or {}).get("t_plus_1")) or []
     rets = [t.get("ret_pct") for t in trades if t.get("ret_pct") is not None]
     assert len(rets) == 13
-    d = deflation_report(rets, n_trials=96, label="weekend_gap long leg")
+    d = deflation_report(rets, n_trials=126, label="weekend_gap long leg")
     assert d["verdict"] == VERDICT_FAILS
     # Honest note: the long leg is near-symmetric and slightly platykurtic
     # (skew~0.07, raw kurt~2.2), so the failure is driven by n=13 against a
-    # 96-variant search, not by fat tails.  The DSR still rejects it.
+    # 126-variant search, not by fat tails.  The DSR still rejects it.
     assert d["skew"] == pytest.approx(0.066, abs=0.02)
     assert d["kurtosis"] < 3.0

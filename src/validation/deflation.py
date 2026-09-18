@@ -35,16 +35,19 @@ of *years*.  Mixing an annualised SR with a per-period n inflates the PSR by
 documents its frequency and every report echoes the convention used.
 
 Known-answer calibration for :func:`expected_max_sharpe` (sigma=1), verified
-three independent ways (closed form, 2e6-draw Monte Carlo, exact numerical
-integration of ``E[max] = int x N phi(x) Phi(x)^(N-1) dx``):
+three independent ways (closed form, 2e6-draw Monte Carlo, and exact quadrature
+of ``E[max] = int x*N*phi(x)*Phi(x)^(N-1) dx`` with scipy.quad, error < 1e-8):
 
-    N       formula    exact E[max]
-    10       1.5746      1.5388
-    100      2.5306      2.5076
-    1000     3.2551      3.2414
-    10000    3.8607      3.8516
+    N       formula    exact E[max]   |gap|
+    10       1.5746      1.538753     0.036
+    100      2.5306      2.507594     0.023
+    1000     3.2551      3.241436     0.014
+    10000    3.8607      3.851616     0.009
 
 The EVT approximation is accurate to <0.04 across four orders of magnitude of N.
+A circulating table (1.50 / 2.20 / 2.80 / 3.20) does NOT match either the formula
+or the exact values; see the warning in :func:`expected_max_sharpe` — do not tune
+this module to reproduce it.
 """
 
 from __future__ import annotations
@@ -161,6 +164,21 @@ def expected_max_sharpe(
     Calibration (sigma=1): N=10 -> 1.57, 100 -> 2.53, 1000 -> 3.26, 10000 ->
     3.86.  These match the exact expected maximum of N iid standard normals
     (1.539 / 2.508 / 3.241 / 3.852) to better than 0.04.
+
+    ⚠️ SOURCE DISCREPANCY — DO NOT "FIX" THIS FUNCTION TO MATCH A PUBLISHED TABLE
+    ---------------------------------------------------------------------------
+    The formula above is the Bailey & López de Prado extreme-value approximation.
+    A commonly-circulated table (SOPHIE *Formulaic Alpha Mining*, and derivatives)
+    quotes ~1.50 / 2.20 / 2.80 / 3.20 for N=10/100/1000/10000.  Those numbers are
+    NOT the output of this formula and are not consistent with it under any single
+    rescaling of sigma (ratios to the formula value are 0.95 / 0.87 / 0.86 / 0.83,
+    not constant).  Independent checks of the true expected maximum of N iid
+    standard normals — 2e6-draw Monte Carlo and exact quadrature of
+    ``int x*N*phi(x)*Phi(x)^(N-1) dx`` (scipy.quad, err < 1e-8) — give
+    1.538753 / 2.507594 / 3.241436 / 3.851616, i.e. the formula here (max error
+    0.036 at N=10) and NOT the circulating table.  The table is a loose lower
+    bound at best.  This implementation follows the formula + verified exact
+    values; changing it to reproduce that table would make it wrong.
     """
     n = int(n_trials)
     sigma = float(sr_std)
