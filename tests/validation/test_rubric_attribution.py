@@ -100,3 +100,18 @@ def test_leave_one_out_is_reported_for_ranked_dimensions():
     best = next(r for r in report["dimensions"] if r["id"] == "base_rate_anchoring")
     assert best["loo_abs_r_min"] is not None
     assert best["loo_abs_r_max"] >= best["loo_abs_r_min"]
+
+
+def test_scoring_degradation_is_reported():
+    """The honest limit: constant retrospective dimensions collapse out entirely."""
+    records = [_rec(f"d{i}", i < 2, 5 if i < 2 else 1) for i in range(8)]
+    report = analyse(records)
+    deg = report["scoring_degradation"]
+    # nine dimensions are constant in this fixture -> only base_rate is analysable
+    assert deg["n_dimensions_scored"] == 1
+    assert deg["n_binary_or_less_dimensions"] == 1
+    assert deg["distinct_score_counts"]["base_rate_anchoring"] == 2
+    assert "退化" in deg["warning"]
+    assert "前瞻" in deg["warning"]
+    assert "prospective" in deg["implication"]
+

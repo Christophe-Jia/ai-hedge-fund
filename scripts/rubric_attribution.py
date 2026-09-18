@@ -201,6 +201,34 @@ def analyse(records: list[dict]) -> dict:
     else:
         best_interpretation = "无可分析的维度"
     n_survived = int(sum(y))
+
+    # --- scoring degradation (the honest limit of a retrospective registry) ---
+    # The rubric allows 1/3/5, but a backfilled hypothesis written up before the
+    # rubric existed usually collapses to one or two values per dimension, so the
+    # point-biserial is effectively correlating a binary score with a binary
+    # outcome.  Report it explicitly; it is the strongest argument for scoring
+    # NEW hypotheses prospectively rather than mining the historical ones.
+    scored_dims = [r for r in rows if r.get("point_biserial") is not None]
+    distinct = [r["n_distinct_scores"] for r in scored_dims if r.get("n_distinct_scores") is not None]
+    n_dims_scored = len(distinct)
+    n_single_value = sum(1 for d in distinct if d <= 1)
+    n_binary_or_less = sum(1 for d in distinct if d <= 2)
+    degradation = {
+        "n_dimensions_scored": n_dims_scored,
+        "n_single_value_dimensions": n_single_value,
+        "n_binary_or_less_dimensions": n_binary_or_less,
+        "distinct_score_counts": {
+            r["id"]: r["n_distinct_scores"] for r in scored_dims
+        },
+        "warning": (
+            f"回溯打分退化：{n_dims_scored} 个可分析维度中有 {n_binary_or_less} 个只有 ≤2 个取值"
+            f"（{n_single_value} 个只有单一取值）—— 名义上 1/3/5 的量表退化为近似二元，"
+            "point-biserial 因此与『维度粒度』脱钩，无法区分『这一维重要』与『这一维样本里恰好有取值差异』。"
+            "更根本的是：这些分数是知道结果之后回溯打的，事后知识污染无法完全剔除（已按 ex-ante 视角尽量约束）。"
+            "因此本次 attribution 只作线索；真正的收益从下一个前瞻登记的假设开始。"
+        ),
+        "implication": "prefer prospective scoring of new registrations; a retrospective registry can only produce leads",
+    }
     return {
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "n_records": len(records),
@@ -215,6 +243,7 @@ def analyse(records: list[dict]) -> dict:
         "critical_abs_r_bonferroni": crit_r_bonf,
         "expected_false_positives_at_0.05": alpha_family * n_dims,
         "fdr_bh": fdr,
+        "scoring_degradation": degradation,
         "dimensions": rows,
         "ranking_by_abs_point_biserial": [r["id"] for r in ranked],
         "best_dimension": best["id"] if best else None,

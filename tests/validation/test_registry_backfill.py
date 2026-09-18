@@ -67,3 +67,16 @@ def test_attribution_on_real_registry_keeps_the_warning():
     assert report["n_decided"] == 27
     assert report["n_dimensions"] >= 1
     assert report["best_dimension"] is not None
+
+
+def test_attribution_flags_scoring_degradation_on_real_registry():
+    """Most retro-scored dimensions only take 1-2 values: the key methodological caveat."""
+    report = rubric_attribution.analyse(load_registry(str(REGISTRY)))
+    deg = report["scoring_degradation"]
+    assert deg["n_binary_or_less_dimensions"] >= 5
+    assert "退化" in deg["warning"]
+    assert "回溯" in deg["warning"]
+    # base_rate is the flagged lead, and it too is fragile (only 2 distinct values)
+    assert report["best_dimension"] == "base_rate_anchoring"
+    assert deg["distinct_score_counts"]["base_rate_anchoring"] <= 3
+

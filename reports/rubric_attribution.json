@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-09-18T09:02:44Z",
+  "generated_at_utc": "2026-09-18T09:11:37Z",
   "n_records": 27,
   "n_decided": 27,
   "n_survived": 2,
@@ -29,6 +29,25 @@
     "n_rejected": 1,
     "threshold": 0.01,
     "min_adjusted": 0.016507305363363395
+  },
+  "scoring_degradation": {
+    "n_dimensions_scored": 10,
+    "n_single_value_dimensions": 0,
+    "n_binary_or_less_dimensions": 9,
+    "distinct_score_counts": {
+      "counterparty_arbitrage": 2,
+      "mechanism_stateability": 2,
+      "base_rate_anchoring": 3,
+      "capacity_cost_reality": 2,
+      "regime_dependency_declared": 2,
+      "decay_logic_monitoring": 2,
+      "data_moat": 2,
+      "no_chaos_prediction": 2,
+      "executability": 2,
+      "preregistration": 2
+    },
+    "warning": "回溯打分退化：10 个可分析维度中有 9 个只有 ≤2 个取值（0 个只有单一取值）—— 名义上 1/3/5 的量表退化为近似二元，point-biserial 因此与『维度粒度』脱钩，无法区分『这一维重要』与『这一维样本里恰好有取值差异』。更根本的是：这些分数是知道结果之后回溯打的，事后知识污染无法完全剔除（已按 ex-ante 视角尽量约束）。因此本次 attribution 只作线索；真正的收益从下一个前瞻登记的假设开始。",
+    "implication": "prefer prospective scoring of new registrations; a retrospective registry can only produce leads"
   },
   "dimensions": [
     {
