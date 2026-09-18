@@ -11,24 +11,53 @@ from src.validation.rubric import DIMENSIONS
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / "hypotheses" / "registry.jsonl"
 
+
 _spec = importlib.util.spec_from_file_location("rubric_attribution", ROOT / "scripts" / "rubric_attribution.py")
 rubric_attribution = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rubric_attribution)
+
+# Frozen golden set: the 27 historical backfill entries. Deliberately enumerated
+# rather than counted, because the registry is append-only and gains
+# *prospective* entries over time — any "total == N" assertion is a time bomb
+# (it broke as soon as two prospective hypotheses were registered).
+BACKFILL_IDS = frozenset({
+    "dca_leverage_policy", "entry_limit_orders", "entry_tranches", "exit_mechanism_family",
+    "exit_rules_family", "fomc_decision_day", "fomc_text_hawkishness", "fundamental_factors",
+    "funding_absolute", "funding_rolling", "gbm_sp100_selection", "gbm_sp500_expanded",
+    "merged_gap_signal", "meta_labeling_weekend", "momentum_m1_m2", "momentum_regime_gate",
+    "mvrv_gate", "onchain_stock_basket", "onchain_trade_btc", "orderbook_leading",
+    "overnight_gap_market_close", "overnight_gap_only", "polymarket_midprice_leading",
+    "score_weighting", "vix_gate", "volume_ratio_confirmation", "weekend_gap",
+})
+
+
+def _backfill_records(records: list[dict]) -> list[dict]:
+    """The historical entries: frozen id set, intersected with what is loaded."""
+    return [r for r in records if r["hypothesis_id"] in BACKFILL_IDS]
 
 
 def test_backfill_registry_exists_and_is_valid_jsonl():
     assert REGISTRY.exists(), "hypotheses/registry.jsonl must be committed"
     records = load_registry(str(REGISTRY))
-    assert len(records) == 27
+    present = {r["hypothesis_id"] for r in records}
+    missing = BACKFILL_IDS - present
+    assert not missing, f"historical backfill entries missing from the registry: {sorted(missing)}"
+    # append-only: the registry may hold more than the frozen backfill subset
+    assert len(records) >= len(BACKFILL_IDS)
 
 
 def test_every_backfilled_entry_has_a_complete_rubric():
     records = load_registry(str(REGISTRY))
+    # rubric completeness applies to EVERY entry, prospective included:
+    # the rubric is mandatory at registration time.
     for rec in records:
         answers = rec["rubric"]["answers"]
         assert set(answers) == {d["id"] for d in DIMENSIONS}, rec["hypothesis_id"]
         assert all(v in (1, 3, 5) for v in answers.values())
         assert rec["rubric"].get("scoring_note"), rec["hypothesis_id"]
+    # outcome, however, only exists once an entry has been decided — prospective
+    # entries are registered with an empty outcome by design.
+    for rec in _backfill_records(records):
         assert rec["outcome"], rec["hypothesis_id"]
 
 
@@ -53,18 +82,26 @@ def test_reject_band_backfill_entries_record_the_user_override():
 
 
 def test_registry_survival_tally_is_two_of_twenty_seven():
-    stats = registry_stats(load_registry(str(REGISTRY)))
-    assert stats["n_records"] == 27
-    assert stats["n_decided"] == 27
-    assert stats["n_survived"] == 2
+    records = load_registry(str(REGISTRY))
+    stats = registry_stats(records)
+    backfill = _backfill_records(records)
+    # self-consistent instead of magic totals: decided == entries carrying an outcome
+    assert stats["n_decided"] == len([r for r in records if r.get("outcome")])
+    # the historical fact we care about lives inside the frozen backfill subset
+    assert len(backfill) == 27
+    assert sum(1 for r in backfill if (r.get("outcome") or {}).get("survived") is True) == 2
+    assert sum(1 for r in backfill if (r.get("outcome") or {}).get("survived") is False) == 25
     # every historical entry is resolved or rejected, none left undecided
-    assert all(survival_label(r) is not None for r in load_registry(str(REGISTRY)))
+    assert all(r["outcome"] for r in backfill)
+    assert 0 < len(backfill)
 
 
 def test_attribution_on_real_registry_keeps_the_warning():
     report = rubric_attribution.analyse(load_registry(str(REGISTRY)))
     assert "探索性分析" in report["warning"]
-    assert report["n_decided"] == 27
+    # invariant: decided entries are exactly those carrying an outcome
+    n_decided = len([r for r in load_registry(str(REGISTRY)) if r.get("outcome")])
+    assert report["n_decided"] == n_decided
     assert report["n_dimensions"] >= 1
     assert report["best_dimension"] is not None
 
