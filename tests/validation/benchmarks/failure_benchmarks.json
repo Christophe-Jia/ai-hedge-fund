@@ -363,28 +363,35 @@
       },
       "evidence": "Constructed from the documented 2026-09 crisis (run_monthly_gbm.py --as-of 2021-06 -> 2/10 MISMATCH). The stored picks are the *symptom* (exact ties); the two selections here represent the rerun vs the archive.",
       "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[gbm-asof-reproducibility-mismatch]"
-    }
-  ],
-  "known_gaps": [
+    },
     {
       "id": "funding-ftx-loss-tail",
       "discovered_at": "2026-09-15",
-      "title": "FTX single-event LOSS dominance is not caught",
-      "failure_mode": "A strategy's realised P&L is dominated by one catastrophic event (the 2022-11-11 FTX collapse, -21.1%).",
-      "why_open": "SINGLE_EVENT_DRIVEN is defined on *gross positive* return (top1_share over winners only), and leave_k_worst_out only fires when removing large losses FLIPS the sign. A single large loss inside an otherwise positive series is invisible to both. The funding report's own findings name FTX as the 2022 P&L driver (reports/funding_rolling_backtest.json q6/answer), yet no framework component turns that into a verdict.",
-      "detector_tried": "src.validation.robustness.concentration_profile",
+      "discovered_by": "funding-experiment",
+      "title": "FTX single-event LOSS dominance (the downside mirror of single-event-driven)",
+      "failure_mode": "One catastrophic loss is more than half of all gross losses: the strategy's downside is a single event. The win-side SINGLE_EVENT_DRIVEN is structurally blind to it because its denominator is gross *positive* return.",
+      "symptom": "The 2022-11-11 FTX collapse (-21.093%) is 68% of all gross losses for the best funding variant; the win-side concentration profile never fires and leave_k_worst_out stays silent (removing losses strengthens a positive series, it does not flip it).",
+      "detector": "src.validation.robustness.loss_concentration_profile",
+      "expected_verdict": "SINGLE_LOSS_DRIVEN",
+      "assertions": {
+        "single_loss_driven": true,
+        "top1_loss_share": {
+          "op": ">=",
+          "value": 0.5
+        },
+        "diagnosis": "SINGLE_LOSS_DOMINATES"
+      },
       "input": {
         "kind": "series",
         "report": "funding_rolling_backtest.json",
         "path": "variants.absolute_50_neg5.events",
         "value_key": "ret_pct"
       },
-      "would_need": "A loss-side concentration check (e.g. SINGLE_LOSS_DRIVEN on gross negative return, or a leave-k-worst-out that flags a single loss > 50% of gross loss).",
-      "assertions": {
-        "single_event_driven": true
-      },
-      "evidence": "reports/funding_rolling_backtest.json:variants.absolute_50_neg5.events (worst event 2022-11-11 ret_pct=-21.093)"
-    },
+      "evidence": "reports/funding_rolling_backtest.json:variants.absolute_50_neg5.events[].ret_pct (best variant by Sharpe; worst event 2022-11-11 ret_pct=-21.093 = 68% of gross loss). Promoted from known_gaps after the loss-side check landed.",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[funding-ftx-loss-tail] (also tests/validation/test_robustness.py::test_loss_concentration_flags_single_loss_driven)"
+    }
+  ],
+  "known_gaps": [
     {
       "id": "gbm-asof-boundary-churn",
       "discovered_at": "2026-09-14",

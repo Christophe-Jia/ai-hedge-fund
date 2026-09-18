@@ -98,7 +98,7 @@ poetry run pytest tests/validation/test_failure_benchmarks.py -q
 
 ## 当前账本
 
-**13 条失败基准，全部被框架检出（13/13）；2 个已知的洞（known_gaps）。**
+**14 条失败基准，全部被框架检出（14/14）；1 个已知的洞（known_gaps）。**
 
 | id | title | detector | expected verdict |
 |---|---|---|---|
@@ -115,13 +115,15 @@ poetry run pytest tests/validation/test_failure_benchmarks.py -q
 | `overnight-leg-sign-flip` | overnight_gap daily-frequency leg dies after 2023 | `multi_window` | `UNSTABLE` |
 | `fomc-zirp-era-artifact` | FOMC decision-day effect is a 2020-22 ZIRP artifact | `multi_window` | `UNSTABLE` |
 | `gbm-asof-reproducibility-mismatch` | Same month re-run gives a 2/10 overlap with the shipped picks | `reproducibility_probe` | `NON_REPRODUCIBLE` |
+| `funding-ftx-loss-tail` | FTX single-event LOSS dominance（损失侧的单事件驱动） | `loss_concentration_profile` | `SINGLE_LOSS_DRIVEN` |
 
 ### 已知的洞（known_gaps，等待框架扩展）
 
 | id | 病 | 为什么现在抓不到 | 需要什么 |
 |---|---|---|---|
-| `funding-ftx-loss-tail` | 单笔灾难性**亏损**主导（2022-11-11 FTX，-21.1%） | `SINGLE_EVENT_DRIVEN` 只定义在**毛利**上；`leave_k_worst_out` 只在去掉亏损会**翻号**时触发 | 一个损失侧的集中度检查（如 `SINGLE_LOSS_DRIVEN`：单笔亏损 > 50% 总亏损） |
 | `gbm-asof-boundary-churn` | 加 1 行 / 21 只股票翻转整月 top-10（2/10） | 存档只有两个月的 picks，并列块没跨过 top-N 切点 → `boundary_stability` 判 STABLE（只报 `has_exact_ties`） | 把扰动 universe 的分数快照与 shipped picks 一起存档，再用 `boundary_stability` / `reproducibility_probe` 直接比对 |
+
+> **已闭合的洞（2026-09-18）**：`funding-ftx-loss-tail` 曾是 Gap 1。根因是「单事件驱动」只定义在**毛利侧**（`SINGLE_EVENT_DRIVEN` 的分母是 gross positive return），所以一笔灾难性**亏损**（FTX -21.1% = 68% 毛亏损）结构性不可见。修复是它的镜像：`loss_concentration_profile`（`SINGLE_LOSS_SHARE=0.50`、`TOP2_LOSS_CONCENTRATION_SHARE=0.60`，分母 = `sum(|负收益|)`），并在 `robustness_battery` 的 flags 里加入 `SINGLE_LOSS_DRIVEN`。**多笔小亏累积不触发**（top-1 占比低），只有单笔巨亏触发。
 
 Meta-test `test_known_gap_is_still_open` 断言这些洞**现在仍然是洞**。哪天有人把框架补上，那条测试会变红，逼着把 gap 升格成 benchmark——飞轮两个方向都转。
 

@@ -32,6 +32,8 @@ from src.validation.robustness import (
     FLAG_FEW_WINNERS,
     FLAG_UNSTABLE_RESAMPLE,
     INSUFFICIENT,
+    SINGLE_LOSS_DRIVEN,
+    loss_concentration_profile,
 )
 
 REPORTS = Path(__file__).resolve().parents[2] / "reports"
@@ -283,3 +285,71 @@ def test_real_weekend_gap_long_leg_concentration():
     res = concentration_profile(returns)
     assert 0.0 < res["top1_share"] < 0.5
     assert res["single_event_driven"] is False
+
+
+# --- loss concentration profile (the downside mirror; ledger Gap 1) ---------
+
+# funding's best variant events: the 2022-11-11 FTX collapse is -21.093%.
+_FUNDING_EVENTS = [-5.538, 7.622, -21.093, -4.211, 41.454, 5.319, 8.499, 14.7, 2.688, 10.447]
+
+
+def test_loss_concentration_flags_single_loss_driven():
+    res = loss_concentration_profile(_FUNDING_EVENTS)
+    assert res["n_losses"] == 3
+    assert res["single_loss_driven"] is True
+    assert res["top1_loss_share"] == pytest.approx(0.684, abs=0.01)
+    assert res["diagnosis"] == "SINGLE_LOSS_DOMINATES"
+    assert res["flag"] == SINGLE_LOSS_DRIVEN
+
+
+def test_loss_concentration_does_not_flag_accumulated_small_losses():
+    """Many evenly-spread losses are NOT a single-event problem."""
+    series = [-1.0] * 10 + [1.0] * 10
+    res = loss_concentration_profile(series)
+    assert res["single_loss_driven"] is False
+    assert res["top1_loss_share"] == pytest.approx(0.10, abs=0.01)
+    assert res["diagnosis"] == "LOSSES_ARE_SPREAD"
+
+
+def test_loss_concentration_top2_flag_is_a_warning_not_a_verdict():
+    # one 20 and one 19 among five -1s: top-2 = 39/43 = 0.91 concentrated,
+    # but no single loss >= 50% -> warning only
+    res = loss_concentration_profile([-1.0] * 5 + [-20.0, -19.0, 50.0])
+    assert res["single_loss_driven"] is False
+    assert res["top2_loss_concentrated"] is True
+    assert res["diagnosis"] == "TOP2_LOSS_CONCENTRATED"
+    assert res["flag"] is None
+
+
+def test_loss_concentration_without_losses_is_safe():
+    res = loss_concentration_profile([1.0, 2.0, 3.0, 4.0, 5.0])
+    assert res["diagnosis"] == "NO_LOSSES"
+    assert res["single_loss_driven"] is False
+    assert res["gross_loss"] == 0.0
+    assert res["flag"] is None
+
+
+def test_loss_concentration_empty_is_safe():
+    res = loss_concentration_profile([])
+    assert res["n"] == 0
+    assert res["single_loss_driven"] is False
+
+
+def test_battery_carries_the_loss_flag_for_funding():
+    res = robustness_battery(_FUNDING_EVENTS, label="funding best variant")
+    assert SINGLE_LOSS_DRIVEN in res["flags"]
+    assert res["loss_concentration"]["diagnosis"] == "SINGLE_LOSS_DOMINATES"
+
+
+def test_battery_verdict_unchanged_for_exit_rules():
+    """Adding the loss flag must not reclassify the accepted FRAGILE verdict."""
+    rep = json.loads(EXIT_RULES.read_text())
+    returns = [t["ret_pct"] for t in rep["trades_full_window"]["long_only"]["t_plus_1"]]
+    res = robustness_battery(returns, label="weekend_gap long_only")
+    assert res["verdict"] == FRAGILE
+    assert FLAG_FEW_WINNERS in res["flags"]
+
+
+def test_loss_concentration_is_json_serialisable():
+    for series in (_FUNDING_EVENTS, [1.0, 2.0, 3.0], [-1.0] * 10 + [1.0] * 10):
+        json.dumps(loss_concentration_profile(series), allow_nan=False)

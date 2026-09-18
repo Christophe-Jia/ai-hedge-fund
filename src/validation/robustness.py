@@ -35,6 +35,10 @@ Judgment lines (constants below carry their reasons):
   - ``FRAGILE_BY_ERA``  dropping one era flips the sign / loses significance.
   - ``SINGLE_EVENT_DRIVEN``  a single observation is > 50% of gross positive
     return ("one trade is the strategy").
+  - ``SINGLE_LOSS_DRIVEN``  the downside mirror: a single loss is > 50% of gross
+    loss magnitude.  The win-side check cannot see this (its denominator is
+    gross *positive* return), which is how funding's 2022-11-11 FTX event
+    (-21.1% = 68% of all gross losses) went unflagged.
 
 RED / AMBER mapping for the audit is documented in ``docs/validation_standard.md``
 §1.4 and implemented in ``scripts/validate_reports.py``.
@@ -56,6 +60,7 @@ from .significance import significance_from_stats
 ROBUST = "ROBUST"
 FRAGILE = "FRAGILE"
 SINGLE_EVENT_DRIVEN = "SINGLE_EVENT_DRIVEN"
+SINGLE_LOSS_DRIVEN = "SINGLE_LOSS_DRIVEN"
 INSUFFICIENT = "INSUFFICIENT"
 
 FLAG_FEW_WINNERS = "FRAGILE_BY_FEW_WINNERS"
@@ -92,6 +97,15 @@ SINGLE_EVENT_SHARE = 0.50
 # Two observations > 60% of gross positive return: the "2 events, 63% of the
 # gross" diagnosis (reported, but on its own this is a warning not a verdict).
 TOP2_CONCENTRATION_SHARE = 0.60
+
+# Loss-side mirrors of the two lines above.  The win-side check has no way to
+# see a catastrophic LOSS: its denominator is gross *positive* return, so a
+# single dominant loss (funding's 2022-11-11 FTX, -21.1% = 68% of all gross
+# losses) is invisible.  The asymmetry was itself a discovered failure mode
+# (Gap 1 of the failure-benchmark ledger), so the fix is deliberately the
+# mirror image: same 50% / 60% lines, denominator = sum of |negative| returns.
+SINGLE_LOSS_SHARE = 0.50
+TOP2_LOSS_CONCENTRATION_SHARE = 0.60
 
 # Below this many observations every perturbation test is dominated by the
 # combinatorics of removal, not by the data — say INSUFFICIENT instead.
@@ -723,7 +737,131 @@ def concentration_profile(
 
 
 # ---------------------------------------------------------------------------
-# 6. the battery
+# 6. loss concentration profile (the downside mirror of #5)
+# ---------------------------------------------------------------------------
+
+def loss_concentration_profile(
+    returns: Iterable[float],
+    *,
+    top_frac: float = 0.05,
+    kind: str = "events",
+    label: str = "",
+) -> dict:
+    """How much of the DOWNSIDE is a handful of observations?
+
+    The exact mirror of :func:`concentration_profile`, on the loss side.  It
+    exists because the win-side check's denominator is *gross positive* return,
+    so it is structurally blind to a single catastrophic loss: funding's
+    2022-11-11 FTX event (-21.1%) is 68% of all gross losses yet produced no
+    flag.  That blind spot is ledger Gap 1, and the fix is symmetric by design —
+    same 50% / 60% lines, denominator = ``sum(|negative returns|)``.
+
+    Reports the top-1/2/3 loss share of **gross loss magnitude**, the
+    Herfindahl index over loss contributions, and the return that remains once
+    the largest ``top_frac`` losses are deleted.
+
+    ``single_loss_driven`` when one loss is >= ``SINGLE_LOSS_SHARE`` (50%) of
+    gross loss — "one trade is the strategy", on the downside.  The distinction
+    from "losses accumulated" is exactly this: many small losses spread evenly
+    keep the top-1 share low and do NOT fire; only a single dominant loss does.
+    ``top2_loss_concentrated`` (>=60%) is a WARN on its own.
+    """
+    arr = _finite(returns)
+    n = int(arr.size)
+    if n == 0:
+        return {
+            "label": label, "kind": kind, "test": "loss_concentration_profile",
+            "n": 0, "n_losses": 0, "top1_loss_share": None, "top2_loss_share": None,
+            "top3_loss_share": None, "hhi": None, "effective_n": None,
+            "single_loss_driven": False, "top2_loss_concentrated": False,
+            "diagnosis": "NO_LOSSES", "flag": None, "note": "no finite observations",
+        }
+
+    pos = arr[arr > 0]
+    neg = arr[arr < 0]
+    gross_positive = float(pos.sum())
+    gross_loss = float(-neg.sum())  # magnitude, always >= 0
+    net_total = float(arr.sum())
+
+    # ascending sort of the losses: most negative first
+    losses = np.sort(neg)
+    top1 = float(-losses[0]) if losses.size else 0.0
+    top2 = float(-losses[:2].sum()) if losses.size else 0.0
+    top3 = float(-losses[:3].sum()) if losses.size else 0.0
+
+    def share(x: float) -> float | None:
+        return _f(x / gross_loss) if gross_loss > 0 else None
+
+    if gross_loss > 0 and neg.size:
+        p = (-neg) / gross_loss
+        hhi = float(np.sum(p ** 2))
+        effective_n = float(1.0 / hhi) if hhi > 0 else None
+    else:
+        hhi = None
+        effective_n = None
+
+    n_top = max(1, int(math.ceil(float(top_frac) * n)))
+    # drop the n_top most negative observations (keep everything else)
+    ex_top = np.sort(arr)[n_top:] if n_top < n else np.asarray([], dtype=float)
+    ex_stats = _stats(ex_top)
+
+    top1_share = share(top1)
+    top2_share = share(top2)
+    top3_share = share(top3)
+
+    single_loss = bool(top1_share is not None and top1_share >= SINGLE_LOSS_SHARE)
+    top2_loss_concentrated = bool(top2_share is not None and top2_share >= TOP2_LOSS_CONCENTRATION_SHARE)
+
+    if gross_loss == 0:
+        diagnosis = "NO_LOSSES"
+    elif single_loss:
+        diagnosis = "SINGLE_LOSS_DOMINATES"
+    elif top2_loss_concentrated:
+        diagnosis = "TOP2_LOSS_CONCENTRATED"
+    else:
+        diagnosis = "LOSSES_ARE_SPREAD"
+
+    return {
+        "label": label,
+        "kind": kind,
+        "test": "loss_concentration_profile",
+        "n": n,
+        "n_losses": int(neg.size),
+        "gross_positive": _f(gross_positive),
+        "gross_loss": _f(gross_loss),
+        "net_total": _f(net_total),
+        "top1_loss": _f(top1),
+        "top2_loss": _f(top2),
+        "top3_loss": _f(top3),
+        "top1_loss_share": top1_share,
+        "top2_loss_share": top2_share,
+        "top3_loss_share": top3_share,
+        "hhi": _f(hhi),
+        "effective_n": _f(effective_n),
+        "max_single_loss_share": top1_share,
+        "top_frac_dropped": float(top_frac),
+        "n_dropped_top_frac": int(n_top),
+        "return_ex_top_frac_sum": _f(ex_stats["mean"] * ex_stats["n"]) if ex_stats["n"] else None,
+        "return_ex_top_frac_mean": ex_stats["mean"],
+        "return_ex_top_frac_verdict": ex_stats["verdict"],
+        "single_loss_driven": single_loss,
+        "top2_loss_concentrated": top2_loss_concentrated,
+        "diagnosis": diagnosis,
+        "flag": SINGLE_LOSS_DRIVEN if single_loss else None,
+        "note": (
+            "a single loss is >=50% of gross loss magnitude (one trade is the strategy, on the downside)"
+            if single_loss
+            else f"top-2 losses are {top2_share:.0%} of gross loss"
+            if top2_loss_concentrated and top2_share is not None
+            else "losses are spread out; no single loss dominates"
+            if gross_loss > 0
+            else "no losses in the sample"
+        ),
+    }
+
+
+# ---------------------------------------------------------------------------
+# 7. the battery
 # ---------------------------------------------------------------------------
 
 def robustness_battery(
@@ -753,6 +891,7 @@ def robustness_battery(
     flags: list[str] = []
 
     concentration = concentration_profile(arr, kind=kind, label=label)
+    loss_concentration = loss_concentration_profile(arr, kind=kind, label=label)
     leave_best = leave_k_best_out(arr, t_threshold=t_threshold, kind=kind, label=label)
     leave_worst = leave_k_worst_out(arr, t_threshold=t_threshold, kind=kind, label=label)
     sweep = drop_fraction_sweep(
@@ -763,6 +902,8 @@ def robustness_battery(
 
     if concentration.get("single_event_driven"):
         flags.append(SINGLE_EVENT_DRIVEN)
+    if loss_concentration.get("single_loss_driven"):
+        flags.append(SINGLE_LOSS_DRIVEN)
     if leave_best.get("flag"):
         flags.append(leave_best["flag"])
     if leave_worst.get("flag"):
@@ -779,6 +920,11 @@ def robustness_battery(
         flags = []
     elif SINGLE_EVENT_DRIVEN in flags:
         verdict = SINGLE_EVENT_DRIVEN
+    elif flags == [SINGLE_LOSS_DRIVEN]:
+        # the loss tail is the *only* pathology: report it as its own verdict.
+        # When other fragility flags co-exist, FRAGILE subsumes it and the
+        # SINGLE_LOSS_DRIVEN flag is still carried in ``flags``.
+        verdict = SINGLE_LOSS_DRIVEN
     elif flags:
         verdict = FRAGILE
     else:
@@ -800,6 +946,7 @@ def robustness_battery(
         "drop_fraction_sweep": sweep,
         "leave_one_era_out": era,
         "concentration": concentration,
+        "loss_concentration": loss_concentration,
         "thresholds": {
             "t_threshold": float(t_threshold),
             "fragile_k_max": FRAGILE_K_MAX,
@@ -807,18 +954,30 @@ def robustness_battery(
             "sign_flip_rate_max": SIGN_FLIP_RATE_MAX,
             "single_event_share": SINGLE_EVENT_SHARE,
             "top2_concentration_share": TOP2_CONCENTRATION_SHARE,
+            "single_loss_share": SINGLE_LOSS_SHARE,
+            "top2_loss_concentration_share": TOP2_LOSS_CONCENTRATION_SHARE,
             "min_n": MIN_N_BATTERY,
         },
-        "summary": _summary(verdict, base, leave_best, concentration, sweep),
+        "summary": _summary(verdict, base, leave_best, concentration, sweep, loss_concentration),
     }
 
 
-def _summary(verdict: str, base: dict, leave_best: dict, concentration: dict, sweep: dict) -> str:
+def _summary(
+    verdict: str,
+    base: dict,
+    leave_best: dict,
+    concentration: dict,
+    sweep: dict,
+    loss_concentration: dict | None = None,
+) -> str:
     if verdict == INSUFFICIENT:
         return f"n={base.get('n')} < {MIN_N_BATTERY}: too few observations to perturb-test"
     if verdict == SINGLE_EVENT_DRIVEN:
         s = concentration.get("top1_share")
         return f"a single observation is {s:.0%} of gross positive return" if s is not None else "single-event driven"
+    if verdict == SINGLE_LOSS_DRIVEN:
+        s = (loss_concentration or {}).get("top1_loss_share")
+        return f"a single loss is {s:.0%} of gross loss (loss-tail driven)" if s is not None else "single-loss driven"
     if verdict == FRAGILE:
         parts = []
         if leave_best.get("flag"):
@@ -826,10 +985,13 @@ def _summary(verdict: str, base: dict, leave_best: dict, concentration: dict, sw
         if concentration.get("top2_concentrated"):
             s = concentration.get("top2_share")
             parts.append(f"top-2 = {s:.0%} of gross return" if s is not None else "top-2 concentrated")
+        if (loss_concentration or {}).get("single_loss_driven"):
+            s = (loss_concentration or {}).get("top1_loss_share")
+            parts.append(f"one loss = {s:.0%} of gross loss" if s is not None else "single-loss concentrated")
         if sweep.get("flag"):
             parts.append("sign flips under 70% random drop")
         return "; ".join(parts) or "fails at least one perturbation test"
-    return "survives leave-k-out, random-drop and concentration checks"
+    return "survives leave-k-out, random-drop and concentration checks (win and loss side)"
 
 
 __all__ = [
@@ -839,9 +1001,11 @@ __all__ = [
     "drop_fraction_sweep",
     "leave_one_era_out",
     "concentration_profile",
+    "loss_concentration_profile",
     "ROBUST",
     "FRAGILE",
     "SINGLE_EVENT_DRIVEN",
+    "SINGLE_LOSS_DRIVEN",
     "INSUFFICIENT",
     "FLAG_FEW_WINNERS",
     "FLAG_FEW_LOSERS",
@@ -852,5 +1016,8 @@ __all__ = [
     "DEFAULT_FRACTIONS",
     "SIGN_FLIP_RATE_MAX",
     "SINGLE_EVENT_SHARE",
+    "TOP2_CONCENTRATION_SHARE",
+    "SINGLE_LOSS_SHARE",
+    "TOP2_LOSS_CONCENTRATION_SHARE",
     "MIN_N_BATTERY",
 ]
