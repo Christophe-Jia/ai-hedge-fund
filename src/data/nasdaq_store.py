@@ -64,7 +64,13 @@ _HEADERS = {
 _DEFAULT_FROM = "2014-01-01"
 
 # ETF whitelist (assetclass=etf). Stocks accept any valid ticker symbol.
-_ETF_SUPPORTED = {"QQQ", "VOO", "SPY", "QLD", "TQQQ", "IWM", "DIA", "GLD", "TLT", "GBTC", "BITB"}
+# Sector/asset-class ETFs added 2026-09-18 for the Merrill-clock hypothesis
+# (hypotheses/registry.jsonl -> merrill_clock_regime_rotation).
+_ETF_SUPPORTED = {
+    "QQQ", "VOO", "SPY", "QLD", "TQQQ", "IWM", "DIA", "GLD", "TLT", "GBTC", "BITB",
+    "BIL", "DBC", "IEF",
+    "XLB", "XLE", "XLF", "XLI", "XLK", "XLP", "XLU", "XLV", "XLY",
+}
 
 # Approximate trailing dividend yields (for total-return adjustment only).
 _APPROX_DIV_YIELDS: dict[str, float] = {
@@ -77,6 +83,19 @@ _APPROX_DIV_YIELDS: dict[str, float] = {
     "DIA": 0.016,
     "GLD": 0.0,
     "TLT": 0.038,
+    # sector / asset-class estimates (2026-09-18, rough trailing yields)
+    "BIL": 0.045,
+    "DBC": 0.0,
+    "IEF": 0.033,
+    "XLB": 0.018,
+    "XLE": 0.033,
+    "XLF": 0.015,
+    "XLI": 0.014,
+    "XLK": 0.007,
+    "XLP": 0.024,
+    "XLU": 0.030,
+    "XLV": 0.016,
+    "XLY": 0.008,
 }
 
 _TICKER_RE = re.compile(r"^[A-Z][A-Z0-9.\-]{0,9}$")
