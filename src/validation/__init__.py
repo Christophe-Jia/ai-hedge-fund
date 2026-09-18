@@ -51,6 +51,19 @@ scripts/evaluate_hypotheses.py, scripts/rubric_attribution.py.
 from .boundary import boundary_stability
 from .checklist import RED_TEAM_QUESTIONS, red_team_checklist, render_checklist, unanswered
 from .consistency import internal_consistency
+from .deflation import (
+    DSR_THRESHOLD,
+    EULER_GAMMA,
+    MUTIC_LAMBDA_DEFAULT,
+    MUTIC_MAX_CORR,
+    NORMAL_KURTOSIS,
+    deflated_sharpe_ratio,
+    deflation_from_stats,
+    deflation_report,
+    expected_max_sharpe,
+    mutic_adjusted_ic,
+    probabilistic_sharpe_ratio,
+)
 from .events import event_significance, event_window_stats
 from .gate import deployment_gate, deployment_gate_from_checks
 from .multiplicity import expected_max_abs_t, multiple_comparisons, required_t
@@ -122,6 +135,18 @@ __all__ = [
     "multiple_comparisons",
     "required_t",
     "expected_max_abs_t",
+    # statistical deflation (PSR / DSR / MutIC — Bailey & López de Prado)
+    "probabilistic_sharpe_ratio",
+    "expected_max_sharpe",
+    "deflated_sharpe_ratio",
+    "mutic_adjusted_ic",
+    "deflation_report",
+    "deflation_from_stats",
+    "DSR_THRESHOLD",
+    "EULER_GAMMA",
+    "MUTIC_LAMBDA_DEFAULT",
+    "MUTIC_MAX_CORR",
+    "NORMAL_KURTOSIS",
     "reproducibility_probe",
     "deployment_gate",
     "deployment_gate_from_checks",

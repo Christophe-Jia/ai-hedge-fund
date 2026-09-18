@@ -28,14 +28,21 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.validation import (  # noqa: E402
+    DSR_THRESHOLD,
+    NORMAL_KURTOSIS,
     boundary_stability,
+    deflated_sharpe_ratio,
+    deflation_from_stats,
+    deflation_report,
     deployment_gate_from_checks,
     event_significance,
     event_window_stats,
+    expected_max_sharpe,
     internal_consistency,
     multi_window,
     multiple_comparisons,
     neighborhood_stability,
+    probabilistic_sharpe_ratio,
     proportion_z,
     red_team_checklist,
     reproducibility_probe,
@@ -53,6 +60,7 @@ REPORTS = ROOT / "reports"
 PICKS_DIR = REPORTS / "gbm_picks"
 OUT = REPORTS / "validation_audit.json"
 ROBUSTNESS_OUT = REPORTS / "robustness_battery.json"
+DEFLATION_OUT = REPORTS / "deflation_audit.json"
 
 # How many distinct lines of research this platform has actually searched.
 # FAMILY-LEVEL count (team-lead enumeration, 2026-09-15) — a "family" is one
@@ -183,6 +191,16 @@ def _severity(entry: dict) -> str:
     elif rb.get("verdict") in {"FRAGILE", "INSUFFICIENT"}:
         amber = True
 
+    # Statistical deflation (PSR/DSR).  A result that fails to clear the noise
+    # ceiling of its own search is RED *when the report claims an edge*; for an
+    # honest negative-result report the same failure is only AMBER (there is no
+    # claim to falsify).  Missing series / missing N is a process gap -> AMBER.
+    df = checks.get("deflation") or {}
+    if df.get("verdict") == "FAILS" and df.get("claims_edge"):
+        red = True
+    elif df.get("verdict") in {"FAILS", "INSUFFICIENT"}:
+        amber = True
+
     return "RED" if red else ("AMBER" if amber else "GREEN")
 
 
@@ -241,6 +259,15 @@ def _red_flags(entry: dict) -> list[str]:
         flags.append(f"robustness: FRAGILE under perturbation ({', '.join(rb_flags)})")
     elif rb.get("verdict") == "INSUFFICIENT":
         flags.append("robustness: report stores no per-observation return series — perturbation checks not computable")
+    df = checks.get("deflation") or {}
+    if df.get("verdict") == "FAILS":
+        flags.append(
+            f"deflation: DSR={df.get('dsr')} <= {DSR_THRESHOLD} over N={df.get('n_trials')} trials "
+            f"(PSR={df.get('psr')}, sr_std={df.get('sr_std')}) — the result is inside its search's noise "
+            f"ceiling" + (" and the report claims an edge" if df.get("claims_edge") else "")
+        )
+    elif df.get("verdict") == "INSUFFICIENT":
+        flags.append(f"deflation: not computable ({df.get('note')})")
     return flags
 
 
@@ -255,6 +282,18 @@ def _entry(name: str, role: str, _report: dict, checks: dict, should_have_caught
             "verdict": "INSUFFICIENT",
             "flags": [],
             "note": "no per-observation/per-period return series stored in this report",
+        },
+    )
+    # Same discipline for deflation: a strategy that stores neither a return
+    # series nor a usable (SR, n) pair cannot be deflated — say so, never fake it.
+    checks.setdefault(
+        "deflation",
+        {
+            "label": name,
+            "verdict": "INSUFFICIENT",
+            "n_trials": None,
+            "claims_edge": False,
+            "note": "no return series and no (SR, n) pair stored in this report",
         },
     )
     entry = {
@@ -307,6 +346,71 @@ def _robustness_check(
             "note": "no per-observation/per-period return series stored in this report",
         }
     return robustness_battery(vals, eras=eras, label=label, kind=kind)
+
+
+# ---------------------------------------------------------------------------
+# statistical deflation wiring (PSR / DSR / MutIC)
+# ---------------------------------------------------------------------------
+#
+# Every strategy's deflation check carries the trial count N it was judged
+# against *and the evidence for that N* (n_trials_basis).  Where the report
+# itself documents the grid we use it; where it does not we fall back to the
+# platform-level constants and say so.  Where neither a return series nor a
+# usable (SR, n) pair is stored we report INSUFFICIENT rather than fabricating.
+
+def _per_period_sr(sr_annualised: float, periods_per_year: float) -> float:
+    """Annualised Sharpe -> per-period Sharpe (the frequency n lives in)."""
+    return sr_annualised / math.sqrt(periods_per_year)
+
+
+def _deflation_series(returns: Any, n_trials: int, *, label: str, basis: str, source: str, claims_edge: bool) -> dict:
+    vals = [_num(x) for x in (returns or [])]
+    vals = [v for v in vals if v is not None]
+    if not vals:
+        return _deflation_missing(label=label, basis=basis, source=source, claims_edge=claims_edge,
+                                  note="return series present in the report but empty")
+    res = deflation_report(vals, n_trials=n_trials, label=label)
+    res["n_trials_basis"] = basis
+    res["source"] = source
+    res["claims_edge"] = bool(claims_edge)
+    return res
+
+
+def _deflation_stats(
+    sr: float | None,
+    n: int | None,
+    n_trials: int,
+    *,
+    label: str,
+    basis: str,
+    source: str,
+    claims_edge: bool,
+    frequency: str,
+    skew: float = 0.0,
+    kurtosis: float = NORMAL_KURTOSIS,
+) -> dict:
+    if sr is None or n is None or int(n) < 2:
+        return _deflation_missing(label=label, basis=basis, source=source, claims_edge=claims_edge,
+                                  note=f"need (SR, n) but got sr={sr}, n={n}")
+    res = deflation_from_stats(float(sr), int(n), int(n_trials), skew=skew, kurtosis=kurtosis, label=label)
+    res["frequency"] = frequency
+    res["n_trials_basis"] = basis
+    res["source"] = source
+    res["claims_edge"] = bool(claims_edge)
+    return res
+
+
+def _deflation_missing(*, label: str, basis: str, source: str, claims_edge: bool, note: str, n_trials: int | None = None) -> dict:
+    return {
+        "label": label,
+        "verdict": "INSUFFICIENT",
+        "n_trials": n_trials,
+        "n_trials_basis": basis,
+        "source": source,
+        "claims_edge": bool(claims_edge),
+        "note": note,
+    }
+
 
 
 def _event_windows_check(records: list[dict], windows: dict, date_key: str, ret_key: str, *, label: str, n_resamples: int = 3000) -> dict:
@@ -419,6 +523,15 @@ def audit_gbm_sp100() -> dict:
         checks["boundary"] = {"verdict": "INSUFFICIENT", "note": "reports/gbm_picks/*.json not found"}
 
     checks["reproducibility"] = _reproducibility_check(rep, label="GBM sp100 flagship: as-of / rerun probe")
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(sharpe), 12) if _num(sharpe) is not None else None,
+        int(n_months or 0), 8,
+        label="GBM top10 monthly Sharpe",
+        basis="INNER_CV_GRID A-H = 8 configs (scripts/xsec_gbm_selection.py:126)",
+        source="reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal (no monthly return series stored)",
+        claims_edge=True,
+        frequency="per-period (monthly): n = 71 walk-forward test months",
+    )
     checks["red_team"] = red_team_checklist(rep)
     ic_by_year = dig(rep, "monthly_ic.by_year") or {}
     if isinstance(ic_by_year, dict) and ic_by_year:
@@ -474,6 +587,15 @@ def audit_gbm_sp500() -> dict:
     )
     checks["red_team"] = red_team_checklist(rep)
     checks["reproducibility"] = _reproducibility_check(rep, label="GBM SP500: as-of / rerun probe")
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(sharpe), 12) if _num(sharpe) is not None else None,
+        int(n_months or 0), 8,
+        label="SP500 GBM top10 monthly Sharpe",
+        basis="same INNER_CV_GRID A-H = 8 configs; the universe swap (S&P100->S&P500) is an extra degree of freedom not counted here",
+        source="reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
+        claims_edge=False,
+        frequency="per-period (monthly): n = 71 walk-forward test months",
+    )
     ic_by_year = dig(rep, "monthly_ic.by_year") or {}
     if isinstance(ic_by_year, dict) and ic_by_year:
         checks["robustness"] = _robustness_check(
@@ -516,6 +638,19 @@ def audit_gbm_attribution() -> dict:
     )
     checks["red_team"] = red_team_checklist(rep)
     checks["reproducibility"] = _reproducibility_check(rep, label="GBM attribution: holdings vs source rerun")
+    _sr_pre = (
+        _num(boot.get("mean_pct")) / _num(boot.get("std_pct"))
+        if _num(boot.get("mean_pct")) is not None and _num(boot.get("std_pct"))
+        else None
+    )
+    checks["deflation"] = _deflation_stats(
+        _sr_pre, int(boot.get("n_months") or 0), 8,
+        label="pre-2024 monthly top10 excess (mean/std)",
+        basis="same GBM INNER_CV_GRID A-H = 8 configs",
+        source="pre-2024 monthly excess mean 1.622% / std 5.441% over 38 months (per-period SR, no annualisation); skew/kurtosis assumed normal",
+        claims_edge=True,
+        frequency="per-period (monthly): SR and n both monthly, no annualisation",
+    )
     rolling_ic = dig(rep, "matrix2_ic_drift.rolling_12m_ic") or {}
     if isinstance(rolling_ic, dict) and rolling_ic:
         keys = [str(k) for k in rolling_ic.keys()]
@@ -555,6 +690,16 @@ def audit_combined_signals() -> dict:
         "multi_window": _mw({k: _num(v.get("sharpe")) for k, v in scen.items()}, "scenario / ablation Sharpe", scope="variants"),
         "red_team": red_team_checklist(rep),
     }
+    comb = dig(rep, "scenarios.combined_all3") or {}
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(comb.get("sharpe")), 252) if _num(comb.get("sharpe")) is not None else None,
+        int(comb.get("n_days") or 0), len(scen) or 1,
+        label="combined_all3 daily Sharpe",
+        basis=f"{len(scen)} scenario/ablation variants (report's own scenario set)",
+        source="reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
+        claims_edge=False,
+        frequency="per-period (daily): n = 862 trading days",
+    )
     return _entry(
         "combined_signals",
         "加密组合信号 (weekend_gap+funding+onchain)",
@@ -577,6 +722,16 @@ def audit_combined_signals_replication() -> dict:
         "multi_window": _mw({k: _num(v.get("sharpe")) for k, v in results.items() if isinstance(v, dict)}, "variant Sharpe", scope="variants"),
         "red_team": red_team_checklist(rep),
     }
+    combo = dig(rep, "results.combo_equal") or {}
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(combo.get("sharpe")), 252) if _num(combo.get("sharpe")) is not None else None,
+        int(combo.get("n_days") or 0), len(results) or 1,
+        label="combo_equal daily Sharpe",
+        basis=f"{len(results)} portfolio variants (equal / 2x / single-leg) reproduced by the independent implementation",
+        source="reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
+        claims_edge=False,
+        frequency="per-period (daily): n = 884 trading days",
+    )
     return _entry(
         "combined_signals_replication",
         "组合信号复现（独立实现）",
@@ -604,6 +759,16 @@ def audit_outofsample() -> dict:
         "multi_window": _mw(mapping, "train vs out-of-sample Sharpe"),
         "red_team": red_team_checklist(rep),
     }
+    oos_comb = dig(rep, "windows.out_of_sample.scenarios.combined_2sig") or {}
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(oos_comb.get("sharpe")), 252) if _num(oos_comb.get("sharpe")) is not None else None,
+        int(oos_comb.get("n_days") or 0), len(scen) or 1,
+        label="combined_2sig out-of-sample daily Sharpe",
+        basis=f"{len(scen)} OOS scenarios (combined_2sig / weekend_gap / funding single legs)",
+        source="reported OOS annualised Sharpe 0.318 -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
+        claims_edge=True,
+        frequency="per-period (daily): n = 544 out-of-sample trading days",
+    )
     return _entry(
         "outofsample_backtest",
         "训练窗 vs 样本外窗",
@@ -660,6 +825,13 @@ def audit_exit_rules() -> dict:
             label="weekend_gap long-leg per-trade returns (13 trades)",
             kind="events",
         )
+        checks["deflation"] = _deflation_series(
+            [t.get("ret_pct") for t in long_only], 96,
+            label="weekend_gap long-leg per-trade returns (13 trades)",
+            basis="4 thresholds x 4 symbols x 6 exit rules ~= 96 (weekend_gap variant grid)",
+            source="trades_full_window.long_only.t_plus_1[].ret_pct",
+            claims_edge=True,
+        )
 
     return _entry(
         "exit_rules_backtest",
@@ -693,6 +865,17 @@ def audit_exit_mechanism() -> dict:
         windows[half] = _num(dig(rep, f"baseline.cagr_by_window_pct.{half}"))
     checks["multi_window"] = _mw(windows, "baseline CAGR by window")
     checks["red_team"] = red_team_checklist(rep)
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(dig(rep, "baseline.monthly_sharpe")), 12)
+        if _num(dig(rep, "baseline.monthly_sharpe")) is not None
+        else None,
+        71, 15,
+        label="baseline monthly Sharpe",
+        basis="report's own '15 variants tested' (mechanism families 1-3 + combo, incl. fine-grid probes)",
+        source="baseline.monthly_sharpe is ANNUALISED (monthly returns x sqrt(12)); converted back to monthly SR/sqrt(12); skew/kurtosis assumed normal",
+        claims_edge=False,
+        frequency="per-period (monthly): annualised Sharpe converted to monthly; n = 71 walk-forward test months",
+    )
     return _entry(
         "exit_mechanism",
         "出场机制（滞回带 / 月中重打分）",
@@ -722,6 +905,15 @@ def audit_risk_gate() -> dict:
         "red_team": red_team_checklist(rep),
         "reproducibility": _reproducibility_check(rep, label="risk gates: holdings vs source rerun"),
     }
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(dig(rep, "baseline_5050.sharpe")), 12) if _num(dig(rep, "baseline_5050.sharpe")) is not None else None,
+        int(dig(rep, "meta.n_months") or 71), 15,
+        label="50/50 baseline monthly Sharpe (the strategy the gates modulate)",
+        basis="6 VIX + 3 momentum-regime + 6 MVRV gate variants = 15",
+        source="reported annualised baseline Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; the report's verdict is that all gates FAIL",
+        claims_edge=False,
+        frequency="per-period (monthly): n = 71 months",
+    )
     return _entry(
         "risk_gate",
         "层3风控开关",
@@ -768,6 +960,13 @@ def audit_meta_label() -> dict:
         label="meta-label per-event net returns (50 events)",
         kind="events",
     )
+    checks["deflation"] = _deflation_series(
+        [e.get("ret_net_pct") for e in events], 4,
+        label="meta-label per-event net returns (50 events)",
+        basis="2 models (RF/logreg) x 2 CV schemes (LOO/time-split) = 4 model-selection trials",
+        source="reports/meta_label_results.json:events[].ret_net_pct",
+        claims_edge=False,
+    )
     return _entry(
         "meta_label_results",
         "weekend_gap meta-labeling",
@@ -789,6 +988,14 @@ def audit_volume_confirm() -> dict:
     checks: dict[str, Any] = {
         "red_team": red_team_checklist(rep),
     }
+    checks["deflation"] = _deflation_missing(
+        label="weekend_gap high-volume bucket",
+        basis="2 symbol sets x 4 volume thresholds = 8 buckets searched",
+        source="report stores bucket win rates and mean returns but no Sharpe and no per-leg return series",
+        claims_edge=False,
+        note="no Sharpe and no return series stored -> DSR not computable (never fabricated)",
+        n_trials=8,
+    )
     high = dig(rep, "weekend_gap_set.bucket_stats_event_day.high") or {}
     if high.get("win_rate_pct") is not None and high.get("n_legs"):
         wins = int(round(float(high["win_rate_pct"]) / 100.0 * int(high["n_legs"])))
@@ -817,6 +1024,19 @@ def audit_funding_rolling() -> dict:
         "multi_window": _mw({k: _num(dig(v, "metrics.sharpe")) for k, v in variants.items() if isinstance(v, dict)}, "variant Sharpe", scope="variants"),
         "red_team": red_team_checklist(rep),
     }
+    _best_name, _best_sr = None, None
+    for _k, _v in variants.items():
+        _s = _num(dig(_v, "metrics.sharpe"))
+        if _s is not None and (_best_sr is None or _s > _best_sr):
+            _best_name, _best_sr = _k, _s
+    _best_events = (dig(variants, f"{_best_name}.events") or []) if _best_name else []
+    checks["deflation"] = _deflation_series(
+        [e.get("ret_pct") for e in _best_events], len(variants) or 1,
+        label=f"best funding variant ({_best_name}) per-event returns",
+        basis=f"{len(variants)} funding-threshold variants searched",
+        source=f"variants.{_best_name}.events[].ret_pct (best variant by reported Sharpe)",
+        claims_edge=False,
+    )
     return _entry(
         "funding_rolling_backtest",
         "资金费率滚动窗口",
@@ -839,6 +1059,18 @@ def audit_onchain_btc() -> dict:
         "multi_window": _mw({str(y.get("year")): _num(y.get("strategy_sharpe")) for y in yearly if isinstance(y, dict)}, "yearly strategy Sharpe"),
         "red_team": red_team_checklist(rep),
     }
+    _ann_days = _num(dig(rep, "config.annualization_days")) or 365.0
+    checks["deflation"] = _deflation_stats(
+        _per_period_sr(_num(dig(rep, "overall.strategy.sharpe")), _ann_days)
+        if _num(dig(rep, "overall.strategy.sharpe")) is not None
+        else None,
+        int(dig(rep, "overall.strategy.n_days") or 0), 2,
+        label="onchain BTC strategy daily Sharpe",
+        basis="2 on-chain directions searched (crypto-stock basket vs trading BTC directly; platform family enumeration #3/#4)",
+        source="reported annualised Sharpe -> daily SR/sqrt(365); skew/kurtosis assumed normal; the strategy is a large negative result",
+        claims_edge=False,
+        frequency="per-period (daily): n = 2632 days",
+    )
     return _entry(
         "onchain_btc_backtest",
         "链上基本面信号 (BTC)",
@@ -1074,6 +1306,143 @@ def _robustness_calibration() -> dict:
     }
 
 
+def _platform_deflation_cross_check(best: tuple[float, str, int, float] | None) -> dict:
+    """Cross-validate Bonferroni-on-t against DSR on the platform's best result.
+
+    The two frameworks must agree.  If they disagree, the trial count N or the
+    per-trial dispersion sigma_SR is being expressed in the wrong units.
+    """
+    out: dict[str, Any] = {
+        "n_hypotheses_family_level": PLATFORM_HYPOTHESES_SEARCHED,
+        "n_hypotheses_variant_level": PLATFORM_HYPOTHESES_VARIANTS,
+        "evt_ceiling_units": "sigma_SR (the std of the trial Sharpe ratios); DSR is scale-invariant as long as SR, n and sigma_SR share a frequency",
+    }
+    if not best:
+        out["consistent"] = None
+        out["interpretation"] = "no observed result stored anywhere: neither framework is computable"
+        return out
+
+    t_obs, name, n, signed_t = best
+    sr_period = abs(t_obs) / math.sqrt(n)          # per-period SR (same period as n)
+    sr_ann = sr_period * math.sqrt(12.0)           # monthly n=38 -> annualise for the unit-sigma view
+    mc = multiple_comparisons(PLATFORM_HYPOTHESES_SEARCHED, {"t_stat": signed_t, "n": n}, label=name)
+    dsr_family = deflation_from_stats(sr_period, n, PLATFORM_HYPOTHESES_SEARCHED,
+                                      label=f"{name} (family-level N)")
+    dsr_variant = deflation_from_stats(sr_period, n, PLATFORM_HYPOTHESES_VARIANTS,
+                                       label=f"{name} (variant-level N)")
+    ceiling_unit = expected_max_sharpe(PLATFORM_HYPOTHESES_SEARCHED, 1.0)
+    out.update(
+        {
+            "best_source": name,
+            "observed_best_abs_t": abs(t_obs),
+            "observed_n": n,
+            "observed_per_period_sr": sr_period,
+            "observed_annualised_sr_approx": sr_ann,
+            "bonferroni_on_t": {
+                "expected_best_abs_t_under_null": mc["expected_best_abs_t_under_null"],
+                "required_t": mc["required_t"],
+                "observed_t": mc["observed_t"],
+                "verdict": mc["verdict"],
+            },
+            "dsr_family_level": {
+                "n_trials": PLATFORM_HYPOTHESES_SEARCHED,
+                "expected_max_sharpe": dsr_family.get("expected_max_sharpe"),
+                "psr": dsr_family.get("psr"),
+                "dsr": dsr_family.get("dsr"),
+                "verdict": dsr_family.get("verdict"),
+                "sr_std_assumption": dsr_family.get("sr_std_assumption"),
+            },
+            "dsr_variant_level": {
+                "n_trials": PLATFORM_HYPOTHESES_VARIANTS,
+                "expected_max_sharpe": dsr_variant.get("expected_max_sharpe"),
+                "psr": dsr_variant.get("psr"),
+                "dsr": dsr_variant.get("dsr"),
+                "verdict": dsr_variant.get("verdict"),
+            },
+            "unit_sigma_check": {
+                "note": "if trial Sharpes are dispersed with sigma_SR=1 (annualised units), the noise ceiling for N=27 is this; the observed best annualised Sharpe must be compared against it",
+                "expected_max_sharpe_sigma1": ceiling_unit,
+                "observed_annualised_sr_approx": sr_ann,
+                "observed_clears_ceiling": bool(sr_ann > ceiling_unit),
+            },
+        }
+    )
+    out["consistent"] = (mc["verdict"] == "FAILS") and (dsr_family.get("verdict") == "FAILS")
+    out["interpretation"] = (
+        f"Bonferroni-on-t: best stored |t|={abs(t_obs):.2f} vs required {mc['required_t']:.2f} "
+        f"(null best-of-{PLATFORM_HYPOTHESES_SEARCHED} already ~{mc['expected_best_abs_t_under_null']:.2f}) -> {mc['verdict']}. "
+        f"DSR: per-period SR={sr_period:.3f} vs E[max SR]={dsr_family.get('expected_max_sharpe'):.3f} "
+        f"-> DSR={dsr_family.get('dsr'):.3f} -> {dsr_family.get('verdict')}. "
+        "Both frameworks reject every stored result (consistent). The DSR reading is the sharper one: the platform's "
+        "best champion is not merely below the Bonferroni bar, it sits below the *median* of its own search's noise ceiling."
+    )
+    return out
+
+
+def _deflation_audit(entries: list[dict], best: tuple[float, str, int, float] | None) -> dict:
+    """Per-strategy DSR table + platform cross-check -> reports/deflation_audit.json."""
+    counts = {"SURVIVES": 0, "FAILS": 0, "INSUFFICIENT": 0}
+    red_by_deflation: list[str] = []
+    rows: list[dict] = []
+    for e in entries:
+        df = (e.get("checks") or {}).get("deflation") or {}
+        v = df.get("verdict", "INSUFFICIENT")
+        counts[v] = counts.get(v, 0) + 1
+        if v == "FAILS" and df.get("claims_edge"):
+            red_by_deflation.append(e["name"])
+        rows.append(
+            {
+                "name": e["name"],
+                "verdict": v,
+                "claims_edge": bool(df.get("claims_edge")),
+                "n_trials": df.get("n_trials"),
+                "n_trials_basis": df.get("n_trials_basis"),
+                "n": df.get("n"),
+                "sr": df.get("sr"),
+                "psr": df.get("psr"),
+                "dsr": df.get("dsr"),
+                "sr_std": df.get("sr_std"),
+                "expected_max_sharpe": df.get("expected_max_sharpe"),
+                "skew": df.get("skew"),
+                "kurtosis": df.get("kurtosis"),
+                "frequency": df.get("frequency"),
+                "source": df.get("source"),
+                "note": df.get("note"),
+            }
+        )
+    return {
+        "meta": {
+            "harness": "src.validation.deflation",
+            "script": "scripts/validate_reports.py",
+            "note": "PSR / DSR (Bailey & Lopez de Prado) deflation of every stored result; "
+            "trial counts carry the evidence for N; missing series -> INSUFFICIENT, never fabricated",
+            "thresholds": {
+                "dsr": DSR_THRESHOLD,
+                "mutic_lambda": 0.5,
+                "mutic_max_corr": 0.30,
+            },
+            "evt_anchors_formula_sigma1": {
+                "note": "expected_max_sharpe(N, sigma_SR=1); exact expected max of N iid normals in parentheses",
+                "N=10": expected_max_sharpe(10, 1.0),
+                "N=100": expected_max_sharpe(100, 1.0),
+                "N=1000": expected_max_sharpe(1000, 1.0),
+                "N=10000": expected_max_sharpe(10000, 1.0),
+            },
+        },
+        "summary": {
+            "counts": counts,
+            "n_dsr_survives": counts["SURVIVES"],
+            "n_dsr_fails": counts["FAILS"],
+            "n_insufficient": counts["INSUFFICIENT"],
+            "red_by_deflation_when_edge_claimed": red_by_deflation,
+            "note": "DSR<=0.95 is RED only when the report claims an edge; for an honest negative result it is AMBER; "
+            "missing series / missing N is AMBER",
+        },
+        "platform_cross_check": _platform_deflation_cross_check(best),
+        "strategies": rows,
+    }
+
+
 def main() -> int:
     entries = []
     for fn in AUDITS:
@@ -1170,6 +1539,13 @@ def main() -> int:
         "particular edge mined from history."
     )
 
+    # Statistical deflation roll-up (PSR / DSR): the DSR framework's platform
+    # cross-check must agree with the Bonferroni-on-t reading above.
+    deflation_artifact = _clean(_deflation_audit(entries, best))
+    deflation_counts = deflation_artifact["summary"]["counts"]
+    deflation_red = deflation_artifact["summary"]["red_by_deflation_when_edge_claimed"]
+    deflation_cross = deflation_artifact["platform_cross_check"]
+
     out = {
         "meta": {
             "harness": "src/validation",
@@ -1186,6 +1562,7 @@ def main() -> int:
                 "robustness_sign_flip_rate_max": 0.10,
                 "robustness_single_event_share": 0.50,
                 "robustness_min_n": 5,
+                "deflation_dsr": DSR_THRESHOLD,
             },
         },
         "summary": {
@@ -1208,6 +1585,15 @@ def main() -> int:
                 "return) map to RED; other FRAGILE and INSUFFICIENT map to AMBER"
             ),
             "robustness": robustness_rows,
+            "deflation_counts": deflation_counts,
+            "deflation_red_when_edge_claimed": deflation_red,
+            "deflation_note": (
+                "PSR/DSR (Bailey & Lopez de Prado): DSR<=0.95 means the result is inside the "
+                "noise ceiling of its own search. RED only when the report claims an edge; AMBER "
+                "for honest negative results and for missing series/N (never fabricated). The "
+                "DSR platform cross-check must agree with the Bonferroni-on-t reading."
+            ),
+            "deflation_platform_cross_check": deflation_cross,
             "headline": (
                 f"{counts.get('RED', 0)}/{len(entries)} strategies are RED. "
                 "The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), "
@@ -1223,15 +1609,26 @@ def main() -> int:
     cal = _clean(_robustness_calibration())
     ROBUSTNESS_OUT.write_text(json.dumps(cal, ensure_ascii=False, indent=2, allow_nan=False))
 
+    # deflation artifact: per-strategy DSR + platform cross-check
+    DEFLATION_OUT.write_text(json.dumps(deflation_artifact, ensure_ascii=False, indent=2, allow_nan=False))
+
     # console summary
     print(f"wrote {OUT.relative_to(ROOT)}")
     print(f"wrote {ROBUSTNESS_OUT.relative_to(ROOT)}")
+    print(f"wrote {DEFLATION_OUT.relative_to(ROOT)}")
     print(f"  verdicts: {counts}")
     print(f"  deployment gate: {deploy}")
     print(
         "  robustness battery: "
         + ", ".join(f"{k}={v}" for k, v in rob_counts.items())
         + f"; fragile_by_few_winners={fragile_by_few_winners}"
+    )
+    _cc = deflation_cross.get("dsr_family_level") or {}
+    print(
+        "  deflation (DSR<=0.95): "
+        + ", ".join(f"{k}={v}" for k, v in deflation_counts.items())
+        + f"; cross-check consistent={deflation_cross.get('consistent')}"
+        + f" (DSR={_cc.get('dsr')})"
     )
     print(
         f"  calibration: {cal['meta']['n_expectations_met']}/{cal['meta']['n_cases']} expectations met; "

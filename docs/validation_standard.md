@@ -73,6 +73,42 @@
 
 > 已核对的判定线常量写在 `src/validation/robustness.py` 顶部（`FRAGILE_K_MAX=2`、`SIGN_FLIP_RATE_MAX=0.10`、`SINGLE_EVENT_SHARE=0.50`、`TOP2_CONCENTRATION_SHARE=0.60`、`MIN_N_BATTERY=5`），每条都带注释说明理由。
 
+### 1.5 统计去膨胀（PSR / DSR / MutIC，v1.3 新增）
+
+§1.3 的多重比较用的是**自制 Bonferroni-on-t**（把 27 个假设族写进账本后要求 |t|=3.11）。它有一个盲点：**把重尾/负偏的收益当成正态**——而我们的失败恰恰是重尾（weekend_gap 靠 2 笔撑起、S&P500 扩池靠困境股彩票）。业界标准是 **Bailey & López de Prado 的 PSR / DSR**，它显式修正偏度与峰度，并把基准从 0 提升到「N 次纯噪音试验的最大 Sharpe 期望」。
+
+实现：`src/validation/deflation.py`（入口 `deflation_report(returns, n_trials)` / `deflation_from_stats(sr, n, n_trials)`）。
+
+| # | 检查 | 函数 | 判定线 | 防哪种失败 |
+|---|---|---|---|---|
+| 15 | **概率化 Sharpe** | `probabilistic_sharpe_ratio(sr, n, skew, kurtosis, sr_benchmark=0)` | Φ[(SR−SR*)·√(n−1)/√(1−γ₃·SR+((γ₄−1)/4)·SR²)] | 同样的 SR，负偏/肥尾下证据更弱；PSR 把这一点算进去 |
+| 16 | **噪音天花板** | `expected_max_sharpe(N, σ_SR)` | σ·[(1−γ)Φ⁻¹(1−1/N)+γΦ⁻¹(1−1/(N·e))]（γ=欧拉常数） | N 次试验纯噪音下的最大 Sharpe 期望；N=27 时 σ=1 对应 **2.03** |
+| 17 | **去膨胀 Sharpe** | `deflated_sharpe_ratio(sr, n, skew, kurt, N, σ_SR)` | = 以 #16 为基准的 #15；**DSR > 0.95 才算真结构** | 冠军是否只是「搜出来的最大值」 |
+| 18 | **MutIC 冗余惩罚** | `mutic_adjusted_ic(ic_raw, max_corr, lam=0.5)` | `IC_adj = IC_raw − 0.5·max_corr`；池内两两相关目标 < 0.30 | 新信号若与池内已有信号高度相关，其边际信息应被折价 |
+
+**判定线与严重度归属（写进 `scripts/validate_reports.py` 的 `_severity` / `_red_flags`）：**
+
+| DSR 结果 | 报告是否声称有 edge | 严重度 | 理由 |
+|---|---|---|---|
+| `FAILS`（DSR ≤ 0.95） | 是 | **RED** | 结论「不可用」：冠军落在自己那次搜索的噪音天花板之内，却仍在对外声称有效。 |
+| `FAILS` | 否（诚实负结果） | **AMBER** | 没有正结论可证伪；DSR 复核了「无 edge」这一结论（与 `multiple_comparisons=FAILS` 同级）。 |
+| `INSUFFICIENT`（缺序列或缺 N） | — | **AMBER** | 流程缺陷：与「缺必答字段」同类。**禁止伪造序列或 N**。 |
+
+判定线常量写在 `src/validation/deflation.py` 顶部，各带注释：`DSR_THRESHOLD=0.95`（≥0.95 置信才认作真结构，出处为 SOPHIE《Formulaic Alpha Mining》及 Bailey & LdP 原文）、`MUTIC_LAMBDA_DEFAULT=0.5`、`MUTIC_MAX_CORR=0.30`、`NORMAL_KURTOSIS=3.0`、`MIN_N_DEFLATION=5`。
+
+**两个必须写明的口径（否则 DSR 会静默失效）：**
+
+1. **SR 与 n 同频**：日频 SR 配日频 n，或年化 SR 配「年数」。混用（年化 SR + 期数 n）会把 PSR 抬高约 √(每年期数)，足以让失败结论显得通过。审计脚本对每份报告都显式标注用的是哪种口径（`checks.deflation.frequency`），并在把报告里存的**年化** Sharpe 转回期频时除以 √periods_per_year（例：`exit_mechanism` 的 `monthly_sharpe` 其实是年化值，代码里 `_per_period_sr(...,12)` 转回月度）。
+2. **峰度用「原始峰度」**（正态=3），不是超额峰度：PSR 分母的 `(γ₄−1)/4` 只有在 γ₄=3 时才退化为正态下的 `sqrt(1+0.5·SR²)`。传超额峰度（正态=0）是最常见的实现 bug。
+
+**EVT 天花板锚点（σ_SR=1）**：公式值 1.575 / 2.531 / 3.255 / 3.861（N=10/100/1000/10000），与「N 个标准正态最大值期望」的**精确解** 1.539 / 2.508 / 3.241 / 3.852 相差 ≤0.04（精确解由 2×10⁶ 次蒙特卡洛与数值积分两种独立方法验证）。注：任务书里给的简化表（1.50/2.20/2.80/3.20）在 N=10 与精确值一致，但 N≥100 系统性偏低——测试把它作为**下界**断言（公式值均 ≥ 表值），公式本身以精确解为准。
+
+**平台级交叉验证（关键）**：给定平台存过的最优 |t|=**1.84**（gbm_attribution pre-2024 月度超额，n=38 月），
+- Bonferroni-on-t：N=27 时空假设最优 |t| 期望 **2.57**、要求线 **3.11** → **FAILS**；
+- DSR：期频 SR=0.298，噪音天花板 E[max SR]=**0.341**（σ_SR 用零 alpha 单次 Sharpe 估计量的抽样 std 估），**PSR=0.962 → DSR=0.399 ≤ 0.95 → FAILS**。
+
+**两个框架结论一致：全平台没有任何一个存过的结论能通过搜索校正。** 而且 DSR 的读法更狠：最优冠军不只没过 Bonferroni 线，它甚至落在自己那次搜索噪音天花板的**中位数以下**。
+
 ---
 
 ## 2. 任何报告必须包含的字段
@@ -200,8 +236,8 @@ if probe["verdict"] != "REPRODUCIBLE":
 | 级别 | 含义 |
 |---|---|
 | **GREEN** | 所有可计算的检查通过，且高严重度字段齐备 → 可交付。 |
-| **AMBER** | 结论「未被证明」：显著性 NOISE/不可计算、**多重比较校正后不显著**、变体族符号不一致、事件样本太小、必答字段缺失（流程缺陷）、鲁棒性 `FRAGILE`（非少数事件型）或 `INSUFFICIENT`（未存逐笔/逐期序列）。 |
-| **RED** | 数字**自相矛盾或不可复现**：IC 与 Sharpe 不可能同时成立、显著的**负**结果、**同一策略**换窗符号翻转、top-N 边界由并列决定、孤立参数峰、**复现探针 NON_REPRODUCIBLE**、**鲁棒性 `SINGLE_EVENT_DRIVEN`**（一笔观测 > 50% 毛利）、**鲁棒性 `FRAGILE_BY_FEW_WINNERS` 且 k ≤ 2**（结论由最好的 ≤2 笔观测决定）。 |
+| **AMBER** | 结论「未被证明」：显著性 NOISE/不可计算、**多重比较校正后不显著**、变体族符号不一致、事件样本太小、必答字段缺失（流程缺陷）、鲁棒性 `FRAGILE`（非少数事件型）或 `INSUFFICIENT`（未存逐笔/逐期序列）、**统计去膨胀 `FAILS` 但报告是诚实负结果**、**统计去膨胀 `INSUFFICIENT`**（未存序列或未给 N）。 |
+| **RED** | 数字**自相矛盾或不可复现**：IC 与 Sharpe 不可能同时成立、显著的**负**结果、**同一策略**换窗符号翻转、top-N 边界由并列决定、孤立参数峰、**复现探针 NON_REPRODUCIBLE**、**鲁棒性 `SINGLE_EVENT_DRIVEN`**（一笔观测 > 50% 毛利）、**鲁棒性 `FRAGILE_BY_FEW_WINNERS` 且 k ≤ 2**（结论由最好的 ≤2 笔观测决定）、**统计去膨胀 `FAILS`（DSR ≤ 0.95）且报告声称有 edge**（冠军落在自己那次搜索的噪音天花板内却仍声称有效）。 |
 
 > 缺字段 ≠ 数字错。缺字段是 AMBER（交付卫生），数字互斥/不可复现才是 RED（结论不可用）。
 
@@ -246,6 +282,7 @@ poetry run pytest tests/validation/ -q
 
 # 对 reports/ 下既有报告做回顾性体检 → reports/validation_audit.json
 # 同时产出鲁棒性套餐校准报告 → reports/robustness_battery.json
+# 以及逐策略 DSR + 平台级两框架交叉验证 → reports/deflation_audit.json
 poetry run python scripts/validate_reports.py
 ```
 
@@ -290,6 +327,36 @@ poetry run python scripts/validate_reports.py
 
 ---
 
+## 8.2 v1.3 统计去膨胀体检（2026-09-18）
+
+逐策略 DSR（完整数据见 `reports/deflation_audit.json`；N 及其依据写在每条的 `n_trials` / `n_trials_basis`）：
+
+| 策略 | N（依据） | n（口径） | SR | PSR | **DSR** | 判定 |
+|---|---|---|---|---|---|---|
+| `xsec_gbm_results` | 8（INNER_CV_GRID A–H） | 71（月） | 0.278 | 0.989 | **0.795** | FAILS |
+| `xsec_gbm_sp500` | 8（同网格） | 71（月） | 0.105 | 0.808 | 0.279 | FAILS |
+| `gbm_attribution` | 8（同网格） | 38（月） | 0.298 | 0.962 | **0.624** | FAILS |
+| `outofsample_backtest` | 3（OOS 场景） | 544（日） | 0.020 | 0.680 | **0.350** | FAILS |
+| `exit_rules_backtest`（weekend_gap 做多腿） | 96（4 阈值×4 标的×6 出场） | 13（逐笔） | 0.704 | 0.990 | **0.362** | FAILS |
+| `exit_mechanism` | 15（报告自述） | 71（月） | 0.266 | 0.994 | 0.662 | FAILS |
+| `risk_gate` | 15（6+3+6 开关变体） | 71（月） | 0.271 | 0.987 | 0.675 | FAILS |
+| `meta_label_results` | 4（2 模型×2 CV） | 50（逐笔） | 0.161 | 0.895 | 0.531 | FAILS |
+| `funding_rolling_backtest` | 5（阈值变体） | 10（逐笔） | 0.371 | 0.884 | 0.449 | FAILS |
+| `combined_signals` | 7（场景/消融） | 862（日） | −0.032 | 0.176 | 0.010 | FAILS |
+| `combined_signals_replication` | 5（组合变体） | 884（日） | −0.032 | 0.170 | 0.016 | FAILS |
+| `onchain_btc_backtest` | 2（basket / BTC 直接） | 2632（日） | −0.021 | 0.136 | 0.053 | FAILS |
+| `volume_confirm` | 8（2 集×4 阈值） | — | — | — | — | **INSUFFICIENT**（未存 Sharpe、未存逐腿序列） |
+
+- 去膨胀计数：**`SURVIVES=0, FAILS=12, INSUFFICIENT=1`** —— 全平台没有任何一个结论的 DSR 超过 0.95。
+- 体检总览由 **5 RED / 8 AMBER** 变为 **6 RED / 7 AMBER**：新增的 RED 是 `outofsample_backtest`（它对外声称 OOS 为正、DSR=0.35）。另有 3 份已 RED 的报告（GBM 旗舰、gbm_attribution、weekend_gap）同时被 DSR 命中。
+- **平台级交叉验证（两个框架必须一致）**：最优 \|t\|=1.84（gbm_attribution，n=38 月）
+  - Bonferroni-on-t：N=27 时要求线 3.11、空假设最优期望 2.57 → **FAILS**；
+  - DSR：期频 SR=0.298，E[max SR]=0.341 → PSR=0.962、**DSR=0.399 ≤ 0.95 → FAILS**；
+  - `reports/deflation_audit.json:platform_cross_check.consistent = true`。
+- **口径陷阱实录**：`exit_mechanism` 的 `baseline.monthly_sharpe=0.922` 名字像期频，其实是**年化**值；若直接当期频 SR 会得到 DSR≈1.0（假通过）。代码里用 `_per_period_sr(...,12)` 转回月度后 DSR=0.662（FAILS）。这正是 §1.5 强调 SR/n 必须同频的真实案例。
+
+---
+
 ## 9. 失败基准飞轮（v1.3 新增）
 
 §8/§8.1 的每一项发现都是**手工**变成一次性检查的。§9 把它制度化：每发现一种「结论可以是错的」的方式，就登记成一条**会被永久重放**的失败基准。
@@ -302,7 +369,9 @@ poetry run python scripts/validate_reports.py
 
 **诚实地记录洞**：清单另有 `known_gaps` 段，登记「我们确实遇到过、但目前没有任何组件能抓」的模式。meta-test 的 `test_known_gap_is_still_open` 断言这些洞**仍然是洞**——哪天框架补上，它会变红，逼着把 gap 升格为 benchmark。
 
-**当前状态**：**13 条失败基准全部检出（13/13）**；**2 个已知的洞**——① `funding-ftx-loss-tail`（单笔灾难性**亏损**主导：`SINGLE_EVENT_DRIVEN` 只定义在毛利上，`leave_k_worst_out` 也不触发）；② `gbm-asof-boundary-churn`（加 1 行翻转整月 top-10，但扰动快照未存档，`boundary_stability` 只能报 `has_exact_ties` 不能报 `ARBITRARY`）。完整清单与用法见 `docs/failure_benchmarks.md`。
+**当前状态**：**14 条失败基准全部检出（14/14）**；**1 个已知的洞**——`gbm-asof-boundary-churn`（加 1 行翻转整月 top-10，但扰动快照未存档，`boundary_stability` 只能报 `has_exact_ties` 不能报 `ARBITRARY`）。
+
+**Gap 1 已闭合（2026-09-18）**：`funding-ftx-loss-tail` 曾是最大的洞，且暴露了框架定义本身的**不对称**——「单事件驱动」只定义在毛利侧（`SINGLE_EVENT_DRIVEN` 的分母是 gross positive return），于是单笔灾难性**亏损**（FTX -21.1% = 68% 毛亏损）结构性不可见。修复是严格镜像：新增 `loss_concentration_profile`（`SINGLE_LOSS_SHARE=0.50`、`TOP2_LOSS_CONCENTRATION_SHARE=0.60`，分母 = `sum(|负收益|)`）与判定 `SINGLE_LOSS_DRIVEN`，并在 `robustness_battery` 的 flags 里并入（优先级：`INSUFFICIENT → SINGLE_EVENT_DRIVEN → SINGLE_LOSS_DRIVEN（唯一 flag 时）→ FRAGILE → ROBUST`，因此既有的 weekend_gap / GBM FRAGILE 判定不变）。区分「单笔巨亏主导」与「多笔小亏累积」：只有单笔 >= 50% 毛亏损才触发。该条已从 `known_gaps` 升格为 benchmark。完整清单与用法见 `docs/failure_benchmarks.md`。
 
 跑法：
 

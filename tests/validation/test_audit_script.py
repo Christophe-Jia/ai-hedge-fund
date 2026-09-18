@@ -277,3 +277,61 @@ def test_robustness_calibration_catches_weekend_gap():
     assert cal["headline"]["weekend_gap_caught"] is True
     assert cal["headline"]["weekend_gap_n_best_to_sustain"] == 2
     assert cal["meta"]["all_expectations_met"] is True
+
+
+# --- v1.3 statistical-deflation wiring --------------------------------------
+
+
+def test_every_audit_carries_a_deflation_check():
+    for fn in vr.AUDITS:
+        entry = fn()
+        df = entry["checks"].get("deflation")
+        assert df is not None, entry["name"]
+        assert df["verdict"] in {"SURVIVES", "FAILS", "INSUFFICIENT"}, entry["name"]
+
+
+def test_deflation_fails_map_to_red_only_when_edge_claimed():
+    fails_edge = {"deflation": {"verdict": "FAILS", "claims_edge": True}}
+    fails_negative = {"deflation": {"verdict": "FAILS", "claims_edge": False}}
+    assert vr._severity(_entry(fails_edge)) == "RED"
+    assert vr._severity(_entry(fails_negative)) == "AMBER"
+    assert vr._severity(_entry({"deflation": {"verdict": "INSUFFICIENT"}})) == "AMBER"
+
+
+def test_gbm_flagship_deflation_is_flagged():
+    entry = vr.audit_gbm_sp100()
+    df = entry["checks"]["deflation"]
+    assert df["verdict"] == "FAILS"
+    assert df["dsr"] <= vr.DSR_THRESHOLD
+    assert df["claims_edge"] is True
+    assert df["n_trials"] == 8  # INNER_CV_GRID A-H
+    assert any("deflation" in f for f in entry["red_flags"])
+
+
+def test_weekend_gap_long_leg_deflation_uses_the_96_variant_grid():
+    df = vr.audit_exit_rules()["checks"]["deflation"]
+    assert df["verdict"] == "FAILS"
+    assert df["n_trials"] == 96
+    assert df["n"] == 13
+
+
+def test_volume_confirm_deflation_is_insufficient_not_fabricated():
+    df = vr.audit_volume_confirm()["checks"]["deflation"]
+    assert df["verdict"] == "INSUFFICIENT"
+    assert df["n_trials"] == 8
+
+
+def test_deflation_cross_check_agrees_with_bonferroni():
+    # reproduce main()'s platform anchor: the best stored |t| is 1.84 over n=38
+    cross = vr._platform_deflation_cross_check((1.8373, "gbm_attribution pre-2024", 38, 1.8373))
+    assert cross["bonferroni_on_t"]["verdict"] == "FAILS"
+    assert cross["dsr_family_level"]["verdict"] == "FAILS"
+    assert cross["consistent"] is True
+
+
+def test_deflation_audit_artifact_shape():
+    entries = [fn() for fn in vr.AUDITS]
+    art = vr._deflation_audit(entries, (1.8373, "gbm_attribution pre-2024", 38, 1.8373))
+    assert art["summary"]["counts"]["SURVIVES"] == 0
+    assert art["summary"]["counts"]["INSUFFICIENT"] == 1
+    assert art["platform_cross_check"]["consistent"] is True

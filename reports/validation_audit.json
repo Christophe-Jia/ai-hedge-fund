@@ -13,17 +13,18 @@
       "robustness_fragile_k_max": 2,
       "robustness_sign_flip_rate_max": 0.1,
       "robustness_single_event_share": 0.5,
-      "robustness_min_n": 5
+      "robustness_min_n": 5,
+      "deflation_dsr": 0.95
     }
   },
   "summary": {
     "verdict_counts": {
-      "RED": 5,
-      "AMBER": 8,
+      "RED": 6,
+      "AMBER": 7,
       "GREEN": 0
     },
-    "n_red": 5,
-    "n_amber": 8,
+    "n_red": 6,
+    "n_amber": 7,
     "n_green": 0,
     "deployment_gate_counts": {
       "LIVE_ALLOWED": 0,
@@ -144,6 +145,7 @@
         "name": "xsec_gbm_results",
         "verdict": "FRAGILE",
         "flags": [
+          "SINGLE_LOSS_DRIVEN",
           "UNSTABLE_UNDER_RESAMPLING"
         ],
         "n": 7,
@@ -209,6 +211,7 @@
         "name": "exit_rules_backtest",
         "verdict": "FRAGILE",
         "flags": [
+          "SINGLE_LOSS_DRIVEN",
           "FRAGILE_BY_FEW_WINNERS"
         ],
         "n": 13,
@@ -280,7 +283,58 @@
         "top2_share": null
       }
     ],
-    "headline": "5/13 strategies are RED. The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), red_team (no significance / window / boundary fields) and boundary (exact score ties in shipped picks)."
+    "deflation_counts": {
+      "SURVIVES": 0,
+      "FAILS": 12,
+      "INSUFFICIENT": 1
+    },
+    "deflation_red_when_edge_claimed": [
+      "xsec_gbm_results",
+      "gbm_attribution",
+      "outofsample_backtest",
+      "exit_rules_backtest"
+    ],
+    "deflation_note": "PSR/DSR (Bailey & Lopez de Prado): DSR<=0.95 means the result is inside the noise ceiling of its own search. RED only when the report claims an edge; AMBER for honest negative results and for missing series/N (never fabricated). The DSR platform cross-check must agree with the Bonferroni-on-t reading.",
+    "deflation_platform_cross_check": {
+      "n_hypotheses_family_level": 27,
+      "n_hypotheses_variant_level": 60,
+      "evt_ceiling_units": "sigma_SR (the std of the trial Sharpe ratios); DSR is scale-invariant as long as SR, n and sigma_SR share a frequency",
+      "best_source": "gbm_attribution",
+      "observed_best_abs_t": 1.8373148664978474,
+      "observed_n": 38,
+      "observed_per_period_sr": 0.29805182870795804,
+      "observed_annualised_sr_approx": 1.0324818212219988,
+      "bonferroni_on_t": {
+        "expected_best_abs_t_under_null": 2.567425506613319,
+        "required_t": 3.1130172634086892,
+        "observed_t": 1.8373148664978474,
+        "verdict": "FAILS"
+      },
+      "dsr_family_level": {
+        "n_trials": 27,
+        "expected_max_sharpe": 0.34099403978565046,
+        "psr": 0.9619690932197011,
+        "dsr": 0.39913273249183917,
+        "verdict": "FAILS",
+        "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)"
+      },
+      "dsr_variant_level": {
+        "n_trials": 60,
+        "expected_max_sharpe": 0.39404115327403305,
+        "psr": 0.9619690932197011,
+        "dsr": 0.28388811412253273,
+        "verdict": "FAILS"
+      },
+      "unit_sigma_check": {
+        "note": "if trial Sharpes are dispersed with sigma_SR=1 (annualised units), the noise ceiling for N=27 is this; the observed best annualised Sharpe must be compared against it",
+        "expected_max_sharpe_sigma1": 2.0296006400853313,
+        "observed_annualised_sr_approx": 1.0324818212219988,
+        "observed_clears_ceiling": false
+      },
+      "consistent": true,
+      "interpretation": "Bonferroni-on-t: best stored |t|=1.84 vs required 3.11 (null best-of-27 already ~2.57) -> FAILS. DSR: per-period SR=0.298 vs E[max SR]=0.341 -> DSR=0.399 -> FAILS. Both frameworks reject every stored result (consistent). The DSR reading is the sharper one: the platform's best champion is not merely below the Bonferroni bar, it sits below the *median* of its own search's noise ceiling."
+    },
+    "headline": "6/13 strategies are RED. The GBM flagship is flagged by internal_consistency (Sharpe 14x the IC-implied IR), red_team (no significance / window / boundary fields) and boundary (exact score ties in shipped picks)."
   },
   "strategies": [
     {
@@ -425,6 +479,29 @@
           "label": "GBM sp100 flagship: as-of / rerun probe",
           "verdict": "INSUFFICIENT",
           "note": "no as-of / rerun verification block stored: the strategy's reproducibility was never demonstrated"
+        },
+        "deflation": {
+          "label": "GBM top10 monthly Sharpe",
+          "n": 71,
+          "sr": 0.2779941546148048,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 8,
+          "normal_assumption": true,
+          "frequency": "per-period (monthly): n = 71 walk-forward test months",
+          "threshold": 0.95,
+          "sr_std": 0.1218101787325556,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.1777227655464017,
+          "psr": 0.9887609816658798,
+          "dsr": 0.7947964472315532,
+          "verdict": "FAILS",
+          "interpretation": "SR=0.278 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.989; E[max SR] N=8 (sr_std=0.122)=0.178; DSR=0.795 -> inside the search noise",
+          "n_trials_basis": "INNER_CV_GRID A-H = 8 configs (scripts/xsec_gbm_selection.py:126)",
+          "source": "reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal (no monthly return series stored)",
+          "claims_edge": true
         },
         "red_team": {
           "n_questions": 15,
@@ -684,6 +761,7 @@
           "n": 7,
           "verdict": "FRAGILE",
           "flags": [
+            "SINGLE_LOSS_DRIVEN",
             "UNSTABLE_UNDER_RESAMPLING"
           ],
           "t_threshold": 2.0,
@@ -1127,6 +1205,35 @@
             "flag": null,
             "note": "top-2 observations are 60% of gross positive return"
           },
+          "loss_concentration": {
+            "label": "GBM top10 monthly IC by year (7 annual means; the full monthly series is not stored)",
+            "kind": "period",
+            "test": "loss_concentration_profile",
+            "n": 7,
+            "n_losses": 3,
+            "gross_positive": 0.1446,
+            "gross_loss": 0.08460000000000001,
+            "net_total": 0.06,
+            "top1_loss": 0.0534,
+            "top2_loss": 0.07200000000000001,
+            "top3_loss": 0.08460000000000001,
+            "top1_loss_share": 0.6312056737588653,
+            "top2_loss_share": 0.851063829787234,
+            "top3_loss_share": 1.0,
+            "hhi": 0.4689401941552236,
+            "effective_n": 2.1324680896707067,
+            "max_single_loss_share": 0.6312056737588653,
+            "top_frac_dropped": 0.05,
+            "n_dropped_top_frac": 1,
+            "return_ex_top_frac_sum": 0.1134,
+            "return_ex_top_frac_mean": 0.0189,
+            "return_ex_top_frac_verdict": "NOISE",
+            "single_loss_driven": true,
+            "top2_loss_concentrated": true,
+            "diagnosis": "SINGLE_LOSS_DOMINATES",
+            "flag": "SINGLE_LOSS_DRIVEN",
+            "note": "a single loss is >=50% of gross loss magnitude (one trade is the strategy, on the downside)"
+          },
           "thresholds": {
             "t_threshold": 2.0,
             "fragile_k_max": 2,
@@ -1134,9 +1241,11 @@
             "sign_flip_rate_max": 0.1,
             "single_event_share": 0.5,
             "top2_concentration_share": 0.6,
+            "single_loss_share": 0.5,
+            "top2_loss_concentration_share": 0.6,
             "min_n": 5
           },
-          "summary": "top-2 = 60% of gross return; sign flips under 70% random drop"
+          "summary": "top-2 = 60% of gross return; one loss = 63% of gross loss; sign flips under 70% random drop"
         }
       },
       "should_have_caught": [
@@ -1152,7 +1261,8 @@
         "exact score ties present in selection (max tied at boundary 3)",
         "no reproducibility evidence stored (no --as-of / rerun check in the report)",
         "red-team checklist: 8/15 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: FRAGILE under perturbation (UNSTABLE_UNDER_RESAMPLING)"
+        "robustness: FRAGILE under perturbation (SINGLE_LOSS_DRIVEN, UNSTABLE_UNDER_RESAMPLING)",
+        "deflation: DSR=0.7947964472315532 <= 0.95 over N=8 trials (PSR=0.9887609816658798, sr_std=0.1218101787325556) — the result is inside its search's noise ceiling and the report claims an edge"
       ],
       "verdict": "RED",
       "deployment_gate": {
@@ -1525,6 +1635,29 @@
           "label": "GBM SP500: as-of / rerun probe",
           "verdict": "INSUFFICIENT",
           "note": "no as-of / rerun verification block stored: the strategy's reproducibility was never demonstrated"
+        },
+        "deflation": {
+          "label": "SP500 GBM top10 monthly Sharpe",
+          "n": 71,
+          "sr": 0.10450039872332227,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 8,
+          "normal_assumption": true,
+          "frequency": "per-period (monthly): n = 71 walk-forward test months",
+          "threshold": 0.95,
+          "sr_std": 0.11984872409277733,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.17486097561470326,
+          "psr": 0.8083783117256643,
+          "dsr": 0.27857558366033985,
+          "verdict": "FAILS",
+          "interpretation": "SR=0.105 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.808; E[max SR] N=8 (sr_std=0.120)=0.175; DSR=0.279 -> inside the search noise",
+          "n_trials_basis": "same INNER_CV_GRID A-H = 8 configs; the universe swap (S&P100->S&P500) is an extra degree of freedom not counted here",
+          "source": "reported annualised Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
+          "claims_edge": false
         },
         "robustness": {
           "label": "SP500 GBM monthly IC by year (annual means; full monthly series not stored)",
@@ -1977,6 +2110,35 @@
             "flag": "SINGLE_EVENT_DRIVEN",
             "note": "a single observation is >=50% of gross positive return"
           },
+          "loss_concentration": {
+            "label": "SP500 GBM monthly IC by year (annual means; full monthly series not stored)",
+            "kind": "period",
+            "test": "loss_concentration_profile",
+            "n": 7,
+            "n_losses": 4,
+            "gross_positive": 0.057699999999999994,
+            "gross_loss": 0.1128,
+            "net_total": -0.05510000000000002,
+            "top1_loss": 0.0545,
+            "top2_loss": 0.0848,
+            "top3_loss": 0.1023,
+            "top1_loss_share": 0.48315602836879434,
+            "top2_loss_share": 0.75177304964539,
+            "top3_loss_share": 0.9069148936170213,
+            "hhi": 0.3383286806498667,
+            "effective_n": 2.9557056708263256,
+            "max_single_loss_share": 0.48315602836879434,
+            "top_frac_dropped": 0.05,
+            "n_dropped_top_frac": 1,
+            "return_ex_top_frac_sum": -0.0006000000000000102,
+            "return_ex_top_frac_mean": -0.00010000000000000171,
+            "return_ex_top_frac_verdict": "NOISE",
+            "single_loss_driven": false,
+            "top2_loss_concentrated": true,
+            "diagnosis": "TOP2_LOSS_CONCENTRATED",
+            "flag": null,
+            "note": "top-2 losses are 75% of gross loss"
+          },
           "thresholds": {
             "t_threshold": 2.0,
             "fragile_k_max": 2,
@@ -1984,6 +2146,8 @@
             "sign_flip_rate_max": 0.1,
             "single_event_share": 0.5,
             "top2_concentration_share": 0.6,
+            "single_loss_share": 0.5,
+            "top2_loss_concentration_share": 0.6,
             "min_n": 5
           },
           "summary": "a single observation is 60% of gross positive return"
@@ -1999,7 +2163,8 @@
         "metric flips sign across test windows (sign consistency 0.75)",
         "no reproducibility evidence stored (no --as-of / rerun check in the report)",
         "red-team checklist: 8/15 mandatory questions unanswered (significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: a single observation is 60% of gross return (SINGLE_EVENT_DRIVEN)"
+        "robustness: a single observation is 60% of gross return (SINGLE_EVENT_DRIVEN)",
+        "deflation: DSR=0.27857558366033985 <= 0.95 over N=8 trials (PSR=0.8083783117256643, sr_std=0.11984872409277733) — the result is inside its search's noise ceiling"
       ],
       "verdict": "RED",
       "deployment_gate": {
@@ -2395,6 +2560,29 @@
           "interpretation": "full_set overlap 1.00 (71/71)",
           "source": "verification_vs_source_report (holdings months matched vs source report rerun)",
           "mismatched_months": []
+        },
+        "deflation": {
+          "label": "pre-2024 monthly top10 excess (mean/std)",
+          "n": 38,
+          "sr": 0.2980518287079581,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 8,
+          "normal_assumption": true,
+          "frequency": "per-period (monthly): SR and n both monthly, no annualisation",
+          "threshold": 0.95,
+          "sr_std": 0.1680104120243645,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.24512955630020877,
+          "psr": 0.9619690932197011,
+          "dsr": 0.6236168968112796,
+          "verdict": "FAILS",
+          "interpretation": "SR=0.298 over n=38 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.962; E[max SR] N=8 (sr_std=0.168)=0.245; DSR=0.624 -> inside the search noise",
+          "n_trials_basis": "same GBM INNER_CV_GRID A-H = 8 configs",
+          "source": "pre-2024 monthly excess mean 1.622% / std 5.441% over 38 months (per-period SR, no annualisation); skew/kurtosis assumed normal",
+          "claims_edge": true
         },
         "robustness": {
           "label": "GBM rolling 12m IC (59 overlapping monthly obs)",
@@ -2917,6 +3105,35 @@
             "flag": null,
             "note": "no single observation dominates the gross return"
           },
+          "loss_concentration": {
+            "label": "GBM rolling 12m IC (59 overlapping monthly obs)",
+            "kind": "period",
+            "test": "loss_concentration_profile",
+            "n": 59,
+            "n_losses": 18,
+            "gross_positive": 0.8405000000000001,
+            "gross_loss": 0.19640000000000002,
+            "net_total": 0.6440999999999999,
+            "top1_loss": 0.0255,
+            "top2_loss": 0.0471,
+            "top3_loss": 0.06570000000000001,
+            "top1_loss_share": 0.12983706720977595,
+            "top2_loss_share": 0.23981670061099797,
+            "top3_loss_share": 0.3345213849287169,
+            "hhi": 0.0776611387873785,
+            "effective_n": 12.876452954647121,
+            "max_single_loss_share": 0.12983706720977595,
+            "top_frac_dropped": 0.05,
+            "n_dropped_top_frac": 3,
+            "return_ex_top_frac_sum": 0.7098,
+            "return_ex_top_frac_mean": 0.012675,
+            "return_ex_top_frac_verdict": "PASS",
+            "single_loss_driven": false,
+            "top2_loss_concentrated": false,
+            "diagnosis": "LOSSES_ARE_SPREAD",
+            "flag": null,
+            "note": "losses are spread out; no single loss dominates"
+          },
           "thresholds": {
             "t_threshold": 2.0,
             "fragile_k_max": 2,
@@ -2924,9 +3141,11 @@
             "sign_flip_rate_max": 0.1,
             "single_event_share": 0.5,
             "top2_concentration_share": 0.6,
+            "single_loss_share": 0.5,
+            "top2_loss_concentration_share": 0.6,
             "min_n": 5
           },
-          "summary": "survives leave-k-out, random-drop and concentration checks"
+          "summary": "survives leave-k-out, random-drop and concentration checks (win and loss side)"
         },
         "multiple_comparisons": {
           "label": "pre-2024 monthly excess t vs platform-wide search",
@@ -2956,7 +3175,8 @@
         "headline metric indistinguishable from zero (t=1.8373148664978474, n=38)",
         "metric flips sign across test windows (sign consistency 0.5714285714285714)",
         "does not survive the search of N=27 hypotheses (|t|=1.8373 vs required 3.1130172634086892)",
-        "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)"
+        "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)",
+        "deflation: DSR=0.6236168968112796 <= 0.95 over N=8 trials (PSR=0.9619690932197011, sr_std=0.1680104120243645) — the result is inside its search's noise ceiling and the report claims an edge"
       ],
       "verdict": "RED",
       "deployment_gate": {
@@ -3299,6 +3519,29 @@
             }
           ]
         },
+        "deflation": {
+          "label": "combined_all3 daily Sharpe",
+          "n": 862,
+          "sr": -0.031686021653940216,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 7,
+          "normal_assumption": true,
+          "frequency": "per-period (daily): n = 862 trading days",
+          "threshold": 0.95,
+          "sr_std": 0.034088461847202225,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.047273008316516804,
+          "psr": 0.17630896195726833,
+          "dsr": 0.01027100656114465,
+          "verdict": "FAILS",
+          "interpretation": "SR=-0.032 over n=862 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.176; E[max SR] N=7 (sr_std=0.034)=0.047; DSR=0.010 -> inside the search noise",
+          "n_trials_basis": "7 scenario/ablation variants (report's own scenario set)",
+          "source": "reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
+          "claims_edge": false
+        },
         "robustness": {
           "label": "combined_signals",
           "verdict": "INSUFFICIENT",
@@ -3313,7 +3556,8 @@
       "red_flags": [
         "metric flips sign across variants/ablations (sign consistency 0.5714285714285714)",
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: DSR=0.01027100656114465 <= 0.95 over N=7 trials (PSR=0.17630896195726833, sr_std=0.034088461847202225) — the result is inside its search's noise ceiling"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -3648,6 +3892,29 @@
             }
           ]
         },
+        "deflation": {
+          "label": "combo_equal daily Sharpe",
+          "n": 884,
+          "sr": -0.03212698020578431,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 5,
+          "normal_assumption": true,
+          "frequency": "per-period (daily): n = 884 trading days",
+          "threshold": 0.95,
+          "sr_std": 0.033661361879922004,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.040144338243951506,
+          "psr": 0.16993627076974194,
+          "dsr": 0.015896197960745102,
+          "verdict": "FAILS",
+          "interpretation": "SR=-0.032 over n=884 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.170; E[max SR] N=5 (sr_std=0.034)=0.040; DSR=0.016 -> inside the search noise",
+          "n_trials_basis": "5 portfolio variants (equal / 2x / single-leg) reproduced by the independent implementation",
+          "source": "reported annualised Sharpe -> daily SR/sqrt(252); skew/kurtosis assumed normal; report's own verdict is NEGATIVE",
+          "claims_edge": false
+        },
         "robustness": {
           "label": "combined_signals_replication",
           "verdict": "INSUFFICIENT",
@@ -3662,7 +3929,8 @@
       "red_flags": [
         "metric flips sign across variants/ablations (sign consistency 0.6)",
         "red-team checklist: 13/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: DSR=0.015896197960745102 <= 0.95 over N=5 trials (PSR=0.16993627076974194, sr_std=0.033661361879922004) — the result is inside its search's noise ceiling"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -4001,6 +4269,29 @@
             }
           ]
         },
+        "deflation": {
+          "label": "combined_2sig out-of-sample daily Sharpe",
+          "n": 544,
+          "sr": 0.02003211706948904,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 3,
+          "normal_assumption": true,
+          "frequency": "per-period (daily): n = 544 out-of-sample trading days",
+          "threshold": 0.95,
+          "sr_std": 0.04291841253093149,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.03660101517398059,
+          "psr": 0.6796601905029929,
+          "dsr": 0.34972770611417214,
+          "verdict": "FAILS",
+          "interpretation": "SR=0.020 over n=544 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.680; E[max SR] N=3 (sr_std=0.043)=0.037; DSR=0.350 -> inside the search noise",
+          "n_trials_basis": "3 OOS scenarios (combined_2sig / weekend_gap / funding single legs)",
+          "source": "reported OOS annualised Sharpe 0.318 -> daily SR/sqrt(252); skew/kurtosis assumed normal (no daily series stored)",
+          "claims_edge": true
+        },
         "robustness": {
           "label": "outofsample_backtest",
           "verdict": "INSUFFICIENT",
@@ -4014,9 +4305,10 @@
       ],
       "red_flags": [
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: DSR=0.34972770611417214 <= 0.95 over N=3 trials (PSR=0.6796601905029929, sr_std=0.04291841253093149) — the result is inside its search's noise ceiling and the report claims an edge"
       ],
-      "verdict": "AMBER",
+      "verdict": "RED",
       "deployment_gate": {
         "label": "outofsample_backtest",
         "gates": {
@@ -4463,6 +4755,7 @@
           "n": 13,
           "verdict": "FRAGILE",
           "flags": [
+            "SINGLE_LOSS_DRIVEN",
             "FRAGILE_BY_FEW_WINNERS"
           ],
           "t_threshold": 2.0,
@@ -4843,6 +5136,35 @@
             "flag": null,
             "note": "no single observation dominates the gross return"
           },
+          "loss_concentration": {
+            "label": "weekend_gap long-leg per-trade returns (13 trades)",
+            "kind": "events",
+            "test": "loss_concentration_profile",
+            "n": 13,
+            "n_losses": 3,
+            "gross_positive": 79.03999999999999,
+            "gross_loss": 12.001000000000001,
+            "net_total": 67.039,
+            "top1_loss": 7.929,
+            "top2_loss": 10.288,
+            "top3_loss": 12.001000000000001,
+            "top1_loss_share": 0.6606949420881593,
+            "top2_loss_share": 0.8572618948420965,
+            "top3_loss_share": 1.0,
+            "hhi": 0.4955305400799134,
+            "effective_n": 2.0180390896567784,
+            "max_single_loss_share": 0.6606949420881593,
+            "top_frac_dropped": 0.05,
+            "n_dropped_top_frac": 1,
+            "return_ex_top_frac_sum": 74.968,
+            "return_ex_top_frac_mean": 6.247333333333334,
+            "return_ex_top_frac_verdict": "PASS",
+            "single_loss_driven": true,
+            "top2_loss_concentrated": true,
+            "diagnosis": "SINGLE_LOSS_DOMINATES",
+            "flag": "SINGLE_LOSS_DRIVEN",
+            "note": "a single loss is >=50% of gross loss magnitude (one trade is the strategy, on the downside)"
+          },
           "thresholds": {
             "t_threshold": 2.0,
             "fragile_k_max": 2,
@@ -4850,9 +5172,36 @@
             "sign_flip_rate_max": 0.1,
             "single_event_share": 0.5,
             "top2_concentration_share": 0.6,
+            "single_loss_share": 0.5,
+            "top2_loss_concentration_share": 0.6,
             "min_n": 5
           },
-          "summary": "best 2 observation(s) carry the conclusion"
+          "summary": "best 2 observation(s) carry the conclusion; one loss = 66% of gross loss"
+        },
+        "deflation": {
+          "label": "weekend_gap long-leg per-trade returns (13 trades)",
+          "n_trials": 96,
+          "frequency": "per-period: SR and n are both per-period (no annualisation)",
+          "threshold": 0.95,
+          "n": 13,
+          "mean": 5.156846153846154,
+          "std": 7.324013265122635,
+          "sr": 0.7041011488063993,
+          "skew": 0.06600812812227524,
+          "kurtosis": 2.2093996186785803,
+          "kurtosis_excess": -0.7906003813214197,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "sr_std": 0.32247470364294284,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) — the null sampling std of the Sharpe estimator; a lower bound on the true trial dispersion, so this is the lenient reading (pass sr_std from the trial cross-section for an audit)",
+          "expected_max_sharpe": 0.8114130340444949,
+          "psr": 0.9898826396121881,
+          "dsr": 0.3617105094245009,
+          "verdict": "FAILS",
+          "interpretation": "per-period SR=0.704 over n=13 (skew=0.07, raw kurt=2.21); PSR(SR>0)=0.990; noise ceiling E[max SR] for N=96 trials (sr_std=0.322) = 0.811; DSR=0.362 <= 0.95 -> inside the search noise",
+          "n_trials_basis": "4 thresholds x 4 symbols x 6 exit rules ~= 96 (weekend_gap variant grid)",
+          "source": "trades_full_window.long_only.t_plus_1[].ret_pct",
+          "claims_edge": true
         }
       },
       "should_have_caught": [
@@ -4864,7 +5213,8 @@
         "event-level test NOISE (n_events=25, t=0.48031143844573254, win rate 0.64 CI [0.44518497748164876, 0.7975211922554177])",
         "does not survive the search of N=6 hypotheses (|t|=1.4000000000000001 vs required 2.6382572734767513)",
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: the conclusion needs its best 2 observation(s) — removing them loses significance (FRAGILE_BY_FEW_WINNERS)"
+        "robustness: the conclusion needs its best 2 observation(s) — removing them loses significance (FRAGILE_BY_FEW_WINNERS)",
+        "deflation: DSR=0.3617105094245009 <= 0.95 over N=96 trials (PSR=0.9898826396121881, sr_std=0.32247470364294284) — the result is inside its search's noise ceiling and the report claims an edge"
       ],
       "verdict": "RED",
       "deployment_gate": {
@@ -5243,6 +5593,29 @@
             }
           ]
         },
+        "deflation": {
+          "label": "baseline monthly Sharpe",
+          "n": 71,
+          "sr": 0.2661584740964175,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 15,
+          "normal_assumption": true,
+          "frequency": "per-period (monthly): annualised Sharpe converted to monthly; n = 71 walk-forward test months",
+          "threshold": 0.95,
+          "sr_std": 0.12162120155082612,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.21535266500304026,
+          "psr": 0.9856805497155061,
+          "dsr": 0.6619306919649425,
+          "verdict": "FAILS",
+          "interpretation": "SR=0.266 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.986; E[max SR] N=15 (sr_std=0.122)=0.215; DSR=0.662 -> inside the search noise",
+          "n_trials_basis": "report's own '15 variants tested' (mechanism families 1-3 + combo, incl. fine-grid probes)",
+          "source": "baseline.monthly_sharpe is ANNUALISED (monthly returns x sqrt(12)); converted back to monthly SR/sqrt(12); skew/kurtosis assumed normal",
+          "claims_edge": false
+        },
         "robustness": {
           "label": "exit_mechanism",
           "verdict": "INSUFFICIENT",
@@ -5256,7 +5629,8 @@
       ],
       "red_flags": [
         "red-team checklist: 11/15 mandatory questions unanswered (data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: DSR=0.6619306919649425 <= 0.95 over N=15 trials (PSR=0.9856805497155061, sr_std=0.12162120155082612) — the result is inside its search's noise ceiling"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -5709,6 +6083,29 @@
           "source": "verification_vs_source_report (holdings months matched vs source report rerun)",
           "mismatched_months": []
         },
+        "deflation": {
+          "label": "50/50 baseline monthly Sharpe (the strategy the gates modulate)",
+          "n": 71,
+          "sr": 0.2706040711691776,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 15,
+          "normal_assumption": true,
+          "frequency": "per-period (monthly): n = 71 months",
+          "threshold": 0.95,
+          "sr_std": 0.12169125345178537,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.21547670475406838,
+          "psr": 0.98691546961778,
+          "dsr": 0.6747292642044739,
+          "verdict": "FAILS",
+          "interpretation": "SR=0.271 over n=71 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.987; E[max SR] N=15 (sr_std=0.122)=0.215; DSR=0.675 -> inside the search noise",
+          "n_trials_basis": "6 VIX + 3 momentum-regime + 6 MVRV gate variants = 15",
+          "source": "reported annualised baseline Sharpe -> monthly SR/sqrt(12); skew/kurtosis assumed normal; the report's verdict is that all gates FAIL",
+          "claims_edge": false
+        },
         "robustness": {
           "label": "risk_gate",
           "verdict": "INSUFFICIENT",
@@ -5723,7 +6120,8 @@
       ],
       "red_flags": [
         "red-team checklist: 12/15 mandatory questions unanswered (universe_snapshot, significance, window_stability, score_distribution, baseline_significance)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: DSR=0.6747292642044739 <= 0.95 over N=15 trials (PSR=0.98691546961778, sr_std=0.12169125345178537) — the result is inside its search's noise ceiling"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -6600,6 +6998,35 @@
             "flag": null,
             "note": "no single observation dominates the gross return"
           },
+          "loss_concentration": {
+            "label": "meta-label per-event net returns (50 events)",
+            "kind": "events",
+            "test": "loss_concentration_profile",
+            "n": 50,
+            "n_losses": 28,
+            "gross_positive": 227.92499999999998,
+            "gross_loss": 142.332,
+            "net_total": 85.593,
+            "top1_loss": 12.485,
+            "top2_loss": 23.957,
+            "top3_loss": 34.744,
+            "top1_loss_share": 0.08771744934378777,
+            "top2_loss_share": 0.16831773599752692,
+            "top3_loss_share": 0.24410533119748196,
+            "hhi": 0.05304180429857464,
+            "effective_n": 18.8530539868319,
+            "max_single_loss_share": 0.08771744934378777,
+            "top_frac_dropped": 0.05,
+            "n_dropped_top_frac": 3,
+            "return_ex_top_frac_sum": 120.33700000000002,
+            "return_ex_top_frac_mean": 2.56036170212766,
+            "return_ex_top_frac_verdict": "NOISE",
+            "single_loss_driven": false,
+            "top2_loss_concentrated": false,
+            "diagnosis": "LOSSES_ARE_SPREAD",
+            "flag": null,
+            "note": "losses are spread out; no single loss dominates"
+          },
           "thresholds": {
             "t_threshold": 2.0,
             "fragile_k_max": 2,
@@ -6607,9 +7034,36 @@
             "sign_flip_rate_max": 0.1,
             "single_event_share": 0.5,
             "top2_concentration_share": 0.6,
+            "single_loss_share": 0.5,
+            "top2_loss_concentration_share": 0.6,
             "min_n": 5
           },
           "summary": "sign flips under 70% random drop"
+        },
+        "deflation": {
+          "label": "meta-label per-event net returns (50 events)",
+          "n_trials": 4,
+          "frequency": "per-period: SR and n are both per-period (no annualisation)",
+          "threshold": 0.95,
+          "n": 50,
+          "mean": 1.7118600000000002,
+          "std": 10.621550036792257,
+          "sr": 0.16116856711781657,
+          "skew": 1.2869915544403263,
+          "kurtosis": 4.115957934006687,
+          "kurtosis_excess": 1.115957934006687,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "sr_std": 0.14378183966913527,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) — the null sampling std of the Sharpe estimator; a lower bound on the true trial dispersion, so this is the lenient reading (pass sr_std from the trial cross-section for an audit)",
+          "expected_max_sharpe": 0.1512761552196796,
+          "psr": 0.8945989895791233,
+          "dsr": 0.5306117685621409,
+          "verdict": "FAILS",
+          "interpretation": "per-period SR=0.161 over n=50 (skew=1.29, raw kurt=4.12); PSR(SR>0)=0.895; noise ceiling E[max SR] for N=4 trials (sr_std=0.144) = 0.151; DSR=0.531 <= 0.95 -> inside the search noise",
+          "n_trials_basis": "2 models (RF/logreg) x 2 CV schemes (LOO/time-split) = 4 model-selection trials",
+          "source": "reports/meta_label_results.json:events[].ret_net_pct",
+          "claims_edge": false
         }
       },
       "should_have_caught": [
@@ -6620,7 +7074,8 @@
       "red_flags": [
         "event-level test NOISE (n_events=50, t=1.1396338672312734, win rate 0.44 CI [0.3116219921125717, 0.5769397197834314])",
         "red-team checklist: 14/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: FRAGILE under perturbation (UNSTABLE_UNDER_RESAMPLING)"
+        "robustness: FRAGILE under perturbation (UNSTABLE_UNDER_RESAMPLING)",
+        "deflation: DSR=0.5306117685621409 <= 0.95 over N=4 trials (PSR=0.8945989895791233, sr_std=0.14378183966913527) — the result is inside its search's noise ceiling"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -6914,6 +7369,15 @@
             }
           ]
         },
+        "deflation": {
+          "label": "weekend_gap high-volume bucket",
+          "verdict": "INSUFFICIENT",
+          "n_trials": 8,
+          "n_trials_basis": "2 symbol sets x 4 volume thresholds = 8 buckets searched",
+          "source": "report stores bucket win rates and mean returns but no Sharpe and no per-leg return series",
+          "claims_edge": false,
+          "note": "no Sharpe and no return series stored -> DSR not computable (never fabricated)"
+        },
         "multiple_comparisons": {
           "label": "weekend_gap high-volume bucket win rate (2 symbol sets x 4 thresholds searched)",
           "n_hypotheses": 8,
@@ -6950,7 +7414,8 @@
       "red_flags": [
         "does not survive the search of N=8 hypotheses (|t|=1.6059101370939324 vs required 2.7343687865331763)",
         "red-team checklist: 14/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: not computable (no Sharpe and no return series stored -> DSR not computable (never fabricated))"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -7285,6 +7750,31 @@
             }
           ]
         },
+        "deflation": {
+          "label": "best funding variant (absolute_50_neg5) per-event returns",
+          "n_trials": 5,
+          "frequency": "per-period: SR and n are both per-period (no annualisation)",
+          "threshold": 0.95,
+          "n": 10,
+          "mean": 5.9887000000000015,
+          "std": 16.138911749419645,
+          "sr": 0.37107210777178673,
+          "skew": 0.637667887819206,
+          "kurtosis": 3.921122419918164,
+          "kurtosis_excess": 0.9211224199181638,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "sr_std": 0.34461689753230135,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) — the null sampling std of the Sharpe estimator; a lower bound on the true trial dispersion, so this is the lenient reading (pass sr_std from the trial cross-section for an audit)",
+          "expected_max_sharpe": 0.41098804464502964,
+          "psr": 0.8844782611715788,
+          "dsr": 0.4487449008751279,
+          "verdict": "FAILS",
+          "interpretation": "per-period SR=0.371 over n=10 (skew=0.64, raw kurt=3.92); PSR(SR>0)=0.884; noise ceiling E[max SR] for N=5 trials (sr_std=0.345) = 0.411; DSR=0.449 <= 0.95 -> inside the search noise",
+          "n_trials_basis": "5 funding-threshold variants searched",
+          "source": "variants.absolute_50_neg5.events[].ret_pct (best variant by reported Sharpe)",
+          "claims_edge": false
+        },
         "robustness": {
           "label": "funding_rolling_backtest",
           "verdict": "INSUFFICIENT",
@@ -7298,7 +7788,8 @@
       ],
       "red_flags": [
         "red-team checklist: 13/15 mandatory questions unanswered (provenance, data_window, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: DSR=0.4487449008751279 <= 0.95 over N=5 trials (PSR=0.8844782611715788, sr_std=0.34461689753230135) — the result is inside its search's noise ceiling"
       ],
       "verdict": "AMBER",
       "deployment_gate": {
@@ -7645,6 +8136,29 @@
             }
           ]
         },
+        "deflation": {
+          "label": "onchain BTC strategy daily Sharpe",
+          "n": 2632,
+          "sr": -0.02140803843393974,
+          "skew": 0.0,
+          "kurtosis": 3.0,
+          "kurtosis_convention": "raw (normal==3.0); gamma_4 in the PSR denominator",
+          "n_trials": 2,
+          "normal_assumption": true,
+          "frequency": "per-period (daily): n = 2632 days",
+          "threshold": 0.95,
+          "sr_std": 0.019497966953972313,
+          "sr_std_is_estimate": true,
+          "sr_std_assumption": "estimated as sqrt((1 + 0.5*SR^2)/(n-1)) (null sampling std)",
+          "expected_max_sharpe": 0.01013417252690661,
+          "psr": 0.1361104110478487,
+          "dsr": 0.05286169883724662,
+          "verdict": "FAILS",
+          "interpretation": "SR=-0.021 over n=2632 (skew=0.00, kurt=3.00, normal assumed); PSR(SR>0)=0.136; E[max SR] N=2 (sr_std=0.019)=0.010; DSR=0.053 -> inside the search noise",
+          "n_trials_basis": "2 on-chain directions searched (crypto-stock basket vs trading BTC directly; platform family enumeration #3/#4)",
+          "source": "reported annualised Sharpe -> daily SR/sqrt(365); skew/kurtosis assumed normal; the strategy is a large negative result",
+          "claims_edge": false
+        },
         "robustness": {
           "label": "onchain_btc_backtest",
           "verdict": "INSUFFICIENT",
@@ -7659,7 +8173,8 @@
       "red_flags": [
         "metric flips sign across test windows (sign consistency 0.625)",
         "red-team checklist: 12/15 mandatory questions unanswered (provenance, universe_snapshot, significance, window_stability, score_distribution, baseline_significance, reproducibility)",
-        "robustness: report stores no per-observation return series — perturbation checks not computable"
+        "robustness: report stores no per-observation return series — perturbation checks not computable",
+        "deflation: DSR=0.05286169883724662 <= 0.95 over N=2 trials (PSR=0.1361104110478487, sr_std=0.019497966953972313) — the result is inside its search's noise ceiling"
       ],
       "verdict": "RED",
       "deployment_gate": {
