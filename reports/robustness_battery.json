@@ -29,6 +29,7 @@
       "expectation": "FRAGILE_BY_FEW_WINNERS with n_best_to_sustain == 2",
       "verdict": "FRAGILE",
       "flags": [
+        "SINGLE_LOSS_DRIVEN",
         "FRAGILE_BY_FEW_WINNERS"
       ],
       "expectation_met": true,
@@ -38,7 +39,7 @@
       "first_failure_k": 2,
       "top1_share": 0.2219509109311741,
       "top2_share": 0.3923962550607288,
-      "summary": "best 2 observation(s) carry the conclusion",
+      "summary": "best 2 observation(s) carry the conclusion; one loss = 66% of gross loss",
       "note": "13 long-only trades; removing the 2 best takes the two-sided p from 0.026 to ~0.11",
       "battery": {
         "label": "weekend_gap long leg (13 trades)",
@@ -47,6 +48,7 @@
         "n": 13,
         "verdict": "FRAGILE",
         "flags": [
+          "SINGLE_LOSS_DRIVEN",
           "FRAGILE_BY_FEW_WINNERS"
         ],
         "t_threshold": 2.0,
@@ -427,6 +429,35 @@
           "flag": null,
           "note": "no single observation dominates the gross return"
         },
+        "loss_concentration": {
+          "label": "weekend_gap long leg (13 trades)",
+          "kind": "events",
+          "test": "loss_concentration_profile",
+          "n": 13,
+          "n_losses": 3,
+          "gross_positive": 79.03999999999999,
+          "gross_loss": 12.001000000000001,
+          "net_total": 67.039,
+          "top1_loss": 7.929,
+          "top2_loss": 10.288,
+          "top3_loss": 12.001000000000001,
+          "top1_loss_share": 0.6606949420881593,
+          "top2_loss_share": 0.8572618948420965,
+          "top3_loss_share": 1.0,
+          "hhi": 0.4955305400799134,
+          "effective_n": 2.0180390896567784,
+          "max_single_loss_share": 0.6606949420881593,
+          "top_frac_dropped": 0.05,
+          "n_dropped_top_frac": 1,
+          "return_ex_top_frac_sum": 74.968,
+          "return_ex_top_frac_mean": 6.247333333333334,
+          "return_ex_top_frac_verdict": "PASS",
+          "single_loss_driven": true,
+          "top2_loss_concentrated": true,
+          "diagnosis": "SINGLE_LOSS_DOMINATES",
+          "flag": "SINGLE_LOSS_DRIVEN",
+          "note": "a single loss is >=50% of gross loss magnitude (one trade is the strategy, on the downside)"
+        },
         "thresholds": {
           "t_threshold": 2.0,
           "fragile_k_max": 2,
@@ -434,9 +465,11 @@
           "sign_flip_rate_max": 0.1,
           "single_event_share": 0.5,
           "top2_concentration_share": 0.6,
+          "single_loss_share": 0.5,
+          "top2_loss_concentration_share": 0.6,
           "min_n": 5
         },
-        "summary": "best 2 observation(s) carry the conclusion"
+        "summary": "best 2 observation(s) carry the conclusion; one loss = 66% of gross loss"
       }
     },
     {
@@ -447,6 +480,7 @@
       "expectation": "FRAGILE_BY_FEW_WINNERS (baseline t=2.146 -> 1 observation suffices)",
       "verdict": "FRAGILE",
       "flags": [
+        "SINGLE_LOSS_DRIVEN",
         "FRAGILE_BY_FEW_WINNERS",
         "UNSTABLE_UNDER_RESAMPLING"
       ],
@@ -457,7 +491,7 @@
       "first_failure_k": 1,
       "top1_share": 0.326398934876397,
       "top2_share": 0.5581273283576357,
-      "summary": "best 1 observation(s) carry the conclusion; sign flips under 70% random drop",
+      "summary": "best 1 observation(s) carry the conclusion; one loss = 66% of gross loss; sign flips under 70% random drop",
       "note": "cross-check of the hand-run red-team series; its baseline is more marginal than the stored long-only trade list",
       "battery": {
         "label": "weekend_gap red-team published series (13 events)",
@@ -466,6 +500,7 @@
         "n": 13,
         "verdict": "FRAGILE",
         "flags": [
+          "SINGLE_LOSS_DRIVEN",
           "FRAGILE_BY_FEW_WINNERS",
           "UNSTABLE_UNDER_RESAMPLING"
         ],
@@ -847,6 +882,35 @@
           "flag": null,
           "note": "no single observation dominates the gross return"
         },
+        "loss_concentration": {
+          "label": "weekend_gap red-team published series (13 events)",
+          "kind": "events",
+          "test": "loss_concentration_profile",
+          "n": 13,
+          "n_losses": 4,
+          "gross_positive": 78.113,
+          "gross_loss": 9.228,
+          "net_total": 68.88499999999999,
+          "top1_loss": 6.066,
+          "top2_loss": 8.189,
+          "top3_loss": 9.016,
+          "top1_loss_share": 0.6573472041612484,
+          "top2_loss_share": 0.8874078890333768,
+          "top3_loss_share": 0.977026441265713,
+          "hhi": 0.4935925348475804,
+          "effective_n": 2.025962569123531,
+          "max_single_loss_share": 0.6573472041612484,
+          "top_frac_dropped": 0.05,
+          "n_dropped_top_frac": 1,
+          "return_ex_top_frac_sum": 74.951,
+          "return_ex_top_frac_mean": 6.245916666666666,
+          "return_ex_top_frac_verdict": "PASS",
+          "single_loss_driven": true,
+          "top2_loss_concentrated": true,
+          "diagnosis": "SINGLE_LOSS_DOMINATES",
+          "flag": "SINGLE_LOSS_DRIVEN",
+          "note": "a single loss is >=50% of gross loss magnitude (one trade is the strategy, on the downside)"
+        },
         "thresholds": {
           "t_threshold": 2.0,
           "fragile_k_max": 2,
@@ -854,9 +918,11 @@
           "sign_flip_rate_max": 0.1,
           "single_event_share": 0.5,
           "top2_concentration_share": 0.6,
+          "single_loss_share": 0.5,
+          "top2_loss_concentration_share": 0.6,
           "min_n": 5
         },
-        "summary": "best 1 observation(s) carry the conclusion; sign flips under 70% random drop"
+        "summary": "best 1 observation(s) carry the conclusion; one loss = 66% of gross loss; sign flips under 70% random drop"
       }
     },
     {
@@ -1343,6 +1409,35 @@
           "flag": null,
           "note": "no single observation dominates the gross return"
         },
+        "loss_concentration": {
+          "label": "meta-label per-event net returns (50 events)",
+          "kind": "events",
+          "test": "loss_concentration_profile",
+          "n": 50,
+          "n_losses": 28,
+          "gross_positive": 227.92499999999998,
+          "gross_loss": 142.332,
+          "net_total": 85.593,
+          "top1_loss": 12.485,
+          "top2_loss": 23.957,
+          "top3_loss": 34.744,
+          "top1_loss_share": 0.08771744934378777,
+          "top2_loss_share": 0.16831773599752692,
+          "top3_loss_share": 0.24410533119748196,
+          "hhi": 0.05304180429857464,
+          "effective_n": 18.8530539868319,
+          "max_single_loss_share": 0.08771744934378777,
+          "top_frac_dropped": 0.05,
+          "n_dropped_top_frac": 3,
+          "return_ex_top_frac_sum": 120.33700000000002,
+          "return_ex_top_frac_mean": 2.56036170212766,
+          "return_ex_top_frac_verdict": "NOISE",
+          "single_loss_driven": false,
+          "top2_loss_concentrated": false,
+          "diagnosis": "LOSSES_ARE_SPREAD",
+          "flag": null,
+          "note": "losses are spread out; no single loss dominates"
+        },
         "thresholds": {
           "t_threshold": 2.0,
           "fragile_k_max": 2,
@@ -1350,6 +1445,8 @@
           "sign_flip_rate_max": 0.1,
           "single_event_share": 0.5,
           "top2_concentration_share": 0.6,
+          "single_loss_share": 0.5,
+          "top2_loss_concentration_share": 0.6,
           "min_n": 5
         },
         "summary": "sign flips under 70% random drop"
@@ -1363,6 +1460,7 @@
       "expectation": "concentration profile for the flagship monthly-IC series",
       "verdict": "FRAGILE",
       "flags": [
+        "SINGLE_LOSS_DRIVEN",
         "UNSTABLE_UNDER_RESAMPLING"
       ],
       "expectation_met": true,
@@ -1372,7 +1470,7 @@
       "first_failure_k": null,
       "top1_share": 0.31466113416320884,
       "top2_share": 0.6044260027662517,
-      "summary": "top-2 = 60% of gross return; sign flips under 70% random drop",
+      "summary": "top-2 = 60% of gross return; one loss = 63% of gross loss; sign flips under 70% random drop",
       "note": "the report does not store the full monthly IC series, only annual means",
       "battery": {
         "label": "GBM top10 monthly IC by year (7 annual means)",
@@ -1381,6 +1479,7 @@
         "n": 7,
         "verdict": "FRAGILE",
         "flags": [
+          "SINGLE_LOSS_DRIVEN",
           "UNSTABLE_UNDER_RESAMPLING"
         ],
         "t_threshold": 2.0,
@@ -1824,6 +1923,35 @@
           "flag": null,
           "note": "top-2 observations are 60% of gross positive return"
         },
+        "loss_concentration": {
+          "label": "GBM top10 monthly IC by year (7 annual means)",
+          "kind": "period",
+          "test": "loss_concentration_profile",
+          "n": 7,
+          "n_losses": 3,
+          "gross_positive": 0.1446,
+          "gross_loss": 0.08460000000000001,
+          "net_total": 0.06,
+          "top1_loss": 0.0534,
+          "top2_loss": 0.07200000000000001,
+          "top3_loss": 0.08460000000000001,
+          "top1_loss_share": 0.6312056737588653,
+          "top2_loss_share": 0.851063829787234,
+          "top3_loss_share": 1.0,
+          "hhi": 0.4689401941552236,
+          "effective_n": 2.1324680896707067,
+          "max_single_loss_share": 0.6312056737588653,
+          "top_frac_dropped": 0.05,
+          "n_dropped_top_frac": 1,
+          "return_ex_top_frac_sum": 0.1134,
+          "return_ex_top_frac_mean": 0.0189,
+          "return_ex_top_frac_verdict": "NOISE",
+          "single_loss_driven": true,
+          "top2_loss_concentrated": true,
+          "diagnosis": "SINGLE_LOSS_DOMINATES",
+          "flag": "SINGLE_LOSS_DRIVEN",
+          "note": "a single loss is >=50% of gross loss magnitude (one trade is the strategy, on the downside)"
+        },
         "thresholds": {
           "t_threshold": 2.0,
           "fragile_k_max": 2,
@@ -1831,9 +1959,11 @@
           "sign_flip_rate_max": 0.1,
           "single_event_share": 0.5,
           "top2_concentration_share": 0.6,
+          "single_loss_share": 0.5,
+          "top2_loss_concentration_share": 0.6,
           "min_n": 5
         },
-        "summary": "top-2 = 60% of gross return; sign flips under 70% random drop"
+        "summary": "top-2 = 60% of gross return; one loss = 63% of gross loss; sign flips under 70% random drop"
       }
     },
     {
@@ -1842,8 +1972,10 @@
       "n": 7,
       "kind": "period",
       "expectation": "concentration profile of the yearly strategy return",
-      "verdict": "ROBUST",
-      "flags": [],
+      "verdict": "SINGLE_LOSS_DRIVEN",
+      "flags": [
+        "SINGLE_LOSS_DRIVEN"
+      ],
       "expectation_met": true,
       "baseline_t": 2.770214966939896,
       "baseline_verdict": "PASS",
@@ -1851,15 +1983,17 @@
       "first_failure_k": null,
       "top1_share": 0.30725084850354833,
       "top2_share": 0.5603825979635916,
-      "summary": "survives leave-k-out, random-drop and concentration checks",
+      "summary": "a single loss is 100% of gross loss (loss-tail driven)",
       "note": "",
       "battery": {
         "label": "GBM top10 yearly returns",
         "kind": "period",
         "unit": "per-period return",
         "n": 7,
-        "verdict": "ROBUST",
-        "flags": [],
+        "verdict": "SINGLE_LOSS_DRIVEN",
+        "flags": [
+          "SINGLE_LOSS_DRIVEN"
+        ],
         "t_threshold": 2.0,
         "min_n": 5,
         "baseline": {
@@ -2301,6 +2435,35 @@
           "flag": null,
           "note": "no single observation dominates the gross return"
         },
+        "loss_concentration": {
+          "label": "GBM top10 yearly returns",
+          "kind": "period",
+          "test": "loss_concentration_profile",
+          "n": 7,
+          "n_losses": 1,
+          "gross_positive": 162.04999999999998,
+          "gross_loss": 8.06,
+          "net_total": 153.98999999999998,
+          "top1_loss": 8.06,
+          "top2_loss": 8.06,
+          "top3_loss": 8.06,
+          "top1_loss_share": 1.0,
+          "top2_loss_share": 1.0,
+          "top3_loss_share": 1.0,
+          "hhi": 1.0,
+          "effective_n": 1.0,
+          "max_single_loss_share": 1.0,
+          "top_frac_dropped": 0.05,
+          "n_dropped_top_frac": 1,
+          "return_ex_top_frac_sum": 162.05,
+          "return_ex_top_frac_mean": 27.008333333333336,
+          "return_ex_top_frac_verdict": "PASS",
+          "single_loss_driven": true,
+          "top2_loss_concentrated": true,
+          "diagnosis": "SINGLE_LOSS_DOMINATES",
+          "flag": "SINGLE_LOSS_DRIVEN",
+          "note": "a single loss is >=50% of gross loss magnitude (one trade is the strategy, on the downside)"
+        },
         "thresholds": {
           "t_threshold": 2.0,
           "fragile_k_max": 2,
@@ -2308,9 +2471,11 @@
           "sign_flip_rate_max": 0.1,
           "single_event_share": 0.5,
           "top2_concentration_share": 0.6,
+          "single_loss_share": 0.5,
+          "top2_loss_concentration_share": 0.6,
           "min_n": 5
         },
-        "summary": "survives leave-k-out, random-drop and concentration checks"
+        "summary": "a single loss is 100% of gross loss (loss-tail driven)"
       }
     },
     {
@@ -2861,6 +3026,35 @@
           "flag": null,
           "note": "no single observation dominates the gross return"
         },
+        "loss_concentration": {
+          "label": "momentum spread by year (10 years)",
+          "kind": "period",
+          "test": "loss_concentration_profile",
+          "n": 10,
+          "n_losses": 3,
+          "gross_positive": 13.3899,
+          "gross_loss": 6.5511,
+          "net_total": 6.8388,
+          "top1_loss": 3.1528,
+          "top2_loss": 5.8035,
+          "top3_loss": 6.5511,
+          "top1_loss_share": 0.4812626887087665,
+          "top2_loss_share": 0.8858817603150616,
+          "top3_loss_share": 1.0,
+          "hhi": 0.4083533412795203,
+          "effective_n": 2.44885960003813,
+          "max_single_loss_share": 0.4812626887087665,
+          "top_frac_dropped": 0.05,
+          "n_dropped_top_frac": 1,
+          "return_ex_top_frac_sum": 9.991600000000002,
+          "return_ex_top_frac_mean": 1.110177777777778,
+          "return_ex_top_frac_verdict": "NOISE",
+          "single_loss_driven": false,
+          "top2_loss_concentrated": true,
+          "diagnosis": "TOP2_LOSS_CONCENTRATED",
+          "flag": null,
+          "note": "top-2 losses are 89% of gross loss"
+        },
         "thresholds": {
           "t_threshold": 2.0,
           "fragile_k_max": 2,
@@ -2868,6 +3062,8 @@
           "sign_flip_rate_max": 0.1,
           "single_event_share": 0.5,
           "top2_concentration_share": 0.6,
+          "single_loss_share": 0.5,
+          "top2_loss_concentration_share": 0.6,
           "min_n": 5
         },
         "summary": "sign flips under 70% random drop"
@@ -2888,7 +3084,7 @@
       "first_failure_k": null,
       "top1_share": 0.06960142772159428,
       "top2_share": 0.133372992266508,
-      "summary": "survives leave-k-out, random-drop and concentration checks",
+      "summary": "survives leave-k-out, random-drop and concentration checks (win and loss side)",
       "note": "overlapping 12m windows: serial correlation inflates the naive t-statistic",
       "battery": {
         "label": "GBM rolling 12m IC (59 overlapping monthly obs)",
@@ -3411,6 +3607,35 @@
           "flag": null,
           "note": "no single observation dominates the gross return"
         },
+        "loss_concentration": {
+          "label": "GBM rolling 12m IC (59 overlapping monthly obs)",
+          "kind": "period",
+          "test": "loss_concentration_profile",
+          "n": 59,
+          "n_losses": 18,
+          "gross_positive": 0.8405000000000001,
+          "gross_loss": 0.19640000000000002,
+          "net_total": 0.6440999999999999,
+          "top1_loss": 0.0255,
+          "top2_loss": 0.0471,
+          "top3_loss": 0.06570000000000001,
+          "top1_loss_share": 0.12983706720977595,
+          "top2_loss_share": 0.23981670061099797,
+          "top3_loss_share": 0.3345213849287169,
+          "hhi": 0.0776611387873785,
+          "effective_n": 12.876452954647121,
+          "max_single_loss_share": 0.12983706720977595,
+          "top_frac_dropped": 0.05,
+          "n_dropped_top_frac": 3,
+          "return_ex_top_frac_sum": 0.7098,
+          "return_ex_top_frac_mean": 0.012675,
+          "return_ex_top_frac_verdict": "PASS",
+          "single_loss_driven": false,
+          "top2_loss_concentrated": false,
+          "diagnosis": "LOSSES_ARE_SPREAD",
+          "flag": null,
+          "note": "losses are spread out; no single loss dominates"
+        },
         "thresholds": {
           "t_threshold": 2.0,
           "fragile_k_max": 2,
@@ -3418,9 +3643,11 @@
           "sign_flip_rate_max": 0.1,
           "single_event_share": 0.5,
           "top2_concentration_share": 0.6,
+          "single_loss_share": 0.5,
+          "top2_loss_concentration_share": 0.6,
           "min_n": 5
         },
-        "summary": "survives leave-k-out, random-drop and concentration checks"
+        "summary": "survives leave-k-out, random-drop and concentration checks (win and loss side)"
       }
     }
   ]
