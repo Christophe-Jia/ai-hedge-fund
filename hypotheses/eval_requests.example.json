@@ -1,0 +1,23 @@
+{
+  "_comment": "Example evaluation requests for scripts/evaluate_hypotheses.py. Request 1 is deliberately REFUSED: weekend_gap was registered 2019-01-01 and the request starts 2018-06-01 (pre-registration data). Request 2 is accepted. Replace with real post-registration windows when evaluating a new hypothesis.",
+  "evaluations": [
+    {
+      "hypothesis_id": "weekend_gap",
+      "data_start_utc": "2018-06-01T00:00:00Z",
+      "data_end_utc": "2020-01-01T00:00:00Z",
+      "n": 40,
+      "metric": "event_t_stat",
+      "value": 2.1,
+      "extra": {"note": "intentionally pre-registration -> must be refused with exit code 2"}
+    },
+    {
+      "hypothesis_id": "momentum_m1_m2",
+      "data_start_utc": "2024-01-01T00:00:00Z",
+      "data_end_utc": "2026-09-01T00:00:00Z",
+      "n": 40,
+      "n_min": 30,
+      "metric": "sharpe",
+      "value": 0.63
+    }
+  ]
+}
