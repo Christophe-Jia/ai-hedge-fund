@@ -16,6 +16,12 @@ Registration is the freeze point: ``registered_at_utc`` (and therefore the
 evaluation window) is stamped now unless the spec supplies an explicit
 historical timestamp for backfill.  A hypothesis whose rubric is incomplete is
 rejected — you may not register a hypothesis you have not scored.
+
+Search width (schema v2, optional): a spec may declare ``n_trials_planned``
+(the number of trials the author commits to searching) plus an optional
+``search_grid`` whose leaf product must equal it.  Such a spec is stamped
+``schema_version: 2`` and validated; specs without it stay legacy (the 29
+pre-existing ledger lines carry no search width and must keep loading).
 """
 
 from __future__ import annotations
@@ -28,6 +34,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.validation.registry import (  # noqa: E402
+    SCHEMA_VERSION_CURRENT,
     DuplicateHypothesisError,
     RegistryValidationError,
     append_hypothesis,
@@ -75,6 +82,21 @@ def _record_from_spec(
         if key in spec:
             extra[key] = spec[key]
 
+    # Schema v2 search width (optional): a spec that declares any search-width
+    # field is stamped as v2 so the pre-registered-N rule is enforced on it.
+    # Legacy specs (no width) are unaffected — the 29 existing lines keep loading.
+    search_keys = (
+        "schema_version",
+        "n_trials_planned",
+        "search_grid",
+        "n_trials_actual",
+        "search_grid_evidence",
+        "n_trials_origin",
+    )
+    search_width = {k: spec[k] for k in search_keys if k in spec}
+    if search_width and "schema_version" not in search_width:
+        search_width["schema_version"] = SCHEMA_VERSION_CURRENT
+
     # A REJECT-band hypothesis needs an explicit override to be registered.
     # Historical backfill entries were evaluated before the rubric existed, so
     # the override is recorded as such rather than silently granted.
@@ -109,6 +131,7 @@ def _record_from_spec(
         scoring_note=spec.get("scoring_note"),
         user_override=user_override,
         extra=extra,
+        **search_width,
     )
 
 
@@ -164,6 +187,19 @@ def _interactive_spec() -> dict:
             print("  must be exactly 1, 3 or 5")
     spec["rubric_answers"] = answers
     spec["scoring_note"] = input("scoring_note (optional): ").strip() or None
+
+    print("\n--- Search width (schema v2) ---")
+    raw = input("n_trials_planned (int >= 1; blank for a legacy record): ").strip()
+    if raw:
+        spec["schema_version"] = SCHEMA_VERSION_CURRENT
+        spec["n_trials_planned"] = int(raw)
+        grid_raw = input("search_grid as 'dim=size,dim=size' (blank to skip): ").strip()
+        if grid_raw:
+            grid: dict[str, int] = {}
+            for part in grid_raw.split(","):
+                k, _, v = part.partition("=")
+                grid[k.strip()] = int(v.strip())
+            spec["search_grid"] = grid
 
     res = score(answers)
     print(f"\nweighted_score={res.weighted_score:.3f} band={res.band} ({res.label})")

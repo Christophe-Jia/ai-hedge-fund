@@ -95,6 +95,42 @@ reasonable cost.**
   licensed ADR-ordinary pair source) is available; the registry entry can then
   be written with `data_requirements` naming the exact feed.
 
+## Search width (schema v2) — N pre-registered
+
+Implemented per `hypotheses/registry_schema_proposal.md` (approved):
+
+- **Fields** in `src/validation/registry.py`: `schema_version`, `n_trials_planned`,
+  `search_grid`, `n_trials_actual`, `search_grid_evidence`, `n_trials_origin`.
+  **None is in `REQUIRED_FIELDS`** — the pre-existing ledger lines have no search
+  width and must keep loading. Enforcement keys off an explicit
+  `schema_version: 2` marker, which `scripts/register_hypothesis.py` stamps
+  automatically when a spec declares any search-width field.
+- **Validation**: `n_trials_planned` ≥ 1 required on v2; `search_grid` leaf
+  product must equal it (mismatch names the factor); `n_trials_actual` ≠ planned
+  requires `search_grid_evidence` (otherwise a changed N looks like post-hoc
+  narrowing of the pass line).
+- **Resolver** `resolve_n_trials` lives in `src/validation/search_width.py`, **not**
+  in `registry.py` (the registry stays the freeze boundary). Priority:
+  `n_trials_actual` → `n_trials_planned` → report-countable grid (`file:line`) →
+  platform constant.
+- **Bias direction (deliberate)**: correlated variants make the raw count an
+  over-estimate of independent trials → the DSR bar is too high → too strict →
+  a "fail" is safe and a "pass" is real. Raw N is the default and must never be
+  quietly replaced by a smaller effective N without a stored, reproducible trial
+  return matrix.
+
+**Retro-fit of the two prospective records.** Both were registered 2026-09-18
+with **zero evaluation results**, so filling N now cannot be contaminated by an
+outcome. They are marked
+`n_trials_origin: "post_registration_pre_evaluation"` — distinct from the legacy
+27 families, which are `backfill` and were annotated only after being evaluated.
+The N is counted from `resolution_criteria`, not guessed:
+
+| id | N | `search_grid` | derivation |
+|---|---|---|---|
+| `merrill_clock_regime_rotation` | 8 | `{"quadrant": 4, "statistic": 2}` | 4 quadrants × 2 statistics (primary sector-basket excess + best-asset rank; the secondary is included conservatively). Sector and asset mappings were frozen ex ante, not searched. |
+| `sp500_index_inclusion_effect` | 3 | `{"window": 3}` | 3 pre-registered windows (primary 3-day; announcement proxy; post-effective). The primary decides; the other two are reported. |
+
 ## Network caveats observed 2026-09-18 (for whoever runs evaluation)
 
 - **FRED** (`fred.stlouisfed.org`) is *flaky* from this environment: TLS

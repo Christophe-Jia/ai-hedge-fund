@@ -73,6 +73,52 @@ SURVIVED_VERDICTS: frozenset[str] = frozenset(
 
 DEFAULT_MIN_SAMPLE = 30
 
+# ---------------------------------------------------------------------------
+# Search width (schema v2) — pre-registered N for DSR deflation
+# ---------------------------------------------------------------------------
+#
+# ``evaluation_window_start`` freezes the *time* dimension of a hypothesis;
+# search width freezes the *multiplicity* dimension.  Both are the same
+# discipline: pick them before you look.  ``n_trials_planned`` is the number of
+# trials the author commits to searching; ``search_grid`` is the
+# machine-checkable decomposition that must multiply to it.
+#
+# Backward compatibility: NONE of these fields is in ``REQUIRED_FIELDS`` —
+# the 29 pre-existing ledger lines have no search width and must keep loading.
+# Enforcement keys off an explicit ``schema_version`` marker, so a record only
+# becomes subject to the rule when it declares itself v2.
+#
+# Bias direction (deliberate — record it so no one can reopen a failed result):
+# the variants in a real search grid are highly correlated, so the raw count is
+# an OVER-estimate of the number of *independent* trials.  A larger N raises the
+# DSR noise ceiling, i.e. the test is too strict, not too lenient.  "Too strict,
+# never too lenient" is the safe direction for a deflation gate:
+#
+#   correlated variants -> raw N over-states independent trials
+#                       -> DSR bar too high -> a "fail" is safe, a "pass" is real.
+#
+# Therefore raw N is the default and MUST NOT be quietly swapped for a smaller
+# "effective N" to turn a failure into a pass.  The effective count may only be
+# used when it is *reproducible* — the trial return matrix is stored so LdP's
+# eigenvalue refinement ``(sum(sqrt(lambda)))**2 / sum(lambda)`` can be
+# recomputed — and even then only as an explicit, labelled refinement.  "The
+# effective N is smaller so it actually passes" without a stored matrix is just
+# post-hoc choice of the pass line again: the exact failure mode this registry
+# exists to prevent.
+
+SCHEMA_VERSION_LEGACY = 1
+SCHEMA_VERSION_CURRENT = 2
+
+#: Optional search-width fields (never required globally — see module note).
+SEARCH_WIDTH_FIELDS: tuple[str, ...] = (
+    "schema_version",
+    "n_trials_planned",
+    "search_grid",
+    "n_trials_actual",
+    "search_grid_evidence",
+    "n_trials_origin",
+)
+
 __all__ = [
     "STATUS_PROPOSED",
     "STATUS_REGISTERED",
@@ -83,12 +129,16 @@ __all__ = [
     "REQUIRED_FIELDS",
     "SURVIVED_VERDICTS",
     "DEFAULT_MIN_SAMPLE",
+    "SCHEMA_VERSION_LEGACY",
+    "SCHEMA_VERSION_CURRENT",
+    "SEARCH_WIDTH_FIELDS",
     "RegistryError",
     "RegistryValidationError",
     "DuplicateHypothesisError",
     "PreRegistrationDataError",
     "utc_now_iso",
     "parse_utc",
+    "search_grid_product",
     "build_record",
     "validate_record",
     "append_hypothesis",
@@ -169,6 +219,94 @@ def parse_utc(value: Any) -> datetime:
 
 
 # ---------------------------------------------------------------------------
+# Search width validation (schema v2)
+# ---------------------------------------------------------------------------
+
+
+def search_grid_product(search_grid: Mapping[str, Any]) -> int:
+    """Product of a ``search_grid``'s leaf values (the implied trial count).
+
+    Raises :class:`RegistryValidationError` for a non-mapping, an empty grid,
+    or a non-positive-integer leaf.  This is the machine-checkable half of the
+    search-width rule: a decomposition that does not multiply to
+    ``n_trials_planned`` is rejected rather than trusted.
+    """
+    if not isinstance(search_grid, Mapping) or not search_grid:
+        raise RegistryValidationError("search_grid must be a non-empty object[str, int]")
+    product = 1
+    for dim, size in search_grid.items():
+        if not isinstance(dim, str) or not dim.strip():
+            raise RegistryValidationError(f"search_grid keys must be non-empty strings, got {dim!r}")
+        if isinstance(size, bool) or not isinstance(size, int) or size < 1:
+            raise RegistryValidationError(
+                f"search_grid['{dim}'] must be an int >= 1, got {size!r}"
+            )
+        product *= size
+    return product
+
+
+def _require_positive_int(field: str, value: Any) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise RegistryValidationError(f"{field} must be an int >= 1, got {value!r}")
+    return value
+
+
+def _validate_search_width(record: Mapping[str, Any]) -> None:
+    """Validate the optional schema-v2 search-width fields.
+
+    All fields are optional for legacy records.  ``schema_version >= 2``
+    triggers the requirement that ``n_trials_planned`` be present; every other
+    field is validated only when it appears (so a legacy line still loads).
+    """
+    sv = record.get("schema_version")
+    if sv is not None:
+        _require_positive_int("schema_version", sv)
+
+    planned = record.get("n_trials_planned")
+    grid = record.get("search_grid")
+    actual = record.get("n_trials_actual")
+    evidence = record.get("search_grid_evidence")
+    origin = record.get("n_trials_origin")
+
+    if sv is not None and sv >= SCHEMA_VERSION_CURRENT and planned is None:
+        raise RegistryValidationError(
+            f"schema_version {sv} requires n_trials_planned (a single confirmatory "
+            "test is N=1, not absent) — declare the search width at registration"
+        )
+
+    if planned is not None:
+        _require_positive_int("n_trials_planned", planned)
+
+    if grid is not None:
+        if planned is None:
+            raise RegistryValidationError(
+                "search_grid requires n_trials_planned to check the product against"
+            )
+        product = search_grid_product(grid)
+        if product != planned:
+            factor = product / planned
+            raise RegistryValidationError(
+                f"search_grid product {product} != n_trials_planned {planned} "
+                f"(factor {factor:.6g}); the decomposition must multiply to N"
+            )
+
+    if actual is not None:
+        _require_positive_int("n_trials_actual", actual)
+        if planned is not None and actual != planned and not evidence:
+            raise RegistryValidationError(
+                f"n_trials_actual ({actual}) != n_trials_planned ({planned}) requires "
+                "search_grid_evidence (otherwise a changed N looks like post-hoc "
+                "narrowing of the pass line)"
+            )
+
+    if evidence is not None and not isinstance(evidence, str):
+        raise RegistryValidationError("search_grid_evidence must be a string when present")
+
+    if origin is not None and not isinstance(origin, str):
+        raise RegistryValidationError("n_trials_origin must be a string when present")
+
+
+# ---------------------------------------------------------------------------
 # Record construction / validation
 # ---------------------------------------------------------------------------
 
@@ -191,6 +329,12 @@ def build_record(
     outcome: Mapping[str, Any] | None = None,
     scoring_note: str | None = None,
     weights: Mapping[str, float] | None = None,
+    schema_version: int | None = None,
+    n_trials_planned: int | None = None,
+    search_grid: Mapping[str, int] | None = None,
+    n_trials_actual: int | None = None,
+    search_grid_evidence: str | None = None,
+    n_trials_origin: str | None = None,
     user_override: Any = None,
     extra: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -204,6 +348,11 @@ def build_record(
     A rubric band of ``REJECT`` may only be registered with an explicit
     ``user_override`` (per the rubric contract: spending evaluation budget on a
     rejected hypothesis requires recording that the user forced it).
+
+    Schema v2 (search width): pass ``schema_version=2`` to declare the record
+    subject to the pre-registered-N rule, then ``n_trials_planned`` is required
+    and ``search_grid`` (if given) must multiply to it.  Legacy records that
+    pass neither field are untouched.
     """
     result = score(rubric_answers, weights=weights)
     if result.missing_dimensions:
@@ -249,6 +398,16 @@ def build_record(
     }
     if user_override is not None:
         record["user_override"] = user_override
+    for key, value in (
+        ("schema_version", schema_version),
+        ("n_trials_planned", n_trials_planned),
+        ("search_grid", dict(search_grid) if search_grid is not None else None),
+        ("n_trials_actual", n_trials_actual),
+        ("search_grid_evidence", search_grid_evidence),
+        ("n_trials_origin", n_trials_origin),
+    ):
+        if value is not None:
+            record[key] = value
     if extra:
         record.update(extra)
     validate_record(record)
@@ -300,6 +459,8 @@ def validate_record(record: Mapping[str, Any]) -> None:
         raise RegistryValidationError(
             f"rubric.answers must score all {len(DIMENSIONS)} dimensions"
         )
+
+    _validate_search_width(record)
 
 
 # ---------------------------------------------------------------------------
