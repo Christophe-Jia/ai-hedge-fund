@@ -1,0 +1,409 @@
+{
+  "meta": {
+    "version": "1.0",
+    "created_at": "2026-09-18",
+    "purpose": "Single source of truth for every failure mode this platform has discovered. Each record names the framework component that must catch it and the verdict it must emit; tests/validation/test_failure_benchmarks.py replays the whole ledger and scripts/add_failure_benchmark.py refuses to register a mode no component actually catches.",
+    "flywheel": [
+      "discover a failure mode (audit / red team / live)",
+      "register it: detector + expected_verdict + input (add_failure_benchmark.py RUNS the detector and refuses if it does not fire)",
+      "the meta-test replays the whole ledger forever (regression against catastrophic forgetting)",
+      "a documented mode no detector catches goes to known_gaps until the framework is extended"
+    ],
+    "how_to_add": "poetry run python scripts/add_failure_benchmark.py --spec my_benchmark.json  (or --interactive)"
+  },
+  "benchmarks": [
+    {
+      "id": "gbm-boundary-tie-determined",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "gbm-crisis-audit",
+      "title": "GBM top-N boundary decided by identical model scores",
+      "failure_mode": "The shipped top-10 selection is decided by sort-tie order, not by signal, so the list flips arbitrarily when the universe or data snapshot changes.",
+      "symptom": "Shipped gbm_picks carry byte-identical scores; adding one row / 21 names produced a 2/10 overlap (MISMATCH) on the same month.",
+      "detector": "src.validation.boundary.boundary_stability",
+      "expected_verdict": "TIE_DETERMINED",
+      "assertions": {
+        "has_exact_ties": true,
+        "max_boundary_ties": {
+          "op": ">=",
+          "value": 2
+        }
+      },
+      "input": {
+        "kind": "cross_section_picks",
+        "kwargs": {
+          "n_perturb": 25,
+          "drop_frac": 0.0
+        }
+      },
+      "evidence": "reports/gbm_picks/2026-09.json + reports/gbm_picks/2026-10.json (2026-10 top-10 has only 5 unique scores; boundary score shared by 3 names). boundary_stability returns has_exact_ties=True; the audit maps this to AMBER and deployment_gate blocks it.",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[gbm-boundary-tie-determined] (also tests/validation/test_gbm_crisis_regression.py::test_shipped_picks_contain_exact_score_ties)"
+    },
+    {
+      "id": "gbm-window-ic-sign-flip",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "gbm-crisis-audit",
+      "title": "GBM mean IC flips sign across years",
+      "failure_mode": "A single point estimate hides that the strategy's per-period IC is not sign-consistent through time.",
+      "symptom": "Yearly mean IC changes sign 3 times in 7 years; the same strategy re-run from a later window start flipped mean IC from +0.0082 to -0.0076.",
+      "detector": "src.validation.windows.multi_window",
+      "expected_verdict": "UNSTABLE",
+      "assertions": {
+        "verdict": "UNSTABLE",
+        "sign_consistency": {
+          "op": "<",
+          "value": 0.8
+        }
+      },
+      "input": {
+        "kind": "mapping",
+        "report": "gbm_attribution.json",
+        "path": "matrix2_ic_drift.by_year",
+        "value_path": "mean_ic",
+        "metric": "v"
+      },
+      "evidence": "reports/gbm_attribution.json:matrix2_ic_drift.by_year (7 annual mean ICs)",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[gbm-window-ic-sign-flip] (also tests/validation/test_gbm_crisis_regression.py::test_ic_across_years_flips_sign)"
+    },
+    {
+      "id": "gbm-sp500-window-sign-flip",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "gbm-crisis-audit",
+      "title": "S&P500 GBM Sharpe flips sign with the test window",
+      "failure_mode": "The headline window is the only window; the sign of the metric is a function of where the test window starts.",
+      "symptom": "Sharpe +0.362 full window but -0.026 since 2024 (and -0.0038 mean IC) on the same configuration.",
+      "detector": "src.validation.windows.multi_window",
+      "expected_verdict": "UNSTABLE",
+      "assertions": {
+        "verdict": "UNSTABLE",
+        "n_negative": {
+          "op": ">=",
+          "value": 1
+        }
+      },
+      "input": {
+        "kind": "mapping",
+        "report": "xsec_gbm_sp500.json",
+        "metric": "v",
+        "entries": {
+          "full": "comparison_full_test_window.gbm_top10.sharpe",
+          "since_2021": "comparison_since_2021.gbm_top10.sharpe",
+          "since_2024": "comparison_since_2024.gbm_top10.sharpe"
+        }
+      },
+      "evidence": "reports/xsec_gbm_sp500.json:comparison_full_test_window / comparison_since_2021 / comparison_since_2024",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[gbm-sp500-window-sign-flip] (also tests/validation/test_gbm_crisis_regression.py::test_sp500_windows_flip_sign)"
+    },
+    {
+      "id": "gbm-internal-consistency-implausible",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "gbm-crisis-audit",
+      "title": "Reported Sharpe is an order of magnitude above the IC-implied IR",
+      "failure_mode": "Two numbers that cannot both be true sit in the same report because they are never cross-checked.",
+      "symptom": "Sharpe 0.963 next to mean monthly IC 0.0082 over 71 months: IC*sqrt(breadth) implies an IR ~0.07, not ~0.96.",
+      "detector": "src.validation.consistency.internal_consistency",
+      "expected_verdict": "IMPLAUSIBLE",
+      "assertions": {
+        "verdict": "IMPLAUSIBLE",
+        "ratio": {
+          "op": ">",
+          "value": 3.0
+        }
+      },
+      "input": {
+        "kind": "consistency",
+        "report": "xsec_gbm_results.json",
+        "ic_path": "monthly_ic.mean",
+        "sharpe_path": "comparison_full_test_window.gbm_top10.sharpe",
+        "benchmark_path": "comparison_full_test_window.qqq_buy_hold.sharpe",
+        "n_months_path": "walk_forward.n_test_months"
+      },
+      "evidence": "reports/xsec_gbm_results.json (monthly_ic.mean=0.0082, gbm_top10.sharpe=0.963, qqq_buy_hold.sharpe=0.695, n_test_months=71)",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[gbm-internal-consistency-implausible] (also tests/validation/test_gbm_crisis_regression.py::test_internal_consistency_flags_the_flagship_report)"
+    },
+    {
+      "id": "gbm-sp500-single-year-lottery",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "audit",
+      "title": "S&P500 expansion result carried by a single year (the distressed-stock lottery)",
+      "failure_mode": "One observation (year) is more than half of all gross positive return: the strategy is that observation.",
+      "symptom": "2021 contributes 60% of gross positive annual mean IC (top-2 = 93%); removing it erases the effect.",
+      "detector": "src.validation.robustness.concentration_profile",
+      "expected_verdict": "SINGLE_EVENT_DRIVEN",
+      "assertions": {
+        "single_event_driven": true,
+        "top1_share": {
+          "op": ">=",
+          "value": 0.5
+        }
+      },
+      "input": {
+        "kind": "series",
+        "report": "xsec_gbm_sp500.json",
+        "path": "monthly_ic.by_year"
+      },
+      "evidence": "reports/xsec_gbm_sp500.json:monthly_ic.by_year (7 annual means; top1_share=0.603, top2_share=0.925). Flagged SINGLE_EVENT_DRIVEN by scripts/validate_reports.py.",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[gbm-sp500-single-year-lottery]"
+    },
+    {
+      "id": "weekend-gap-few-winners",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "red-team",
+      "title": "weekend_gap long leg needs its best 2 trades",
+      "failure_mode": "The conclusion is the arithmetic of a handful of observations: remove the best k<=2 trades and significance is gone.",
+      "symptom": "Removing the 2 best of 13 long-only trades moves the two-sided p from 0.026 to ~0.11; 2 trades carry 63% of gross profit.",
+      "detector": "src.validation.robustness.leave_k_best_out",
+      "expected_verdict": "FRAGILE_BY_FEW_WINNERS",
+      "assertions": {
+        "flag": "FRAGILE_BY_FEW_WINNERS",
+        "first_failure_k": 2,
+        "fragile": true
+      },
+      "input": {
+        "kind": "series",
+        "report": "exit_rules_backtest.json",
+        "path": "trades_full_window.long_only.t_plus_1",
+        "value_key": "ret_pct"
+      },
+      "evidence": "reports/exit_rules_backtest.json:trades_full_window.long_only.t_plus_1[].ret_pct (13 trades)",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[weekend-gap-few-winners] (also tests/validation/test_robustness.py::test_real_weekend_gap_long_leg_is_fragile_by_few_winners)"
+    },
+    {
+      "id": "weekend-gap-redteam-published-series",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "red-team",
+      "title": "weekend_gap red-team series is destroyed by ONE observation",
+      "failure_mode": "A more marginal baseline makes the fragility worse: a single best observation is the whole conclusion.",
+      "symptom": "The red team's published 13-event return series has baseline t=2.146; removing its single best event kills significance (k=1).",
+      "detector": "src.validation.robustness.leave_k_best_out",
+      "expected_verdict": "FRAGILE_BY_FEW_WINNERS",
+      "assertions": {
+        "flag": "FRAGILE_BY_FEW_WINNERS",
+        "first_failure_k": 1
+      },
+      "input": {
+        "kind": "series",
+        "report": "red_team_weekend_gap.json",
+        "path": "q2_significance.event_returns_pct"
+      },
+      "evidence": "reports/red_team_weekend_gap.json:q2_significance.event_returns_pct (13 events)",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[weekend-gap-redteam-published-series]"
+    },
+    {
+      "id": "meta-label-honest-noise",
+      "discovered_at": "2026-09-14",
+      "discovered_by": "meta-label-experiment",
+      "title": "meta-labeling is indistinguishable from zero (honest negative result)",
+      "failure_mode": "An event-level mean that cannot be distinguished from zero is reported as a result rather than as NOISE.",
+      "symptom": "LOO AUC ~0.5; 50 event net returns give t=1.14, win rate Wilson interval straddles 0.5.",
+      "detector": "src.validation.events.event_significance",
+      "expected_verdict": "NOISE",
+      "assertions": {
+        "verdict": "NOISE"
+      },
+      "input": {
+        "kind": "series",
+        "report": "meta_label_results.json",
+        "path": "events",
+        "value_key": "ret_net_pct",
+        "kwargs": {
+          "n_resamples": 2000
+        }
+      },
+      "evidence": "reports/meta_label_results.json:events[].ret_net_pct (50 events)",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[meta-label-honest-noise]"
+    },
+    {
+      "id": "funding-no-edge-noise",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "funding-experiment",
+      "title": "Funding-rate signal has no edge over buy-and-hold",
+      "failure_mode": "A positive-looking mean is inside the noise band; every variant underperforms the benchmark.",
+      "symptom": "Best funding variant Sharpe 0.30 vs basket buy-and-hold 0.447; event-level t=1.17 -> indistinguishable from zero.",
+      "detector": "src.validation.events.event_significance",
+      "expected_verdict": "NOISE",
+      "assertions": {
+        "verdict": "NOISE"
+      },
+      "input": {
+        "kind": "series",
+        "report": "funding_rolling_backtest.json",
+        "path": "variants.absolute_50_neg5.events",
+        "value_key": "ret_pct",
+        "kwargs": {
+          "n_resamples": 2000
+        }
+      },
+      "evidence": "reports/funding_rolling_backtest.json:variants.absolute_50_neg5.events[].ret_pct (10 events); benchmark_basket_buy_hold.sharpe=0.447",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[funding-no-edge-noise]"
+    },
+    {
+      "id": "onchain-yearly-sign-flip",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "onchain-experiment",
+      "title": "On-chain BTC signal Sharpe is not sign-consistent across years",
+      "failure_mode": "8 years with 5 negative Sharpe years: the strategy's sign is decided by the year.",
+      "symptom": "Yearly strategy Sharpe is negative 5/8 years; total -71.6% vs BTC buy-and-hold +623%.",
+      "detector": "src.validation.windows.multi_window",
+      "expected_verdict": "UNSTABLE",
+      "assertions": {
+        "verdict": "UNSTABLE",
+        "sign_consistency": {
+          "op": "<",
+          "value": 0.8
+        }
+      },
+      "input": {
+        "kind": "mapping",
+        "report": "onchain_btc_backtest.json",
+        "path": "yearly",
+        "key_field": "year",
+        "value_field": "strategy_sharpe",
+        "metric": "v"
+      },
+      "evidence": "reports/onchain_btc_backtest.json:yearly[].strategy_sharpe",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[onchain-yearly-sign-flip]"
+    },
+    {
+      "id": "overnight-leg-sign-flip",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "overnight-gap-experiment",
+      "title": "overnight_gap daily-frequency leg dies after 2023",
+      "failure_mode": "The generalization of an event strategy loses its sign in the most recent regime while the pooled number stays positive.",
+      "symptom": "Per-year PnL for the market-close / 2% leg is negative in 6 of 8 years; sign consistency 0.75.",
+      "detector": "src.validation.windows.multi_window",
+      "expected_verdict": "UNSTABLE",
+      "assertions": {
+        "verdict": "UNSTABLE",
+        "n_negative": {
+          "op": ">=",
+          "value": 4
+        }
+      },
+      "input": {
+        "kind": "mapping",
+        "report": "overnight_gap_backtest.json",
+        "path": ["per_year", "market_close", "2.0", "long_only"],
+        "value_path": "pnl_usd",
+        "metric": "v"
+      },
+      "evidence": "reports/overnight_gap_backtest.json:per_year.market_close.2.0.long_only[*].pnl_usd",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[overnight-leg-sign-flip]"
+    },
+    {
+      "id": "fomc-zirp-era-artifact",
+      "discovered_at": "2026-09-15",
+      "discovered_by": "fomc-experiment",
+      "title": "FOMC decision-day effect is a 2020-22 ZIRP artifact",
+      "failure_mode": "A calendar effect pooled across eras hides that it only exists in the zero-rate regime.",
+      "symptom": "Basket T-day mean return is -0.02% (2016-19), +3.41% (2020-22), -0.22% (2023-26): the sign is era-dependent.",
+      "detector": "src.validation.windows.multi_window",
+      "expected_verdict": "UNSTABLE",
+      "assertions": {
+        "verdict": "UNSTABLE",
+        "sign_consistency": {
+          "op": "<",
+          "value": 0.8
+        }
+      },
+      "input": {
+        "kind": "mapping",
+        "report": "fomc_effect.json",
+        "path": "era_split_robustness",
+        "value_path": "basket_T.mean_pct",
+        "metric": "v"
+      },
+      "evidence": "reports/fomc_effect.json:era_split_robustness[era].basket_T.mean_pct (3 eras)",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[fomc-zirp-era-artifact]"
+    },
+    {
+      "id": "gbm-asof-reproducibility-mismatch",
+      "discovered_at": "2026-09-14",
+      "discovered_by": "gbm-crisis-audit",
+      "title": "Same month re-run gives a 2/10 overlap with the shipped picks",
+      "failure_mode": "A conclusion that cannot be reproduced under another snapshot / execution path is not a conclusion.",
+      "symptom": "run_monthly_gbm.py --as-of 2021-06 reproduced only 2 of the 10 stored picks (score ties + universe drift).",
+      "detector": "src.validation.reproducibility.reproducibility_probe",
+      "expected_verdict": "NON_REPRODUCIBLE",
+      "assertions": {
+        "verdict": "NON_REPRODUCIBLE",
+        "overlap_ratio": {
+          "op": "<=",
+          "value": 0.5
+        }
+      },
+      "input": {
+        "kind": "selections",
+        "baseline": {
+          "AAA": 10.0,
+          "BBB": 9.0,
+          "CCC": 8.0,
+          "DDD": 7.0,
+          "EEE": 6.0,
+          "FFF": 5.0,
+          "GGG": 4.0,
+          "HHH": 3.0,
+          "III": 2.0,
+          "JJJ": 1.0
+        },
+        "candidate": {
+          "AAA": 10.0,
+          "BBB": 9.0,
+          "KKK": 8.0,
+          "LLL": 7.0,
+          "MMM": 6.0,
+          "NNN": 5.0,
+          "OOO": 4.0,
+          "PPP": 3.0,
+          "QQQ": 2.0,
+          "RRR": 1.0
+        },
+        "kwargs": {
+          "top_n": 10
+        }
+      },
+      "evidence": "Constructed from the documented 2026-09 crisis (run_monthly_gbm.py --as-of 2021-06 -> 2/10 MISMATCH). The stored picks are the *symptom* (exact ties); the two selections here represent the rerun vs the archive.",
+      "regression_test": "tests/validation/test_failure_benchmarks.py::test_failure_benchmark_is_caught[gbm-asof-reproducibility-mismatch]"
+    }
+  ],
+  "known_gaps": [
+    {
+      "id": "funding-ftx-loss-tail",
+      "discovered_at": "2026-09-15",
+      "title": "FTX single-event LOSS dominance is not caught",
+      "failure_mode": "A strategy's realised P&L is dominated by one catastrophic event (the 2022-11-11 FTX collapse, -21.1%).",
+      "why_open": "SINGLE_EVENT_DRIVEN is defined on *gross positive* return (top1_share over winners only), and leave_k_worst_out only fires when removing large losses FLIPS the sign. A single large loss inside an otherwise positive series is invisible to both. The funding report's own findings name FTX as the 2022 P&L driver (reports/funding_rolling_backtest.json q6/answer), yet no framework component turns that into a verdict.",
+      "detector_tried": "src.validation.robustness.concentration_profile",
+      "input": {
+        "kind": "series",
+        "report": "funding_rolling_backtest.json",
+        "path": "variants.absolute_50_neg5.events",
+        "value_key": "ret_pct"
+      },
+      "would_need": "A loss-side concentration check (e.g. SINGLE_LOSS_DRIVEN on gross negative return, or a leave-k-worst-out that flags a single loss > 50% of gross loss).",
+      "assertions": {
+        "single_event_driven": true
+      },
+      "evidence": "reports/funding_rolling_backtest.json:variants.absolute_50_neg5.events (worst event 2022-11-11 ret_pct=-21.093)"
+    },
+    {
+      "id": "gbm-asof-boundary-churn",
+      "discovered_at": "2026-09-14",
+      "title": "Boundary churn under a universe/row change is not auto-detected",
+      "failure_mode": "Adding one row (BAYRY) or 21 names flips an entire month's top-10 (2/10 overlap), but the stored artefacts only let the detector see exact ties, not the churn.",
+      "why_open": "boundary_stability on the stored picks returns verdict STABLE (mean flip rate 0.0) because the tied block does not straddle the top-N cut in the two stored months; it surfaces has_exact_ties=True (AMBER) but not ARBITRARY. The ++21-stock universe variant that produced the MISMATCH was never persisted as a second score snapshot, so the churn itself cannot be recomputed from the ledger.",
+      "detector_tried": "src.validation.boundary.boundary_stability",
+      "input": {
+        "kind": "cross_section_picks",
+        "kwargs": {
+          "n_perturb": 25,
+          "drop_frac": 0.0
+        }
+      },
+      "would_need": "Persist the perturbed-universe score snapshot alongside the shipped picks, then boundary_stability (or reproducibility_probe) can compare the two selections directly.",
+      "assertions": {
+        "verdict": "ARBITRARY"
+      },
+      "evidence": "reports/gbm_picks/ (2 stored months; verdict STABLE / has_exact_ties True)"
+    }
+  ]
+}

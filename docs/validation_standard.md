@@ -287,3 +287,27 @@ poetry run python scripts/validate_reports.py
 - 体检总览由 **4 RED / 9 AMBER** 变为 **5 RED / 8 AMBER**：新增的 RED 是 `exit_rules_backtest` —— 鲁棒性套餐**抓住了红队手工才发现的问题**（k=2）。
 - 鲁棒性计数：`ROBUST=1, FRAGILE=3, SINGLE_EVENT_DRIVEN=1, INSUFFICIENT=8`。
 - 校准测试 `reports/robustness_battery.json`：**7/7 期望全部命中**，其中 weekend_gap 的 `n_best_to_sustain=2`。
+
+---
+
+## 9. 失败基准飞轮（v1.3 新增）
+
+§8/§8.1 的每一项发现都是**手工**变成一次性检查的。§9 把它制度化：每发现一种「结论可以是错的」的方式，就登记成一条**会被永久重放**的失败基准。
+
+**单一真源** `tests/validation/benchmarks/failure_benchmarks.json`，一条一记录：`id / discovered_at / discovered_by / title / failure_mode / symptom / detector / expected_verdict / assertions / input / evidence / regression_test`。`detector` 是**哪个框架组件该抓到它**（如 `concentration_profile`、`leave_k_best_out`、`multi_window`），`expected_verdict` 是**该输出的具体判定**（如 `FRAGILE_BY_FEW_WINNERS`、`SINGLE_EVENT_DRIVEN`、`NOISE`、`UNSTABLE`、`IMPLAUSIBLE`）—— 不允许写「某处有问题」。
+
+**登记门槛（关键）**：`scripts/add_failure_benchmark.py --spec <json>`（或 `--interactive`）在登记前会**实际运行一次**对应 detector，**确认它确实检出**了该失败；检不出则拒绝登记，并按失败阶段给出明确报错：`resolve`（detector 路径错）/ `input`（输入拼不出）/ `run`（detector 抛异常）/ `assert`（跑了但没输出期望判定）。`assert` 阶段失败意味着三条之一：该模式是新的（→ 进 `known_gaps`）、detector 该扩展、或 `expected_verdict` 写错。这样保证清单里没有「想象中的失败模式」。
+
+**自动回归**：`tests/validation/test_failure_benchmarks.py` 是**账本驱动**的 meta-test —— 遍历清单逐条重跑 detector，一条一断言（失败信息直接给出 `failure_mode` + detector）。新增基准是**数据编辑，不是改测试代码**。同时校验账本完整性（必填字段、id 唯一、引用的 report 存在、每条都有 guardian test）。
+
+**诚实地记录洞**：清单另有 `known_gaps` 段，登记「我们确实遇到过、但目前没有任何组件能抓」的模式。meta-test 的 `test_known_gap_is_still_open` 断言这些洞**仍然是洞**——哪天框架补上，它会变红，逼着把 gap 升格为 benchmark。
+
+**当前状态**：**13 条失败基准全部检出（13/13）**；**2 个已知的洞**——① `funding-ftx-loss-tail`（单笔灾难性**亏损**主导：`SINGLE_EVENT_DRIVEN` 只定义在毛利上，`leave_k_worst_out` 也不触发）；② `gbm-asof-boundary-churn`（加 1 行翻转整月 top-10，但扰动快照未存档，`boundary_stability` 只能报 `has_exact_ties` 不能报 `ARBITRARY`）。完整清单与用法见 `docs/failure_benchmarks.md`。
+
+跑法：
+
+```bash
+poetry run python scripts/add_failure_benchmark.py --list    # 查看账本
+poetry run python scripts/add_failure_benchmark.py --check   # 重新验证全部（有未检出则退出码 1）
+poetry run pytest tests/validation/test_failure_benchmarks.py -q
+```
