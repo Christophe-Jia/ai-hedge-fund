@@ -169,6 +169,29 @@ DSR = PSR( SR* = E[max SR] = σ_SR · EVT(N) )                        ← 基准
 
 **同理适用于字段**：`n_trials_planned` / `search_grid` / `n_trials_basis` / `supersede_reason` 这类新字段，必须先让 `build_record` / `validate_record` 接受（且对旧记录保持可选、`null` 容忍），再写第一条带该字段的记录。若顺序颠倒，同样会得到"看起来像并发"的批量测试失败。
 
+#### 1.6.1 终态的不对称，以及它**没有**关掉的那条残余通道
+
+`TERMINAL_STATUSES` 目前**只有** `superseded`。这是刻意的，不是遗漏：
+
+- `resolved` / `rejected` 记录的是**测量结果**——必须保持可更正，`allow_revision=True` 的存在意义就是"状态迁移 / 补 outcome"。更正会新增一条 revision，**旧判定与新判定都留在账本里**，可审计。
+- `superseded` 记录的是**撤回**——一条"该设计作废、永不可评估"的声明。**能被悄悄改掉的撤回不是撤回**：改它等于悄悄重开一个当初有理由关掉的假设族。而重开设计从来不需要改撤回——注册一个**新的 `hypothesis_id`** 即可，撤回记录原样留在账本上。
+
+**残余通道（明写出来，别留成隐式知识）**：既然 `resolved`/`rejected` 不是终态，**已判定条目的 verdict 仍可被后续 revision 翻转**（`rejected` → `resolved` 会把存活标签从 0 变成 1）。append-only 让这次翻转**可见**（两条 revision 线都在），但**不响亮**——没有人会被强制看一眼。
+
+- 今天的判断：**记录在案即足够**，暂不加机制。理由是翻转必须同时改 `status` 与 `outcome`（`survival_label` 优先读 `outcome`），两次改动都会留下 revision 行，不是一次静默改写。
+- 若将来要关掉它，**正确的工具是给"判定后改 verdict"加一个必填原因字段**（让翻转必须在记录里自证理由），**不是**把 `resolved`/`rejected` 设为终态——后者会连带封死合法的 outcome 回填与批注，现有流程依赖它们。
+
+#### 1.6.2 同族失败模式：**把"队友改的"写成结论**（2026-09-20 实际发生）
+
+本节讲的是"账本不许先于规则"。**同一天同一族**还发生了一次**归属错误**，值得并列记下：commit `43913a8f` 的 message 里写着 `src/validation/registry.py` 与 `src/validation/__init__.py` 的 `STATUS_SUPERSEDED` 系列"written by team-lead"，而**它们由本工作流（lppls）自己实现**——team-lead 只**规定了语义**并指定了 `supersede_reason` 字段名，从未写 `src/validation/` 下的任何文件。
+
+根因和 §1.6 的主旨一致：**不要把"我以为"当成历史记录**。具体两种触发路径都要防：
+
+1. **不认得自己较早的产出**（上下文被压缩/唤醒后，把自己留下的未提交 diff 当成外部写入）。判定顺序见 `memory/feedback_shared_file_edits.md` 第 8 条：先 `git log -- <file>` 看是否只有一个提交者 → 再看可疑行与自己承认的行是否同一 `@@` hunk → 最省事的是**读回自己之前发出的报告**。
+2. **把"别人的规范"当成"别人的代码"**。收到一条裁决时，它规定的是**语义**；若符号是你照着规范加的，作者就是你。
+
+**纠正方式是 append-only，不是改历史**：错误留在 `43913a8f`，更正写在后续 commit 的 message 里（本条即是），并把可 grep 的说明放进仓库（本小节）。**任何"某人没写过某文件"的断言，都必须能给出证据**（`git log -- <file>` 的提交者集合、或该 agent 的自述）；给不出就不要写进 commit message。
+
 ---
 
 ## 2. 任何报告必须包含的字段
