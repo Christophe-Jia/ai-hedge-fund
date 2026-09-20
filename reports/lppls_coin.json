@@ -1,0 +1,833 @@
+{
+  "generated_at_utc": "2026-09-20T03:29:48Z",
+  "hypothesis_id": "lppls_crypto_bubble_criticality_v3",
+  "supersedes": [
+    "lppls_crypto_bubble_criticality_v2",
+    "lppls_crypto_bubble_criticality"
+  ],
+  "registration_provenance": {
+    "live": "lppls_crypto_bubble_criticality_v3",
+    "superseded": [
+      "lppls_crypto_bubble_criticality_v2",
+      "lppls_crypto_bubble_criticality"
+    ],
+    "correction_1": "lppls_crypto_bubble_criticality -> _v2: F3 damping formula corrected from |C|/(omega*|A|) (unsatisfiable for a log-price fit) to m*|B|/(omega*|C|)",
+    "correction_2": "lppls_crypto_bubble_criticality_v2 -> _v3: F3 threshold corrected 0.8 -> 0.5 and F4 gained its |C|/|B| >= 0.05 pre-condition, per the rsos.180643 filter table and the lppls 0.6.24 default",
+    "disclosure": "correction_2 was made AFTER observing that D_min=0.8 is inert on COIN/BTC (see filter_attribution). It is a documentary correction (two independent sources state 0.5), but the reader must know the order of operations.",
+    "ledger_note": "all three registration lines are retained in the append-only ledger"
+  },
+  "registered_at_utc": "2026-09-20T03:26:48Z",
+  "evaluation_window_start": "2026-09-20T03:26:48Z",
+  "rubric": {
+    "weighted_score": 2.666667,
+    "band": "NEEDS_STRENGTHENING",
+    "answers": {
+      "counterparty_arbitrage": 1,
+      "mechanism_stateability": 3,
+      "base_rate_anchoring": 3,
+      "capacity_cost_reality": 1,
+      "regime_dependency_declared": 3,
+      "decay_logic_monitoring": 3,
+      "data_moat": 1,
+      "no_chaos_prediction": 3,
+      "executability": 3,
+      "preregistration": 5
+    }
+  },
+  "n_trials_planned": 144,
+  "search_grid": {
+    "windows": 4,
+    "min_window_frac": 2,
+    "param_configs": 2,
+    "confidence_thresholds": 3,
+    "forward_horizons": 3
+  },
+  "n_trials_origin": "pre_evaluation",
+  "grid_product_check": {
+    "leaf_product": 144,
+    "n_trials_planned": 144,
+    "matches": true
+  },
+  "fit_constants": {
+    "windows": [
+      60,
+      90,
+      120,
+      180
+    ],
+    "min_window_fracs": [
+      0.6,
+      0.8
+    ],
+    "param_configs": {
+      "standard": {
+        "m": [
+          0.1,
+          0.9
+        ],
+        "omega": [
+          6.0,
+          13.0
+        ]
+      },
+      "relaxed": {
+        "m": [
+          0.01,
+          1.2
+        ],
+        "omega": [
+          2.0,
+          25.0
+        ]
+      }
+    },
+    "confidence_thresholds": [
+      0.5,
+      0.75,
+      0.9
+    ],
+    "forward_horizons": [
+      21,
+      42,
+      63
+    ],
+    "primary": {
+      "param_config": "standard",
+      "theta": 0.75,
+      "horizon": 21,
+      "min_window_frac": 0.6
+    },
+    "constraints": {
+      "damping_min": 0.5,
+      "min_oscillations": 2.5,
+      "oscillations_precondition_c_over_b": 0.05,
+      "rel_error_max": 0.05,
+      "tc_max_frac": 0.5,
+      "shrinking_tc_tol_frac": 0.1,
+      "require_negative_b": true,
+      "citation": "Sornette & Johansen (2001); Filimonov & Sornette (2013) profile-calibration; Sornette et al. (2015) Shanghai post-mortem filter set; rsos.180643 filter table; formulas verified against lppls 0.6.24 src/lppls/lppls.py:875-891"
+    },
+    "nonlinear_grid": {
+      "n_m": 12,
+      "n_omega": 12,
+      "n_tc": 16,
+      "refine_maxiter": 120
+    }
+  },
+  "limitations": {
+    "four_window_confidence": "confidence(t) is accepted/attempted over FOUR fixed trailing window lengths, so it can only take the values 0, 0.25, 0.5, 0.75, 1.0. The published LPPLS confidence indicator additionally scans the bubble START time (nested window_start x window_end), which produces a much smoother, better-powered indicator. That variant is a DIFFERENT pre-registration — changing the scan now would be post-hoc.",
+    "coverage": "a signal needs max(WINDOWS) = 180 bars of history, so the first 180 bars of every series are structurally unscannable. For COIN (first bar 2021-04-14) this means the April-November 2021 bubble and its November 2021 top are OUT OF RANGE.",
+    "missed_2021_11_btc_top": "the November 2021 BTC all-time top fitted with damping 0.31-0.47, below the sourced 0.5 bound — the filter rejects the single largest bubble top in the sample. Reported as a miss, not worked around.",
+    "m_boundary_pinning": "on noisy windows the profile optimizer pins m at its upper bound (0.9), where the power law degenerates toward a straight line; F3 is what rejects those fits. This is a known LPPLS calibration pathology, not a bug in this implementation."
+  },
+  "forward_scaffold": {
+    "command": "poetry run python scripts/lppls_crypto.py --as-of <YYYY-MM-DD> --symbol COIN",
+    "look_ahead_guard": "HistoricalOHLCVStore query is bounded ts <= as_of; an explicit assertion re-checks the last bar date here",
+    "pre_registration_gate": "src.validation.registry.check_no_pre_registration_data is called before any fit; an as-of date earlier than registered_at_utc raises PreRegistrationDataError and the run exits 2 (this is NOT bypassed)",
+    "not_yet_evaluable": "the registry evaluation window starts at registered_at_utc, so today there are zero forward bars — the registered hypothesis cannot be decided yet"
+  },
+  "mode": "in_sample_demo",
+  "in_sample_demo": {
+    "warning": "IN-SAMPLE DEMONSTRATION — NOT EVIDENCE. The window lengths, parameter configs, filters and thresholds were fixed at registration (hypotheses/lppls_bubble_spec_2026-09-20_v2.json) and are NOT tuned here, but the historical hit/miss pattern below is read with full hindsight on data that predates the registration timestamp. No evaluation of the registered hypothesis is permitted on this window; only bars at or after registered_at_utc may decide it (see forward_scaffold).",
+    "stride_trading_days": 5,
+    "COIN": {
+      "symbol": "COIN",
+      "market_type": "stocks",
+      "first_bar": "2021-04-14",
+      "last_bar": "2026-09-11",
+      "n_bars": 1360,
+      "scan": {
+        "first_as_of": "2021-12-28",
+        "last_as_of": "2026-09-11",
+        "n_as_of": 237,
+        "n_fit_attempts": 948,
+        "n_fit_accepted": 2,
+        "fit_pass_ratio_overall": 0.002109704641350211,
+        "max_confidence": 0.25
+      },
+      "filter_attribution": {
+        "n_fits": 948,
+        "n_accepted": 2,
+        "any_fail_reasons": {
+          "F3_damping": 792,
+          "F4_oscillations": 599,
+          "F5_rel_error": 872,
+          "F0_positive_bubble_B_ge_0": 484,
+          "F6_shrinking_tc": 5
+        },
+        "first_fail_reasons": {
+          "F3_damping": 792,
+          "F0_positive_bubble_B_ge_0": 10,
+          "F4_oscillations": 65,
+          "F5_rel_error": 74,
+          "F6_shrinking_tc": 5
+        },
+        "distributions": {
+          "B": {
+            "p05": -2.5924856000000003,
+            "median": 0.0001675,
+            "p95": 2.820855249999999
+          },
+          "damping": {
+            "p05": 0.019010000000000003,
+            "median": 0.24825,
+            "p95": 0.7894599999999996
+          },
+          "n_oscillations": {
+            "p05": 1.049,
+            "median": 1.556,
+            "p95": 5.3862
+          },
+          "rel_error": {
+            "p05": 0.04019915,
+            "median": 0.1583125,
+            "p95": 0.45793744999999997
+          },
+          "m": {
+            "p05": 0.1,
+            "median": 0.9,
+            "p95": 0.9
+          },
+          "omega": {
+            "p05": 6.0,
+            "median": 6.6364,
+            "p95": 13.0
+          },
+          "abs_C_over_abs_B": {
+            "p05": 0.02335060348313246,
+            "median": 0.32495495676758346,
+            "p95": 4.844226327149456
+          }
+        },
+        "marginal_pass_rates": {
+          "F0_B_lt_0": 0.48945147679324896,
+          "F3_damping_ge_min": 0.16455696202531644,
+          "F4_n_osc_ge_min": 0.2289029535864979,
+          "F5_rel_error_le_max": 0.08016877637130802,
+          "F4_precondition_absC_over_absB_ge_0.05": 0.8386075949367089
+        },
+        "note": "marginal_pass_rates are per-filter, not joint; they identify the binding constraint when the confidence series is flat zero"
+      },
+      "episodes_by_threshold": {
+        "theta_0.5": {
+          "horizon_21": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 232,
+              "mean_fwd_mdd": -0.14171670951361318,
+              "median_fwd_mdd": -0.12941380331719998,
+              "p05_fwd_mdd": -0.3436389576897572
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_42": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 228,
+              "mean_fwd_mdd": -0.19939108000980738,
+              "median_fwd_mdd": -0.18356869267576748,
+              "p05_fwd_mdd": -0.4611425652735906
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_63": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 224,
+              "mean_fwd_mdd": -0.24474207957269817,
+              "median_fwd_mdd": -0.22829656514710744,
+              "p05_fwd_mdd": -0.579380215185686
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          }
+        },
+        "theta_0.75": {
+          "horizon_21": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 232,
+              "mean_fwd_mdd": -0.14171670951361318,
+              "median_fwd_mdd": -0.12941380331719998,
+              "p05_fwd_mdd": -0.3436389576897572
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_42": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 228,
+              "mean_fwd_mdd": -0.19939108000980738,
+              "median_fwd_mdd": -0.18356869267576748,
+              "p05_fwd_mdd": -0.4611425652735906
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_63": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 224,
+              "mean_fwd_mdd": -0.24474207957269817,
+              "median_fwd_mdd": -0.22829656514710744,
+              "p05_fwd_mdd": -0.579380215185686
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          }
+        },
+        "theta_0.9": {
+          "horizon_21": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 232,
+              "mean_fwd_mdd": -0.14171670951361318,
+              "median_fwd_mdd": -0.12941380331719998,
+              "p05_fwd_mdd": -0.3436389576897572
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_42": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 228,
+              "mean_fwd_mdd": -0.19939108000980738,
+              "median_fwd_mdd": -0.18356869267576748,
+              "p05_fwd_mdd": -0.4611425652735906
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_63": {
+            "n_flagged_days": 0,
+            "n_episodes": 0,
+            "episodes": [],
+            "unconditional": {
+              "n": 224,
+              "mean_fwd_mdd": -0.24474207957269817,
+              "median_fwd_mdd": -0.22829656514710744,
+              "p05_fwd_mdd": -0.579380215185686
+            },
+            "conditional": {
+              "n": 0,
+              "mean_fwd_mdd": null,
+              "median_fwd_mdd": null
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          }
+        }
+      }
+    },
+    "BTC": {
+      "symbol": "BTC/USDT",
+      "market_type": "spot",
+      "first_bar": "2018-12-31",
+      "last_bar": "2026-09-14",
+      "n_bars": 2815,
+      "scan": {
+        "first_as_of": "2019-06-28",
+        "last_as_of": "2026-09-14",
+        "n_as_of": 528,
+        "n_fit_attempts": 2112,
+        "n_fit_accepted": 53,
+        "fit_pass_ratio_overall": 0.025094696969696968,
+        "max_confidence": 1.0
+      },
+      "filter_attribution": {
+        "n_fits": 2112,
+        "n_accepted": 53,
+        "any_fail_reasons": {
+          "F4_oscillations": 1334,
+          "F5_rel_error": 1821,
+          "F6_shrinking_tc": 51,
+          "F3_damping": 1565,
+          "F0_positive_bubble_B_ge_0": 924
+        },
+        "first_fail_reasons": {
+          "F4_oscillations": 291,
+          "F6_shrinking_tc": 51,
+          "F5_rel_error": 138,
+          "F3_damping": 1565,
+          "F0_positive_bubble_B_ge_0": 14
+        },
+        "distributions": {
+          "B": {
+            "p05": -1.9148541,
+            "median": -0.0018175,
+            "p95": 1.5702712499999996
+          },
+          "damping": {
+            "p05": 0.033,
+            "median": 0.3147,
+            "p95": 0.9129099999999982
+          },
+          "n_oscillations": {
+            "p05": 1.049,
+            "median": 1.494,
+            "p95": 4.734799999999999
+          },
+          "rel_error": {
+            "p05": 0.0311675,
+            "median": 0.1488215,
+            "p95": 0.4774245999999995
+          },
+          "m": {
+            "p05": 0.1,
+            "median": 0.9,
+            "p95": 0.9
+          },
+          "omega": {
+            "p05": 6.0,
+            "median": 6.0,
+            "p95": 13.0
+          },
+          "abs_C_over_abs_B": {
+            "p05": 0.023379480054847326,
+            "median": 0.23721559536116563,
+            "p95": 2.8577188148278836
+          }
+        },
+        "marginal_pass_rates": {
+          "F0_B_lt_0": 0.5625,
+          "F3_damping_ge_min": 0.2589962121212121,
+          "F4_n_osc_ge_min": 0.20170454545454544,
+          "F5_rel_error_le_max": 0.1377840909090909,
+          "F4_precondition_absC_over_absB_ge_0.05": 0.8106060606060606
+        },
+        "note": "marginal_pass_rates are per-filter, not joint; they identify the binding constraint when the confidence series is flat zero"
+      },
+      "episodes_by_threshold": {
+        "theta_0.5": {
+          "horizon_21": {
+            "n_flagged_days": 8,
+            "n_episodes": 6,
+            "episodes": [
+              {
+                "start": "2019-06-28",
+                "end": "2019-06-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.2387814167506005,
+                "fwd_mdd_worst_in_episode": -0.2387814167506005
+              },
+              {
+                "start": "2020-12-19",
+                "end": "2020-12-19",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.0462563193671629,
+                "fwd_mdd_worst_in_episode": -0.0462563193671629
+              },
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-18",
+                "n_days": 3,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              },
+              {
+                "start": "2024-03-13",
+                "end": "2024-03-13",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.15238323192022818,
+                "fwd_mdd_worst_in_episode": -0.15238323192022818
+              },
+              {
+                "start": "2024-03-28",
+                "end": "2024-03-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.13426320206384235,
+                "fwd_mdd_worst_in_episode": -0.13426320206384235
+              },
+              {
+                "start": "2025-01-07",
+                "end": "2025-01-07",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.04540392664154902,
+                "fwd_mdd_worst_in_episode": -0.04540392664154902
+              }
+            ],
+            "unconditional": {
+              "n": 523,
+              "mean_fwd_mdd": -0.07341273975541586,
+              "median_fwd_mdd": -0.051946620088665796,
+              "p05_fwd_mdd": -0.2333170095125344
+            },
+            "conditional": {
+              "n": 8,
+              "mean_fwd_mdd": -0.1534147043134309,
+              "median_fwd_mdd": -0.1617076245505888
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_42": {
+            "n_flagged_days": 8,
+            "n_episodes": 6,
+            "episodes": [
+              {
+                "start": "2019-06-28",
+                "end": "2019-06-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.2387814167506005,
+                "fwd_mdd_worst_in_episode": -0.2387814167506005
+              },
+              {
+                "start": "2020-12-19",
+                "end": "2020-12-19",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.0462563193671629,
+                "fwd_mdd_worst_in_episode": -0.0462563193671629
+              },
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-18",
+                "n_days": 3,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              },
+              {
+                "start": "2024-03-13",
+                "end": "2024-03-13",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.16141577922501804,
+                "fwd_mdd_worst_in_episode": -0.16141577922501804
+              },
+              {
+                "start": "2024-03-28",
+                "end": "2024-03-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.17541006999092978,
+                "fwd_mdd_worst_in_episode": -0.17541006999092978
+              },
+              {
+                "start": "2025-01-07",
+                "end": "2025-01-07",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.04540392664154902,
+                "fwd_mdd_worst_in_episode": -0.04540392664154902
+              }
+            ],
+            "unconditional": {
+              "n": 519,
+              "mean_fwd_mdd": -0.10807157529932405,
+              "median_fwd_mdd": -0.07759871583428746,
+              "p05_fwd_mdd": -0.32469759315193025
+            },
+            "conditional": {
+              "n": 8,
+              "mean_fwd_mdd": -0.15968713121741557,
+              "median_fwd_mdd": -0.1732210435859396
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_63": {
+            "n_flagged_days": 8,
+            "n_episodes": 6,
+            "episodes": [
+              {
+                "start": "2019-06-28",
+                "end": "2019-06-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.2387814167506005,
+                "fwd_mdd_worst_in_episode": -0.2387814167506005
+              },
+              {
+                "start": "2020-12-19",
+                "end": "2020-12-19",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.0462563193671629,
+                "fwd_mdd_worst_in_episode": -0.0462563193671629
+              },
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-18",
+                "n_days": 3,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              },
+              {
+                "start": "2024-03-13",
+                "end": "2024-03-13",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.2012721354065098,
+                "fwd_mdd_worst_in_episode": -0.2012721354065098
+              },
+              {
+                "start": "2024-03-28",
+                "end": "2024-03-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.17541006999092978,
+                "fwd_mdd_worst_in_episode": -0.17541006999092978
+              },
+              {
+                "start": "2025-01-07",
+                "end": "2025-01-07",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.18935406990962056,
+                "fwd_mdd_worst_in_episode": -0.18935406990962056
+              }
+            ],
+            "unconditional": {
+              "n": 515,
+              "mean_fwd_mdd": -0.13572238399819644,
+              "median_fwd_mdd": -0.10357975532192154,
+              "p05_fwd_mdd": -0.39381949094500907
+            },
+            "conditional": {
+              "n": 8,
+              "mean_fwd_mdd": -0.18266294364861096,
+              "median_fwd_mdd": -0.18840156426039112
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          }
+        },
+        "theta_0.75": {
+          "horizon_21": {
+            "n_flagged_days": 4,
+            "n_episodes": 3,
+            "episodes": [
+              {
+                "start": "2020-12-19",
+                "end": "2020-12-19",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.0462563193671629,
+                "fwd_mdd_worst_in_episode": -0.0462563193671629
+              },
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-13",
+                "n_days": 2,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              },
+              {
+                "start": "2024-03-28",
+                "end": "2024-03-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.13426320206384235,
+                "fwd_mdd_worst_in_episode": -0.13426320206384235
+              }
+            ],
+            "unconditional": {
+              "n": 523,
+              "mean_fwd_mdd": -0.07341273975541586,
+              "median_fwd_mdd": -0.051946620088665796,
+              "p05_fwd_mdd": -0.2333170095125344
+            },
+            "conditional": {
+              "n": 4,
+              "mean_fwd_mdd": -0.15492926050353,
+              "median_fwd_mdd": -0.160856130337502
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_42": {
+            "n_flagged_days": 4,
+            "n_episodes": 3,
+            "episodes": [
+              {
+                "start": "2020-12-19",
+                "end": "2020-12-19",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.0462563193671629,
+                "fwd_mdd_worst_in_episode": -0.0462563193671629
+              },
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-13",
+                "n_days": 2,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              },
+              {
+                "start": "2024-03-28",
+                "end": "2024-03-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.17541006999092978,
+                "fwd_mdd_worst_in_episode": -0.17541006999092978
+              }
+            ],
+            "unconditional": {
+              "n": 519,
+              "mean_fwd_mdd": -0.10807157529932405,
+              "median_fwd_mdd": -0.07759871583428746,
+              "p05_fwd_mdd": -0.32469759315193025
+            },
+            "conditional": {
+              "n": 4,
+              "mean_fwd_mdd": -0.16521597748530187,
+              "median_fwd_mdd": -0.18142956430104573
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_63": {
+            "n_flagged_days": 4,
+            "n_episodes": 3,
+            "episodes": [
+              {
+                "start": "2020-12-19",
+                "end": "2020-12-19",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.0462563193671629,
+                "fwd_mdd_worst_in_episode": -0.0462563193671629
+              },
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-13",
+                "n_days": 2,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              },
+              {
+                "start": "2024-03-28",
+                "end": "2024-03-28",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.17541006999092978,
+                "fwd_mdd_worst_in_episode": -0.17541006999092978
+              }
+            ],
+            "unconditional": {
+              "n": 515,
+              "mean_fwd_mdd": -0.13572238399819644,
+              "median_fwd_mdd": -0.10357975532192154,
+              "p05_fwd_mdd": -0.39381949094500907
+            },
+            "conditional": {
+              "n": 4,
+              "mean_fwd_mdd": -0.16521597748530187,
+              "median_fwd_mdd": -0.18142956430104573
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          }
+        },
+        "theta_0.9": {
+          "horizon_21": {
+            "n_flagged_days": 1,
+            "n_episodes": 1,
+            "episodes": [
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-08",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              }
+            ],
+            "unconditional": {
+              "n": 523,
+              "mean_fwd_mdd": -0.07341273975541586,
+              "median_fwd_mdd": -0.051946620088665796,
+              "p05_fwd_mdd": -0.2333170095125344
+            },
+            "conditional": {
+              "n": 1,
+              "mean_fwd_mdd": -0.2517484619719531,
+              "median_fwd_mdd": -0.2517484619719531
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_42": {
+            "n_flagged_days": 1,
+            "n_episodes": 1,
+            "episodes": [
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-08",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              }
+            ],
+            "unconditional": {
+              "n": 519,
+              "mean_fwd_mdd": -0.10807157529932405,
+              "median_fwd_mdd": -0.07759871583428746,
+              "p05_fwd_mdd": -0.32469759315193025
+            },
+            "conditional": {
+              "n": 1,
+              "mean_fwd_mdd": -0.2517484619719531,
+              "median_fwd_mdd": -0.2517484619719531
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          },
+          "horizon_63": {
+            "n_flagged_days": 1,
+            "n_episodes": 1,
+            "episodes": [
+              {
+                "start": "2021-01-08",
+                "end": "2021-01-08",
+                "n_days": 1,
+                "fwd_mdd_from_episode_start": -0.2517484619719531,
+                "fwd_mdd_worst_in_episode": -0.2517484619719531
+              }
+            ],
+            "unconditional": {
+              "n": 515,
+              "mean_fwd_mdd": -0.13572238399819644,
+              "median_fwd_mdd": -0.10357975532192154,
+              "p05_fwd_mdd": -0.39381949094500907
+            },
+            "conditional": {
+              "n": 1,
+              "mean_fwd_mdd": -0.2517484619719531,
+              "median_fwd_mdd": -0.2517484619719531
+            },
+            "note": "in-sample; means are reported for orientation only — a verdict needs n>=30 flagged days AND forward (post-registration) data"
+          }
+        }
+      }
+    }
+  }
+}

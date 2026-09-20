@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "purpose": "PROSPECTIVE (schema v2) registration of the LPPLS bubble-criticality diagnostic. Registered BEFORE any COIN/BTC LPPLS fit was run. The historical demo in reports/lppls_coin.json is explicitly in-sample and is NOT evidence; only data at or after registered_at_utc can decide this hypothesis.",
+    "registered_by": "lppls",
+    "date": "2026-09-20",
+    "discipline": "The real risk in LPPLS is window selection, not the mathematics — you can always find a window that looks critical. Window lengths and parameter/filter settings are therefore declared here as a search grid whose leaf product equals n_trials_planned (144). Rubric is scored from the ex-ante view only: bubble diagnosis points at no forced counterparty (1) and uses public daily prices (1); the score is expected to land in NEEDS_STRENGTHENING and is NOT padded to reach ALLOW_EVALUATION.",
+    "not_evidence": "reports/lppls_coin.json 'in_sample_demo' block — window/parameter choices are declared here, but the historical hit/miss pattern is inspected with hindsight and cannot decide the hypothesis."
+  },
+  "hypotheses": [
+    {
+      "hypothesis_id": "lppls_crypto_bubble_criticality",
+      "statement": "When the LPPLS (log-periodic power law singularity) bubble-confidence indicator on COIN — or on BTC/USDT as a pre-registered control — exceeds the frozen threshold theta, computed using ONLY data through trading day t, the asset's maximum drawdown over the next H trading days is materially larger in magnitude than the unconditional distribution of the same H-day forward maximum drawdown (mean conditional MDD < mean unconditional MDD, one-sided t > 2.0, n >= 30 signal days).",
+      "mechanism": "Positive feedback in a bubble (herding, momentum chasing, leverage) makes price grow faster than exponentially; the log-periodic oscillation is the signature of the self-similar hierarchy of the feedback on multiple time scales; the resulting finite-time singularity tendency (t_c) marks a critical state that is dynamically unstable and resolves in an accelerating decline. Chain: positive feedback -> super-exponential growth with log-periodicity -> critical state -> instability resolves downward. Failure point: criticality is necessary but NOT sufficient — t_c is a 'ghost' (Sornette's term) that can be resolved by a plateau or soft landing, and the critical state says nothing about the timing or magnitude of the resolution. If the forward drawdown distribution conditional on the flag is indistinguishable from the unconditional one, the chain is broken at the criticality->resolution link and the hypothesis is falsified.",
+      "trigger_definition": "PRICE SERIES: daily closes from data/btc_history.db via HistoricalOHLCVStore(allow_fetch=False). COIN = symbol 'COIN', market_type 'stocks', timeframe '1d' (first bar 2021-04-14). BTC control = symbol 'BTC/USDT', market_type 'spot', timeframe '1d' (first bar 2018-12-31). MODEL: ln p_t = A + B*(t_c - t)^m + C*(t_c - t)^m * cos(omega*ln(t_c - t) - phi), the standard 7-parameter LPPLS. AS-OF RULE (look-ahead guard): the flag at day t uses closes with ts <= t only; every fitted window ends at or before t; the forward outcome starts strictly after t (t+1). NO data at or after t+1 may enter the fit. WINDOWS: fit on trailing windows of L trading days ending at t, L in LPPLS_WINDOWS = {60, 90, 120, 180}. FIT PROCEDURE (frozen): for fixed (m, omega) the model is linear in (A, B, C1 = C*cos(phi), C2 = C*sin(phi)) — these four are solved by ordinary least squares on the design matrix [1, tau^m, tau^m*cos(omega*ln tau), tau^m*sin(omega*ln tau)] with tau = t_c - t. The nonlinear search is a coarse grid over (m, omega) with t_c on a fixed grid in (t_last, t_last + 0.5*L], then a Nelder-Mead polish on (t_c, m, omega) seeded from the grid optimum. t_c bound 0.5*L follows Filimonov & Sornette (2013), 'A stable and robust calibration scheme of the log-periodic power law model'. FROZEN FILTERS (a fit is ACCEPTED only if all hold): (F1) m in the config's [m_min, m_max]; (F2) omega in the config's [omega_min, omega_max]; (F3) damping |C| / (omega*|A|) >= 0.8; (F4) number of oscillations (omega / 2*pi) * ln(tau_max/tau_min) >= 2.5; (F5) relative error SSE / sum((ln p - mean ln p)^2) <= 0.05; (F6) shrinking-window stability — refitting on the last min_window_frac share of the window must move t_c by no more than 0.10*L (Sornette's 'second filter': the critical time must not be an artefact of the window). FILTER CONSTANTS are frozen in scripts/lppls_crypto.py::LPPLS_CONSTRAINTS. CONFIDENCE: confidence(t, L) = 1 if the window ending at t of length L is ACCEPTED else 0; lppls_confidence(t) = mean over L of confidence(t, L) = accepted windows / attempted windows. FLAG: critical_state(t) = lppls_confidence(t) >= theta. OUTCOME: fwd_mdd(t, H) = min over j in 1..H of (close[t+j] / close[t]) - 1 (a number <= 0; 'larger drawdown' = more negative). BASE RATE: the unconditional distribution of fwd_mdd over ALL days t' in the evaluation window for the same asset and the same H (event frequency x unconditional outcome), no conditioning. Signals in the first L_max = 180 bars after data start, or with fewer than H bars of forward data, are dropped and counted. SCAN CADENCE: every trading day in the evaluation window; the in-sample demo uses stride=5 for runtime and says so.",
+      "resolution_criteria": "DATA: data/btc_history.db daily closes (COIN stocks 1d; BTC/USDT spot 1d as the pre-registered control). Evaluation window: every trading day t with t >= evaluation_window_start (= registered_at_utc; NO data from before registration may be used — enforced by src/validation/registry.check_no_pre_registration_data, which scripts/lppls_crypto.py calls and does not bypass). For each grid configuration (windows x min_window_frac x param_configs x confidence_thresholds x forward_horizons = 4x2x2x3x3 = 144) compute the set of flagged days and their forward MDDs. A configuration is SUPPORTED iff mean(conditional fwd_mdd) < mean(unconditional fwd_mdd) - 0 AND one-sided Welch t > 2.0 AND n_flagged >= 30. Primary configuration = the pre-declared default {L in {60,90,120,180}, min_window_frac = 0.6, standard param config, theta = 0.75, H = 21}. H1 (LPPLS criticality predicts elevated forward drawdown) is ADOPTED iff the PRIMARY configuration is SUPPORTED on COIN and at least 2 of the 3 remaining theta values at the primary windows/params/H are also SUPPORTED (robustness across thresholds, not across the whole grid); REJECTED iff the primary configuration has mean conditional MDD >= unconditional with n>=30; otherwise NEEDS_STRENGTHENING. The 144 configurations are reported in full; the best-performing configuration in the grid MAY NOT be quoted as the result — with n_trials_planned = 144 the deflation gate (src/validation/deflation.py, DSR >= 0.95) applies to it. The BTC control is reported separately and does not rescue a COIN failure. NO VERDICT below n = 30 flagged days.",
+      "data_requirements": [
+        "data/btc_history.db ohlcv: COIN stocks 1d closes (first bar 2021-04-14)",
+        "data/btc_history.db ohlcv: BTC/USDT spot 1d closes as the pre-registered control (first bar 2018-12-31)",
+        "For a future intraday LPPLS variant: COIN/stock 1h or 15m bars (NOT present in the store for single stocks today) — a separate registration, not this one",
+        "Windows/parameters/filter constants are frozen at registration in scripts/lppls_crypto.py::LPPLS_CONSTRAINTS"
+      ],
+      "rubric_answers": {
+        "counterparty_arbitrage": 1,
+        "mechanism_stateability": 3,
+        "base_rate_anchoring": 3,
+        "capacity_cost_reality": 1,
+        "regime_dependency_declared": 3,
+        "decay_logic_monitoring": 3,
+        "data_moat": 1,
+        "no_chaos_prediction": 3,
+        "executability": 3,
+        "preregistration": 5
+      },
+      "scoring_note": "对手方 1：泡沫诊断不指向任何被迫交易者——它是对价格自身几何形态的断言，没有套利壁垒故事，如实打低（这是本维度的诚实下限）。机制 3：有完整因果链（正反馈->超指数增长+对数周期->临界->向下解决）且能指出失效环节，但「临界->崩盘」这一中介环节未验证，t_c 可以是「鬼影」，故不给 5。base_rate 3：正确零假设（同一标的不条件 H 日前瞻最大回撤分布）已在 trigger 里机械写明，但注册时尚未量化，故不给 5。capacity 1：纯诊断，无成本/滑点/资金规模检验，如实打低。regime 3：事前声明了「泡沫 regime vs 常态 regime」且判据机械（confidence>=theta），但尚未在 regime 子样本检验。decay 3：能指出衰减源（LPPLS 自 2020 年已高度公开、2021-22 之后被广泛用于 de-risking，拥挤会把它变成自我实现/自我抵消），但尚无部署的监控红线。data_moat 1：公开日线价格，无护城河。no_chaos 3：不预测方向，是对尾部风险的条件触发押注（带过滤、只做回撤侧），不是裸赌单标的涨跌。executability 3：COIN/BTC 真实可交易、无借券限制、as-of 严格用 t 及之前数据并在 t+1 之后度量，但作为诊断未指定仓位规则与执行时点，故不给 5。preregistration 5：本条正是「先冻结窗口/参数/阈值再碰数据」，search_grid 与 N 在注册时填写，n_trials_origin=pre_evaluation。加权总分预期落在 NEEDS_STRENGTHENING（<3.5），不为过关抬分。",
+      "status": "registered",
+      "author": "lppls",
+      "source": "LPPLS / log-periodic power law singularity framework: Sornette & Johansen (2001); Filimonov & Sornette (2013) calibration scheme and critical-time bound; Sornette et al. (2015) 'Real-time prediction and postmortem analysis of the Shanghai 2015 stock market bubble'; filter set as summarised in the open-source lppls implementation (Nielsen). Windows and thresholds are this platform's own pre-registered choices.",
+      "schema_version": 2,
+      "n_trials_planned": 144,
+      "search_grid": {
+        "windows": 4,
+        "min_window_frac": 2,
+        "param_configs": 2,
+        "confidence_thresholds": 3,
+        "forward_horizons": 3
+      },
+      "n_trials_origin": "pre_evaluation"
+    }
+  ]
+}
