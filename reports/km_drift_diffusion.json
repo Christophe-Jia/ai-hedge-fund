@@ -19,6 +19,7 @@
     "alpha": 0.05,
     "start": "2016-09-01",
     "end": "2026-12-31",
+    "generated_at": "2026-09-20T04:12:28+00:00",
     "db_path": "/Users/jeffryjia/Vibe/ai-hedge-fund/data/btc_history.db",
     "universe_source": "/Users/jeffryjia/Vibe/ai-hedge-fund/data/universe/sp100_union.json",
     "data_provenance": {
@@ -36,28 +37,71 @@
           "source": "data/btc_history.db ohlcv (Nasdaq daily, split-adjusted close)",
           "first": "2016-09-12",
           "last": "2026-09-10",
-          "rows": 2513
+          "rows": 2513,
+          "observed_at": "2026-09-20T04:12:28+00:00"
         },
         "MRVL": {
           "source": "data/btc_history.db ohlcv (Nasdaq daily, split-adjusted close)",
           "first": "2016-09-19",
           "last": "2026-09-18",
-          "rows": 2514
+          "rows": 2514,
+          "observed_at": "2026-09-20T04:12:28+00:00"
         },
         "COIN": {
           "source": "data/btc_history.db ohlcv (Nasdaq daily, split-adjusted close)",
           "first": "2021-04-14",
           "last": "2026-09-11",
-          "rows": 1360
+          "rows": 1360,
+          "observed_at": "2026-09-20T04:12:28+00:00"
         },
         "SPY": {
           "source": "data/btc_history.db ohlcv (Nasdaq daily, split-adjusted close)",
           "first": "2016-09-12",
           "last": "2026-09-10",
-          "rows": 2512
+          "rows": 2512,
+          "observed_at": "2026-09-20T04:12:28+00:00"
         }
       },
       "symbols_missing": []
+    },
+    "data_availability_asof": {
+      "observed_at": "2026-09-20T04:12:28+00:00",
+      "scope": "/Users/jeffryjia/Vibe/ai-hedge-fund/data/btc_history.db :: table ohlcv, market_type IN ('stocks','etf'), timeframe='1d', column close",
+      "symbols": {
+        "MU": {
+          "rows": 2513,
+          "first": "2016-09-12",
+          "last": "2026-09-10"
+        },
+        "MRVL": {
+          "rows": 2514,
+          "first": "2016-09-19",
+          "last": "2026-09-18"
+        },
+        "COIN": {
+          "rows": 1360,
+          "first": "2021-04-14",
+          "last": "2026-09-11"
+        },
+        "SPY": {
+          "rows": 2512,
+          "first": "2016-09-12",
+          "last": "2026-09-10"
+        }
+      },
+      "symbols_absent_at_observation": [],
+      "mrvl_first_probe_of_session": {
+        "when": "start of this session (2026-09-20, before the parallel backfill landed at 11:36:50)",
+        "rows": 0,
+        "meaning": "MRVL was GENUINELY absent at that moment \u2014 not a filter error, not a timeframe/assetclass mismatch and not 'no such security'"
+      },
+      "expires": "the store is shared and mutable; re-query before reusing any of this"
+    },
+    "excess_z_convention": {
+      "numerator": "observed_slope - null_mean",
+      "denominator": "sqrt(sd_stat^2 + se_nullmean^2), where sd_stat = _std(bootstrap slope replicates) = the statistic's own sampling SD, and se_nullmean = _se(shuffle-null slopes) = the Monte-Carlo error of the null MEAN (a small correction term only)",
+      "wrong_denominator": "_se(bootstrap replicates) = sd_stat/sqrt(n_boot). This is the Monte-Carlo error of the bootstrap MEAN, i.e. how well the bootstrap estimated the point estimate -- NOT the sampling uncertainty of the quantity being tested. It shrinks as n_boot grows and inflates |z| by ~sqrt(n_boot) (~45x at n_boot=2000), which briefly made MRVL W=20 look z=-4.37 and 'clear' a ~2.9 Bonferroni bar; with the correct denominator the same cell is |z|=1.68 and the verdict is UNIDENTIFIABLE. The sampling SD must not depend on the number of bootstrap replicates.",
+      "applies_to": "BOTH the per-symbol cells and the panel cells; the panel uses the SD of the date-clustered bootstrap (boot_sd_date_clustered)"
     },
     "multiplicity": {
       "n_cells_searched": 15,
@@ -277,11 +321,18 @@
           "reason": "absent from the store and not in RENAME_MAP",
           "probe": {
             "symbol": "WBA",
-            "attempted": "poetry run python scripts/backfill_symbols.py --symbols WBA",
+            "attempted": "poetry run python scripts/backfill_symbols.py --symbols WBA (assetclass=stocks)",
             "probe_date": "2026-09-20",
-            "outcome": "FAILED",
+            "outcome": "FAILED - not obtainable via the Nasdaq daily endpoint",
             "nasdaq_response": "HTTP 200 {\"data\":null,\"message\":null,\"status\":{\"rCode\":400,\"bCodeMessage\":[{\"code\":1001,\"errorMessage\":\"Symbol not exists.\"}]}}",
-            "diagnosis": "LIVE invalid-symbol response, NOT a cached empty payload: the negative-cache hazard from the S&P500 backfill does not apply here (data/btc_history.db has no cache table and holds 0 WBA rows). Walgreens Boots Alliance was taken private (Sycamore Partners) and no longer trades on Nasdaq, so Nasdaq cannot serve its history at all. Delisted-name history is only reachable via IBKR and no IB Gateway is listening on :4002 in this environment. WBA is UNRECOVERABLE here."
+            "controls_run_at_the_same_moment": {
+              "MU (valid stock)": "HTTP 200, 2514 rows, no error -> the endpoint is NOT globally throttled/negative-cached right now",
+              "AAPL (valid stock)": "HTTP 200, 2514 rows, no error",
+              "SPY queried with assetclass='stocks'": "HTTP 200, 0 rows, IDENTICAL code-1001 'Symbol not exists.' payload"
+            },
+            "what_the_evidence_does_AND_does_not_show": "The code-1001 payload is a GENERIC 'this symbol is not in this asset class / not known here' response: a perfectly valid, currently-trading symbol (SPY) produces the identical payload when asked for as assetclass=stocks. Therefore this payload ALONE CANNOT distinguish a delisted/taken-private security from a server-side NEGATIVE CACHE entry - and the repo's own documented hazard (project memory on the S&P500 backfill) is precisely that the live endpoint keeps serving a cached code-1001 for symbols that failed during throttling, for hours. An earlier draft of this record claimed 'live response => not a cached miss'; that inference was WRONG and is retracted here.",
+            "in_repo_corroboration": "data/universe/sp500_backfill_status.json independently records WBA as status='failed', with error \"'NoneType' object has no attribute 'includeExpired'\" - i.e. an earlier attempt also failed to get WBA from Nasdaq and the IBKR fallback crashed. So the failure is reproducible across workstreams, which is all that can be claimed.",
+            "conclusion": "WBA is UNRECOVERABLE in this environment via the Nasdaq route. The specific cause (delisting/take-private vs lingering negative cache) is NOT established by the evidence available here and is deliberately not asserted. The repo's documented remedy for both readings - IBKR delisted-name history with includeExpired=True after TTL expiry - requires an IB Gateway, and nothing is listening on :4002 (checked with nc)."
           }
         }
       },
@@ -2976,10 +3027,11 @@
     "PANEL W=60: N=285550 (119 names, 2459 days) slope=-0.04671737909457102 CI_date=[-0.04955509195708645, -0.043856717812346624] CI_symbol=[-0.04763032673947841, -0.04565892383532849] null_band=[-0.04650617988516732, -0.04411700366763644] excess=-0.0012460217112814226 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=14.837030543960784d null-adjusted=Noned; M2 tail/center=0.724576619585396 L/R=2.10769719780273 (dM2/d|y|=-0.004210964957211816, dM2/dy^2=0.0035139554260031746, rises_with_abs_y=False) verdict=M2_SLOPE_ABOVE_NULL; eras: 2016-19: slope=-0.04694438988490225 h=14.765282545143222d n=86877, 2020-22: slope=-0.04622875280040323 h=14.993854226452315d n=88580, 2023-26: slope=-0.04708217905448337 h=14.722070950833377d n=110093",
     "PANEL W=120: N=278410 (119 names, 2399 days) slope=-0.02434656831544831 CI_date=[-0.027107425138521442, -0.021587212340141455] CI_symbol=[-0.02514604051058479, -0.02355740404962806] null_band=[-0.023253747738671234, -0.022117787657083873] excess=-0.0016586062074284182 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=28.470015633379088d null-adjusted=Noned; M2 tail/center=0.6825310292005333 L/R=2.9556550408638835 (dM2/d|y|=0.007152276920730126, dM2/dy^2=0.005735975233319693, rises_with_abs_y=True) verdict=M2_SLOPE_ABOVE_NULL; eras: 2016-19: slope=-0.02384423835219247 h=29.069797505031676d n=79917, 2020-22: slope=-0.025269675008734737 h=27.429999804918403d n=88460, 2023-26: slope=-0.02418021584614537 h=28.66588060959934d n=110033",
     "Diffusion shape (panel W=60): raw M2 does NOT rise with |y| (dM2/d|y|=-0.004210964957211816, tail/centre=0.724576619585396); the z-normalisation deflates each move by the rolling std, which is itself large when |y| is large, and the shuffle null reproduces this pattern, so there is no evidence of 'slippery' (higher-diffusion) tails. Left/right tail asymmetry L/R=2.10769719780273 (>1 => below-the-trailing-mean states carry more next-day variance than above-the-mean states; consistent with a leverage-type effect, though the z-normalisation amplifies it, so treat the raw multiple L/R as an upper bound).",
-    "CORRECTION vs the previous commit: MRVL was reported as a missing single name. That was a STALE IN-PROCESS READ, not a data gap \u2014 MRVL was genuinely absent when this study first probed the store, scripts/backfill_symbols.py wrote 2514 rows (2016-09-19..2026-09-18) at 11:36:50, and this process had loaded the store once at 11:36:47 and held that view for the whole run. Confirmed no assetclass/timeframe mismatch: the filter is market_type IN ('stocks','etf') AND timeframe='1d', which returns MRVL. MRVL is still correctly absent from sp100_union (it is an S&P 500, not S&P 100, name) and enters the panel only as a headline name.",
+    "MRVL AVAILABILITY (with as-of). MRVL was GENUINELY absent \u2014 0 rows \u2014 at this session's first probe of /Users/jeffryjia/Vibe/ai-hedge-fund/data/btc_history.db :: table ohlcv, market_type IN ('stocks','etf'), timeframe='1d', column close; that observation was correct, not a filter error. The parallel line's scripts/backfill_symbols.py then wrote 2514 rows (2016-09-19..2026-09-18) at 2026-09-20T11:36:50+08:00; this run started ~11:36:47 and loaded the store once at the top, so the read raced the write by ~3 seconds and the process held the stale view for its whole duration. missing_symbols=['MRVL'] was therefore ACCURATE AT READ TIME and OBSOLETE BY WRITE TIME. It is not a filter bug, not an assetclass/timeframe mismatch (the scope above matches the row's ('stocks','1d')) and not 'no such security'. MRVL is still correctly absent from sp100_union (it is an S&P 500, not S&P 100, name) and enters the panel only as a headline name. AS-OF: row counts were observed at 2026-09-20T04:12:28+00:00 against the scope above; the store is shared and mutable, so this claim expires \u2014 re-query before reusing it.",
     "PANEL SURVIVORSHIP: the PIT S&P100 union lists tickers whose securities no longer exist. Resolved against RENAME_MAP (single source of truth): ADDED as same-security renames BK->BNY; ALREADY REPRESENTED under their current ticker FB->META, PCLN->BKNG (mapping these would double-count one security, so they are skipped, not dropped); STRUCTURALLY UNRECOVERABLE (listed security ceased to exist via M&A/restructuring) AGN (ABBV), CELG (BMY), DWDP (DD), MON (BAYRY), RTN (RTX), TWX (T), UTX (RTX); NO ALIAS WBA. Panel names 118 -> 119. Direction of the bias: the panel drops names that ceased to exist via acquisition/restructuring (the 7 STRUCTURALLY_UNRECOVERABLE tickers). Acquisitions typically remove a security AFTER it has been bid up, so the drop is biased toward removing post-outperformance winners; the pooled panel therefore understates the total return of the 2016-2026 universe. This is a REAL survivorship channel, not a rounding error, and it is a property of the PIT union source (it tracks index membership, and a take-private name leaves the index), not of this study. It cannot be repaired without a delisted-name price source (IBKR: no gateway in this environment).",
-    "TRADEABILITY / MULTIPLICITY (headline caveat): this study found no effect that could be traded. No cell clears the Bonferroni bar (best-of-15 is |excess_z|=1.68). The maximum of 15 two-sided z-statistics is expected to be ~2.61 under the null by extreme-value theory, so a best-of-15 z of a couple of sigma is what noise alone produces; the platform's DSR / multiplicity-adjusted bar (~3.1 for a 40-cell search) is higher still, and this analysis was never pre-registered or submitted to that gate. Separately, even a REAL daily mean-reverting drift of this size is swamped by diffusion (drift/diffusion ~ sqrt(dt)) and would have to pay ~100% monthly turnover against a ~5bp half-spread plus commission inside S&P100 ADTV limits. Identification is not edge.",
-    "ERA CROSS-REFERENCE: the near-constant half-life across eras found here is the signature of the rolling-window artifact, not of a stable potential. The complementary cross-sectional evidence is in reports/horizon_decomposition.json (horizon-decomposition line, not re-verified here): the classic 1-month reversal (k21_h21) is negative in 2016-19 and 2020-22 but POSITIVE in 2023-26 \u2014 a sign flip across eras \u2014 which refutes short-horizon reversal as a stable potential well and supports a TIME-VARYING effective potential V(k). Taken together: what is stable over ten years is the mechanical artifact; what is real (the reversal/momentum structure) is era-unstable.",
+    "EXCESS_Z DENOMINATOR (read before re-deriving): excess_z = (slope - null_mean) / sqrt(sd_stat^2 + se_nullmean^2), where sd_stat is the STATISTIC'S OWN SAMPLING SD (_std of the bootstrap slope replicates) and se_nullmean is only the Monte-Carlo error of the null MEAN. A first implementation instead divided by _se = sd_stat/sqrt(n_boot) (the MC error of the bootstrap mean), which is the wrong scale: it shrinks with n_boot and inflates |z| by ~sqrt(n_boot) (~45x at n_boot=2000), briefly making MRVL W=20 read z=-4.37 and appear to clear a ~2.9 Bonferroni bar. With the correct denominator the same cell is |z|=1.68 and UNIDENTIFIABLE. The same convention is used on the PANEL path (SD of the date-clustered bootstrap), and both paths are locked by regression tests.",
+    "TRADEABILITY / MULTIPLICITY (headline caveat): this study found no effect that could be traded. No cell clears the Bonferroni bar (best-of-15 is |excess_z|=1.68). The strongest cell in the entire study is |excess_z|=1.68 (MRVL W=20), below BOTH the Bonferroni bar 2.94 AND the ~2.61 that the maximum of 15 null z-statistics is expected to reach by extreme-value theory \u2014 i.e. our best cell is weaker than what noise alone produces. The platform's DSR / multiplicity-adjusted bar (~3.1 for a 40-cell search) is higher still, and this analysis was never pre-registered or submitted to that gate. Separately, even a REAL daily mean-reverting drift of this size is swamped by diffusion (drift/diffusion ~ sqrt(dt)) and would have to pay ~100% monthly turnover against a ~5bp half-spread plus commission inside S&P100 ADTV limits. Identification is not edge.",
+    "ERA CROSS-REFERENCE: the near-constant half-life across eras found here is the signature of the rolling-window artifact, not of a stable potential. The complementary cross-sectional evidence is in reports/horizon_decomposition.json (horizon-decomposition line, cited not re-verified here): the classic 1-month reversal (k21_h21) is -0.0254 / -0.0119 / +0.0056 in 2016-19 / 2020-22 / 2023-26, i.e. negative in the first two eras and POSITIVE in the most recent one, sign_stable=false. IMPORTANT CAVEAT (per the source line's own audit): NO single era is individually significant (t_newey_west = -1.39 / -0.44 / +0.28), and no era x signal interaction test was run, so this is a SIGN-LEVEL observation, not a tested between-era difference. What it licenses is narrow and sufficient for our purpose: a firmly-signed short-horizon reversal would be needed for a stable short-reversal potential well, and that firm sign is absent \u2014 it is consistent with (but does not test) a time-varying effective V(k). Taken together: what is stable over ten years is the mechanical artifact; what is real (the reversal/momentum structure) is era-unstable at the level of sign.",
     "CAVEAT: a detected mean-reverting drift is a statistical statement about conditional means, NOT a tradable edge \u2014 costs, capacity, crowding and diffusion-dominated risk are outside this study.",
     "ESCAPE criterion: the ESCAPE/TREND verdict is triggered by a significantly POSITIVE linear drift slope (or a slope significantly above the shuffle null). The super-linear tail branch is reported descriptively via the cubic coefficient and tail_amplification_deg3_minus_deg1_at_y2; those are NOT bootstrapped, so they are supporting evidence and never a stand-alone verdict."
   ]
