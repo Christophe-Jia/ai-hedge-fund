@@ -2,10 +2,12 @@
 """Backfill arbitrary US daily symbols that are outside the tracked universes.
 
 The platform's stock panel is built from the point-in-time S&P 100 / S&P 500
-union files (plus crypto proxies). A symbol that is not — and never was — an
-index constituent during the sample (e.g. MRVL, which only joined the S&P 500 on
-2026-06-22) is therefore absent from `data/btc_history.db` even though a study
-may need it as a single-name diagnostic.
+union files (plus crypto proxies). A symbol that appears in none of those
+snapshots — and is therefore not a universe member under the repo's own
+definition — is absent from `data/btc_history.db` even though a study may need
+it as a single-name diagnostic. (Note: `data/universe/` carries no membership
+dates, so "why is this symbol absent" is not answerable from repo data; this
+script only fixes the consequence, not the cause.)
 
 This script fetches such symbols from the Nasdaq daily API via
 :class:`NasdaqDailyStore` (same code path as `backfill_sp500_stocks.py`), with

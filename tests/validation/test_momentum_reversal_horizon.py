@@ -242,6 +242,36 @@ def test_block_bootstrap_handles_series_shorter_than_the_block():
     assert math.isfinite(lo) and math.isfinite(hi)
 
 
+def test_hac_se_agrees_with_block_bootstrap_and_is_not_the_bootstrap_mc_error():
+    """Regression test for the classic SE-denominator bug.
+
+    A z/t statistic must divide by the *sampling* sd of the estimator, not by
+    the Monte-Carlo error of the bootstrap mean (sd/sqrt(n_boot)), which
+    inflates |t| by ~sqrt(n_boot). The HAC (Newey-West) se and an independently
+    coded moving-block bootstrap se estimate the same quantity, so they must
+    agree in magnitude; the MC-error scale is orders of magnitude smaller.
+    """
+    rng = np.random.default_rng(21)
+    n, n_boot, block = 2000, 1500, 21
+    # strongly autocorrelated, slightly non-zero mean
+    x = np.convolve(rng.normal(0, 1, n + 100), np.ones(20) / 20.0, mode="same")[:n] + 0.05
+
+    t_hac = mrh.newey_west_t(x, 19)
+    se_hac = x.mean() / t_hac
+
+    # independent moving-block bootstrap, written here rather than imported
+    starts = rng.integers(0, n - block + 1, size=(n_boot, int(math.ceil(n / block))))
+    idx = (starts[:, :, None] + np.arange(block)[None, None, :]).reshape(n_boot, -1)[:, :n]
+    boot_means = x[idx].mean(axis=1)
+    se_boot = boot_means.std(ddof=1)
+    se_mc_error = se_boot / math.sqrt(n_boot)
+
+    assert abs(se_hac - se_boot) / se_boot < 0.6, "HAC se should match the bootstrap se"
+    # and the statistic must not sit on the (much smaller) MC-error scale
+    assert abs(x.mean() / se_hac) < 0.2 * abs(x.mean() / se_mc_error)
+
+
+
 # ---------------------------------------------------------------------------
 # multiplicity labels
 # ---------------------------------------------------------------------------
@@ -397,4 +427,33 @@ def test_name_coverage_records_leading_nan_region_not_a_dropped_bar():
     assert c["db_rows"] == 4
     assert c["db_bars_excluded_from_panel"] == 0
     assert c["panel_dates_before_db_history"] == 1
+
+
+# ---------------------------------------------------------------------------
+# universe-membership evidence (must be read from the files, not asserted)
+# ---------------------------------------------------------------------------
+
+def test_snapshot_membership_is_read_from_the_snapshot_files(monkeypatch, tmp_path):
+    (tmp_path / "sp100_2020.json").write_text(
+        json.dumps([{"symbol": "AAA", "name": "A"}, {"symbol": "BBB", "name": "B"}]))
+    (tmp_path / "sp500_2021.json").write_text(
+        json.dumps([{"symbol": "BBB", "name": "B"}, {"symbol": "CCC", "name": "C"}]))
+    (tmp_path / "sp100_union.json").write_text(json.dumps(["AAA"]))  # non-year file
+    monkeypatch.setattr(mrh, "UNIVERSE_DIR", tmp_path)
+
+    membership, n_files, files = mrh.snapshot_membership(("AAA", "BBB", "ZZZ"))
+    assert n_files == 2  # the union file is not a year snapshot
+    assert sorted(files) == ["sp100_2020", "sp500_2021"]
+    assert membership["AAA"] == ["sp100_2020"]
+    assert membership["BBB"] == ["sp100_2020", "sp500_2021"]
+    assert membership["ZZZ"] == []  # absent from every snapshot
+
+
+def test_mrvl_is_absent_from_every_committed_snapshot():
+    """The repo-supported half of the MRVL claim, checked against the files."""
+    membership, n_files, _ = mrh.snapshot_membership(("MRVL", "MU"))
+    assert n_files >= 20
+    assert membership["MRVL"] == []
+    assert membership["MU"]  # a genuine member, so the scan is not vacuous
+
 

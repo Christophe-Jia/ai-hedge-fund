@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-09-20T03:50:34.033287+00:00",
+  "generated_at": "2026-09-20T03:53:23.974338+00:00",
   "script": "scripts/momentum_reversal_horizon.py",
   "question": "at which look-back horizon k does past return switch sign for predicting forward-h return, and does it survive search multiplicity + era split?",
   "data": "data/btc_history.db ohlcv, market_type='stocks' (Nasdaq daily)",
@@ -132,6 +132,54 @@
      "role": "benchmark_etf"
     }
    },
+   "snapshot_membership": {
+    "per_name_snapshots_containing_it": {
+     "MU": [
+      "sp500_2016",
+      "sp500_2017",
+      "sp500_2018",
+      "sp500_2019",
+      "sp500_2020",
+      "sp500_2021",
+      "sp500_2022",
+      "sp500_2023",
+      "sp500_2024",
+      "sp500_2025",
+      "sp500_2026"
+     ],
+     "MRVL": [],
+     "COIN": [
+      "sp500_2026"
+     ],
+     "SPY": [],
+     "QQQ": []
+    },
+    "n_snapshot_files_scanned": 21,
+    "files_scanned": [
+     "sp100_2017",
+     "sp100_2018",
+     "sp100_2019",
+     "sp100_2020",
+     "sp100_2021",
+     "sp100_2022",
+     "sp100_2023",
+     "sp100_2024",
+     "sp100_2025",
+     "sp100_2026",
+     "sp500_2016",
+     "sp500_2017",
+     "sp500_2018",
+     "sp500_2019",
+     "sp500_2020",
+     "sp500_2021",
+     "sp500_2022",
+     "sp500_2023",
+     "sp500_2024",
+     "sp500_2025",
+     "sp500_2026"
+    ],
+    "note": "read directly from data/universe/*.json (raw tickers, no rename mapping). An empty list is the evidence for 'not a universe member'; data/universe/ carries no membership dates, so no claim is made about when membership began."
+   },
    "guard_dropped_dates": {
     "2026-09-15": 0.008403361344537815,
     "2026-09-16": 0.008403361344537815,
@@ -153,7 +201,7 @@
    },
    "notes": [
     "NONE of the five single-name/benchmark tickers is in the PIT sp100 union, so all five are loaded as extras and excluded from the cross-section by the universe mask; see pit_membership. MU and COIN are S&P 500 members (not S&P 100); MRVL is in neither snapshot; SPY/QQQ are ETFs.",
-    "MRVL was never an S&P 500 constituent inside the sample window: it joined the index on 2026-06-22, i.e. after the 2026-01 snapshot. Its absence from the universe files is correct, not a universe-data bug, and it was backfilled separately by scripts/backfill_symbols.py (see reports/backfill_symbols_status.json).",
+    "MRVL is absent from every sp100/sp500 snapshot 2016-2026, so it is not a universe member under the repo's own definition; when or whether it joined the index is not verifiable from repo data (data/universe/ carries no membership dates). Its absence from the universe files is therefore not a universe-data bug, and it was backfilled separately by scripts/backfill_symbols.py (see reports/backfill_symbols_status.json).",
     "Nasdaq serves ~10 years of daily history per request, so the oldest bars are truncated at the request window and MRVL starts ~5 trading days later than the rest of the panel.",
     "Nasdaq closes are split-adjusted, dividend-unadjusted."
    ]

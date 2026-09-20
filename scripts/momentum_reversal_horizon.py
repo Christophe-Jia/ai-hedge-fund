@@ -83,6 +83,7 @@ from scripts.xsec_gbm_selection import (  # noqa: E402  single source of truth
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+UNIVERSE_DIR = ROOT / "data" / "universe"
 REPORT_PATH = ROOT / "reports" / "horizon_decomposition.json"
 
 KS: tuple[int, ...] = (3, 5, 10, 21, 42, 63, 126, 252)
@@ -639,6 +640,31 @@ def name_coverage(
     }
 
 
+def snapshot_membership(names: tuple[str, ...]) -> dict:
+    """Which PIT snapshots each name appears in — read straight from the files.
+
+    Makes the "X is not a universe member" claim machine-checkable instead of
+    prose. Compares RAW snapshot tickers (no rename mapping), which is what
+    index membership means; the renamed/union view is a separate question.
+    Returns ``(per_name, n_files_scanned, files)``.
+    """
+    files = sorted(
+        f for tag in ("sp100", "sp500") for f in UNIVERSE_DIR.glob(f"{tag}_[0-9][0-9][0-9][0-9].json")
+    )
+    membership: dict[str, list[str]] = {n: [] for n in names}
+    for f in files:
+        tag, year = f.stem.split("_")[0], f.stem.split("_")[1]
+        tickers = {c["symbol"] for c in json.loads(f.read_text())}
+        for n in names:
+            if n in tickers:
+                membership[n].append(f"{tag}_{year}")
+    return (
+        {n: sorted(v) for n, v in membership.items()},
+        len(files),
+        [f"{f.stem.split('_')[0]}_{f.stem.split('_')[1]}" for f in files],
+    )
+
+
 def _json_default(o):
     if isinstance(o, (np.floating,)):
         return float(o)
@@ -825,6 +851,9 @@ def main() -> None:
                "role": "benchmark_etf" if name in BENCHMARKS else "extra_single_name"}
         for name in (*FOCUS_NAMES, *BENCHMARKS)
     }
+    snap_membership, snap_n_files, snap_files = snapshot_membership(
+        (*FOCUS_NAMES, *BENCHMARKS)
+    )
 
     def _era_profile(key: str) -> dict:
         by_era = {label: era_cells[label][key]["ic_mean"] for label, _, _ in ERAS}
@@ -917,6 +946,16 @@ def main() -> None:
                 },
                 "single_name_and_benchmark_coverage": coverage,
                 "pit_membership": pit_membership,
+                "snapshot_membership": {
+                    "per_name_snapshots_containing_it": snap_membership,
+                    "n_snapshot_files_scanned": snap_n_files,
+                    "files_scanned": snap_files,
+                    "note": (
+                        "read directly from data/universe/*.json (raw tickers, no "
+                        "rename mapping). An empty list is the evidence for 'not a "
+                        "universe member'; data/universe/ carries no membership dates, "
+                        "so no claim is made about when membership began."),
+                },
                 "guard_dropped_dates": guard_dropped,
                 "reconciliation_notes": (
                     [
@@ -961,11 +1000,12 @@ def main() -> None:
                     "the cross-section by the universe mask; see pit_membership. MU "
                     "and COIN are S&P 500 members (not S&P 100); MRVL is in neither "
                     "snapshot; SPY/QQQ are ETFs.",
-                    "MRVL was never an S&P 500 constituent inside the sample window: "
-                    "it joined the index on 2026-06-22, i.e. after the 2026-01 "
-                    "snapshot. Its absence from the universe files is correct, not a "
-                    "universe-data bug, and it was backfilled separately by "
-                    "scripts/backfill_symbols.py (see "
+                    "MRVL is absent from every sp100/sp500 snapshot 2016-2026, so it "
+                    "is not a universe member under the repo's own definition; when or "
+                    "whether it joined the index is not verifiable from repo data "
+                    "(data/universe/ carries no membership dates). Its absence from the "
+                    "universe files is therefore not a universe-data bug, and it was "
+                    "backfilled separately by scripts/backfill_symbols.py (see "
                     "reports/backfill_symbols_status.json).",
                     "Nasdaq serves ~10 years of daily history per request, so the "
                     "oldest bars are truncated at the request window and MRVL starts "
