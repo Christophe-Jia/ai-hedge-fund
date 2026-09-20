@@ -20,6 +20,8 @@ import pandas as pd
 import pytest
 
 from scripts.econophysics_km_drift import (
+    EXCESS_Z_CONVENTION,
+    KMSample,
     MIN_BIN_OBS,
     RENAME_MAP,
     VERDICT_ESCAPE,
@@ -33,6 +35,7 @@ from scripts.econophysics_km_drift import (
     classify,
     classify_absent_ticker,
     drift_slope,
+    estimate_panel,
     estimate_symbol,
     half_life_days,
     km_sample,
@@ -219,6 +222,47 @@ def test_random_walk_excess_z_stays_within_noise():
     assert r["drift"]["boot_sd"] > 5 * r["drift"]["null_se"]
 
 
+def test_panel_excess_z_uses_sampling_sd_not_mc_error():
+    """The PANEL path is where the headline verdict lives, so pin its
+    denominator identity exactly: excess_z must equal
+    excess / sqrt(boot_sd_date_clustered^2 + null_se^2).
+
+    If someone switches either path to _se(bootstrap) = sd/sqrt(n_boot), this
+    identity breaks (they differ by sqrt(n_boot)) and the test fails.
+    """
+    symbols = ("AAA", "BBB")
+    n = 2600
+    days = np.arange(np.datetime64("2016-09-01"), np.datetime64("2016-09-01") + n)
+    samples, logps = {}, {}
+    for i, sym in enumerate(symbols):
+        y, dy = synthetic_feedback(a1=-0.02, n=n, seed=100 + i)
+        samples[sym] = KMSample(y=y, dy=dy, dates=days.astype("datetime64[D]").astype(np.int64))
+        # log-price series only feeds the return-shuffle null
+        logps[sym] = pd.Series(np.cumsum(np.random.default_rng(200 + i).normal(0.0, 0.02, n)))
+
+    r = estimate_panel(samples, logps, window=60, n_boot=40, n_null=20,
+                       block=21, seed=7)
+    dr = r["drift"]
+    expected = dr["excess_over_null"] / np.sqrt(
+        dr["boot_sd_date_clustered"] ** 2 + dr["null_se"] ** 2)
+    assert dr["excess_z"] == pytest.approx(expected, rel=1e-9)
+    # and it must NOT be the MC-error convention (which differs by ~sqrt(n_null))
+    wrong = dr["excess_over_null"] / dr["null_se"]
+    assert abs(dr["excess_z"]) < abs(wrong) / 2.0, (
+        f"panel excess_z {dr['excess_z']} looks like the _se(bootstrap) convention "
+        f"(wrong scale would give {wrong})")
+    # sanity: the sampling spread really is much larger than the null MC error
+    assert dr["boot_sd_date_clustered"] > 2 * dr["null_se"]
+
+
+def test_excess_z_convention_is_documented_for_both_paths():
+    """The convention must stay written down (a reader would otherwise
+    re-derive the wrong denominator)."""
+    assert "sqrt" in EXCESS_Z_CONVENTION["denominator"]
+    assert "sd_stat/sqrt(n_boot)" in EXCESS_Z_CONVENTION["wrong_denominator"]
+    assert "BOTH" in EXCESS_Z_CONVENTION["applies_to"]
+
+
 # ---------------------------------------------------------------------------
 # Binning contract
 # ---------------------------------------------------------------------------
@@ -273,3 +317,48 @@ def test_alias_targets_resolve_through_the_repo_rename_map():
     that can be aliased at all must resolve through RENAME_MAP."""
     for sym in ("BK", "FB", "PCLN", "AGN", "CELG", "MON", "TWX", "RTN", "UTX", "DWDP"):
         assert sym in RENAME_MAP, f"{sym} missing from the repo RENAME_MAP"
+
+
+# ---------------------------------------------------------------------------
+# excess_z denominator: sampling SD, never the bootstrap Monte-Carlo error
+# ---------------------------------------------------------------------------
+def test_excess_z_denominator_is_sampling_sd_on_the_symbol_path():
+    """Regression guard. The denominator must be the statistic's own sampling SD
+    (_std of the bootstrap replicates). Dividing by _se = sd/sqrt(n_boot) is the
+    Monte-Carlo error of the bootstrap MEAN and inflates |z| by ~sqrt(n_boot),
+    which once made MRVL W=20 look z=-4.37 against a ~2.9 Bonferroni bar."""
+    logp = pd.Series(synthetic_price(kappa=None, n=1200, seed=31))
+    n_boot = 200
+    r = estimate_symbol("SYN", logp, window=60, n_boot=n_boot, n_null=50, block=21, seed=5)
+    dr = r["drift"]
+    excess, sd, se = dr["excess_over_null"], dr["boot_sd"], dr["null_se"]
+
+    correct = excess / np.sqrt(sd**2 + se**2)
+    wrong = excess / np.sqrt((sd / np.sqrt(n_boot)) ** 2 + se**2)  # MC-error denominator
+    assert dr["excess_z"] == pytest.approx(correct, rel=1e-6)
+    assert abs(wrong) > 5 * abs(correct), "the wrong form must be visibly inflated"
+
+
+def test_excess_z_denominator_is_sampling_sd_on_the_panel_path():
+    """The panel path carries the headline verdict, so lock it too."""
+    logps = {f"SYN{i}": pd.Series(synthetic_price(kappa=None, n=900, seed=100 + i))
+             for i in range(3)}
+    samples = {s: km_sample(lp, 60) for s, lp in logps.items()}
+    n_boot = 50
+    r = estimate_panel(samples, logps, window=60, n_boot=n_boot, n_null=30, block=21, seed=7)
+    dr = r["drift"]
+    excess = dr["excess_over_null"]
+    sd = dr["boot_sd_date_clustered"]
+    se = dr["null_se"]
+
+    correct = excess / np.sqrt(sd**2 + se**2)
+    wrong = excess / np.sqrt((sd / np.sqrt(n_boot)) ** 2 + se**2)
+    assert dr["excess_z"] == pytest.approx(correct, rel=1e-6)
+    assert abs(wrong) > 3 * abs(correct)
+
+
+def test_excess_z_convention_is_documented():
+    """A reader re-deriving excess_z must be told which sigma to use."""
+    assert "sampling" in EXCESS_Z_CONVENTION["denominator"]
+    assert "sqrt(n_boot)" in EXCESS_Z_CONVENTION["wrong_denominator"]
+    assert "panel" in EXCESS_Z_CONVENTION["applies_to"].lower()

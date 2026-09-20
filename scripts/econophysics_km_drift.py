@@ -93,6 +93,7 @@ import json
 import sqlite3
 import sys
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from statistics import NormalDist
 from typing import Iterable, Sequence
@@ -147,6 +148,22 @@ SURVIVORSHIP_BIAS_NOTE = (
     "repaired without a delisted-name price source (IBKR: no gateway in this "
     "environment)."
 )
+
+def _availability_scope() -> str:
+    """Exact query scope behind every data-availability claim in the report."""
+    return (f"{DB_PATH} :: table ohlcv, market_type IN ('stocks','etf'), "
+            f"timeframe='1d', column close")
+
+
+# MRVL availability is a POINT-IN-TIME fact about a SHARED, MUTABLE store, so it
+# is recorded with its moment of observation and its query scope.  Any such
+# claim expires as soon as another workstream writes the store.
+MRVL_FIRST_PROBE: dict = {
+    "when": "start of this session (2026-09-20, before the parallel backfill landed at 11:36:50)",
+    "rows": 0,
+    "meaning": "MRVL was GENUINELY absent at that moment — not a filter error, not a "
+               "timeframe/assetclass mismatch and not 'no such security'",
+}
 
 # --------------------------------------------------------------------------
 # Frozen study constants (see module docstring for rationale)
@@ -211,20 +228,45 @@ def load_universe() -> list[str]:
 
 
 # Result of the explicit WBA probe (team-lead item c).  Recorded as data so the
-# distinction between "delisted" and "cached miss" is auditable.
+# boundary between "delisted", "wrong asset class" and "negative-cached" is
+# auditable rather than asserted.
 WBA_BACKFILL_PROBE: dict = {
     "symbol": "WBA",
-    "attempted": "poetry run python scripts/backfill_symbols.py --symbols WBA",
+    "attempted": "poetry run python scripts/backfill_symbols.py --symbols WBA (assetclass=stocks)",
     "probe_date": "2026-09-20",
-    "outcome": "FAILED",
+    "outcome": "FAILED - not obtainable via the Nasdaq daily endpoint",
     "nasdaq_response": 'HTTP 200 {"data":null,"message":null,"status":{"rCode":400,'
                        '"bCodeMessage":[{"code":1001,"errorMessage":"Symbol not exists."}]}}',
-    "diagnosis": "LIVE invalid-symbol response, NOT a cached empty payload: the negative-cache "
-                 "hazard from the S&P500 backfill does not apply here (data/btc_history.db has no "
-                 "cache table and holds 0 WBA rows). Walgreens Boots Alliance was taken private "
-                 "(Sycamore Partners) and no longer trades on Nasdaq, so Nasdaq cannot serve its "
-                 "history at all. Delisted-name history is only reachable via IBKR and no IB "
-                 "Gateway is listening on :4002 in this environment. WBA is UNRECOVERABLE here.",
+    "controls_run_at_the_same_moment": {
+        "MU (valid stock)": "HTTP 200, 2514 rows, no error -> the endpoint is NOT globally "
+                            "throttled/negative-cached right now",
+        "AAPL (valid stock)": "HTTP 200, 2514 rows, no error",
+        "SPY queried with assetclass='stocks'": "HTTP 200, 0 rows, IDENTICAL code-1001 "
+                                                "'Symbol not exists.' payload",
+    },
+    "what_the_evidence_does_AND_does_not_show": (
+        "The code-1001 payload is a GENERIC 'this symbol is not in this asset class / not known "
+        "here' response: a perfectly valid, currently-trading symbol (SPY) produces the identical "
+        "payload when asked for as assetclass=stocks. Therefore this payload ALONE CANNOT "
+        "distinguish a delisted/taken-private security from a server-side NEGATIVE CACHE entry - "
+        "and the repo's own documented hazard (project memory on the S&P500 backfill) is precisely "
+        "that the live endpoint keeps serving a cached code-1001 for symbols that failed during "
+        "throttling, for hours. An earlier draft of this record claimed 'live response => not a "
+        "cached miss'; that inference was WRONG and is retracted here."
+    ),
+    "in_repo_corroboration": (
+        "data/universe/sp500_backfill_status.json independently records WBA as status='failed', "
+        "with error \"'NoneType' object has no attribute 'includeExpired'\" - i.e. an earlier "
+        "attempt also failed to get WBA from Nasdaq and the IBKR fallback crashed. So the failure "
+        "is reproducible across workstreams, which is all that can be claimed."
+    ),
+    "conclusion": (
+        "WBA is UNRECOVERABLE in this environment via the Nasdaq route. The specific cause "
+        "(delisting/take-private vs lingering negative cache) is NOT established by the evidence "
+        "available here and is deliberately not asserted. The repo's documented remedy for both "
+        "readings - IBKR delisted-name history with includeExpired=True after TTL expiry - requires "
+        "an IB Gateway, and nothing is listening on :4002 (checked with nc)."
+    ),
 }
 
 
@@ -587,6 +629,28 @@ def _se(arr: np.ndarray) -> float:
     return float(a.std(ddof=1) / np.sqrt(a.size))
 
 
+# How `excess_z` is formed.  Documented as a constant so the report can carry
+# the reasoning verbatim: a reader who re-derives this would otherwise pick the
+# wrong denominator.
+EXCESS_Z_CONVENTION: dict = {
+    "numerator": "observed_slope - null_mean",
+    "denominator": "sqrt(sd_stat^2 + se_nullmean^2), where "
+                   "sd_stat = _std(bootstrap slope replicates) = the statistic's own sampling "
+                   "SD, and se_nullmean = _se(shuffle-null slopes) = the Monte-Carlo error of "
+                   "the null MEAN (a small correction term only)",
+    "wrong_denominator": "_se(bootstrap replicates) = sd_stat/sqrt(n_boot). This is the "
+                         "Monte-Carlo error of the bootstrap MEAN, i.e. how well the bootstrap "
+                         "estimated the point estimate -- NOT the sampling uncertainty of the "
+                         "quantity being tested. It shrinks as n_boot grows and inflates |z| by "
+                         "~sqrt(n_boot) (~45x at n_boot=2000), which briefly made MRVL W=20 look "
+                         "z=-4.37 and 'clear' a ~2.9 Bonferroni bar; with the correct denominator "
+                         "the same cell is |z|=1.68 and the verdict is UNIDENTIFIABLE. The "
+                         "sampling SD must not depend on the number of bootstrap replicates.",
+    "applies_to": "BOTH the per-symbol cells and the panel cells; the panel uses the SD of the "
+                  "date-clustered bootstrap (boot_sd_date_clustered)",
+}
+
+
 def classify(obs: float, ci_lo: float, ci_hi: float,
              null_lo: float, null_hi: float, null_mean: float) -> str:
     """Null-adjusted verdict (headline).
@@ -730,8 +794,10 @@ def estimate_symbol(sym: str, logp: pd.Series, window: int, n_boot: int, n_null:
                       "half_life_days": _f(half_life_days(es))}
 
     excess = _f(slope - n_mean) if (slope is not None and np.isfinite(n_mean)) else None
+    # Denominator = statistic's own sampling SD (_std), NOT _se = sd/sqrt(n_boot).
+    # See EXCESS_Z_CONVENTION; the MC error of the bootstrap mean is the wrong scale
+    # and would inflate |z| by ~sqrt(n_boot).
     b_sd = _std(boot)
-    # sampling SD of the observed slope vs the Monte-Carlo error of the null mean
     excess_z = (excess / np.sqrt(b_sd**2 + n_se**2)
                 if (excess is not None and np.isfinite(b_sd) and np.isfinite(n_se)
                     and (b_sd**2 + n_se**2) > 0) else None)
@@ -834,6 +900,10 @@ def estimate_panel(samples: dict[str, KMSample], logps: dict[str, pd.Series],
                       "half_life_days": _f(half_life_days(es))}
 
     excess = _f(slope - n_mean) if (slope is not None and np.isfinite(n_mean)) else None
+    # Same denominator convention as the per-symbol path: sampling SD (_std) of the
+    # date-clustered bootstrap, plus the null-mean MC error as a small correction.
+    # See EXCESS_Z_CONVENTION. The panel is where the headline verdict lives, so this
+    # path is regression-tested explicitly.
     d_sd = _std(date_boot)
     excess_z = (excess / np.sqrt(d_sd**2 + n_se**2)
                 if (excess is not None and np.isfinite(d_sd) and np.isfinite(n_se)
@@ -887,6 +957,12 @@ def run(args: argparse.Namespace) -> dict:
     windows = tuple(args.windows)
     symbols = tuple(s.strip().upper() for s in args.symbols.split(",") if s.strip())
 
+    # As-of stamp for every data-availability claim in this report.  The store
+    # is shared and is written by other workstreams, so "symbol X has N rows"
+    # is a point-in-time fact that EXPIRES: it must carry when it was observed
+    # and the exact query scope (see _availability_scope()).
+    observed_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+
     logps: dict[str, pd.Series] = {}
     missing: list[str] = []
     coverage: dict[str, dict] = {}
@@ -901,6 +977,7 @@ def run(args: argparse.Namespace) -> dict:
             "first": str(lp.index[0].date()),
             "last": str(lp.index[-1].date()),
             "rows": int(len(lp)),
+            "observed_at": observed_at,
         }
 
     # multiplicity bookkeeping: one drift cell per (name, window) plus one per
@@ -925,6 +1002,7 @@ def run(args: argparse.Namespace) -> dict:
             "alpha": ALPHA,
             "start": START,
             "end": END,
+            "generated_at": observed_at,
             "db_path": str(DB_PATH),
             "universe_source": str(UNIVERSE_PATH),
             "data_provenance": {
@@ -938,6 +1016,22 @@ def run(args: argparse.Namespace) -> dict:
                 "symbols_present": coverage,
                 "symbols_missing": missing,
             },
+            # Data-availability claims are point-in-time: the store is shared and
+            # is written by other workstreams, so each claim carries when it was
+            # observed and the exact query scope that produced it.
+            "data_availability_asof": {
+                "observed_at": observed_at,
+                "scope": _availability_scope(),
+                "symbols": {
+                    s: {"rows": coverage[s]["rows"], "first": coverage[s]["first"],
+                        "last": coverage[s]["last"]}
+                    for s in coverage
+                },
+                "symbols_absent_at_observation": list(missing),
+                "mrvl_first_probe_of_session": MRVL_FIRST_PROBE,
+                "expires": "the store is shared and mutable; re-query before reusing any of this",
+            },
+            "excess_z_convention": EXCESS_Z_CONVENTION,
             "multiplicity": {
                 "n_cells_searched": int(n_cells),
                 "cells": "n_names x n_windows single-name drift cells + n_windows panel cells",
@@ -1086,14 +1180,18 @@ def _interpretation(report: dict) -> list[str]:
             "MISSING HEADLINE DATA: " + ", ".join(report["meta"]["missing_symbols"]) +
             " have no daily bars in data/btc_history.db (reported, not silently dropped).")
     notes.append(
-        "CORRECTION vs the previous commit: MRVL was reported as a missing single name. That was a "
-        "STALE IN-PROCESS READ, not a data gap — MRVL was genuinely absent when this study first "
-        "probed the store, scripts/backfill_symbols.py wrote 2514 rows (2016-09-19..2026-09-18) at "
-        "11:36:50, and this process had loaded the store once at 11:36:47 and held that view for the "
-        "whole run. Confirmed no assetclass/timeframe mismatch: the filter is "
-        "market_type IN ('stocks','etf') AND timeframe='1d', which returns MRVL. MRVL is still "
-        "correctly absent from sp100_union (it is an S&P 500, not S&P 100, name) and enters the "
-        "panel only as a headline name."
+        "MRVL AVAILABILITY (with as-of). MRVL was GENUINELY absent — 0 rows — at this session's "
+        f"first probe of {_availability_scope()}; that observation was correct, not a filter error. "
+        "The parallel line's scripts/backfill_symbols.py then wrote 2514 rows "
+        "(2016-09-19..2026-09-18) at 2026-09-20T11:36:50+08:00; this run started ~11:36:47 and "
+        "loaded the store once at the top, so the read raced the write by ~3 seconds and the "
+        "process held the stale view for its whole duration. missing_symbols=['MRVL'] was therefore "
+        "ACCURATE AT READ TIME and OBSOLETE BY WRITE TIME. It is not a filter bug, not an "
+        "assetclass/timeframe mismatch (the scope above matches the row's ('stocks','1d')) and not "
+        "'no such security'. MRVL is still correctly absent from sp100_union (it is an S&P 500, not "
+        f"S&P 100, name) and enters the panel only as a headline name. AS-OF: row counts were "
+        f"observed at {report['meta']['generated_at']} against the scope above; the store is shared "
+        "and mutable, so this claim expires — re-query before reusing it."
     )
     audit = report["meta"].get("panel_survivorship_audit")
     if audit:
@@ -1125,10 +1223,22 @@ def _interpretation(report: dict) -> list[str]:
                   f"{bar:.2f}; treat it as a multiplicity candidate to be pre-registered and "
                   f"re-tested out of sample, NOT as an established effect.")
     notes.append(
+        "EXCESS_Z DENOMINATOR (read before re-deriving): excess_z = (slope - null_mean) / "
+        "sqrt(sd_stat^2 + se_nullmean^2), where sd_stat is the STATISTIC'S OWN SAMPLING SD "
+        "(_std of the bootstrap slope replicates) and se_nullmean is only the Monte-Carlo error of "
+        "the null MEAN. A first implementation instead divided by _se = sd_stat/sqrt(n_boot) (the "
+        "MC error of the bootstrap mean), which is the wrong scale: it shrinks with n_boot and "
+        "inflates |z| by ~sqrt(n_boot) (~45x at n_boot=2000), briefly making MRVL W=20 read "
+        "z=-4.37 and appear to clear a ~2.9 Bonferroni bar. With the correct denominator the same "
+        "cell is |z|=1.68 and UNIDENTIFIABLE. The same convention is used on the PANEL path (SD of "
+        "the date-clustered bootstrap), and both paths are locked by regression tests."
+    )
+    notes.append(
         f"TRADEABILITY / MULTIPLICITY (headline caveat): this study found no effect that could be "
-        f"traded. {clears} The maximum of {n_cells} two-sided z-statistics is expected to be "
-        f"~{evt_max:.2f} under the null by extreme-value theory, so a best-of-{n_cells} z of a "
-        f"couple of sigma is what noise alone produces; the platform's DSR / "
+        f"traded. {clears} The strongest cell in the entire study is |excess_z|={abs(max_z):.2f} "
+        f"({max_cell}), below BOTH the Bonferroni bar {bar:.2f} AND the ~{evt_max:.2f} that the "
+        f"maximum of {n_cells} null z-statistics is expected to reach by extreme-value theory — "
+        f"i.e. our best cell is weaker than what noise alone produces. The platform's DSR / "
         f"multiplicity-adjusted bar (~3.1 for a 40-cell search) is higher still, and this analysis "
         f"was never pre-registered or submitted to that gate. Separately, even a REAL daily "
         f"mean-reverting drift of this size is swamped by diffusion (drift/diffusion ~ sqrt(dt)) "
@@ -1138,12 +1248,18 @@ def _interpretation(report: dict) -> list[str]:
     notes.append(
         "ERA CROSS-REFERENCE: the near-constant half-life across eras found here is the signature "
         "of the rolling-window artifact, not of a stable potential. The complementary cross-sectional "
-        "evidence is in reports/horizon_decomposition.json (horizon-decomposition line, not "
-        "re-verified here): the classic 1-month reversal (k21_h21) is negative in 2016-19 and "
-        "2020-22 but POSITIVE in 2023-26 — a sign flip across eras — which refutes short-horizon "
-        "reversal as a stable potential well and supports a TIME-VARYING effective potential V(k). "
-        "Taken together: what is stable over ten years is the mechanical artifact; what is real "
-        "(the reversal/momentum structure) is era-unstable."
+        "evidence is in reports/horizon_decomposition.json (horizon-decomposition line, cited not "
+        "re-verified here): the classic 1-month reversal (k21_h21) is -0.0254 / -0.0119 / +0.0056 in "
+        "2016-19 / 2020-22 / 2023-26, i.e. negative in the first two eras and POSITIVE in the most "
+        "recent one, sign_stable=false. IMPORTANT CAVEAT (per the source line's own audit): NO "
+        "single era is individually significant (t_newey_west = -1.39 / -0.44 / +0.28), and no "
+        "era x signal interaction test was run, so this is a SIGN-LEVEL observation, not a tested "
+        "between-era difference. What it licenses is narrow and sufficient for our purpose: a "
+        "firmly-signed short-horizon reversal would be needed for a stable short-reversal potential "
+        "well, and that firm sign is absent — it is consistent with (but does not test) a "
+        "time-varying effective V(k). Taken together: what is stable over ten years is the "
+        "mechanical artifact; what is real (the reversal/momentum structure) is era-unstable at the "
+        "level of sign."
     )
     notes.append(
         "CAVEAT: a detected mean-reverting drift is a statistical statement about "
