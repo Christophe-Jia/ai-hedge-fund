@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-09-20T03:49:29.180888+00:00",
+  "generated_at": "2026-09-20T03:50:34.033287+00:00",
   "script": "scripts/momentum_reversal_horizon.py",
   "question": "at which look-back horizon k does past return switch sign for predicting forward-h return, and does it survive search multiplicity + era split?",
   "data": "data/btc_history.db ohlcv, market_type='stocks' (Nasdaq daily)",
@@ -31,7 +31,7 @@
     "aligned_on_purpose": true,
     "coverage_guard": "dates with <80% of pool names priced are dropped from the panel index (load_close_panel)",
     "latest_available_in_store_across_names": "2026-09-18",
-    "why": "the single-name section deliberately shares the panel cutoff rather than each name's latest bar, so single-name and cross-sectional numbers describe the same window. A freshly backfilled name therefore carries raw rows the panel excludes, which is why db_rows and panel_bars can differ — see per-name excluded_dates."
+    "why": "the single-name section deliberately shares the panel cutoff rather than each name's latest bar, so single-name and cross-sectional numbers describe the same window. A freshly backfilled name therefore carries raw rows the panel excludes, which is why db_rows and panel_bars can differ — see the per-name db_excluded_dates and guard_dropped_dates."
    },
    "single_name_and_benchmark_coverage": {
     "MU": {
@@ -43,10 +43,9 @@
      "db_rows": 2513,
      "db_first": "2016-09-12",
      "db_last": "2026-09-10",
-     "db_rows_excluded_from_panel": 0,
-     "excluded_dates": [],
-     "panel_dates_before_first_db_row": 0,
-     "exclusion_reason": null
+     "db_bars_excluded_from_panel": 0,
+     "db_excluded_dates": [],
+     "panel_dates_before_db_history": 0
     },
     "MRVL": {
      "present": true,
@@ -57,15 +56,14 @@
      "db_rows": 2514,
      "db_first": "2016-09-19",
      "db_last": "2026-09-18",
-     "db_rows_excluded_from_panel": 4,
-     "excluded_dates": [
+     "db_bars_excluded_from_panel": 4,
+     "db_excluded_dates": [
       "2026-09-15",
       "2026-09-16",
       "2026-09-17",
       "2026-09-18"
      ],
-     "panel_dates_before_first_db_row": 5,
-     "exclusion_reason": "dates outside the panel date index; the index is union-of-names then gated by the >=80% coverage guard"
+     "panel_dates_before_db_history": 5
     },
     "COIN": {
      "present": true,
@@ -76,10 +74,9 @@
      "db_rows": 1360,
      "db_first": "2021-04-14",
      "db_last": "2026-09-11",
-     "db_rows_excluded_from_panel": 0,
-     "excluded_dates": [],
-     "panel_dates_before_first_db_row": 1154,
-     "exclusion_reason": null
+     "db_bars_excluded_from_panel": 0,
+     "db_excluded_dates": [],
+     "panel_dates_before_db_history": 1154
     },
     "SPY": {
      "present": true,
@@ -90,10 +87,9 @@
      "db_rows": 2512,
      "db_first": "2016-09-12",
      "db_last": "2026-09-10",
-     "db_rows_excluded_from_panel": 0,
-     "excluded_dates": [],
-     "panel_dates_before_first_db_row": 0,
-     "exclusion_reason": null
+     "db_bars_excluded_from_panel": 0,
+     "db_excluded_dates": [],
+     "panel_dates_before_db_history": 0
     },
     "QQQ": {
      "present": true,
@@ -104,10 +100,9 @@
      "db_rows": 2513,
      "db_first": "2016-09-12",
      "db_last": "2026-09-10",
-     "db_rows_excluded_from_panel": 0,
-     "excluded_dates": [],
-     "panel_dates_before_first_db_row": 0,
-     "exclusion_reason": null
+     "db_bars_excluded_from_panel": 0,
+     "db_excluded_dates": [],
+     "panel_dates_before_db_history": 0
     }
    },
    "pit_membership": {
@@ -137,11 +132,18 @@
      "role": "benchmark_etf"
     }
    },
+   "guard_dropped_dates": {
+    "2026-09-15": 0.008403361344537815,
+    "2026-09-16": 0.008403361344537815,
+    "2026-09-17": 0.008403361344537815,
+    "2026-09-18": 0.008403361344537815
+   },
    "reconciliation_notes": [
-    "MRVL: db_rows=2514 (2016-09-19 ~ 2026-09-18) but panel_bars=2510. The 4-bar gap is DETERMINISTIC, not a mid-run read race. Verified directly in the DB: on each of 2026-09-15/16/17/18 exactly ONE distinct symbol in the whole stocks table has a bar (MRVL itself; the universe-wide refresh stopped at 2026-09-14, where 573 symbols still have bars). Coverage on those 4 dates is therefore 1/120 = 0.8%, far below the 80% guard, so the panel drops the dates and MRVL's newest 4 bars with them.",
-    "MRVL also has 5 leading panel dates (2016-09-12..16) with no data because Nasdaq serves only ~10 years of daily history; those are NaN cells, not dropped bars, so they do not change panel_bars.",
-    "every other single-name/benchmark reports db_rows == panel_bars (excluded=0), which is further evidence against a read race: a race would have truncated them too.",
-    "reports/backfill_symbols_status.json is a raw-DB artifact (rows written, through 2026-09-18) and is expected to differ from panel_bars; both are correct, they are different denominators."
+    "MRVL: raw store has 2514 rows (2016-09-19..2026-09-18) but the panel keeps 2510 (2016-09-19..2026-09-14). The 4-bar gap is DETERMINISTIC, not a mid-run read race: the excluded dates 2026-09-15, 2026-09-16, 2026-09-17, 2026-09-18 are dates the >= 80% coverage guard removed from the panel index (see guard_dropped_dates for the coverage fraction on each), so they are absent from every statistic in this report.",
+    "COIN: 1154 panel date(s) precede its first stored bar (2021-04-14) — a NaN region, not a dropped bar (Nasdaq serves ~10y of daily history).",
+    "MRVL: 5 panel date(s) precede its first stored bar (2016-09-19) — a NaN region, not a dropped bar (Nasdaq serves ~10y of daily history).",
+    "the other single-name/benchmark tickers report db_rows == panel_bars, which is additional evidence against a read race: a race would have truncated them too.",
+    "reports/backfill_symbols_status.json is a raw-DB artifact (rows written, through the DB's latest bar) and is expected to differ from panel_bars; both are correct — different denominators."
    ],
    "cross_sectional_pool": {
     "construction": "PIT sp100 union, year-mapped + renamed; low-coverage days (<80% of names) dropped",

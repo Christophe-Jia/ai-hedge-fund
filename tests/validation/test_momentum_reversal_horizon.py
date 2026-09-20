@@ -322,3 +322,79 @@ def test_sign_map_and_decay_curve_wire_up_consistently():
     assert sm["grid"]["21,1"]["ic_mean"] == pytest.approx(-0.01)
     curve = mrh.decay_curve(cells, "h21", (21, 252))
     assert curve["sign_flip_between"] == {"from": 21, "to": 252}
+
+
+# ---------------------------------------------------------------------------
+# coverage guard / panel cutoff (the db_rows vs panel_bars reconciliation)
+# ---------------------------------------------------------------------------
+
+def _guarded_panel() -> pd.DataFrame:
+    """20 names over 5 dates; the last date has only one name priced."""
+    idx = pd.bdate_range("2026-09-08", periods=5)
+    cols = [f"S{i}" for i in range(20)]
+    panel = pd.DataFrame(1.0, index=idx, columns=cols)
+    panel.loc[idx[-1], cols[1:]] = np.nan  # coverage 1/20 = 5% on the last date
+    return panel
+
+
+def test_guard_drops_dates_below_the_coverage_floor_and_reports_coverage():
+    panel = _guarded_panel()
+    kept, dropped = mrh.drop_low_coverage_dates(panel, min_coverage=0.8)
+    assert len(kept) == 4
+    assert list(dropped) == [str(panel.index[-1].date())]
+    assert dropped[str(panel.index[-1].date())] == pytest.approx(1 / 20)
+
+
+def test_guard_keeps_a_date_at_exactly_the_coverage_floor():
+    panel = _guarded_panel()
+    # make the last date 16/20 = 0.8 exactly -> the guard is strictly '<'
+    panel.loc[panel.index[-1], [f"S{i}" for i in range(1, 17)]] = 1.0
+    kept, dropped = mrh.drop_low_coverage_dates(panel, min_coverage=0.8)
+    assert len(kept) == 5
+    assert dropped == {}
+
+
+def test_guard_reports_per_date_coverage_for_every_dropped_date():
+    idx = pd.bdate_range("2026-09-08", periods=3)
+    panel = pd.DataFrame(1.0, index=idx, columns=[f"S{i}" for i in range(10)])
+    panel.loc[idx[-2], ["S0"]] = np.nan  # 90% coverage -> kept
+    panel.loc[idx[-1], :] = np.nan       # 0% -> dropped
+    kept, dropped = mrh.drop_low_coverage_dates(panel, min_coverage=0.8)
+    assert list(dropped) == [str(idx[-1].date())]
+    assert dropped[str(idx[-1].date())] == pytest.approx(0.0)
+    assert len(kept) == 2
+
+
+def test_name_coverage_separates_raw_store_rows_from_panel_bars():
+    panel = _guarded_panel()
+    raw = panel.copy()
+    # the store holds one extra recent bar on a date the panel does not have
+    extra = pd.Timestamp("2026-09-15")
+    raw.loc[extra] = np.nan
+    raw.loc[extra, "S0"] = 1.0
+
+    class FakeStore:
+        def get_daily(self, name, start, end):
+            return pd.DataFrame({"close": raw[name]})
+
+    c = mrh.name_coverage("S0", FakeStore(), panel, "2026-01-01", "2026-12-31", "stocks")
+    assert c["panel_bars"] == 5
+    assert c["db_rows"] == 6
+    assert c["db_bars_excluded_from_panel"] == 1
+    assert c["db_excluded_dates"] == ["2026-09-15"]
+
+
+def test_name_coverage_records_leading_nan_region_not_a_dropped_bar():
+    panel = _guarded_panel()
+    panel.loc[panel.index[0], "S0"] = np.nan  # S0 starts one date later
+
+    class FakeStore:
+        def get_daily(self, name, start, end):
+            return pd.DataFrame({"close": panel[name].dropna()})
+
+    c = mrh.name_coverage("S0", FakeStore(), panel, "2026-01-01", "2026-12-31", "stocks")
+    assert c["panel_bars"] == 4
+    assert c["db_rows"] == 4
+    assert c["db_bars_excluded_from_panel"] == 0
+    assert c["panel_dates_before_db_history"] == 1
+

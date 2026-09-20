@@ -616,7 +616,8 @@ def name_coverage(
     count is what the statistics actually consume.
     """
     if name not in panel.columns:
-        return {"present": False, "reason": "no rows in the store"}
+        return {"present": False, "table": table,
+                "reason": "no rows in the store"}
     s = panel[name].dropna()
     raw = store.get_daily(name, start, end)
     raw_dates = list(raw.index)
@@ -664,7 +665,9 @@ def main() -> None:
     store = NasdaqDailyStore(assetclass="stocks")
     etf_store = NasdaqDailyStore(assetclass="etf")  # SPY / QQQ live in the etf table
     focus = [s for s in FOCUS_NAMES if s not in union]
-    close = load_close_panel(store, union + focus, args.start, args.end)
+    guard_dropped: dict[str, float] = {}
+    close = load_close_panel(store, union + focus, args.start, args.end,
+                             dropped_out=guard_dropped)
     missing_focus = [s for s in FOCUS_NAMES if s not in close.columns]
     bench = load_close_panel(etf_store, list(BENCHMARKS), args.start, args.end,
                              min_coverage=0.0)
@@ -806,32 +809,9 @@ def main() -> None:
     coverage: dict[str, dict] = {}
     for name in (*FOCUS_NAMES, *BENCHMARKS):
         table = "etf" if name in BENCHMARKS else "stocks"
-        if name not in close.columns:
-            coverage[name] = {"present": False, "table": table,
-                              "reason": "no rows in the store"}
-            continue
-        s = close[name].dropna()
-        raw = stores[table].get_daily(name, args.start, args.end)["close"].dropna()
-        raw_idx, panel_idx = set(raw.index), set(close.index)
-        excluded = sorted(d for d in raw_idx if d not in panel_idx)
-        leading = sorted(d for d in panel_idx if d < raw.index[0]) if len(raw) else []
-        coverage[name] = {
-            "present": True,
-            "table": table,
-            "panel_bars": int(s.size),
-            "panel_first": str(s.index[0].date()),
-            "panel_last": str(s.index[-1].date()),
-            "db_rows": int(raw.size),
-            "db_first": str(raw.index[0].date()) if len(raw) else None,
-            "db_last": str(raw.index[-1].date()) if len(raw) else None,
-            "db_rows_excluded_from_panel": len(excluded),
-            "excluded_dates": [str(d.date()) for d in excluded],
-            "panel_dates_before_first_db_row": len(leading),
-            "exclusion_reason": (
-                "dates outside the panel date index; the index is union-of-names "
-                f"then gated by the >={MIN_COVERAGE:.0%} coverage guard"
-            ) if excluded else None,
-        }
+        coverage[name] = name_coverage(
+            name, stores[table], close, args.start, args.end, table
+        )
     panel_cutoff = str(close.index[-1].date())
     raw_latest = max((v.get("db_last") or "" for v in coverage.values()
                       if v.get("present")), default=None)
@@ -932,30 +912,42 @@ def main() -> None:
                         "rather than each name's latest bar, so single-name and "
                         "cross-sectional numbers describe the same window. A freshly "
                         "backfilled name therefore carries raw rows the panel excludes, "
-                        "which is why db_rows and panel_bars can differ — see "
-                        "per-name excluded_dates."),
+                        "which is why db_rows and panel_bars can differ — see the "
+                        "per-name db_excluded_dates and guard_dropped_dates."),
                 },
                 "single_name_and_benchmark_coverage": coverage,
                 "pit_membership": pit_membership,
-                "reconciliation_notes": [
-                    "MRVL: db_rows=2514 (2016-09-19 ~ 2026-09-18) but panel_bars=2510. "
-                    "The 4-bar gap is DETERMINISTIC, not a mid-run read race. Verified "
-                    "directly in the DB: on each of 2026-09-15/16/17/18 exactly ONE "
-                    "distinct symbol in the whole stocks table has a bar (MRVL itself; "
-                    "the universe-wide refresh stopped at 2026-09-14, where 573 symbols "
-                    "still have bars). Coverage on those 4 dates is therefore 1/120 = "
-                    "0.8%, far below the 80% guard, so the panel drops the dates and "
-                    "MRVL's newest 4 bars with them.",
-                    "MRVL also has 5 leading panel dates (2016-09-12..16) with no data "
-                    "because Nasdaq serves only ~10 years of daily history; those are "
-                    "NaN cells, not dropped bars, so they do not change panel_bars.",
-                    "every other single-name/benchmark reports db_rows == panel_bars "
-                    "(excluded=0), which is further evidence against a read race: a race "
-                    "would have truncated them too.",
-                    "reports/backfill_symbols_status.json is a raw-DB artifact (rows "
-                    "written, through 2026-09-18) and is expected to differ from "
-                    "panel_bars; both are correct, they are different denominators.",
-                ],
+                "guard_dropped_dates": guard_dropped,
+                "reconciliation_notes": (
+                    [
+                        f"{name}: raw store has {c['db_rows']} rows "
+                        f"({c['db_first']}..{c['db_last']}) but the panel keeps "
+                        f"{c['panel_bars']} ({c['panel_first']}..{c['panel_last']}). "
+                        f"The {c['db_bars_excluded_from_panel']}-bar gap is "
+                        f"DETERMINISTIC, not a mid-run read race: the excluded dates "
+                        f"{', '.join(c['db_excluded_dates'])} are dates the "
+                        f">= {MIN_COVERAGE:.0%} coverage guard removed from the panel "
+                        f"index (see guard_dropped_dates for the coverage fraction on "
+                        f"each), so they are absent from every statistic in this report."
+                        for name, c in sorted(coverage.items())
+                        if c.get("present") and c["db_rows"] != c["panel_bars"]
+                    ]
+                    + [
+                        f"{name}: {c['panel_dates_before_db_history']} panel date(s) "
+                        f"precede its first stored bar ({c['db_first']}) — a NaN region, "
+                        f"not a dropped bar (Nasdaq serves ~10y of daily history)."
+                        for name, c in sorted(coverage.items())
+                        if c.get("present") and c["panel_dates_before_db_history"]
+                    ]
+                    + [
+                        "the other single-name/benchmark tickers report "
+                        "db_rows == panel_bars, which is additional evidence against a "
+                        "read race: a race would have truncated them too.",
+                        "reports/backfill_symbols_status.json is a raw-DB artifact (rows "
+                        "written, through the DB's latest bar) and is expected to differ "
+                        "from panel_bars; both are correct — different denominators.",
+                    ]
+                ),
                 "cross_sectional_pool": {
                     "construction": "PIT sp100 union, year-mapped + renamed; "
                                     "low-coverage days (<80% of names) dropped",
