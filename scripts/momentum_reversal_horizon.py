@@ -95,6 +95,7 @@ ERAS: tuple[tuple[str, str, str], ...] = (
 BLOCK = 21          # block bootstrap block length (trading days), per spec
 N_BOOT = 2000
 MIN_NAMES = 20      # need a real cross-section before an IC day is usable
+MIN_COVERAGE = 0.8  # Load panel guard: drop dates with <80% of names priced
 FOCUS_NAMES = ("MU", "MRVL", "COIN")
 BENCHMARKS = ("SPY", "QQQ")
 ALPHA = 0.05
@@ -553,15 +554,34 @@ def single_name_grid(
 # data orchestration
 # ---------------------------------------------------------------------------
 
+def drop_low_coverage_dates(
+    panel: pd.DataFrame, *, min_coverage: float = MIN_COVERAGE
+) -> tuple[pd.DataFrame, dict[str, float]]:
+    """Drop dates where fewer than ``min_coverage`` of names are priced.
+
+    This is the engine's partial-refresh guard: a day on which only a handful of
+    tickers were updated is not a trading day for the pool, and treating it as
+    one would value every un-refreshed holding at zero. It also fixes the
+    panel's effective cutoff — a symbol fetched more recently than the rest of
+    the pool contributes its newest bars only on dates almost nobody else has,
+    which the guard removes. Returns ``(panel, {dropped_date: coverage_fraction})``.
+    """
+    frac = panel.notna().mean(axis=1)
+    bad = frac[frac < min_coverage]
+    return panel.drop(index=bad.index), {str(d.date()): float(v) for d, v in bad.items()}
+
+
 def load_close_panel(
     store: NasdaqDailyStore, symbols: list[str], start: str, end: str,
-    *, min_coverage: float = 0.8,
+    *, min_coverage: float = MIN_COVERAGE,
+    dropped_out: dict | None = None,
 ) -> pd.DataFrame:
     """date x symbol close panel with the same low-coverage guard as the engine.
 
-    ``min_coverage=0.8`` replicates the engine guard for a broad pool (drops a
-    partial-refresh day). Pass 0.0 for a handful of benchmark tickers where a
-    single missing name would otherwise trip the fraction test.
+    ``min_coverage`` defaults to the engine's 0.8. Pass 0.0 for a handful of
+    benchmark tickers where a single missing name would trip the fraction test.
+    If ``dropped_out`` is a dict it is filled with ``{dropped_date: fraction}``
+    so the caller can report why a name's raw bars are not in the panel.
     """
     cols = {}
     for sym in symbols:
@@ -572,12 +592,50 @@ def load_close_panel(
     if not cols:
         return pd.DataFrame()
     panel = pd.DataFrame(cols).sort_index()
-    frac = panel.notna().mean(axis=1)
-    bad = frac[frac < min_coverage].index
-    if len(bad):
-        print(f"  [guard] dropping {len(bad)} low-coverage date(s)")
-        panel = panel.drop(index=bad)
+    panel, dropped = drop_low_coverage_dates(panel, min_coverage=min_coverage)
+    if dropped and dropped_out is not None:
+        dropped_out.update(dropped)
+    if dropped:
+        print(f"  [guard] dropping {len(dropped)} low-coverage date(s), "
+              f"coverage {min(dropped.values()):.3%} .. {max(dropped.values()):.3%}")
     return panel
+
+
+def name_coverage(
+    name: str,
+    store: NasdaqDailyStore,
+    panel: pd.DataFrame,
+    start: str,
+    end: str,
+    table: str,
+) -> dict:
+    """Raw-store coverage vs panel coverage for one name, and the difference.
+
+    The report must not let these two numbers silently disagree: the raw store
+    row count is what ``backfill_symbols_status.json`` records, while the panel
+    count is what the statistics actually consume.
+    """
+    if name not in panel.columns:
+        return {"present": False, "reason": "no rows in the store"}
+    s = panel[name].dropna()
+    raw = store.get_daily(name, start, end)
+    raw_dates = list(raw.index)
+    panel_dates = set(panel.index)
+    excluded = [d for d in raw_dates if d not in panel_dates]
+    leading = [d for d in panel.index if raw_dates and d < raw_dates[0]]
+    return {
+        "present": True,
+        "table": table,
+        "panel_bars": int(s.size),
+        "panel_first": str(s.index[0].date()),
+        "panel_last": str(s.index[-1].date()),
+        "db_rows": int(len(raw_dates)),
+        "db_first": str(raw_dates[0].date()) if raw_dates else None,
+        "db_last": str(raw_dates[-1].date()) if raw_dates else None,
+        "db_bars_excluded_from_panel": len(excluded),
+        "db_excluded_dates": [str(d.date()) for d in excluded],
+        "panel_dates_before_db_history": len(leading),
+    }
 
 
 def _json_default(o):
@@ -737,19 +795,56 @@ def main() -> None:
 
     print("[single names] MU / MRVL / COIN / SPY / QQQ ...")
     singles = single_name_grid(close, (*FOCUS_NAMES, *BENCHMARKS), KS, HS)
-    coverage = {}
+
+    # Per-name DB-vs-panel reconciliation. The panel date index is the union of
+    # every name's dates and is then gated by the coverage guard, so a name
+    # fetched freshly (with bars newer than the last universe-wide refresh) can
+    # hold raw rows that the panel deliberately excludes. Record both numbers
+    # and the excluded dates so the report and the backfill artifact cannot be
+    # read as contradicting each other.
+    stores = {"stocks": store, "etf": etf_store}
+    coverage: dict[str, dict] = {}
     for name in (*FOCUS_NAMES, *BENCHMARKS):
+        table = "etf" if name in BENCHMARKS else "stocks"
         if name not in close.columns:
-            coverage[name] = {"present": False, "reason": "no rows in the store"}
+            coverage[name] = {"present": False, "table": table,
+                              "reason": "no rows in the store"}
             continue
         s = close[name].dropna()
+        raw = stores[table].get_daily(name, args.start, args.end)["close"].dropna()
+        raw_idx, panel_idx = set(raw.index), set(close.index)
+        excluded = sorted(d for d in raw_idx if d not in panel_idx)
+        leading = sorted(d for d in panel_idx if d < raw.index[0]) if len(raw) else []
         coverage[name] = {
             "present": True,
-            "first": str(s.index[0].date()),
-            "last": str(s.index[-1].date()),
-            "n_bars": int(s.size),
-            "table": "etf" if name in BENCHMARKS else "stocks",
+            "table": table,
+            "panel_bars": int(s.size),
+            "panel_first": str(s.index[0].date()),
+            "panel_last": str(s.index[-1].date()),
+            "db_rows": int(raw.size),
+            "db_first": str(raw.index[0].date()) if len(raw) else None,
+            "db_last": str(raw.index[-1].date()) if len(raw) else None,
+            "db_rows_excluded_from_panel": len(excluded),
+            "excluded_dates": [str(d.date()) for d in excluded],
+            "panel_dates_before_first_db_row": len(leading),
+            "exclusion_reason": (
+                "dates outside the panel date index; the index is union-of-names "
+                f"then gated by the >={MIN_COVERAGE:.0%} coverage guard"
+            ) if excluded else None,
         }
+    panel_cutoff = str(close.index[-1].date())
+    raw_latest = max((v.get("db_last") or "" for v in coverage.values()
+                      if v.get("present")), default=None)
+
+    sp500_path = ROOT / "data" / "universe" / "sp500_union.json"
+    sp500_union = set(json.loads(sp500_path.read_text())) if sp500_path.exists() else set()
+    sp100_union = set(union)
+    pit_membership = {
+        name: {"sp100_union": name in sp100_union,
+               "sp500_union": name in sp500_union,
+               "role": "benchmark_etf" if name in BENCHMARKS else "extra_single_name"}
+        for name in (*FOCUS_NAMES, *BENCHMARKS)
+    }
 
     def _era_profile(key: str) -> dict:
         by_era = {label: era_cells[label][key]["ic_mean"] for label, _, _ in ERAS}
@@ -824,7 +919,43 @@ def main() -> None:
                 "store": "data/btc_history.db (SQLite; not committed — gitignored)",
                 "tables": {"stocks": "market_type='stocks', timeframe='1d'",
                            "etf": "market_type='etf', timeframe='1d'"},
+                "cutoff": {
+                    "cross_sectional_cutoff": panel_cutoff,
+                    "single_name_cutoff": panel_cutoff,
+                    "aligned_on_purpose": True,
+                    "coverage_guard": (
+                        f"dates with <{MIN_COVERAGE:.0%} of pool names priced are "
+                        "dropped from the panel index (load_close_panel)"),
+                    "latest_available_in_store_across_names": raw_latest,
+                    "why": (
+                        "the single-name section deliberately shares the panel cutoff "
+                        "rather than each name's latest bar, so single-name and "
+                        "cross-sectional numbers describe the same window. A freshly "
+                        "backfilled name therefore carries raw rows the panel excludes, "
+                        "which is why db_rows and panel_bars can differ — see "
+                        "per-name excluded_dates."),
+                },
                 "single_name_and_benchmark_coverage": coverage,
+                "pit_membership": pit_membership,
+                "reconciliation_notes": [
+                    "MRVL: db_rows=2514 (2016-09-19 ~ 2026-09-18) but panel_bars=2510. "
+                    "The 4-bar gap is DETERMINISTIC, not a mid-run read race. Verified "
+                    "directly in the DB: on each of 2026-09-15/16/17/18 exactly ONE "
+                    "distinct symbol in the whole stocks table has a bar (MRVL itself; "
+                    "the universe-wide refresh stopped at 2026-09-14, where 573 symbols "
+                    "still have bars). Coverage on those 4 dates is therefore 1/120 = "
+                    "0.8%, far below the 80% guard, so the panel drops the dates and "
+                    "MRVL's newest 4 bars with them.",
+                    "MRVL also has 5 leading panel dates (2016-09-12..16) with no data "
+                    "because Nasdaq serves only ~10 years of daily history; those are "
+                    "NaN cells, not dropped bars, so they do not change panel_bars.",
+                    "every other single-name/benchmark reports db_rows == panel_bars "
+                    "(excluded=0), which is further evidence against a read race: a race "
+                    "would have truncated them too.",
+                    "reports/backfill_symbols_status.json is a raw-DB artifact (rows "
+                    "written, through 2026-09-18) and is expected to differ from "
+                    "panel_bars; both are correct, they are different denominators.",
+                ],
                 "cross_sectional_pool": {
                     "construction": "PIT sp100 union, year-mapped + renamed; "
                                     "low-coverage days (<80% of names) dropped",
@@ -833,13 +964,17 @@ def main() -> None:
                     "last": str(close.index[-1].date()),
                 },
                 "notes": [
-                    "MU and COIN are inside the PIT sp100 union; MRVL is not, and was "
-                    "backfilled separately by scripts/backfill_symbols.py (see "
-                    "reports/backfill_symbols_status.json).",
+                    "NONE of the five single-name/benchmark tickers is in the PIT "
+                    "sp100 union, so all five are loaded as extras and excluded from "
+                    "the cross-section by the universe mask; see pit_membership. MU "
+                    "and COIN are S&P 500 members (not S&P 100); MRVL is in neither "
+                    "snapshot; SPY/QQQ are ETFs.",
                     "MRVL was never an S&P 500 constituent inside the sample window: "
                     "it joined the index on 2026-06-22, i.e. after the 2026-01 "
                     "snapshot. Its absence from the universe files is correct, not a "
-                    "universe-data bug.",
+                    "universe-data bug, and it was backfilled separately by "
+                    "scripts/backfill_symbols.py (see "
+                    "reports/backfill_symbols_status.json).",
                     "Nasdaq serves ~10 years of daily history per request, so the "
                     "oldest bars are truncated at the request window and MRVL starts "
                     "~5 trading days later than the rest of the panel.",

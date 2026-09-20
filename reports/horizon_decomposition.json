@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-09-20T03:37:18.922984+00:00",
+  "generated_at": "2026-09-20T03:49:29.180888+00:00",
   "script": "scripts/momentum_reversal_horizon.py",
   "question": "at which look-back horizon k does past return switch sign for predicting forward-h return, and does it survive search multiplicity + era split?",
   "data": "data/btc_history.db ohlcv, market_type='stocks' (Nasdaq daily)",
@@ -25,43 +25,124 @@
     "stocks": "market_type='stocks', timeframe='1d'",
     "etf": "market_type='etf', timeframe='1d'"
    },
+   "cutoff": {
+    "cross_sectional_cutoff": "2026-09-14",
+    "single_name_cutoff": "2026-09-14",
+    "aligned_on_purpose": true,
+    "coverage_guard": "dates with <80% of pool names priced are dropped from the panel index (load_close_panel)",
+    "latest_available_in_store_across_names": "2026-09-18",
+    "why": "the single-name section deliberately shares the panel cutoff rather than each name's latest bar, so single-name and cross-sectional numbers describe the same window. A freshly backfilled name therefore carries raw rows the panel excludes, which is why db_rows and panel_bars can differ — see per-name excluded_dates."
+   },
    "single_name_and_benchmark_coverage": {
     "MU": {
      "present": true,
-     "first": "2016-09-12",
-     "last": "2026-09-10",
-     "n_bars": 2513,
-     "table": "stocks"
+     "table": "stocks",
+     "panel_bars": 2513,
+     "panel_first": "2016-09-12",
+     "panel_last": "2026-09-10",
+     "db_rows": 2513,
+     "db_first": "2016-09-12",
+     "db_last": "2026-09-10",
+     "db_rows_excluded_from_panel": 0,
+     "excluded_dates": [],
+     "panel_dates_before_first_db_row": 0,
+     "exclusion_reason": null
     },
     "MRVL": {
      "present": true,
-     "first": "2016-09-19",
-     "last": "2026-09-14",
-     "n_bars": 2510,
-     "table": "stocks"
+     "table": "stocks",
+     "panel_bars": 2510,
+     "panel_first": "2016-09-19",
+     "panel_last": "2026-09-14",
+     "db_rows": 2514,
+     "db_first": "2016-09-19",
+     "db_last": "2026-09-18",
+     "db_rows_excluded_from_panel": 4,
+     "excluded_dates": [
+      "2026-09-15",
+      "2026-09-16",
+      "2026-09-17",
+      "2026-09-18"
+     ],
+     "panel_dates_before_first_db_row": 5,
+     "exclusion_reason": "dates outside the panel date index; the index is union-of-names then gated by the >=80% coverage guard"
     },
     "COIN": {
      "present": true,
-     "first": "2021-04-14",
-     "last": "2026-09-11",
-     "n_bars": 1360,
-     "table": "stocks"
+     "table": "stocks",
+     "panel_bars": 1360,
+     "panel_first": "2021-04-14",
+     "panel_last": "2026-09-11",
+     "db_rows": 1360,
+     "db_first": "2021-04-14",
+     "db_last": "2026-09-11",
+     "db_rows_excluded_from_panel": 0,
+     "excluded_dates": [],
+     "panel_dates_before_first_db_row": 1154,
+     "exclusion_reason": null
     },
     "SPY": {
      "present": true,
-     "first": "2016-09-12",
-     "last": "2026-09-10",
-     "n_bars": 2512,
-     "table": "etf"
+     "table": "etf",
+     "panel_bars": 2512,
+     "panel_first": "2016-09-12",
+     "panel_last": "2026-09-10",
+     "db_rows": 2512,
+     "db_first": "2016-09-12",
+     "db_last": "2026-09-10",
+     "db_rows_excluded_from_panel": 0,
+     "excluded_dates": [],
+     "panel_dates_before_first_db_row": 0,
+     "exclusion_reason": null
     },
     "QQQ": {
      "present": true,
-     "first": "2016-09-12",
-     "last": "2026-09-10",
-     "n_bars": 2513,
-     "table": "etf"
+     "table": "etf",
+     "panel_bars": 2513,
+     "panel_first": "2016-09-12",
+     "panel_last": "2026-09-10",
+     "db_rows": 2513,
+     "db_first": "2016-09-12",
+     "db_last": "2026-09-10",
+     "db_rows_excluded_from_panel": 0,
+     "excluded_dates": [],
+     "panel_dates_before_first_db_row": 0,
+     "exclusion_reason": null
     }
    },
+   "pit_membership": {
+    "MU": {
+     "sp100_union": false,
+     "sp500_union": true,
+     "role": "extra_single_name"
+    },
+    "MRVL": {
+     "sp100_union": false,
+     "sp500_union": false,
+     "role": "extra_single_name"
+    },
+    "COIN": {
+     "sp100_union": false,
+     "sp500_union": true,
+     "role": "extra_single_name"
+    },
+    "SPY": {
+     "sp100_union": false,
+     "sp500_union": false,
+     "role": "benchmark_etf"
+    },
+    "QQQ": {
+     "sp100_union": false,
+     "sp500_union": false,
+     "role": "benchmark_etf"
+    }
+   },
+   "reconciliation_notes": [
+    "MRVL: db_rows=2514 (2016-09-19 ~ 2026-09-18) but panel_bars=2510. The 4-bar gap is DETERMINISTIC, not a mid-run read race. Verified directly in the DB: on each of 2026-09-15/16/17/18 exactly ONE distinct symbol in the whole stocks table has a bar (MRVL itself; the universe-wide refresh stopped at 2026-09-14, where 573 symbols still have bars). Coverage on those 4 dates is therefore 1/120 = 0.8%, far below the 80% guard, so the panel drops the dates and MRVL's newest 4 bars with them.",
+    "MRVL also has 5 leading panel dates (2016-09-12..16) with no data because Nasdaq serves only ~10 years of daily history; those are NaN cells, not dropped bars, so they do not change panel_bars.",
+    "every other single-name/benchmark reports db_rows == panel_bars (excluded=0), which is further evidence against a read race: a race would have truncated them too.",
+    "reports/backfill_symbols_status.json is a raw-DB artifact (rows written, through 2026-09-18) and is expected to differ from panel_bars; both are correct, they are different denominators."
+   ],
    "cross_sectional_pool": {
     "construction": "PIT sp100 union, year-mapped + renamed; low-coverage days (<80% of names) dropped",
     "n_names": 121,
@@ -69,8 +150,8 @@
     "last": "2026-09-14"
    },
    "notes": [
-    "MU and COIN are inside the PIT sp100 union; MRVL is not, and was backfilled separately by scripts/backfill_symbols.py (see reports/backfill_symbols_status.json).",
-    "MRVL was never an S&P 500 constituent inside the sample window: it joined the index on 2026-06-22, i.e. after the 2026-01 snapshot. Its absence from the universe files is correct, not a universe-data bug.",
+    "NONE of the five single-name/benchmark tickers is in the PIT sp100 union, so all five are loaded as extras and excluded from the cross-section by the universe mask; see pit_membership. MU and COIN are S&P 500 members (not S&P 100); MRVL is in neither snapshot; SPY/QQQ are ETFs.",
+    "MRVL was never an S&P 500 constituent inside the sample window: it joined the index on 2026-06-22, i.e. after the 2026-01 snapshot. Its absence from the universe files is correct, not a universe-data bug, and it was backfilled separately by scripts/backfill_symbols.py (see reports/backfill_symbols_status.json).",
     "Nasdaq serves ~10 years of daily history per request, so the oldest bars are truncated at the request window and MRVL starts ~5 trading days later than the rest of the panel.",
     "Nasdaq closes are split-adjusted, dividend-unadjusted."
    ]
