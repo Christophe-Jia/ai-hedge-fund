@@ -21,14 +21,19 @@ import pytest
 
 from scripts.econophysics_km_drift import (
     MIN_BIN_OBS,
+    RENAME_MAP,
     VERDICT_ESCAPE,
     VERDICT_UNIDENTIFIABLE,
     VERDICT_WELL,
+    _se,
+    _std,
     bin_km,
     bootstrap_km_slopes,
     ci,
     classify,
+    classify_absent_ticker,
     drift_slope,
+    estimate_symbol,
     half_life_days,
     km_sample,
     n_bins_for,
@@ -191,6 +196,30 @@ def test_half_life_definition():
 
 
 # ---------------------------------------------------------------------------
+# excess_z must use the statistic's SAMPLING spread, not the MC error of the
+# bootstrap mean (using the latter inflates z by ~sqrt(n_boot) and once made a
+# pure random walk look like a multiplicity-clearing effect).
+# ---------------------------------------------------------------------------
+def test_sampling_spread_is_not_mc_error():
+    a = np.random.default_rng(0).normal(0.0, 1.0, 500)
+    assert _std(a) == pytest.approx(1.0, abs=0.15)
+    assert _se(a) == pytest.approx(_std(a) / np.sqrt(a.size))
+    assert _std(a) > 10 * _se(a), "the two must not be conflated"
+
+
+def test_random_walk_excess_z_stays_within_noise():
+    """End-to-end guard: on a pure random walk the corrected excess_z must be
+    O(1), never a multiplicity-clearing number."""
+    logp = pd.Series(synthetic_price(kappa=None, n=1500, seed=21))
+    r = estimate_symbol("SYN", logp, window=60, n_boot=200, n_null=60,
+                        block=21, seed=1)
+    assert r["drift"]["verdict"] == VERDICT_UNIDENTIFIABLE
+    assert abs(r["drift"]["excess_z"]) < 3.0, r["drift"]["excess_z"]
+    # the reported sampling spread must dwarf the null-mean MC error
+    assert r["drift"]["boot_sd"] > 5 * r["drift"]["null_se"]
+
+
+# ---------------------------------------------------------------------------
 # Binning contract
 # ---------------------------------------------------------------------------
 def test_bins_are_equal_frequency_and_thin_bins_are_dropped():
@@ -210,3 +239,37 @@ def test_n_bins_adapts_to_small_samples():
     assert n_bins_for(400) == 4
     assert n_bins_for(10000) == 20  # capped
     assert n_bins_for(250) == 3     # floor
+
+
+# ---------------------------------------------------------------------------
+# Panel survivorship: never map a takeover onto its acquirer, never double-count
+# ---------------------------------------------------------------------------
+def test_takeover_and_restructuring_names_are_never_mapped_to_the_acquirer():
+    """ABBV/BMY/DD/BAYRY/RTX/T are DIFFERENT firms from the tickers that left
+    the index, so a takeover target must never be replaced by the acquirer's
+    price series.  Pass them as present members to prove the structural guard
+    wins over alias resolution."""
+    members = {"ABBV", "BMY", "DD", "BAYRY", "RTX", "T", "META"}
+    for sym in ("AGN", "CELG", "MON", "TWX", "RTN", "UTX", "DWDP"):
+        verdict, _ = classify_absent_ticker(sym, RENAME_MAP.get(sym), members)
+        assert verdict == "structurally_unrecoverable", sym
+
+
+def test_same_security_rename_is_added_only_when_the_target_is_new():
+    # target not otherwise in the panel -> a genuine new series
+    assert classify_absent_ticker("BK", "BNY", set())[0] == "add"
+    # target already a panel member -> adding the alias would double-weight it
+    assert classify_absent_ticker("BK", "BNY", {"BNY"})[0] == "already_represented"
+    assert classify_absent_ticker("FB", "META", {"META"})[0] == "already_represented"
+    assert classify_absent_ticker("PCLN", "BKNG", {"BKNG"})[0] == "already_represented"
+
+
+def test_absent_ticker_without_an_alias_is_recorded_not_guessed():
+    assert classify_absent_ticker("WBA", None, set())[0] == "no_alias"
+
+
+def test_alias_targets_resolve_through_the_repo_rename_map():
+    """The study must not carry a parallel rename map: every union-gap ticker
+    that can be aliased at all must resolve through RENAME_MAP."""
+    for sym in ("BK", "FB", "PCLN", "AGN", "CELG", "MON", "TWX", "RTN", "UTX", "DWDP"):
+        assert sym in RENAME_MAP, f"{sym} missing from the repo RENAME_MAP"

@@ -94,15 +94,59 @@ import sqlite3
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence
+from statistics import NormalDist
+from typing import Iterable, Sequence
 
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 DB_PATH = ROOT / "data" / "btc_history.db"
 UNIVERSE_PATH = ROOT / "data" / "universe" / "sp100_union.json"
 OUT_PATH = ROOT / "reports" / "km_drift_diffusion.json"
+
+# Alias targets come from the repo's SINGLE SOURCE OF TRUTH for old->new
+# tickers (imported the same way scripts/xsec_gbm_selection.py does).  We do
+# NOT maintain a parallel rename map here -- only the recoverability verdict
+# below is study-specific.
+try:
+    from scripts.backfill_sp500_stocks import RENAME_MAP  # noqa: E402
+    _RENAME_MAP_ERROR: str | None = None
+except Exception as exc:  # pragma: no cover - only on a broken checkout
+    RENAME_MAP = {}
+    _RENAME_MAP_ERROR = repr(exc)
+
+# Union tickers absent from the store, classified by what happened to the
+# SECURITY.  Same-security ticker changes can be represented by the current
+# ticker's series; M&A / restructuring cases cannot, because the listed
+# security ceased to exist and its successor is a DIFFERENT firm.
+SAME_SECURITY_RENAMES: tuple[str, ...] = ("BK", "FB", "PCLN")
+STRUCTURALLY_UNRECOVERABLE: dict[str, str] = {
+    "AGN": "acquired by AbbVie (2015-2016); Allergan ceased to exist",
+    "CELG": "acquired by Bristol-Myers Squibb (2019-11)",
+    "MON": "acquired by Bayer (2018-06)",
+    "TWX": "acquired by AT&T (2018-06)",
+    "RTN": "Raytheon/UTC merger (2020-04); one of TWO union legs mapping to RTX",
+    "UTX": "Raytheon/UTC merger (2020-04); one of TWO union legs mapping to RTX",
+    "DWDP": "DowDuPont three-way split (2019-06); security restructured",
+}
+
+# Documented direction of the resulting survivorship channel (see notes).
+SURVIVORSHIP_BIAS_NOTE = (
+    "Direction of the bias: the panel drops names that ceased to exist via "
+    "acquisition/restructuring (the 7 STRUCTURALLY_UNRECOVERABLE tickers). "
+    "Acquisitions typically remove a security AFTER it has been bid up, so the "
+    "drop is biased toward removing post-outperformance winners; the pooled "
+    "panel therefore understates the total return of the 2016-2026 universe. "
+    "This is a REAL survivorship channel, not a rounding error, and it is a "
+    "property of the PIT union source (it tracks index membership, and a "
+    "take-private name leaves the index), not of this study. It cannot be "
+    "repaired without a delisted-name price source (IBKR: no gateway in this "
+    "environment)."
+)
 
 # --------------------------------------------------------------------------
 # Frozen study constants (see module docstring for rationale)
@@ -164,6 +208,94 @@ def load_universe() -> list[str]:
     if UNIVERSE_PATH.exists():
         return list(json.loads(UNIVERSE_PATH.read_text()))
     return []
+
+
+# Result of the explicit WBA probe (team-lead item c).  Recorded as data so the
+# distinction between "delisted" and "cached miss" is auditable.
+WBA_BACKFILL_PROBE: dict = {
+    "symbol": "WBA",
+    "attempted": "poetry run python scripts/backfill_symbols.py --symbols WBA",
+    "probe_date": "2026-09-20",
+    "outcome": "FAILED",
+    "nasdaq_response": 'HTTP 200 {"data":null,"message":null,"status":{"rCode":400,'
+                       '"bCodeMessage":[{"code":1001,"errorMessage":"Symbol not exists."}]}}',
+    "diagnosis": "LIVE invalid-symbol response, NOT a cached empty payload: the negative-cache "
+                 "hazard from the S&P500 backfill does not apply here (data/btc_history.db has no "
+                 "cache table and holds 0 WBA rows). Walgreens Boots Alliance was taken private "
+                 "(Sycamore Partners) and no longer trades on Nasdaq, so Nasdaq cannot serve its "
+                 "history at all. Delisted-name history is only reachable via IBKR and no IB "
+                 "Gateway is listening on :4002 in this environment. WBA is UNRECOVERABLE here.",
+}
+
+
+def classify_absent_ticker(sym: str, target: str | None,
+                           panel_members: Iterable[str]) -> tuple[str, str]:
+    """Pure decision for one sp100_union ticker that has no bars of its own.
+
+    Returns (verdict, reason) with verdict in
+    {"add", "already_represented", "structurally_unrecoverable", "no_alias"}.
+
+    Guards two mistakes that would silently corrupt the pooled panel:
+      * a takeover target must NEVER be replaced by its acquirer's series
+        (ABB V, BMY, DD, BAYRY, RTX, T are different firms), and
+      * a same-security rename must NOT be added when the current ticker is
+        already a panel member (that would double-weight one security).
+    """
+    members = set(panel_members)
+    if sym in STRUCTURALLY_UNRECOVERABLE:
+        return "structurally_unrecoverable", STRUCTURALLY_UNRECOVERABLE[sym]
+    if target is None:
+        return "no_alias", "absent from the store and not in RENAME_MAP"
+    if target in members:
+        return "already_represented", (
+            f"{target} is itself a panel member; mapping {sym} would add the same "
+            f"security twice and double-weight it in the pooled fit")
+    return "add", "same-security ticker change; target is not otherwise in the panel"
+
+
+def resolve_panel_aliases(panel_members: set[str]) -> tuple[dict[str, pd.Series], dict]:
+    """Decide what to do about sp100_union tickers that have no bars of their own.
+
+    Alias TARGETS come from RENAME_MAP (the repo's single source of truth,
+    imported from scripts/backfill_sp500_stocks.py).  Only the recoverability
+    verdict is study-specific; see classify_absent_ticker for the rules.
+
+    Returns (series_to_add, audit).
+    """
+    missing = [s for s in load_universe() if s not in panel_members]
+    audit: dict = {
+        "added": {}, "already_represented": {}, "structurally_unrecoverable": {},
+        "no_alias": {}, "rename_map_error": _RENAME_MAP_ERROR,
+        "bias_note": SURVIVORSHIP_BIAS_NOTE,
+    }
+    added: dict[str, pd.Series] = {}
+    for sym in missing:
+        target = RENAME_MAP.get(sym)
+        verdict, reason = classify_absent_ticker(sym, target, panel_members)
+        if verdict == "structurally_unrecoverable":
+            audit["structurally_unrecoverable"][sym] = {
+                "alias_target": target, "reason": reason}
+            continue
+        if verdict == "no_alias":
+            audit["no_alias"][sym] = {
+                "reason": reason,
+                **({"probe": WBA_BACKFILL_PROBE} if sym == "WBA" else {}),
+            }
+            continue
+        if verdict == "already_represented":
+            audit["already_represented"][sym] = {"alias_target": target, "reason": reason}
+            continue
+        series = load_log_price(target)
+        if series.empty:
+            audit["no_alias"][sym] = {
+                "alias_target": target, "reason": f"target {target} has no rows in the store"}
+            continue
+        added[target] = series
+        audit["added"][sym] = {
+            "alias_target": target, "rows": int(len(series)), "reason": reason,
+            "first": str(series.index[0].date()), "last": str(series.index[-1].date()),
+        }
+    return added, audit
 
 
 # --------------------------------------------------------------------------
@@ -437,6 +569,24 @@ def ci(arr: np.ndarray, alpha: float = ALPHA) -> tuple[float, float, float]:
     return float(np.percentile(a, 100 * alpha / 2)), float(np.percentile(a, 100 * (1 - alpha / 2))), float(a.mean())
 
 
+def _std(arr: np.ndarray) -> float:
+    """Bootstrap SAMPLING spread of a statistic (std of its replicates).
+    This — not std/sqrt(n_boot) — is the uncertainty of the point estimate."""
+    a = arr[np.isfinite(arr)]
+    if a.size < 2:
+        return float("nan")
+    return float(a.std(ddof=1))
+
+
+def _se(arr: np.ndarray) -> float:
+    """Standard error of the MEAN of a replicate array (Monte-Carlo error of
+    the null mean; do NOT use this as the statistic's sampling spread)."""
+    a = arr[np.isfinite(arr)]
+    if a.size < 2:
+        return float("nan")
+    return float(a.std(ddof=1) / np.sqrt(a.size))
+
+
 def classify(obs: float, ci_lo: float, ci_hi: float,
              null_lo: float, null_hi: float, null_mean: float) -> str:
     """Null-adjusted verdict (headline).
@@ -547,8 +697,9 @@ def estimate_symbol(sym: str, logp: pd.Series, window: int, n_boot: int, n_null:
     if with_null:
         nul = shuffle_null_slopes(logp, window, n_null, seed + 1, n_bins=nb)
         n_lo, n_hi, n_mean = ci(nul)
+        n_se = _se(nul)
     else:
-        n_lo = n_hi = n_mean = float("nan")
+        n_lo = n_hi = n_mean = n_se = float("nan")
 
     verdict = classify(slope, b_lo, b_hi, n_lo, n_hi, n_mean) if with_null else VERDICT_UNIDENTIFIABLE
 
@@ -579,6 +730,11 @@ def estimate_symbol(sym: str, logp: pd.Series, window: int, n_boot: int, n_null:
                       "half_life_days": _f(half_life_days(es))}
 
     excess = _f(slope - n_mean) if (slope is not None and np.isfinite(n_mean)) else None
+    b_sd = _std(boot)
+    # sampling SD of the observed slope vs the Monte-Carlo error of the null mean
+    excess_z = (excess / np.sqrt(b_sd**2 + n_se**2)
+                if (excess is not None and np.isfinite(b_sd) and np.isfinite(n_se)
+                    and (b_sd**2 + n_se**2) > 0) else None)
     return {
         "n_obs": n_obs,
         "n_bins": nb,
@@ -589,9 +745,12 @@ def estimate_symbol(sym: str, logp: pd.Series, window: int, n_boot: int, n_null:
             "tail_amplification_deg3_minus_deg1_at_y2": _f(tail_amplification(bins)),
             "boot_ci": [_f(b_lo), _f(b_hi)],
             "boot_mean": _f(b_mean),
+            "boot_sd": _f(b_sd),
             "null_mean": _f(n_mean),
             "null_ci": [_f(n_lo), _f(n_hi)],
+            "null_se": _f(n_se),
             "excess_over_null": excess,
+            "excess_z": _f(excess_z),
             "verdict": verdict,
             "verdict_naive_ci_vs_zero": classify_naive(b_lo, b_hi),
         },
@@ -635,7 +794,7 @@ def estimate_panel(samples: dict[str, KMSample], logps: dict[str, pd.Series],
     nul = panel_shuffle_null_slopes(logps, window, n_null, seed + 2, n_bins=nb)
     n_lo, n_hi, n_mean = ci(nul)
     # null band is itself uncertain (finite n_null): widen by 1 null-SE
-    n_se = float(np.nanstd(nul) / np.sqrt(max(np.isfinite(nul).sum(), 1)))
+    n_se = _se(nul)
 
     verdict_date = classify(slope, dl, dh, n_lo - n_se, n_hi + n_se, n_mean)
     verdict_sym = classify(slope, sl, sh, n_lo - n_se, n_hi + n_se, n_mean)
@@ -675,6 +834,10 @@ def estimate_panel(samples: dict[str, KMSample], logps: dict[str, pd.Series],
                       "half_life_days": _f(half_life_days(es))}
 
     excess = _f(slope - n_mean) if (slope is not None and np.isfinite(n_mean)) else None
+    d_sd = _std(date_boot)
+    excess_z = (excess / np.sqrt(d_sd**2 + n_se**2)
+                if (excess is not None and np.isfinite(d_sd) and np.isfinite(n_se)
+                    and (d_sd**2 + n_se**2) > 0) else None)
     return {
         "n_obs": int(panel.y.size),
         "n_symbols": len(panel.symbols),
@@ -686,10 +849,12 @@ def estimate_panel(samples: dict[str, KMSample], logps: dict[str, pd.Series],
             "tail_amplification_deg3_minus_deg1_at_y2": _f(tail_amplification(bins)),
             "boot_ci_date_clustered": [_f(dl), _f(dh)],
             "boot_ci_symbol_clustered": [_f(sl), _f(sh)],
+            "boot_sd_date_clustered": _f(d_sd),
             "null_mean": _f(n_mean),
             "null_ci": [_f(n_lo), _f(n_hi)],
             "null_se": _f(n_se),
             "excess_over_null": excess,
+            "excess_z": _f(excess_z),
             "verdict": verdict,
             "verdict_date_clustered": verdict_date,
             "verdict_symbol_clustered": verdict_sym,
@@ -731,8 +896,17 @@ def run(args: argparse.Namespace) -> dict:
             missing.append(s)
             continue
         logps[s] = lp
-        coverage[s] = {"n_days": int(len(lp)),
-                       "first": str(lp.index[0].date()), "last": str(lp.index[-1].date())}
+        coverage[s] = {
+            "source": "data/btc_history.db ohlcv (Nasdaq daily, split-adjusted close)",
+            "first": str(lp.index[0].date()),
+            "last": str(lp.index[-1].date()),
+            "rows": int(len(lp)),
+        }
+
+    # multiplicity bookkeeping: one drift cell per (name, window) plus one per
+    # panel window.  Any single 'significant' cell must clear this bar.
+    n_cells = len(logps) * len(windows) + (0 if args.no_panel else len(windows))
+    bonferroni_z = float(NormalDist().inv_cdf(1.0 - ALPHA / (2 * max(n_cells, 1))))
 
     report: dict = {
         "meta": {
@@ -753,10 +927,31 @@ def run(args: argparse.Namespace) -> dict:
             "end": END,
             "db_path": str(DB_PATH),
             "universe_source": str(UNIVERSE_PATH),
+            "data_provenance": {
+                "store": str(DB_PATH),
+                "table": "ohlcv",
+                "market_types": ["stocks", "etf"],
+                "timeframe": "1d",
+                "price_field": "close",
+                "source_note": "Nasdaq public API via src/data/nasdaq_store.NasdaqDailyStore; "
+                               "closes are split-adjusted, so log returns are split-consistent",
+                "symbols_present": coverage,
+                "symbols_missing": missing,
+            },
+            "multiplicity": {
+                "n_cells_searched": int(n_cells),
+                "cells": "n_names x n_windows single-name drift cells + n_windows panel cells",
+                "bonferroni_z_two_sided": bonferroni_z,
+                "note": "This analysis was NOT pre-registered and is not a hypothesis submitted to "
+                        "the platform's deflation gate. See the TRADEABILITY note in this report "
+                        "for the exact best-of-N |excess_z| against this bar: no cell clears it, "
+                        "and the platform's DSR / multiplicity-adjusted bar (~3.1 for a 40-cell "
+                        "search) is higher still. Do not extract any single cell as a standalone "
+                        "result.",
+            },
             "eras": [{"name": n, "start": a, "end": b} for n, a, b in ERAS],
             "requested_symbols": list(symbols),
             "missing_symbols": missing,
-            "coverage": coverage,
         },
         "per_symbol": {},
         "panel": {},
@@ -783,9 +978,20 @@ def run(args: argparse.Namespace) -> dict:
         for s, lp in logps.items():
             if len(lp) >= 3 * MIN_BIN_OBS:
                 panel_logps[s] = lp
-        panel_missing = [s for s in load_universe() if s not in panel_logps]
+
+        # survivorship: resolve absent union tickers against RENAME_MAP and
+        # audit every inclusion/exclusion (see resolve_panel_aliases)
+        members_before = set(panel_logps)
+        alias_series, audit = resolve_panel_aliases(members_before)
+        for name, series in alias_series.items():
+            panel_logps[name] = series
+
         report["meta"]["panel_universe_present"] = sorted(panel_logps)
-        report["meta"]["panel_universe_missing"] = sorted(set(panel_missing) - set(missing))
+        report["meta"]["panel_universe_missing"] = sorted(
+            set(load_universe()) - set(panel_logps) - set(audit["added"]))
+        report["meta"]["panel_survivorship_audit"] = audit
+        report["meta"]["panel_names_before_survivorship_fix"] = len(members_before)
+        report["meta"]["panel_names_after_survivorship_fix"] = len(panel_logps)
         report["panel"] = {
             str(w): estimate_panel(
                 {s: km_sample(lp, w) for s, lp in panel_logps.items()},
@@ -796,6 +1002,22 @@ def run(args: argparse.Namespace) -> dict:
 
     report["notes"] = _interpretation(report)
     return report
+
+
+def _max_abs_excess_z(report: dict) -> tuple[float, str]:
+    """Largest |excess_z| across every cell, with the cell's name (for the
+    multiplicity discussion)."""
+    best_z, best_cell = float("nan"), "n/a"
+    for sym, d in report.get("per_symbol", {}).items():
+        for w, r in d.get("by_window", {}).items():
+            z = r.get("drift", {}).get("excess_z")
+            if z is not None and (not np.isfinite(best_z) or abs(z) > best_z):
+                best_z, best_cell = abs(float(z)), f"{sym} W={w}"
+    for w, r in report.get("panel", {}).items():
+        z = r.get("drift", {}).get("excess_z")
+        if z is not None and (not np.isfinite(best_z) or abs(z) > best_z):
+            best_z, best_cell = abs(float(z)), f"PANEL W={w}"
+    return best_z, best_cell
 
 
 def _interpretation(report: dict) -> list[str]:
@@ -860,8 +1082,69 @@ def _interpretation(report: dict) -> list[str]:
                 f"the raw multiple L/R as an upper bound)."
             )
     if report["meta"].get("missing_symbols"):
-        notes.append("MISSING DATA: " + ", ".join(report["meta"]["missing_symbols"]) +
-                     " have no daily bars in data/btc_history.db (reported, not silently dropped).")
+        notes.append(
+            "MISSING HEADLINE DATA: " + ", ".join(report["meta"]["missing_symbols"]) +
+            " have no daily bars in data/btc_history.db (reported, not silently dropped).")
+    notes.append(
+        "CORRECTION vs the previous commit: MRVL was reported as a missing single name. That was a "
+        "STALE IN-PROCESS READ, not a data gap — MRVL was genuinely absent when this study first "
+        "probed the store, scripts/backfill_symbols.py wrote 2514 rows (2016-09-19..2026-09-18) at "
+        "11:36:50, and this process had loaded the store once at 11:36:47 and held that view for the "
+        "whole run. Confirmed no assetclass/timeframe mismatch: the filter is "
+        "market_type IN ('stocks','etf') AND timeframe='1d', which returns MRVL. MRVL is still "
+        "correctly absent from sp100_union (it is an S&P 500, not S&P 100, name) and enters the "
+        "panel only as a headline name."
+    )
+    audit = report["meta"].get("panel_survivorship_audit")
+    if audit:
+        added = ", ".join(f"{k}->{v['alias_target']}" for k, v in audit["added"].items()) or "none"
+        rep = ", ".join(f"{k}->{v['alias_target']}" for k, v in audit["already_represented"].items()) or "none"
+        unrec = ", ".join(f"{k} ({v['alias_target']})" for k, v in audit["structurally_unrecoverable"].items())
+        noalias = ", ".join(audit["no_alias"].keys()) or "none"
+        notes.append(
+            f"PANEL SURVIVORSHIP: the PIT S&P100 union lists tickers whose securities no longer "
+            f"exist. Resolved against RENAME_MAP (single source of truth): ADDED as same-security "
+            f"renames {added}; ALREADY REPRESENTED under their current ticker {rep} (mapping these "
+            f"would double-count one security, so they are skipped, not dropped); STRUCTURALLY "
+            f"UNRECOVERABLE (listed security ceased to exist via M&A/restructuring) {unrec}; NO "
+            f"ALIAS {noalias}. Panel names {report['meta'].get('panel_names_before_survivorship_fix')}"
+            f" -> {report['meta'].get('panel_names_after_survivorship_fix')}. {audit['bias_note']}"
+            + (f" RENAME_MAP could not be imported ({audit['rename_map_error']})."
+               if audit.get("rename_map_error") else "")
+        )
+    m = report["meta"]["multiplicity"]
+    max_z, max_cell = _max_abs_excess_z(report)
+    n_cells = max(int(m["n_cells_searched"]), 1)
+    evt_max = float(np.sqrt(2.0 * np.log(2.0 * n_cells)))  # EVT approx for max of n |z|
+    bar = float(m["bonferroni_z_two_sided"])
+    if np.isfinite(max_z) and max_z < bar:
+        clears = (f"No cell clears the Bonferroni bar (best-of-{n_cells} is "
+                  f"|excess_z|={max_z:.2f}).")
+    else:
+        clears = (f"CAUTION: {max_cell} reaches |excess_z|={max_z:.2f} >= the Bonferroni bar "
+                  f"{bar:.2f}; treat it as a multiplicity candidate to be pre-registered and "
+                  f"re-tested out of sample, NOT as an established effect.")
+    notes.append(
+        f"TRADEABILITY / MULTIPLICITY (headline caveat): this study found no effect that could be "
+        f"traded. {clears} The maximum of {n_cells} two-sided z-statistics is expected to be "
+        f"~{evt_max:.2f} under the null by extreme-value theory, so a best-of-{n_cells} z of a "
+        f"couple of sigma is what noise alone produces; the platform's DSR / "
+        f"multiplicity-adjusted bar (~3.1 for a 40-cell search) is higher still, and this analysis "
+        f"was never pre-registered or submitted to that gate. Separately, even a REAL daily "
+        f"mean-reverting drift of this size is swamped by diffusion (drift/diffusion ~ sqrt(dt)) "
+        f"and would have to pay ~100% monthly turnover against a ~5bp half-spread plus commission "
+        f"inside S&P100 ADTV limits. Identification is not edge."
+    )
+    notes.append(
+        "ERA CROSS-REFERENCE: the near-constant half-life across eras found here is the signature "
+        "of the rolling-window artifact, not of a stable potential. The complementary cross-sectional "
+        "evidence is in reports/horizon_decomposition.json (horizon-decomposition line, not "
+        "re-verified here): the classic 1-month reversal (k21_h21) is negative in 2016-19 and "
+        "2020-22 but POSITIVE in 2023-26 — a sign flip across eras — which refutes short-horizon "
+        "reversal as a stable potential well and supports a TIME-VARYING effective potential V(k). "
+        "Taken together: what is stable over ten years is the mechanical artifact; what is real "
+        "(the reversal/momentum structure) is era-unstable."
+    )
     notes.append(
         "CAVEAT: a detected mean-reverting drift is a statistical statement about "
         "conditional means, NOT a tradable edge — costs, capacity, crowding and "
