@@ -2,6 +2,8 @@
 
 **v1.2 — 2026-09-18**（在 v1.1 基础上增补）｜**v1.1 — 2026-09-15** 起因：GBM 选股线的可信度危机。既有的 purged walk-forward / 超参锁定 / 成本模型防住了**作弊**，却没防住**噪音**：Sharpe 0.963 与月均 IC 0.0082（SE≈0.0095，t≈0.84）在同一份报告里躺了两天；换个测试窗 IC 就翻号；`--as-of 2021-06` 因分数并列报出 2/10 MISMATCH。
 **v1.2 增补**「抗扰动检验（鲁棒性套餐）」（§1.4）：把 weekend_gap 红队**手工**做过的「去掉最好的 2 笔」制度化，让每个策略 / 信号自动接受同一套扰动检验。
+**v1.3 增补**「统计去膨胀（PSR / DSR / MutIC）与频率口径」（§1.5）。
+**v1.4 增补**「追加式账本的 schema 顺序不变量」（§1.6）：账本只能在新字段 / 新状态值被 validator 接受**之后**使用它，否则窗口期的测试失败会被误读成并发竞态。
 
 > **核心原则：一份策略报告，如果没有回答下面 14 个检查 + 15 条红队问题，并且通过独立红队评审，就等于没写完，不具有决策资格。**
 
@@ -137,6 +139,35 @@ DSR = PSR( SR* = E[max SR] = σ_SR · EVT(N) )                        ← 基准
 - DSR：期频 SR=0.298，噪音天花板 E[max SR]=**0.341**（σ_SR 用零 alpha 单次 Sharpe 估计量的抽样 std 估），**PSR=0.962 → DSR=0.399 ≤ 0.95 → FAILS**。
 
 **两个框架结论一致：全平台没有任何一个存过的结论能通过搜索校正。** 而且 DSR 的读法更狠：最优冠军不只没过 Bonferroni 线，它甚至落在自己那次搜索噪音天花板的**中位数以下**。
+
+---
+
+### 1.6 追加式账本的 schema 顺序不变量（v1.4 新增）
+
+**规则（一句话）**：`hypotheses/registry.jsonl` 只允许在 schema/validator 已经接受某个新字段或新状态值**之后**，才追加使用它的记录——绝不能反过来。
+
+这是预注册门槛（`src/validation/registry.py:check_no_pre_registration_data`，禁止用早于 `registered_at_utc` 的数据做评估）的**同族不变量**：那条管的是「时间维度上不许事后」，这条管的是「schema 维度上不许倒序」。两条都在防同一类事——**账本先于规则存在**。
+
+**为什么必须写下来（真实代价，2026-09-20）**：给账本加 `superseded` 终态时，`registry.jsonl` 先出现了 `status: "superseded"` 的行，`VALID_STATUSES` 才补上该值。**这个窗口里跑的任何一次测试都会失败**，而且失败看起来**像并发写入竞态**——horizon-split 与 km-drift 两条线各自独立报了「几乎肯定是 registry.jsonl 被并发追加」，都没有 traceback，于是**两拨人去查一个根本不存在的竞态**。
+
+**判据（把两种成因分开，别再误判）**：
+
+| 现象 | 结论 |
+|---|---|
+| `RegistryValidationError: status must be one of (...), got 'superseded'` | **编辑顺序问题**：validator 落后于账本 |
+| `RegistryValidationError: ... is not valid JSON`（来自 `_read_lines`） | 才是**撕裂的并发写** |
+
+即：**状态校验错误 → 顺序问题；JSON 解析错误 → 竞态**。撕裂的并发追加不可能产出"状态未知"这种错误。
+
+为避免再次误判，`validate_record` 现在对该情形给出自解释信息（见 `_unknown_status_message`）：当未知值是形如 `lower_snake_case` 的合法标识符时，直接点明「**VALIDATOR 落后于 LEDGER**，这是编辑顺序错误、不是并发竞态，并把修复动作写出来」，同时指向本节。
+
+**正确操作顺序（三条，缺一不可）**：
+
+1. 先改 validator 与统计口径（如 `VALID_STATUSES`、`TERMINAL_STATUSES`、`registry_stats` 的分桶），**并补上对应的单元测试**；
+2. 用新 validator 校验**现存**账本，必须 **0 条失败**——这一步保证改动向后兼容，不是把旧记录也判死；
+3. **最后**才追加使用新值的记录（走 `scripts/register_hypothesis.py` 或 `scripts/supersede_hypothesis.py`，禁止手写 JSONL）。
+
+**同理适用于字段**：`n_trials_planned` / `search_grid` / `n_trials_basis` / `supersede_reason` 这类新字段，必须先让 `build_record` / `validate_record` 接受（且对旧记录保持可选、`null` 容忍），再写第一条带该字段的记录。若顺序颠倒，同样会得到"看起来像并发"的批量测试失败。
 
 ---
 

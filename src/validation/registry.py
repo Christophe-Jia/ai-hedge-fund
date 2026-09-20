@@ -27,10 +27,16 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import datetime, timezone
 from typing import Any, Iterable, Mapping
 
 from .rubric import BAND_REJECT, DIMENSIONS, RubricResult, score
+
+#: A status identifier must look like ``lower_snake_case``; used only to decide
+#: whether an unknown status deserves the "validator is behind the ledger"
+#: explanation rather than a bare "unknown value".
+_STATUS_IDENTIFIER_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 # ---------------------------------------------------------------------------
 # Statuses / constants
@@ -64,7 +70,22 @@ VALID_STATUSES: tuple[str, ...] = (
     STATUS_SUPERSEDED,
 )
 
-#: Statuses that may not receive any further revision.
+#: Statuses whose latest revision may not be revised again.
+#:
+#: Deliberately ASYMMETRIC with ``resolved``/``rejected``, and the asymmetry is
+#: the point:
+#:
+#: * ``resolved``/``rejected`` record a MEASUREMENT.  A mis-recorded verdict must
+#:   stay correctable — ``allow_revision=True`` exists for exactly that (see
+#:   ``build_record``'s docstring: "status transitions / outcome backfill").
+#:   A correction is a new revision line, so both the old and the new verdict
+#:   remain visible in the append-only ledger.
+#: * ``superseded`` records a RETRACTION — a statement that the design is void
+#:   and must never be evaluated.  A retraction that can be quietly revised is
+#:   not a retraction: revising it would silently re-open a family that was
+#:   closed for a reason.  There is never a need, because re-opening a design is
+#:   done by registering a fresh ``hypothesis_id``, which leaves the retraction
+#:   on the record.
 TERMINAL_STATUSES: tuple[str, ...] = (STATUS_SUPERSEDED,)
 
 #: Fields every registry record must carry (``outcome`` may be empty until the
@@ -443,6 +464,41 @@ def build_record(
     return record
 
 
+def _looks_like_a_status(value: Any) -> bool:
+    """True for a well-formed status identifier (``lower_snake_case``).
+
+    Distinguishes "the validator does not know this status" from "this is not a
+    status at all" (None, a number, empty, prose).  Only the first case is the
+    validator-behind-the-ledger failure mode worth naming.
+    """
+    return isinstance(value, str) and bool(_STATUS_IDENTIFIER_RE.match(value))
+
+
+def _unknown_status_message(status: Any) -> str:
+    """Explain an unknown status, naming the likely cause.
+
+    Written after a real misattribution (2026-09-20): when the LEDGER gained
+    ``superseded`` rows before ``VALID_STATUSES`` learned the value, every test
+    run in that window failed, and two agents independently reported it as "a
+    concurrent append to registry.jsonl" — hunting a race that did not exist.
+    A torn concurrent write surfaces as a JSON parse error (``_read_lines``),
+    never as a status validation error, so the message says which one this is.
+    """
+    base = f"status must be one of {VALID_STATUSES}, got {status!r}"
+    if not _looks_like_a_status(status):
+        return base
+    return (
+        f"{base}. '{status}' is a well-formed status identifier that this "
+        "validator does not know, which usually means THE VALIDATOR IS BEHIND "
+        "THE LEDGER: the ledger gained records using a new status before the "
+        "schema was extended to accept it. Fix by adding the status to "
+        "VALID_STATUSES and the tally, then re-run. This is an EDIT-ORDERING "
+        "error, not a concurrent-write race: a torn concurrent append would "
+        "surface as a JSON parse error instead (see _read_lines), and the "
+        "append-only ordering rule is documented in docs/validation_standard.md."
+    )
+
+
 def validate_record(record: Mapping[str, Any]) -> None:
     """Raise :class:`RegistryValidationError` if a record is malformed."""
     if not isinstance(record, Mapping):
@@ -458,7 +514,7 @@ def validate_record(record: Mapping[str, Any]) -> None:
     status = record["status"]
     if status not in VALID_STATUSES:
         raise RegistryValidationError(
-            f"status must be one of {VALID_STATUSES}, got {status!r}"
+            _unknown_status_message(status)
         )
 
     for text_field in (
@@ -550,10 +606,12 @@ def append_hypothesis(
     status transitions / outcome backfill of an existing id).
 
     ``allow_revision=True`` is NOT enough once the id's latest revision is in
-    :data:`TERMINAL_STATUSES`: a ``superseded`` line is final and is refused for
-    the same reason ``rejected``/``resolved`` outcomes must not be edited — a
-    retraction that can be quietly revised is not a retraction.  Appending a
-    fresh ``hypothesis_id`` remains the way to re-open a superseded design.
+    :data:`TERMINAL_STATUSES`.  That set currently holds only ``superseded``,
+    and the reason it is not extended to ``resolved``/``rejected`` is recorded
+    on the constant: a VERDICT is a measurement that must stay correctable via a
+    new (visible) revision line, whereas a RETRACTION must be final or it is not
+    a retraction.  Appending a fresh ``hypothesis_id`` remains the way to
+    re-open a superseded design.
     """
     validate_record(record)
     existing = [
