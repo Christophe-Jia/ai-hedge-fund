@@ -120,11 +120,12 @@ except Exception as exc:  # pragma: no cover - only on a broken checkout
     RENAME_MAP = {}
     _RENAME_MAP_ERROR = repr(exc)
 
-# Union tickers absent from the store, classified by what happened to the
-# SECURITY.  Same-security ticker changes can be represented by the current
-# ticker's series; M&A / restructuring cases cannot, because the listed
-# security ceased to exist and its successor is a DIFFERENT firm.
-SAME_SECURITY_RENAMES: tuple[str, ...] = ("BK", "FB", "PCLN")
+# Union tickers absent from the store that CANNOT be recovered, because the
+# listed security ceased to exist (M&A / restructuring) and its successor is a
+# DIFFERENT firm.  The recoverable same-security ticker changes are NOT listed
+# here: they are decided at run time by classify_absent_ticker() against the
+# live panel membership, so there is deliberately no static list of them (a
+# static list would be dead weight that reads like classification logic).
 STRUCTURALLY_UNRECOVERABLE: dict[str, str] = {
     "AGN": "acquired by AbbVie (2015-2016); Allergan ceased to exist",
     "CELG": "acquired by Bristol-Myers Squibb (2019-11)",
