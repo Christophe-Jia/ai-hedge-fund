@@ -737,6 +737,64 @@ def main() -> None:
 
     print("[single names] MU / MRVL / COIN / SPY / QQQ ...")
     singles = single_name_grid(close, (*FOCUS_NAMES, *BENCHMARKS), KS, HS)
+    coverage = {}
+    for name in (*FOCUS_NAMES, *BENCHMARKS):
+        if name not in close.columns:
+            coverage[name] = {"present": False, "reason": "no rows in the store"}
+            continue
+        s = close[name].dropna()
+        coverage[name] = {
+            "present": True,
+            "first": str(s.index[0].date()),
+            "last": str(s.index[-1].date()),
+            "n_bars": int(s.size),
+            "table": "etf" if name in BENCHMARKS else "stocks",
+        }
+
+    def _era_profile(key: str) -> dict:
+        by_era = {label: era_cells[label][key]["ic_mean"] for label, _, _ in ERAS}
+        signs = {label: ("+" if v > 0 else "-") for label, v in by_era.items()}
+        return {
+            "ic_by_era": by_era,
+            "sign_by_era": signs,
+            "sign_stable": len(set(signs.values())) == 1,
+        }
+
+    era_interpretation = {
+        "one_month_reversal_k21_h21": {
+            **_era_profile("k21_h21"),
+            "implication": (
+                "the classic 1-month reversal is negative in 2016-19 and 2020-22 but "
+                "turns positive in 2023-26, i.e. the structure has disappeared or "
+                "reversed in the most recent era. That refutes the idea of "
+                "short-horizon reversal as a *stable potential well* (a fixed V(k) "
+                "with a minimum at short k) and is consistent with the econophysics "
+                "criticism that the effective potential is time-varying: the "
+                "market's V(k) was re-shaped, not merely sampled with noise."),
+        },
+        "three_day_reversal_k3_h1": {
+            **_era_profile("k3_h1"),
+            "implication": (
+                "the 3-day reversal keeps its sign across all three eras but its "
+                "magnitude decays monotonically (-0.012 / -0.015 / -0.002): a decay, "
+                "not a sign flip, and by 2023-26 it is indistinguishable from zero."),
+        },
+        "long_momentum_k252_h1": {
+            **_era_profile("k252_h1"),
+            "implication": (
+                "the only cell that clears the N=40 bar is positive in all three "
+                "eras (unlike 30/40 of the map) — the one piece of sign stability — "
+                "but no single era is significant on its own (t=1.99/0.66/2.54), so "
+                "the pooled significance leans on 2 of 3 eras."),
+        },
+        "twelve_one_k252_h21": {
+            **_era_profile("k252_h21"),
+            "implication": (
+                "the 12-1 grid cell is positive in 2016-19 and 2023-26 but negative "
+                "in 2020-22, so even the platform's own momentum leg sits on an "
+                "era-unstable cell."),
+        },
+    }
 
     surviving = sorted(k for k, c in cells.items()
                        if c["correction_status"] in (STATUS_BONF, STATUS_DSR))
@@ -761,6 +819,32 @@ def main() -> None:
                 "benchmarks": list(BENCHMARKS),
                 "benchmark_note": "SPY/QQQ come from the market_type='etf' table; "
                                   "the PIT sp100 mask keeps them out of the cross-section",
+            },
+            "data_provenance": {
+                "store": "data/btc_history.db (SQLite; not committed — gitignored)",
+                "tables": {"stocks": "market_type='stocks', timeframe='1d'",
+                           "etf": "market_type='etf', timeframe='1d'"},
+                "single_name_and_benchmark_coverage": coverage,
+                "cross_sectional_pool": {
+                    "construction": "PIT sp100 union, year-mapped + renamed; "
+                                    "low-coverage days (<80% of names) dropped",
+                    "n_names": int(close.shape[1]),
+                    "first": str(close.index[0].date()),
+                    "last": str(close.index[-1].date()),
+                },
+                "notes": [
+                    "MU and COIN are inside the PIT sp100 union; MRVL is not, and was "
+                    "backfilled separately by scripts/backfill_symbols.py (see "
+                    "reports/backfill_symbols_status.json).",
+                    "MRVL was never an S&P 500 constituent inside the sample window: "
+                    "it joined the index on 2026-06-22, i.e. after the 2026-01 "
+                    "snapshot. Its absence from the universe files is correct, not a "
+                    "universe-data bug.",
+                    "Nasdaq serves ~10 years of daily history per request, so the "
+                    "oldest bars are truncated at the request window and MRVL starts "
+                    "~5 trading days later than the rest of the panel.",
+                    "Nasdaq closes are split-adjusted, dividend-unadjusted.",
+                ],
             },
             "conventions": {
                 "past_k": "C[t-1]/C[t-1-k]-1  (strictly before t -> no look-ahead)",
@@ -830,6 +914,7 @@ def main() -> None:
         "twelve_one_reference": twelve_one,
         "sensitivity_execution_lag": sensitivity,
         "single_names_time_series": singles,
+        "era_interpretation": era_interpretation,
         "headline": {
             "cells_surviving_N40_correction": surviving,
             "n_cells_surviving": len(surviving),
@@ -839,6 +924,16 @@ def main() -> None:
             "structure": (
                 "negative IC (reversal) for look-backs up to ~3 months, positive IC "
                 "(momentum) from ~6 months out; the flip sits between k=63 and k=126"
+            ),
+            "verdict_on_the_surviving_cell": (
+                "BORDERLINE CASE, NOT AN ESTABLISHED EFFECT. The single cell above "
+                "the bar (k252_h1) clears the N=40 Bonferroni threshold by 0.006 "
+                "(|t_nw|=3.233 vs 3.227) and its 21-day block-bootstrap CI excludes "
+                "zero, but it FAILS the deflated-Sharpe bar (dsr_nonoverlap ~0; ~0.85 "
+                "even with a lenient null-sampling sr_std), and the whole verdict is "
+                "highly sensitive to how the number of trials is counted: 3.227 for "
+                "N=40 nominal cells vs 2.498 for the correlation-adjusted N_eff~3.9. "
+                "It must not be extracted from this report as a standalone result."
             ),
             "tradeability_caveat": (
                 "an IC of ~0.02 at the top of the map is a *ranking* signal, not a "

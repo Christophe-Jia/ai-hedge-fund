@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-09-20T03:34:21.261979+00:00",
+  "generated_at": "2026-09-20T03:37:18.922984+00:00",
   "script": "scripts/momentum_reversal_horizon.py",
   "question": "at which look-back horizon k does past return switch sign for predicting forward-h return, and does it survive search multiplicity + era split?",
   "data": "data/btc_history.db ohlcv, market_type='stocks' (Nasdaq daily)",
@@ -11,15 +11,69 @@
   "universe": {
    "point_in_time": "data/universe/sp100_YYYY.json (year-mapped, renamed)",
    "union_size": 117,
-   "panel_names": 120,
-   "focus_names_missing_price_data": [
-    "MRVL"
-   ],
+   "panel_names": 121,
+   "focus_names_missing_price_data": [],
    "benchmarks": [
     "SPY",
     "QQQ"
    ],
    "benchmark_note": "SPY/QQQ come from the market_type='etf' table; the PIT sp100 mask keeps them out of the cross-section"
+  },
+  "data_provenance": {
+   "store": "data/btc_history.db (SQLite; not committed — gitignored)",
+   "tables": {
+    "stocks": "market_type='stocks', timeframe='1d'",
+    "etf": "market_type='etf', timeframe='1d'"
+   },
+   "single_name_and_benchmark_coverage": {
+    "MU": {
+     "present": true,
+     "first": "2016-09-12",
+     "last": "2026-09-10",
+     "n_bars": 2513,
+     "table": "stocks"
+    },
+    "MRVL": {
+     "present": true,
+     "first": "2016-09-19",
+     "last": "2026-09-14",
+     "n_bars": 2510,
+     "table": "stocks"
+    },
+    "COIN": {
+     "present": true,
+     "first": "2021-04-14",
+     "last": "2026-09-11",
+     "n_bars": 1360,
+     "table": "stocks"
+    },
+    "SPY": {
+     "present": true,
+     "first": "2016-09-12",
+     "last": "2026-09-10",
+     "n_bars": 2512,
+     "table": "etf"
+    },
+    "QQQ": {
+     "present": true,
+     "first": "2016-09-12",
+     "last": "2026-09-10",
+     "n_bars": 2513,
+     "table": "etf"
+    }
+   },
+   "cross_sectional_pool": {
+    "construction": "PIT sp100 union, year-mapped + renamed; low-coverage days (<80% of names) dropped",
+    "n_names": 121,
+    "first": "2016-09-12",
+    "last": "2026-09-14"
+   },
+   "notes": [
+    "MU and COIN are inside the PIT sp100 union; MRVL is not, and was backfilled separately by scripts/backfill_symbols.py (see reports/backfill_symbols_status.json).",
+    "MRVL was never an S&P 500 constituent inside the sample window: it joined the index on 2026-06-22, i.e. after the 2026-01 snapshot. Its absence from the universe files is correct, not a universe-data bug.",
+    "Nasdaq serves ~10 years of daily history per request, so the oldest bars are truncated at the request window and MRVL starts ~5 trading days later than the rest of the panel.",
+    "Nasdaq closes are split-adjusted, dividend-unadjusted."
+   ]
   },
   "conventions": {
    "past_k": "C[t-1]/C[t-1-k]-1  (strictly before t -> no look-ahead)",
@@ -8109,8 +8163,332 @@
    }
   },
   "MRVL": {
-   "available": false,
-   "reason": "no daily close data in data/btc_history.db"
+   "available": true,
+   "first_date": "2016-09-19",
+   "last_date": "2026-09-14",
+   "n_bars": 2510,
+   "cells": {
+    "k3_h1": {
+     "n_obs": 2506,
+     "spearman_rho": -0.03294182723898007,
+     "pearson_r": -0.04827606752124735,
+     "t_naive": -1.649303633745157,
+     "t_newey_west": -1.5835434872325256,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k3_h5": {
+     "n_obs": 2502,
+     "spearman_rho": -0.054757375552513976,
+     "pearson_r": -0.07429452853515552,
+     "t_naive": -2.741982603065552,
+     "t_newey_west": -1.9150013096990375,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k3_h10": {
+     "n_obs": 2497,
+     "spearman_rho": -0.03415573156591031,
+     "pearson_r": -0.0227014683379388,
+     "t_naive": -1.7070739757504905,
+     "t_newey_west": -1.1019440004302246,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k3_h21": {
+     "n_obs": 2486,
+     "spearman_rho": -0.009468885732953885,
+     "pearson_r": -0.009096034249830602,
+     "t_naive": -0.47194799096239604,
+     "t_newey_west": -0.30453506633248323,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k3_h63": {
+     "n_obs": 2444,
+     "spearman_rho": -0.02016398140652643,
+     "pearson_r": -0.01931603994379869,
+     "t_naive": -0.9966379612249235,
+     "t_newey_west": -0.6321425391200287,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k5_h1": {
+     "n_obs": 2504,
+     "spearman_rho": -0.05315026998436344,
+     "pearson_r": -0.06687777685461613,
+     "t_naive": -2.6623394411582653,
+     "t_newey_west": -2.597546453419814,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k5_h5": {
+     "n_obs": 2500,
+     "spearman_rho": -0.05833981646738723,
+     "pearson_r": -0.0538652154244707,
+     "t_naive": -2.9207985489878983,
+     "t_newey_west": -1.8103012908058722,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k5_h10": {
+     "n_obs": 2495,
+     "spearman_rho": -0.03241912137860684,
+     "pearson_r": -0.007948056528995277,
+     "t_naive": -1.6195364293369083,
+     "t_newey_west": -0.8672707279785425,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k5_h21": {
+     "n_obs": 2484,
+     "spearman_rho": -0.01413539583730528,
+     "pearson_r": 0.00026985485626903965,
+     "t_naive": -0.7042911897047716,
+     "t_newey_west": -0.36964094644255574,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k5_h63": {
+     "n_obs": 2442,
+     "spearman_rho": -0.029778813853908948,
+     "pearson_r": -0.018509347414885885,
+     "t_naive": -1.4716175381492214,
+     "t_newey_west": -0.7654012963308385,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k10_h1": {
+     "n_obs": 2499,
+     "spearman_rho": -0.037483266975878796,
+     "pearson_r": -0.02625918738770763,
+     "t_naive": -1.8743557065400192,
+     "t_newey_west": -1.8137339577821248,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k10_h5": {
+     "n_obs": 2495,
+     "spearman_rho": -0.04178708422860639,
+     "pearson_r": -0.010862432253442036,
+     "t_naive": -2.0882510723684002,
+     "t_newey_west": -1.2099574343240205,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k10_h10": {
+     "n_obs": 2490,
+     "spearman_rho": -0.019979317205492394,
+     "pearson_r": 0.020524910835462064,
+     "t_naive": -0.9967644188990664,
+     "t_newey_west": -0.45814123811187785,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k10_h21": {
+     "n_obs": 2479,
+     "spearman_rho": -0.022887152155164583,
+     "pearson_r": 0.007698254479922914,
+     "t_naive": -1.139379854497976,
+     "t_newey_west": -0.42817799740689755,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k10_h63": {
+     "n_obs": 2437,
+     "spearman_rho": -0.035743349945558,
+     "pearson_r": -0.02240856950098632,
+     "t_naive": -1.764909081291027,
+     "t_newey_west": -0.6536184726628683,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k21_h1": {
+     "n_obs": 2488,
+     "spearman_rho": -0.019855437939407986,
+     "pearson_r": -0.009480343363335739,
+     "t_naive": -0.9901834364738176,
+     "t_newey_west": -0.9505039321797241,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k21_h5": {
+     "n_obs": 2484,
+     "spearman_rho": -0.02735360449007201,
+     "pearson_r": -0.002852939351272955,
+     "t_naive": -1.3632577846639722,
+     "t_newey_west": -0.758518964228685,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k21_h10": {
+     "n_obs": 2479,
+     "spearman_rho": -0.03726101770830853,
+     "pearson_r": 0.004917307670960032,
+     "t_naive": -1.8557497426303502,
+     "t_newey_west": -0.7637513488473163,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k21_h21": {
+     "n_obs": 2468,
+     "spearman_rho": -7.784897624539067e-05,
+     "pearson_r": 0.04055834658282337,
+     "t_naive": -0.0038658895614372196,
+     "t_newey_west": -0.0011247258613144419,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k21_h63": {
+     "n_obs": 2426,
+     "spearman_rho": -0.05596600855170093,
+     "pearson_r": -0.03449611284276435,
+     "t_naive": -2.759763439573999,
+     "t_newey_west": -0.7591701069060687,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k42_h1": {
+     "n_obs": 2467,
+     "spearman_rho": -0.014751386353638485,
+     "pearson_r": 0.008046712857413272,
+     "t_naive": -0.7324678324799645,
+     "t_newey_west": -0.7087890196133743,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k42_h5": {
+     "n_obs": 2463,
+     "spearman_rho": -0.03306014833938188,
+     "pearson_r": 0.04242062723763277,
+     "t_naive": -1.6409602866929076,
+     "t_newey_west": -0.8932436359660916,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k42_h10": {
+     "n_obs": 2458,
+     "spearman_rho": -0.019386260116285938,
+     "pearson_r": 0.07867960713842626,
+     "t_naive": -0.960925773538732,
+     "t_newey_west": -0.37088634107929347,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k42_h21": {
+     "n_obs": 2447,
+     "spearman_rho": -0.014717052238233951,
+     "pearson_r": 0.07431559122019346,
+     "t_naive": -0.7277920386477476,
+     "t_newey_west": -0.2021095436860265,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k42_h63": {
+     "n_obs": 2405,
+     "spearman_rho": -0.0965695545573589,
+     "pearson_r": -0.10659763363686575,
+     "t_naive": -4.756107482137783,
+     "t_newey_west": -1.012023970039149,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k63_h1": {
+     "n_obs": 2446,
+     "spearman_rho": -0.016512849066822453,
+     "pearson_r": -0.013801484615649133,
+     "t_naive": -0.8164542059170448,
+     "t_newey_west": -0.7902457345349265,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k63_h5": {
+     "n_obs": 2442,
+     "spearman_rho": -0.0572315014158541,
+     "pearson_r": -0.02183566111404525,
+     "t_naive": -2.8316689176584053,
+     "t_newey_west": -1.5485918044409346,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k63_h10": {
+     "n_obs": 2437,
+     "spearman_rho": -0.05384731141335896,
+     "pearson_r": -0.02411324359269757,
+     "t_naive": -2.660994928606888,
+     "t_newey_west": -1.023374524282792,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k63_h21": {
+     "n_obs": 2426,
+     "spearman_rho": -0.05711688851888244,
+     "pearson_r": -0.05112079481382059,
+     "t_naive": -2.816698838091357,
+     "t_newey_west": -0.7556300524494342,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k63_h63": {
+     "n_obs": 2384,
+     "spearman_rho": -0.15962342571754806,
+     "pearson_r": -0.1668063192515621,
+     "t_naive": -7.89172688214489,
+     "t_newey_west": -1.4274652678813675,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k126_h1": {
+     "n_obs": 2383,
+     "spearman_rho": -0.016075217734895415,
+     "pearson_r": -0.022223161672942505,
+     "t_naive": -0.7844995207107476,
+     "t_newey_west": -0.754941824087351,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k126_h5": {
+     "n_obs": 2379,
+     "spearman_rho": -0.06384067160022842,
+     "pearson_r": -0.038586574463524495,
+     "t_naive": -3.118881386367188,
+     "t_newey_west": -1.7278079125456154,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k126_h10": {
+     "n_obs": 2374,
+     "spearman_rho": -0.07125508623709524,
+     "pearson_r": -0.058855765743899384,
+     "t_naive": -3.479193150947134,
+     "t_newey_west": -1.3178995925639931,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k126_h21": {
+     "n_obs": 2363,
+     "spearman_rho": -0.06553017975880389,
+     "pearson_r": -0.07280536201400852,
+     "t_naive": -3.190978186343915,
+     "t_newey_west": -0.8498810566320543,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k126_h63": {
+     "n_obs": 2321,
+     "spearman_rho": -0.19740017388791364,
+     "pearson_r": -0.14434997526626886,
+     "t_naive": -9.696806204974513,
+     "t_newey_west": -1.5659156937089143,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k252_h1": {
+     "n_obs": 2257,
+     "spearman_rho": -0.004983597464774639,
+     "pearson_r": -0.007473553345977576,
+     "t_naive": -0.23665823571025776,
+     "t_newey_west": -0.22855973354012507,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k252_h5": {
+     "n_obs": 2253,
+     "spearman_rho": -0.027699734671132608,
+     "pearson_r": -0.007992549960448497,
+     "t_naive": -1.314710199669315,
+     "t_newey_west": -0.7251578691203922,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k252_h10": {
+     "n_obs": 2248,
+     "spearman_rho": -0.019376986122135197,
+     "pearson_r": -0.007647007711489958,
+     "t_naive": -0.9184862332188561,
+     "t_newey_west": -0.3560962515695527,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k252_h21": {
+     "n_obs": 2237,
+     "spearman_rho": -0.029938544907056393,
+     "pearson_r": -0.029370149825172977,
+     "t_naive": -1.416002996235631,
+     "t_newey_west": -0.37822827551308,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    },
+    "k252_h63": {
+     "n_obs": 2195,
+     "spearman_rho": -0.20452310639864116,
+     "pearson_r": -0.1845058728696614,
+     "t_naive": -9.784538443303997,
+     "t_newey_west": -1.8158110690969127,
+     "note": "single name + overlapping forward windows: descriptive only, t_newey_west is the HAC-corrected slope t"
+    }
+   }
   },
   "COIN": {
    "available": true,
@@ -9097,6 +9475,64 @@
    }
   }
  },
+ "era_interpretation": {
+  "one_month_reversal_k21_h21": {
+   "ic_by_era": {
+    "2016-19": -0.02536596463219421,
+    "2020-22": -0.011939769480395853,
+    "2023-26": 0.005584982450876988
+   },
+   "sign_by_era": {
+    "2016-19": "-",
+    "2020-22": "-",
+    "2023-26": "+"
+   },
+   "sign_stable": false,
+   "implication": "the classic 1-month reversal is negative in 2016-19 and 2020-22 but turns positive in 2023-26, i.e. the structure has disappeared or reversed in the most recent era. That refutes the idea of short-horizon reversal as a *stable potential well* (a fixed V(k) with a minimum at short k) and is consistent with the econophysics criticism that the effective potential is time-varying: the market's V(k) was re-shaped, not merely sampled with noise."
+  },
+  "three_day_reversal_k3_h1": {
+   "ic_by_era": {
+    "2016-19": -0.011683170364039996,
+    "2020-22": -0.015019222681851591,
+    "2023-26": -0.0016318576344010222
+   },
+   "sign_by_era": {
+    "2016-19": "-",
+    "2020-22": "-",
+    "2023-26": "-"
+   },
+   "sign_stable": true,
+   "implication": "the 3-day reversal keeps its sign across all three eras but its magnitude decays monotonically (-0.012 / -0.015 / -0.002): a decay, not a sign flip, and by 2023-26 it is indistinguishable from zero."
+  },
+  "long_momentum_k252_h1": {
+   "ic_by_era": {
+    "2016-19": 0.02060571839422109,
+    "2020-22": 0.008364417855413244,
+    "2023-26": 0.024057533338698374
+   },
+   "sign_by_era": {
+    "2016-19": "+",
+    "2020-22": "+",
+    "2023-26": "+"
+   },
+   "sign_stable": true,
+   "implication": "the only cell that clears the N=40 bar is positive in all three eras (unlike 30/40 of the map) — the one piece of sign stability — but no single era is significant on its own (t=1.99/0.66/2.54), so the pooled significance leans on 2 of 3 eras."
+  },
+  "twelve_one_k252_h21": {
+   "ic_by_era": {
+    "2016-19": 0.03282125376683455,
+    "2020-22": -0.013343470549160644,
+    "2023-26": 0.033374979699804845
+   },
+   "sign_by_era": {
+    "2016-19": "+",
+    "2020-22": "-",
+    "2023-26": "+"
+   },
+   "sign_stable": false,
+   "implication": "the 12-1 grid cell is positive in 2016-19 and 2023-26 but negative in 2020-22, so even the platform's own momentum leg sits on an era-unstable cell."
+  }
+ },
  "headline": {
   "cells_surviving_N40_correction": [
    "k252_h1"
@@ -9106,6 +9542,7 @@
   "short_lookback_k_le_63_mean_ic": -0.002895558960382484,
   "long_lookback_k_ge_126_mean_ic": 0.020268268042025476,
   "structure": "negative IC (reversal) for look-backs up to ~3 months, positive IC (momentum) from ~6 months out; the flip sits between k=63 and k=126",
+  "verdict_on_the_surviving_cell": "BORDERLINE CASE, NOT AN ESTABLISHED EFFECT. The single cell above the bar (k252_h1) clears the N=40 Bonferroni threshold by 0.006 (|t_nw|=3.233 vs 3.227) and its 21-day block-bootstrap CI excludes zero, but it FAILS the deflated-Sharpe bar (dsr_nonoverlap ~0; ~0.85 even with a lenient null-sampling sr_std), and the whole verdict is highly sensitive to how the number of trials is counted: 3.227 for N=40 nominal cells vs 2.498 for the correlation-adjusted N_eff~3.9. It must not be extracted from this report as a standalone result.",
   "tradeability_caveat": "an IC of ~0.02 at the top of the map is a *ranking* signal, not a P&L. Converting it to a trade requires paying turnover at every rebalance (even a 21-day hold on a daily signal is ~100% monthly turnover), crossing a ~5bp half-spread + per-share commission, and sizing within the S&P 100's ADTV. A 0.02 rank IC on a 100-name cross-section is roughly a 1-2% spread between the top and bottom quintile per horizon — the same order as the round-trip cost. Nothing here is measured net of costs, capacity or borrow."
  }
 }

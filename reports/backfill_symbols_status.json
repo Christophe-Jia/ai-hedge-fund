@@ -1,0 +1,16 @@
+{
+ "generated_at": "2026-09-20T11:36:50.198360+08:00",
+ "script": "scripts/backfill_symbols.py",
+ "assetclass": "stocks",
+ "from_date": "2016-01-01",
+ "to_date": "today",
+ "symbols": {
+  "MRVL": {
+   "status": "ok",
+   "rows_written": 2514,
+   "rows": 2514,
+   "first": "2016-09-19",
+   "last": "2026-09-18"
+  }
+ }
+}
