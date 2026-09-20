@@ -42,13 +42,30 @@ STATUS_EVALUATING = "evaluating"
 STATUS_RESOLVED = "resolved"
 STATUS_REJECTED = "rejected"
 
+#: Retracted by a documentary correction to the operationalisation, before any
+#: evaluation happened.  This is a TERMINAL, NON-EVALUATIVE state.
+#:
+#: Why a sixth status was needed: none of the original five fits "the
+#: registration was withdrawn before anything was evaluated".
+#: ``resolved`` means SURVIVED (:func:`survival_label`) and ``rejected`` means a
+#: statistical verdict was rendered — recording either for a hypothesis nobody
+#: evaluated would FABRICATE a survival label and inject a phantom data point
+#: into the rubric attribution (which exists to learn which dimensions predict
+#: survival).  ``proposed``/``registered`` are live states, so they leave a
+#: superseded line looking evaluable.
+STATUS_SUPERSEDED = "superseded"
+
 VALID_STATUSES: tuple[str, ...] = (
     STATUS_PROPOSED,
     STATUS_REGISTERED,
     STATUS_EVALUATING,
     STATUS_RESOLVED,
     STATUS_REJECTED,
+    STATUS_SUPERSEDED,
 )
+
+#: Statuses that may not receive any further revision.
+TERMINAL_STATUSES: tuple[str, ...] = (STATUS_SUPERSEDED,)
 
 #: Fields every registry record must carry (``outcome`` may be empty until the
 #: hypothesis is resolved).
@@ -125,7 +142,9 @@ __all__ = [
     "STATUS_EVALUATING",
     "STATUS_RESOLVED",
     "STATUS_REJECTED",
+    "STATUS_SUPERSEDED",
     "VALID_STATUSES",
+    "TERMINAL_STATUSES",
     "REQUIRED_FIELDS",
     "SURVIVED_VERDICTS",
     "DEFAULT_MIN_SAMPLE",
@@ -135,6 +154,7 @@ __all__ = [
     "RegistryError",
     "RegistryValidationError",
     "DuplicateHypothesisError",
+    "TerminalStatusError",
     "PreRegistrationDataError",
     "utc_now_iso",
     "parse_utc",
@@ -166,6 +186,15 @@ class RegistryValidationError(RegistryError, ValueError):
 
 class DuplicateHypothesisError(RegistryError):
     """A record with this ``hypothesis_id`` is already registered."""
+
+
+class TerminalStatusError(RegistryValidationError):
+    """A revision was attempted on an id whose latest revision is terminal.
+
+    Subclasses :class:`RegistryValidationError` (and therefore ``ValueError``) so
+    existing handlers keep working; it is separate because "this retraction is
+    final" is a different fact from "this record is malformed".
+    """
 
 
 class PreRegistrationDataError(RegistryError, ValueError):
@@ -519,6 +548,12 @@ def append_hypothesis(
     A second record with an existing ``hypothesis_id`` raises
     :class:`DuplicateHypothesisError` unless ``allow_revision=True`` (used for
     status transitions / outcome backfill of an existing id).
+
+    ``allow_revision=True`` is NOT enough once the id's latest revision is in
+    :data:`TERMINAL_STATUSES`: a ``superseded`` line is final and is refused for
+    the same reason ``rejected``/``resolved`` outcomes must not be edited — a
+    retraction that can be quietly revised is not a retraction.  Appending a
+    fresh ``hypothesis_id`` remains the way to re-open a superseded design.
     """
     validate_record(record)
     existing = [
@@ -529,6 +564,17 @@ def append_hypothesis(
             f"hypothesis_id '{record['hypothesis_id']}' already registered "
             f"(use allow_revision=True for a status/outcome revision)"
         )
+
+    if existing:
+        latest = existing[-1]
+        latest_status = latest.get("status")
+        if latest_status in TERMINAL_STATUSES:
+            raise TerminalStatusError(
+                f"hypothesis_id '{record['hypothesis_id']}' is in terminal status "
+                f"'{latest_status}' (revision {latest.get('revision')}); no further "
+                "revision is accepted. Register a new hypothesis_id to re-open the "
+                "design, leaving this retraction on the record."
+            )
 
     rec = dict(record)
     if existing:
@@ -604,8 +650,18 @@ def survival_label(record: Mapping[str, Any]) -> int | None:
     """Binary survival label for the rubric attribution (None if undetermined).
 
     Precedence: explicit ``outcome.survived`` bool, then ``outcome.verdict`` in
-    :data:`SURVIVED_VERDICTS`, then ``status == resolved`` (adopted) / else 0.
-    Only ``resolved`` and ``rejected`` records have a determinate label.
+    :data:`SURVIVED_VERDICTS`, then ``status == resolved`` (adopted) /
+    ``status == rejected`` (failed).  Every other status — including the
+    terminal-but-non-evaluative :data:`STATUS_SUPERSEDED` — is ``None``.
+
+    ``superseded`` returns ``None`` (NOT 0) on purpose.  It contributes 0 to the
+    survived tally and 0 to the decided denominator, i.e. it is neither survived
+    nor failed; it is *not a data point*.  Returning a literal 0 would assert
+    "evaluated and failed" for a hypothesis nobody evaluated, and would break the
+    ledger's own invariant ``n_decided == #records carrying an outcome`` that
+    ``tests/validation/test_registry_backfill.py`` asserts.  Superseded entries
+    are surfaced instead through ``registry_stats()['by_status']`` and
+    ``registry_stats()['n_superseded']``.
     """
     outcome = record.get("outcome") or {}
     if isinstance(outcome.get("survived"), bool):
@@ -614,6 +670,8 @@ def survival_label(record: Mapping[str, Any]) -> int | None:
     if isinstance(verdict, str):
         return 1 if verdict.upper() in SURVIVED_VERDICTS else 0
     status = record.get("status")
+    if status == STATUS_SUPERSEDED:
+        return None
     if status == STATUS_RESOLVED:
         return 1
     if status == STATUS_REJECTED:
@@ -622,14 +680,23 @@ def survival_label(record: Mapping[str, Any]) -> int | None:
 
 
 def registry_stats(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
-    """Summary counts by status and band, plus the survival tally."""
+    """Summary counts by status and band, plus the survival tally.
+
+    ``n_superseded`` is bucketed separately so a documentary retraction is
+    visible without entering the survived/decided tallies (see
+    :func:`survival_label`).
+    """
     records = list(records)
     by_status: dict[str, int] = {}
     by_band: dict[str, int] = {}
     survived = 0
     decided = 0
+    n_superseded = 0
     for rec in records:
-        by_status[rec.get("status", "?")] = by_status.get(rec.get("status", "?"), 0) + 1
+        status = rec.get("status", "?")
+        by_status[status] = by_status.get(status, 0) + 1
+        if status == STATUS_SUPERSEDED:
+            n_superseded += 1
         band = (rec.get("rubric") or {}).get("band", "?")
         by_band[band] = by_band.get(band, 0) + 1
         label = survival_label(rec)
@@ -642,5 +709,6 @@ def registry_stats(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
         "by_band": by_band,
         "n_decided": decided,
         "n_survived": survived,
+        "n_superseded": n_superseded,
         "survival_rate": (survived / decided) if decided else None,
     }

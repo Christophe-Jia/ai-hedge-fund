@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-09-20T03:29:48Z",
+  "generated_at_utc": "2026-09-20T03:55:16Z",
   "hypothesis_id": "lppls_crypto_bubble_criticality_v3",
   "supersedes": [
     "lppls_crypto_bubble_criticality_v2",
@@ -11,6 +11,30 @@
       "lppls_crypto_bubble_criticality_v2",
       "lppls_crypto_bubble_criticality"
     ],
+    "registry_status": {
+      "lppls_crypto_bubble_criticality_v3": {
+        "status": "registered",
+        "revision": 5,
+        "superseded_by": null,
+        "superseded_at_utc": null,
+        "n_trials_planned": 144
+      },
+      "lppls_crypto_bubble_criticality_v2": {
+        "status": "superseded",
+        "revision": 3,
+        "superseded_by": "lppls_crypto_bubble_criticality_v3",
+        "superseded_at_utc": "2026-09-20T03:45:19Z",
+        "n_trials_planned": 144
+      },
+      "lppls_crypto_bubble_criticality": {
+        "status": "superseded",
+        "revision": 3,
+        "superseded_by": "lppls_crypto_bubble_criticality_v2",
+        "superseded_at_utc": "2026-09-20T03:45:18Z",
+        "n_trials_planned": 144
+      }
+    },
+    "n_trials_basis": "n_trials_basis: resolved n_trials = 144, and explicitly NOT 3 x 144 = 432, even though the LPPLS family holds three ledger lines. Per-line search_grid product = |windows|4 x |min_window_frac|2 x |param_configs|2 x |confidence_thresholds|3 x |forward_horizons|3 = 144. RULE APPLIED: N = the number of configurations from which the QUOTED result may be selected; configurations that can never enter a verdict do not multiply it. (1) v1 (lppls_crypto_bubble_criticality): its F3 constant was unsatisfiable for a log-price fit, so that design was never executed at all (corrected before the first fit) and could not have produced an informative accepted fit -> contributes 0 selectable configurations. (2) v2 (lppls_crypto_bubble_criticality_v2): its 144 configurations WERE exercised - that is the run which showed D_min=0.8 is inert - but every bar it touched predates that line's registered_at_utc, and by the registry's own rule (src.validation.registry.check_no_pre_registration_data) pre-registration data may never decide the hypothesis. Verified mechanically: an evaluation request with data_start 2018-12-31 is REFUSED for v1, v2 and v3 alike. So v2's 144 are in-sample diagnostics and are not selectable FOR THE VERDICT. (3) v3 (this line): the forward evaluation selects its champion from exactly these 144 configurations on post-registration bars - that is the pool N must describe. COUNTER-ARGUMENT OVERRIDDEN: a strict reader can argue v2's 144 fits were computed AND selectable, making the pool 288. The answer is NOT to delete provenance - the mitigation is the disclosure. The v2->v3 step was a documentary constant correction (0.8 -> 0.5 plus the |C|/|B| >= 0.05 pre-condition) made AFTER observing that 0.8 is inert; that order of operations is recorded in this registration's _meta.disclosure, in reports/lppls_coin.json (registration_provenance.disclosure and n_trials_basis), and in the supersede_reason on v2's line. All three lines stay in the append-only ledger so a reader can reconstruct the pool independently. If anyone ever quotes an IN-SAMPLE number from the v2 constants, the pool for that claim becomes 288 and this figure must be re-derived. SAFE-DIRECTION NOTE: over-declaring N only raises the bar against ourselves, so under-declaring is the risk - 144 is chosen because it is the defensible forward pool, not because it is the smaller number.",
     "correction_1": "lppls_crypto_bubble_criticality -> _v2: F3 damping formula corrected from |C|/(omega*|A|) (unsatisfiable for a log-price fit) to m*|B|/(omega*|C|)",
     "correction_2": "lppls_crypto_bubble_criticality_v2 -> _v3: F3 threshold corrected 0.8 -> 0.5 and F4 gained its |C|/|B| >= 0.05 pre-condition, per the rsos.180643 filter table and the lppls 0.6.24 default",
     "disclosure": "correction_2 was made AFTER observing that D_min=0.8 is inert on COIN/BTC (see filter_attribution). It is a documentary correction (two independent sources state 0.5), but the reader must know the order of operations.",
@@ -43,6 +67,17 @@
     "forward_horizons": 3
   },
   "n_trials_origin": "pre_evaluation",
+  "n_trials_basis": {
+    "resolved_n_trials": 144,
+    "not": 432,
+    "why_not_432": "The LPPLS family has THREE registry lines (v1, v2, v3) and a naive reading would pool 3 x 144 = 432. It is 144.",
+    "line_1_v1": "lppls_crypto_bubble_criticality: its F3 constant was UNSATISFIABLE for a log-price fit, so this design was never executed at all (it was corrected before the first fit) and could not have produced an informative accepted fit. It contributes 0 selectable configurations.",
+    "line_2_v2": "lppls_crypto_bubble_criticality_v2: its 144 configurations WERE computed (that is the run which showed D_min=0.8 is inert). But every bar it touched predates registered_at_utc, and by the registry's own rule (check_no_pre_registration_data) pre-registration data may never decide the hypothesis — so those 144 are not selectable FOR THE VERDICT. They are in-sample diagnostics, reported as such.",
+    "line_3_v3": "lppls_crypto_bubble_criticality_v3: the live line. The forward evaluation will select a champion from exactly its 144 configurations on post-registration bars. That is the pool N must describe.",
+    "rule_applied": "N = the number of configurations from which the QUOTED result may be selected. Configurations that can never enter a verdict (v1: vacuous, v2: pre-registration only) do not multiply it.",
+    "counter_argument_overridden": "A strict reader can argue that v2's 144 fits were computed AND are selectable, so the pool is 288. The answer is NOT to delete provenance: the mitigation is the disclosure. v2 -> v3 was a documentary constant correction (0.8 -> 0.5 plus the |C|/|B| >= 0.05 pre-condition) made AFTER observing that 0.8 is inert; that order of operations is recorded in the v3 registration _meta, in registration_provenance.disclosure here, and in the supersede_reason on v2's ledger line. All three lines stay in the append-only ledger so a reader can reconstruct the pool themselves. If anyone ever quotes an IN-SAMPLE number from the v2 constants, the pool for that claim becomes 288 and this estimate must be re-derived.",
+    "safe_direction_note": "Over-declaring N only raises the bar against ourselves, so under-declaring is the risk. 144 is chosen because it is the defensible forward pool, not because it is the smaller number."
+  },
   "grid_product_check": {
     "leaf_product": 144,
     "n_trials_planned": 144,

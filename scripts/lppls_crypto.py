@@ -911,6 +911,29 @@ def run_as_of(
     }
 
 
+def _registry_status(registry: str) -> dict[str, Any]:
+    """Latest status/revision of each line in this family, straight from the ledger.
+
+    Kept in the report so a reader can see that the superseded lines are
+    terminal (``superseded``) rather than merely older, without having to open
+    the append-only ledger — and so the report cannot silently drift from it.
+    """
+    out: dict[str, Any] = {}
+    for hid in [HYPOTHESIS_ID, *SUPERSEDES]:
+        rec = get_hypothesis(registry, hid)
+        if rec is None:
+            out[hid] = {"status": "ABSENT"}
+            continue
+        out[hid] = {
+            "status": rec.get("status"),
+            "revision": rec.get("revision"),
+            "superseded_by": rec.get("superseded_by"),
+            "superseded_at_utc": rec.get("superseded_at_utc"),
+            "n_trials_planned": rec.get("n_trials_planned"),
+        }
+    return out
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     mode = p.add_mutually_exclusive_group(required=True)
@@ -941,6 +964,8 @@ def main(argv: list[str] | None = None) -> int:
         "registration_provenance": {
             "live": HYPOTHESIS_ID,
             "superseded": SUPERSEDES,
+            "registry_status": _registry_status(args.registry),
+            "n_trials_basis": record.get("n_trials_basis"),
             "correction_1": (
                 "lppls_crypto_bubble_criticality -> _v2: F3 damping formula corrected from "
                 "|C|/(omega*|A|) (unsatisfiable for a log-price fit) to m*|B|/(omega*|C|)"
@@ -967,6 +992,55 @@ def main(argv: list[str] | None = None) -> int:
         "n_trials_planned": record.get("n_trials_planned", N_TRIALS_PLANNED),
         "search_grid": record.get("search_grid", {}),
         "n_trials_origin": record.get("n_trials_origin"),
+        "n_trials_basis": {
+            "resolved_n_trials": N_TRIALS_PLANNED,
+            "not": 3 * N_TRIALS_PLANNED,
+            "why_not_432": (
+                "The LPPLS family has THREE registry lines (v1, v2, v3) and a naive "
+                "reading would pool 3 x 144 = 432. It is 144."
+            ),
+            "line_1_v1": (
+                "lppls_crypto_bubble_criticality: its F3 constant was UNSATISFIABLE for a "
+                "log-price fit, so this design was never executed at all (it was corrected "
+                "before the first fit) and could not have produced an informative accepted "
+                "fit. It contributes 0 selectable configurations."
+            ),
+            "line_2_v2": (
+                "lppls_crypto_bubble_criticality_v2: its 144 configurations WERE computed "
+                "(that is the run which showed D_min=0.8 is inert). But every bar it "
+                "touched predates registered_at_utc, and by the registry's own rule "
+                "(check_no_pre_registration_data) pre-registration data may never decide "
+                "the hypothesis — so those 144 are not selectable FOR THE VERDICT. They "
+                "are in-sample diagnostics, reported as such."
+            ),
+            "line_3_v3": (
+                "lppls_crypto_bubble_criticality_v3: the live line. The forward evaluation "
+                "will select a champion from exactly its 144 configurations on "
+                "post-registration bars. That is the pool N must describe."
+            ),
+            "rule_applied": (
+                "N = the number of configurations from which the QUOTED result may be "
+                "selected. Configurations that can never enter a verdict (v1: vacuous, "
+                "v2: pre-registration only) do not multiply it."
+            ),
+            "counter_argument_overridden": (
+                "A strict reader can argue that v2's 144 fits were computed AND are "
+                "selectable, so the pool is 288. The answer is NOT to delete provenance: "
+                "the mitigation is the disclosure. v2 -> v3 was a documentary constant "
+                "correction (0.8 -> 0.5 plus the |C|/|B| >= 0.05 pre-condition) made AFTER "
+                "observing that 0.8 is inert; that order of operations is recorded in the "
+                "v3 registration _meta, in registration_provenance.disclosure here, and in "
+                "the supersede_reason on v2's ledger line. All three lines stay in the "
+                "append-only ledger so a reader can reconstruct the pool themselves. If "
+                "anyone ever quotes an IN-SAMPLE number from the v2 constants, the pool for "
+                "that claim becomes 288 and this estimate must be re-derived."
+            ),
+            "safe_direction_note": (
+                "Over-declaring N only raises the bar against ourselves, so under-declaring "
+                "is the risk. 144 is chosen because it is the defensible forward pool, not "
+                "because it is the smaller number."
+            ),
+        },
         "grid_product_check": {
             "leaf_product": N_TRIALS_PLANNED,
             "n_trials_planned": record.get("n_trials_planned", N_TRIALS_PLANNED),
