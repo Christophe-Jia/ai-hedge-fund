@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-09-20T03:53:23.974338+00:00",
+  "generated_at": "2026-09-20T04:10:29.519964+00:00",
   "script": "scripts/momentum_reversal_horizon.py",
   "question": "at which look-back horizon k does past return switch sign for predicting forward-h return, and does it survive search multiplicity + era split?",
   "data": "data/btc_history.db ohlcv, market_type='stocks' (Nasdaq daily)",
@@ -201,7 +201,7 @@
    },
    "notes": [
     "NONE of the five single-name/benchmark tickers is in the PIT sp100 union, so all five are loaded as extras and excluded from the cross-section by the universe mask; see pit_membership. MU and COIN are S&P 500 members (not S&P 100); MRVL is in neither snapshot; SPY/QQQ are ETFs.",
-    "MRVL is absent from every sp100/sp500 snapshot 2016-2026, so it is not a universe member under the repo's own definition; when or whether it joined the index is not verifiable from repo data (data/universe/ carries no membership dates). Its absence from the universe files is therefore not a universe-data bug, and it was backfilled separately by scripts/backfill_symbols.py (see reports/backfill_symbols_status.json).",
+    "MRVL was not an S&P 500 constituent inside the sample window: S&P Dow Jones Indices announced the addition on 2026-06-05 (press release via PRNewswire; effective 2026-06-22, replacing Pool Corp), i.e. after the 2026-01 snapshot. EXTERNAL SOURCE — this date is not derivable from repo data (data/universe/ carries no membership dates); the repo-verifiable part is that MRVL appears in no sp100/sp500 snapshot 2016-2026. Its absence from the universe files is correct, not a universe-data bug, and it was backfilled separately by scripts/backfill_symbols.py (see reports/backfill_symbols_status.json).",
     "Nasdaq serves ~10 years of daily history per request, so the oldest bars are truncated at the request window and MRVL starts ~5 trading days later than the rest of the panel.",
     "Nasdaq closes are split-adjusted, dividend-unadjusted."
    ]
