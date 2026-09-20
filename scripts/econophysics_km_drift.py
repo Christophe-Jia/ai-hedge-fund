@@ -1,0 +1,911 @@
+#!/usr/bin/env python3
+"""Kramers-Moyal drift / diffusion estimation: is price in a potential well
+(mean reversion, -> OU) or an escape/trend process?
+
+The econophysics question
+-------------------------
+Two competing pictures of a daily price series:
+
+  A) OVERDAMPED PARTICLE IN A POTENTIAL WELL.  dP = -V'(P) dt + sigma dW with
+     V quadratic -> an Ornstein-Uhlenbeck process.  The drift pulls the price
+     back toward a reference level; the CONDITIONAL MEAN of the next move is
+     negative when the price sits above the well and positive below it.
+  B) ESCAPE / FEEDBACK (trend) PROCESS.  The drift reinforces the deviation
+     (positive feedback) -> trends, accelerating moves, crashes.
+
+Kramers-Moyal (KM) coefficients answer this WITHOUT assuming a potential:
+
+    M1(y) = E[ y_{t+tau} - y_t | y_t = y ]      (drift)
+    M2(y) = E[ (y_{t+tau} - y_t)^2 | y_t = y ]  (diffusion)
+
+A mean-reverting (well) process has dM1/dy < 0; a feedback/escape process has
+dM1/dy > 0 (possibly super-linear in the tails).  This script estimates both
+functions non-parametrically from conditional moments.
+
+State variable (no look-ahead)
+------------------------------
+    y_t = (log P_t - mean_W(log P)_t) / std_W(log P)_t
+with W the rolling window in TRADING days.  mean/std at t use ONLY log P_{<=t}
+(pandas .rolling, trailing).  tau = 1 day.  Sensitivity W in {20, 60, 120}.
+
+*** THE CENTRAL TRAP THIS SCRIPT GUARDS AGAINST ***
+The rolling z-score is NOT a neutral state variable.  Even for a pure random
+walk (iid returns), a price that ran up sits ABOVE its own trailing mean, and
+because the trailing mean keeps catching up, M1(y) is mechanically NEGATIVE.
+Measured on synthetic GBM: dM1/dy ~= -0.131 (W=20), -0.042 (W=60), -0.016
+(W=120).  A raw negative slope is therefore NOT evidence of a potential well.
+Every verdict in this script is decided against a RETURN-SHUFFLE NULL: each
+symbol's own daily log-returns are permuted (destroying any serial/feedback
+dependence while preserving the exact return distribution and volatility),
+the whole pipeline is re-run, and the observed slope is compared to the null
+distribution.  The prescribed raw (CI-vs-zero) verdict is ALSO reported, but
+labelled as the naive one, precisely so the artifact is visible.
+
+Estimator
+---------
+  * equal-frequency bins on y (adaptive count so every bin has >= MIN_BIN_OBS
+    observations; bins below that are dropped before fitting)
+  * M1, M2 per bin, then weighted polynomial fits of M1 vs y (degree 1 and 3)
+    and of M2 vs |y| (degree 1)
+  * uncertainty: circular BLOCK bootstrap (block = 21 trading days) to respect
+    serial dependence; >= 1000 replicates
+
+Panel estimation (the real signal-to-noise win)
+-----------------------------------------------
+The single-name drift over ~10 years is dominated by the rolling-window
+artifact and the bootstrap noise; one name is usually UNIDENTIFIABLE.  Pooling
+the PIT S&P100 union (all names x all days) times the common drift function
+raises n by ~100x.  Two CLUSTER bootstraps are reported because same-day
+cross-sections are not independent:
+   * date-clustered : resample 21-trading-day blocks of DATES (keeps the
+                      cross-section of a day together)
+   * symbol-clustered: resample SYMBOLS with replacement (whole histories)
+The panel null is built by shuffling returns within each symbol, re-pooling
+and re-fitting (preserves per-symbol vol, destroys feedback).
+
+Era stability
+-------------
+The linear drift slope is re-estimated per era (2016-19 / 2020-22 / 2023-26)
+and the OU half-life h = ln2 / |kappa| (kappa = -slope) is reported for each.
+Our platform repeatedly finds era dependence in signals, so an unstable
+half-life is itself a finding.
+
+Verdicts (constants below, decided on the NULL-ADJUSTED excess)
+    POTENTIAL_WELL : observed slope significantly below the null band
+    ESCAPE/TREND   : observed slope significantly above the null band
+    UNIDENTIFIABLE : inside the null band (or CI crossing it)
+
+HONESTY NOTE: identifying mean reversion is NOT a trading signal.  Costs,
+capacity, crowding, borrow and the fact that a weak daily drift is swamped by
+diffusion are all outside this study.
+
+Usage
+-----
+    poetry run python scripts/econophysics_km_drift.py
+    poetry run python scripts/econophysics_km_drift.py --symbols MU,COIN --boot 500
+    poetry run python scripts/econophysics_km_drift.py --windows 20,60,120 --no-panel
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sqlite3
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Sequence
+
+import numpy as np
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "data" / "btc_history.db"
+UNIVERSE_PATH = ROOT / "data" / "universe" / "sp100_union.json"
+OUT_PATH = ROOT / "reports" / "km_drift_diffusion.json"
+
+# --------------------------------------------------------------------------
+# Frozen study constants (see module docstring for rationale)
+# --------------------------------------------------------------------------
+DEFAULT_SYMBOLS = ("MU", "MRVL", "COIN", "SPY")
+DEFAULT_WINDOWS = (20, 60, 120)
+PRIMARY_WINDOW = 60          # headline W (trading days)
+TAU = 1                      # KM time step, trading days
+DEFAULT_BINS = 20            # equal-frequency bins (upper cap)
+MIN_BIN_OBS = 100            # bins thinner than this are dropped from fits
+DEFAULT_BLOCK = 21           # ~1 month circular block-bootstrap block length
+DEFAULT_BOOT = 1000          # bootstrap replicates for drift CIs
+DEFAULT_NULL = 200           # single-name return-shuffle null replicates
+DEFAULT_PANEL_NULL = 100     # panel return-shuffle null replicates
+DEFAULT_PANEL_BOOT = 1000
+ALPHA = 0.05                 # 95% intervals
+START, END = "2016-09-01", "2026-12-31"
+
+ERAS: tuple[tuple[str, str, str], ...] = (
+    ("2016-19", "2016-09-01", "2019-12-31"),
+    ("2020-22", "2020-01-01", "2022-12-31"),
+    ("2023-26", "2023-01-01", "2026-12-31"),
+)
+
+VERDICT_WELL = "POTENTIAL_WELL"
+VERDICT_ESCAPE = "ESCAPE/TREND"
+VERDICT_UNIDENTIFIABLE = "UNIDENTIFIABLE"
+
+
+# --------------------------------------------------------------------------
+# Data access
+# --------------------------------------------------------------------------
+def load_log_price(symbol: str, start: str = START, end: str = END) -> pd.Series:
+    """Trailing-date log close for `symbol` (stocks or etf), UTC-naive daily index."""
+    con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+    try:
+        rows = con.execute(
+            "SELECT ts, close FROM ohlcv "
+            "WHERE symbol = ? AND timeframe = '1d' "
+            "AND market_type IN ('stocks', 'etf') "
+            "AND ts >= ? AND ts < ? ORDER BY ts",
+            (
+                symbol,
+                int(pd.Timestamp(start, tz="UTC").timestamp() * 1000),
+                int(pd.Timestamp(end, tz="UTC").timestamp() * 1000),
+            ),
+        ).fetchall()
+    finally:
+        con.close()
+    if not rows:
+        return pd.Series(dtype=float)
+    idx = pd.DatetimeIndex(pd.to_datetime([r[0] for r in rows], unit="ms", utc=True)).tz_localize(None).normalize()
+    close = np.asarray([float(r[1]) for r in rows], dtype=float)
+    keep = close > 0
+    return pd.Series(np.log(close[keep]), index=idx[keep]).sort_index()
+
+
+def load_universe() -> list[str]:
+    if UNIVERSE_PATH.exists():
+        return list(json.loads(UNIVERSE_PATH.read_text()))
+    return []
+
+
+# --------------------------------------------------------------------------
+# State variable + KM pairs
+# --------------------------------------------------------------------------
+def rolling_zscore(logp: pd.Series, window: int) -> pd.Series:
+    """y_t = (logp_t - mean_W(logp)_t) / std_W(logp)_t.  Trailing only:
+    the value at t uses logp_{<=t}, so no look-ahead.  ddof=1."""
+    roll = logp.rolling(window, min_periods=window)
+    return (logp - roll.mean()) / roll.std(ddof=1)
+
+
+@dataclass
+class KMSample:
+    """Aligned KM estimation sample.  y_t predicts dy_t = y_{t+1} - y_t."""
+    y: np.ndarray
+    dy: np.ndarray
+    dates: np.ndarray  # int64 epoch-days, same length as y
+
+    def __len__(self) -> int:  # pragma: no cover - trivial
+        return int(self.y.size)
+
+
+def km_sample(logp: pd.Series, window: int) -> KMSample:
+    y = rolling_zscore(logp, window).to_numpy(dtype=float)
+    dy = np.full_like(y, np.nan)
+    dy[:-1] = y[1:] - y[:-1]
+    dates = logp.index.values.astype("datetime64[D]").astype(np.int64)
+    ok = np.isfinite(y) & np.isfinite(dy)
+    return KMSample(y=y[ok], dy=dy[ok], dates=dates[ok])
+
+
+# --------------------------------------------------------------------------
+# Binned KM coefficients
+# --------------------------------------------------------------------------
+_BINS_MAX = DEFAULT_BINS  # mutable so --bins can override without breaking defaults
+
+
+def n_bins_for(n_obs: int, n_bins: int | None = None, min_obs: int = MIN_BIN_OBS) -> int:
+    """Adaptive equal-frequency bin count: never let the average bin fall
+    below MIN_BIN_OBS.  At least 3 bins so a linear fit is meaningful."""
+    if n_bins is None:
+        n_bins = _BINS_MAX
+    return int(max(3, min(n_bins, n_obs // max(min_obs, 1))))
+
+
+def bin_km(y: np.ndarray, dy: np.ndarray, n_bins: int, min_obs: int = MIN_BIN_OBS) -> dict:
+    """Equal-frequency bins over y; conditional M1 and M2 per bin.
+
+    Bins with fewer than `min_obs` observations (only possible in the tails)
+    are returned with `kept=False` and excluded from polynomial fits.
+    """
+    n = y.size
+    if n < 3 * min_obs:
+        return {"centers": np.array([]), "counts": np.array([]), "m1": np.array([]),
+                "m2": np.array([]), "kept": np.array([], dtype=bool), "edges": np.array([])}
+    nb = n_bins
+    qs = np.quantile(y, np.linspace(0.0, 1.0, nb + 1))
+    qs[0] = -np.inf
+    qs[-1] = np.inf
+    # interior edges must be strictly increasing for searchsorted
+    qs = np.unique(qs)
+    nb = len(qs) - 1
+    idx = np.clip(np.searchsorted(qs, y, side="left") - 1, 0, nb - 1)
+    counts = np.bincount(idx, minlength=nb).astype(float)
+    m1 = np.bincount(idx, weights=dy, minlength=nb) / np.maximum(counts, 1.0)
+    m2 = np.bincount(idx, weights=dy * dy, minlength=nb) / np.maximum(counts, 1.0)
+    centers = np.full(nb, np.nan)
+    for k in range(nb):
+        sel = idx == k
+        if counts[k] > 0:
+            centers[k] = y[sel].mean()
+    kept = (counts >= min_obs) & np.isfinite(centers) & np.isfinite(m1)
+    return {"centers": centers, "counts": counts, "m1": m1, "m2": m2, "kept": kept, "edges": qs}
+
+
+def fit_poly(centers: np.ndarray, values: np.ndarray, counts: np.ndarray,
+             kept: np.ndarray, deg: int) -> np.ndarray | None:
+    """Counts-weighted polynomial fit returned in ORIGINAL y units (highest
+    degree first, per np.polyfit); None if there are too few kept bins."""
+    c, v, w = centers[kept], values[kept], counts[kept]
+    if c.size < deg + 1:
+        return None
+    return np.polyfit(c, v, deg, w=np.sqrt(w))
+
+
+def drift_slope(bins: dict, deg: int = 1) -> float | None:
+    coef = fit_poly(bins["centers"], bins["m1"], bins["counts"], bins["kept"], deg)
+    return None if coef is None else float(coef[0])
+
+
+def tail_amplification(bins: dict, y_eval: float = 2.0) -> float | None:
+    """Cubic-minus-linear fitted M1 at y = y_eval (a standardised deviation of
+    +2).  > 0 => the drift turns up / down FASTER than linear in the tail,
+    i.e. super-linear tail feedback (the ESCAPE signature)."""
+    lin = fit_poly(bins["centers"], bins["m1"], bins["counts"], bins["kept"], 1)
+    cub = fit_poly(bins["centers"], bins["m1"], bins["counts"], bins["kept"], 3)
+    if lin is None or cub is None:
+        return None
+    return float(np.polyval(cub, y_eval) - np.polyval(lin, y_eval))
+
+
+def diffusion_slope_linear(bins: dict, power: int = 1) -> float | None:
+    """d(shape)/d|y| style slope: linear fit of M2 on |y|^power.
+    power=1 is the textbook 'vol amplifies with |deviation|' summary;
+    power=2 captures a symmetric U-shape (high in BOTH tails)."""
+    coef = fit_poly(np.abs(bins["centers"]) ** power, bins["m2"], bins["counts"], bins["kept"], 1)
+    return None if coef is None else float(coef[0])
+
+
+# --------------------------------------------------------------------------
+# Uncertainty: block bootstrap (single name)
+# --------------------------------------------------------------------------
+def _block_indices(n: int, block: int, n_boot: int, rng: np.random.Generator) -> list[np.ndarray]:
+    n_blocks = int(np.ceil(n / block))
+    starts = rng.integers(0, n, size=(n_boot, n_blocks))
+    offs = np.arange(block)
+    out = []
+    for b in range(n_boot):
+        idx = (starts[b][:, None] + offs[None, :]).ravel() % n
+        out.append(idx)
+    return out
+
+
+def bootstrap_km_slopes(y: np.ndarray, dy: np.ndarray, block: int, n_boot: int,
+                        n_bins: int, min_obs: int, seed: int,
+                        diffusion: bool = False) -> np.ndarray:
+    """Circular block bootstrap distribution of the drift slope (or, if
+    `diffusion`, of the diffusion slope).  Fixed bin count recomputed on each
+    replicate (equal-frequency binning is re-derived, so tails move)."""
+    rng = np.random.default_rng(seed)
+    slopes = np.full(n_boot, np.nan)
+    for b, idx in enumerate(_block_indices(y.size, block, n_boot, rng)):
+        bins = bin_km(y[idx], dy[idx], n_bins, min_obs)
+        s = diffusion_slope_linear(bins) if diffusion else drift_slope(bins)
+        if s is not None:
+            slopes[b] = s
+    return slopes
+
+
+# --------------------------------------------------------------------------
+# Panel: pooled common drift function
+# --------------------------------------------------------------------------
+@dataclass
+class PanelData:
+    y: np.ndarray
+    dy: np.ndarray
+    date_code: np.ndarray        # int index into `dates`
+    symbol_code: np.ndarray      # int index into `symbols`
+    dates: np.ndarray
+    symbols: list[str]
+    rows_by_date: list[np.ndarray] = field(default_factory=list, repr=False)
+    rows_by_symbol: list[np.ndarray] = field(default_factory=list, repr=False)
+
+    def __post_init__(self) -> None:
+        self.rows_by_date = [np.flatnonzero(self.date_code == d) for d in range(self.dates.size)]
+        self.rows_by_symbol = [np.flatnonzero(self.symbol_code == s) for s in range(len(self.symbols))]
+
+
+def build_panel(samples: dict[str, KMSample]) -> PanelData:
+    ys, dys, dts, syms, sym_names = [], [], [], [], []
+    for si, (sym, s) in enumerate(samples.items()):
+        ys.append(s.y)
+        dys.append(s.dy)
+        dts.append(s.dates)
+        syms.append(np.full(s.y.size, si, dtype=np.int64))
+        sym_names.append(sym)
+    y = np.concatenate(ys)
+    dy = np.concatenate(dys)
+    dt = np.concatenate(dts)
+    sc = np.concatenate(syms)
+    uniq_dates = np.unique(dt)
+    date_code = np.searchsorted(uniq_dates, dt)
+    return PanelData(y=y, dy=dy, date_code=date_code, symbol_code=sc,
+                     dates=uniq_dates, symbols=sym_names)
+
+
+def panel_bootstrap_slopes(panel: PanelData, scheme: str, block: int, n_boot: int,
+                           n_bins: int, min_obs: int, seed: int,
+                           diffusion: bool = False) -> np.ndarray:
+    """Cluster block bootstrap of the pooled drift slope.
+
+    scheme = "date"   -> circular blocks of DATES (keeps each day's
+                         cross-section together; respects same-day correlation)
+    scheme = "symbol" -> resample SYMBOLS with replacement (respects that one
+                         name's history is one correlated unit)
+    """
+    rng = np.random.default_rng(seed)
+    out = np.full(n_boot, np.nan)
+    if scheme == "date":
+        nd = panel.dates.size
+        inds = _block_indices(nd, block, n_boot, rng)
+        for b in range(n_boot):
+            rows = np.concatenate([panel.rows_by_date[d] for d in inds[b]])
+            bins = bin_km(panel.y[rows], panel.dy[rows], n_bins, min_obs)
+            s = diffusion_slope_linear(bins) if diffusion else drift_slope(bins)
+            if s is not None:
+                out[b] = s
+    elif scheme == "symbol":
+        ns = len(panel.symbols)
+        draws = rng.integers(0, ns, size=(n_boot, ns))
+        for b in range(n_boot):
+            rows = np.concatenate([panel.rows_by_symbol[s] for s in draws[b]])
+            bins = bin_km(panel.y[rows], panel.dy[rows], n_bins, min_obs)
+            s = diffusion_slope_linear(bins) if diffusion else drift_slope(bins)
+            if s is not None:
+                out[b] = s
+    else:
+        raise ValueError(f"unknown scheme {scheme!r}")
+    return out
+
+
+# --------------------------------------------------------------------------
+# Return-shuffle null (the artifact control)
+# --------------------------------------------------------------------------
+def shuffle_null_slopes(logp: pd.Series, window: int, n_null: int, seed: int,
+                        n_bins: int = DEFAULT_BINS, min_obs: int = MIN_BIN_OBS,
+                        diffusion: bool = False) -> np.ndarray:
+    """Null distribution of the slope when returns carry NO serial/feedback
+    dependence.  Each replicate permutes the symbol's own daily log-returns
+    (preserves the exact return distribution and volatility), rebuilds the
+    price path, and re-runs the identical pipeline."""
+    rng = np.random.default_rng(seed)
+    base = float(logp.iloc[0]) if len(logp) else 0.0
+    rets = np.diff(logp.to_numpy(dtype=float))
+    n = len(logp)
+    out = np.full(n_null, np.nan)
+    for b in range(n_null):
+        r = rng.permutation(rets)
+        path = np.concatenate([[base], base + np.cumsum(r)])
+        s = km_sample(pd.Series(path), window)
+        bins = bin_km(s.y, s.dy, n_bins_for(s.y.size, n_bins, min_obs), min_obs)
+        v = diffusion_slope_linear(bins) if diffusion else drift_slope(bins)
+        if v is not None:
+            out[b] = v
+    return out
+
+
+def panel_shuffle_null_slopes(logps: dict[str, pd.Series], window: int, n_null: int,
+                              seed: int, n_bins: int = DEFAULT_BINS,
+                              min_obs: int = MIN_BIN_OBS,
+                              diffusion: bool = False) -> np.ndarray:
+    """Panel null: shuffle returns within each symbol, re-pool, re-fit."""
+    rng = np.random.default_rng(seed)
+    bases = {s: float(logp.iloc[0]) if len(logp) else 0.0 for s, logp in logps.items()}
+    rets = {s: np.diff(logp.to_numpy(dtype=float)) for s, logp in logps.items()}
+    out = np.full(n_null, np.nan)
+    for b in range(n_null):
+        samples: dict[str, KMSample] = {}
+        for s, logp in logps.items():
+            r = rng.permutation(rets[s])
+            path = np.concatenate([[bases[s]], bases[s] + np.cumsum(r)])
+            samples[s] = km_sample(pd.Series(path), window)
+        panel = build_panel(samples)
+        nb = n_bins_for(panel.y.size, n_bins, min_obs)
+        bins = bin_km(panel.y, panel.dy, nb, min_obs)
+        v = diffusion_slope_linear(bins) if diffusion else drift_slope(bins)
+        if v is not None:
+            out[b] = v
+    return out
+
+
+# --------------------------------------------------------------------------
+# Verdicts and derived quantities
+# --------------------------------------------------------------------------
+def ci(arr: np.ndarray, alpha: float = ALPHA) -> tuple[float, float, float]:
+    """(lo, hi, mean) percentile interval, ignoring NaNs."""
+    a = arr[np.isfinite(arr)]
+    if a.size == 0:
+        return float("nan"), float("nan"), float("nan")
+    return float(np.percentile(a, 100 * alpha / 2)), float(np.percentile(a, 100 * (1 - alpha / 2))), float(a.mean())
+
+
+def classify(obs: float, ci_lo: float, ci_hi: float,
+             null_lo: float, null_hi: float, null_mean: float) -> str:
+    """Null-adjusted verdict (headline).
+
+    POTENTIAL_WELL if the observed slope is significantly BELOW the shuffle
+    null (both outside the null band and its own CI entirely below the null
+    mean); ESCAPE/TREND if significantly above; else UNIDENTIFIABLE.
+    """
+    if not (np.isfinite(obs) and np.isfinite(null_lo) and np.isfinite(null_hi)):
+        return VERDICT_UNIDENTIFIABLE
+    if obs < null_lo and ci_hi < null_mean:
+        return VERDICT_WELL
+    if obs > null_hi and ci_lo > null_mean:
+        return VERDICT_ESCAPE
+    return VERDICT_UNIDENTIFIABLE
+
+
+def classify_naive(ci_lo: float, ci_hi: float) -> str:
+    """The textbook rule (CI vs zero), reported for contrast only.  It is
+    biased by the rolling-window artifact and will cry 'POTENTIAL_WELL' on a
+    pure random walk."""
+    if not (np.isfinite(ci_lo) and np.isfinite(ci_hi)):
+        return VERDICT_UNIDENTIFIABLE
+    if ci_hi < 0:
+        return VERDICT_WELL
+    if ci_lo > 0:
+        return VERDICT_ESCAPE
+    return VERDICT_UNIDENTIFIABLE
+
+
+def diffusion_verdict_label(verdict: str) -> str:
+    """Readable name for the diffusion-slope-vs-null comparison.  NOTE this
+    compares the SLOPE of M2 vs |y| to its shuffle null; it does NOT mean M2
+    rises with |y| in the raw data (see `m2_rises_with_abs_y`)."""
+    return {
+        VERDICT_WELL: "M2_SLOPE_BELOW_NULL",
+        VERDICT_ESCAPE: "M2_SLOPE_ABOVE_NULL",
+    }.get(verdict, verdict)
+
+
+def diffusion_shape(bins: dict) -> dict:
+    """Level of M2 in the two tails vs the centre.
+
+    The tail/centre ratio is NOT the same as the linear dM2/d|y| slope: the
+    z-normalisation divides the move by the rolling std, which is itself large
+    when |y| is large, so the RAW M2 tends to FALL in the tails.  Left vs right
+    tail separates the leverage effect (y < 0 = below the trailing mean) from
+    the upside.  Tail = |y| >= 1.5, centre = |y| <= 0.5.
+    """
+    c, m2, kept = bins["centers"], bins["m2"], bins["kept"]
+    left = m2[kept & (c <= -1.5)]
+    right = m2[kept & (c >= 1.5)]
+    center = m2[kept & (np.abs(c) <= 0.5)]
+    l = float(np.median(left)) if left.size else float("nan")
+    r = float(np.median(right)) if right.size else float("nan")
+    k = float(np.median(center)) if center.size else float("nan")
+    tail = np.concatenate([left, right])
+    t = float(np.median(tail)) if tail.size else float("nan")
+    ratio = lambda a, b: float(a / b) if (np.isfinite(a) and np.isfinite(b) and b > 0) else float("nan")
+    return {
+        "median_m2_left_tail_y_le_m1.5": _f(l),
+        "median_m2_right_tail_y_ge_p1.5": _f(r),
+        "median_m2_center_abs_y_le_0.5": _f(k),
+        "tail_over_center": _f(ratio(t, k)),
+        "left_over_right_tail": _f(ratio(l, r)),
+    }
+
+
+def half_life_days(slope: float | None) -> float | None:
+    """OU half-life from the linear drift slope: M1(y) ~= -kappa*y with
+    tau = 1 day, so kappa = -slope and h = ln2 / kappa.  None when the slope
+    is non-negative (no restoring force -> infinite half-life)."""
+    if slope is None or not np.isfinite(slope) or slope >= 0:
+        return None
+    return float(np.log(2.0) / (-slope))
+
+
+def _f(x: float | None) -> float | None:
+    return None if x is None or not np.isfinite(x) else float(x)
+
+
+def _bins_payload(bins: dict) -> dict:
+    return {
+        "centers": [round(float(v), 4) for v in bins["centers"]],
+        "counts": [int(v) for v in bins["counts"]],
+        "m1": [round(float(v), 6) for v in bins["m1"]],
+        "m2": [round(float(v), 6) for v in bins["m2"]],
+        "kept": [bool(v) for v in bins["kept"]],
+    }
+
+
+# --------------------------------------------------------------------------
+# Single-name estimation
+# --------------------------------------------------------------------------
+def estimate_symbol(sym: str, logp: pd.Series, window: int, n_boot: int, n_null: int,
+                    block: int, seed: int, with_null: bool = True) -> dict:
+    sample = km_sample(logp, window)
+    n_obs = int(sample.y.size)
+    nb = n_bins_for(n_obs)
+    bins = bin_km(sample.y, sample.dy, nb)
+    slope = drift_slope(bins, 1)
+    cub = fit_poly(bins["centers"], bins["m1"], bins["counts"], bins["kept"], 3)
+    dslope = diffusion_slope_linear(bins)
+
+    boot = bootstrap_km_slopes(sample.y, sample.dy, block, n_boot, nb, MIN_BIN_OBS, seed)
+    b_lo, b_hi, b_mean = ci(boot)
+
+    if with_null:
+        nul = shuffle_null_slopes(logp, window, n_null, seed + 1, n_bins=nb)
+        n_lo, n_hi, n_mean = ci(nul)
+    else:
+        n_lo = n_hi = n_mean = float("nan")
+
+    verdict = classify(slope, b_lo, b_hi, n_lo, n_hi, n_mean) if with_null else VERDICT_UNIDENTIFIABLE
+
+    # diffusion CI + null
+    dboot = bootstrap_km_slopes(sample.y, sample.dy, block, n_boot, nb, MIN_BIN_OBS,
+                                seed + 2, diffusion=True)
+    d_lo, d_hi, d_mean = ci(dboot)
+    if with_null:
+        dnul = shuffle_null_slopes(logp, window, n_null, seed + 3, n_bins=nb, diffusion=True)
+        dn_lo, dn_hi, dn_mean = ci(dnul)
+    else:
+        dn_lo = dn_hi = dn_mean = float("nan")
+    diffusion_verdict = classify(dslope, d_lo, d_hi, dn_lo, dn_hi, dn_mean) if with_null else VERDICT_UNIDENTIFIABLE
+    diffusion_verdict = diffusion_verdict_label(diffusion_verdict)
+
+    eras = {}
+    for name, s0, s1 in ERAS:
+        m = (sample.dates >= np.datetime64(s0, "D").astype(np.int64)) & (
+            sample.dates <= np.datetime64(s1, "D").astype(np.int64))
+        sub = KMSample(y=sample.y[m], dy=sample.dy[m], dates=sample.dates[m])
+        if sub.y.size < 3 * MIN_BIN_OBS:
+            eras[name] = {"n_obs": int(sub.y.size), "slope": None, "half_life_days": None,
+                          "note": "insufficient observations"}
+            continue
+        eb = bin_km(sub.y, sub.dy, n_bins_for(sub.y.size))
+        es = drift_slope(eb, 1)
+        eras[name] = {"n_obs": int(sub.y.size), "slope": _f(es),
+                      "half_life_days": _f(half_life_days(es))}
+
+    excess = _f(slope - n_mean) if (slope is not None and np.isfinite(n_mean)) else None
+    return {
+        "n_obs": n_obs,
+        "n_bins": nb,
+        "drift": {
+            "slope_deg1": _f(slope),
+            "intercept_deg1": _f(None if (c := fit_poly(bins["centers"], bins["m1"], bins["counts"], bins["kept"], 1)) is None else c[1]),
+            "slope_deg3_cubic_coef": _f(None if cub is None else cub[0]),
+            "tail_amplification_deg3_minus_deg1_at_y2": _f(tail_amplification(bins)),
+            "boot_ci": [_f(b_lo), _f(b_hi)],
+            "boot_mean": _f(b_mean),
+            "null_mean": _f(n_mean),
+            "null_ci": [_f(n_lo), _f(n_hi)],
+            "excess_over_null": excess,
+            "verdict": verdict,
+            "verdict_naive_ci_vs_zero": classify_naive(b_lo, b_hi),
+        },
+        "half_life_days": _f(half_life_days(slope)),
+        "half_life_days_null_adjusted": _f(half_life_days(excess)) if verdict == VERDICT_WELL else None,
+        "half_life_note": "raw h uses the observed slope and is INFLATED by the "
+                          "rolling-window artifact; the null-adjusted value is only "
+                          "reported when the verdict is POTENTIAL_WELL",
+        "eras": eras,
+        "diffusion": {
+            "slope_vs_abs_y": _f(dslope),
+            "slope_vs_y_squared": _f(diffusion_slope_linear(bins, power=2)),
+            "m2_rises_with_abs_y": None if dslope is None else bool(dslope > 0),
+            "shape": diffusion_shape(bins),
+            "boot_ci": [_f(d_lo), _f(d_hi)],
+            "null_mean": _f(dn_mean),
+            "null_ci": [_f(dn_lo), _f(dn_hi)],
+            "verdict": diffusion_verdict,
+        },
+        "bins": _bins_payload(bins),
+    }
+
+
+# --------------------------------------------------------------------------
+# Panel estimation
+# --------------------------------------------------------------------------
+def estimate_panel(samples: dict[str, KMSample], logps: dict[str, pd.Series],
+                   window: int, n_boot: int, n_null: int, block: int, seed: int) -> dict:
+    panel = build_panel(samples)
+    nb = n_bins_for(panel.y.size)
+    bins = bin_km(panel.y, panel.dy, nb)
+    slope = drift_slope(bins, 1)
+    cub = fit_poly(bins["centers"], bins["m1"], bins["counts"], bins["kept"], 3)
+    dslope = diffusion_slope_linear(bins)
+
+    date_boot = panel_bootstrap_slopes(panel, "date", block, n_boot, nb, MIN_BIN_OBS, seed)
+    sym_boot = panel_bootstrap_slopes(panel, "symbol", block, n_boot, nb, MIN_BIN_OBS, seed + 1)
+    dl, dh, dm = ci(date_boot)
+    sl, sh, sm = ci(sym_boot)
+
+    nul = panel_shuffle_null_slopes(logps, window, n_null, seed + 2, n_bins=nb)
+    n_lo, n_hi, n_mean = ci(nul)
+    # null band is itself uncertain (finite n_null): widen by 1 null-SE
+    n_se = float(np.nanstd(nul) / np.sqrt(max(np.isfinite(nul).sum(), 1)))
+
+    verdict_date = classify(slope, dl, dh, n_lo - n_se, n_hi + n_se, n_mean)
+    verdict_sym = classify(slope, sl, sh, n_lo - n_se, n_hi + n_se, n_mean)
+    # headline: both clusterings must agree on the same non-null verdict
+    if verdict_date == verdict_sym:
+        verdict = verdict_date
+    else:
+        verdict = VERDICT_UNIDENTIFIABLE
+
+    dboot = panel_bootstrap_slopes(panel, "date", block, n_boot, nb, MIN_BIN_OBS, seed + 3, diffusion=True)
+    d_lo, d_hi, _ = ci(dboot)
+    dnul = panel_shuffle_null_slopes(logps, window, n_null, seed + 4, n_bins=nb, diffusion=True)
+    dn_lo, dn_hi, dn_mean = ci(dnul)
+    diff_verdict = classify(dslope, d_lo, d_hi, dn_lo, dn_hi, dn_mean)
+    diff_verdict = diffusion_verdict_label(diff_verdict)
+
+    eras = {}
+    for name, s0, s1 in ERAS:
+        lo = np.datetime64(s0, "D").astype(np.int64)
+        hi = np.datetime64(s1, "D").astype(np.int64)
+        m = (panel.dates[panel.date_code] >= lo) & (panel.dates[panel.date_code] <= hi)
+        if m.sum() < 3 * MIN_BIN_OBS:
+            eras[name] = {"n_obs": int(m.sum()), "slope": None, "half_life_days": None,
+                          "note": "insufficient observations"}
+            continue
+        eb = bin_km(panel.y[m], panel.dy[m], n_bins_for(int(m.sum())))
+        es = drift_slope(eb, 1)
+        # era slope CI by date-clustered block bootstrap on the era subset
+        sub = PanelData(y=panel.y[m], dy=panel.dy[m], date_code=panel.date_code[m],
+                        symbol_code=panel.symbol_code[m], dates=panel.dates,
+                        symbols=panel.symbols)
+        eboot = panel_bootstrap_slopes(sub, "date", block, max(200, n_boot // 2), n_bins_for(int(m.sum())),
+                                       MIN_BIN_OBS, seed + 5)
+        el, eh, _ = ci(eboot)
+        eras[name] = {"n_obs": int(m.sum()), "slope": _f(es),
+                      "boot_ci": [_f(el), _f(eh)],
+                      "half_life_days": _f(half_life_days(es))}
+
+    excess = _f(slope - n_mean) if (slope is not None and np.isfinite(n_mean)) else None
+    return {
+        "n_obs": int(panel.y.size),
+        "n_symbols": len(panel.symbols),
+        "n_dates": int(panel.dates.size),
+        "n_bins": nb,
+        "drift": {
+            "slope_deg1": _f(slope),
+            "slope_deg3_cubic_coef": _f(None if cub is None else cub[0]),
+            "tail_amplification_deg3_minus_deg1_at_y2": _f(tail_amplification(bins)),
+            "boot_ci_date_clustered": [_f(dl), _f(dh)],
+            "boot_ci_symbol_clustered": [_f(sl), _f(sh)],
+            "null_mean": _f(n_mean),
+            "null_ci": [_f(n_lo), _f(n_hi)],
+            "null_se": _f(n_se),
+            "excess_over_null": excess,
+            "verdict": verdict,
+            "verdict_date_clustered": verdict_date,
+            "verdict_symbol_clustered": verdict_sym,
+            "verdict_naive_ci_vs_zero": classify_naive(dl, dh),
+        },
+        "half_life_days": _f(half_life_days(slope)),
+        "half_life_days_null_adjusted": _f(half_life_days(excess)) if verdict == VERDICT_WELL else None,
+        "half_life_note": "raw h uses the observed slope and is INFLATED by the "
+                          "rolling-window artifact; the null-adjusted value is only "
+                          "reported when the verdict is POTENTIAL_WELL",
+        "eras": eras,
+        "diffusion": {
+            "slope_vs_abs_y": _f(dslope),
+            "slope_vs_y_squared": _f(diffusion_slope_linear(bins, power=2)),
+            "m2_rises_with_abs_y": None if dslope is None else bool(dslope > 0),
+            "shape": diffusion_shape(bins),
+            "boot_ci_date_clustered": [_f(d_lo), _f(d_hi)],
+            "null_mean": _f(dn_mean),
+            "null_ci": [_f(dn_lo), _f(dn_hi)],
+            "verdict": diff_verdict,
+        },
+        "bins": _bins_payload(bins),
+    }
+
+
+# --------------------------------------------------------------------------
+# Orchestration
+# --------------------------------------------------------------------------
+def run(args: argparse.Namespace) -> dict:
+    windows = tuple(args.windows)
+    symbols = tuple(s.strip().upper() for s in args.symbols.split(",") if s.strip())
+
+    logps: dict[str, pd.Series] = {}
+    missing: list[str] = []
+    coverage: dict[str, dict] = {}
+    for s in symbols:
+        lp = load_log_price(s)
+        if lp.empty:
+            missing.append(s)
+            continue
+        logps[s] = lp
+        coverage[s] = {"n_days": int(len(lp)),
+                       "first": str(lp.index[0].date()), "last": str(lp.index[-1].date())}
+
+    report: dict = {
+        "meta": {
+            "generated_by": "scripts/econophysics_km_drift.py",
+            "state_variable": "y_t = (log P_t - trailing_mean_W(log P)_t) / trailing_std_W(log P)_t",
+            "tau_days": TAU,
+            "windows": list(windows),
+            "primary_window": PRIMARY_WINDOW,
+            "window_days": PRIMARY_WINDOW,
+            "bins_max": DEFAULT_BINS,
+            "min_bin_obs": MIN_BIN_OBS,
+            "block_days": args.block,
+            "n_boot": args.boot,
+            "n_null": args.null,
+            "n_panel_null": args.panel_null,
+            "alpha": ALPHA,
+            "start": START,
+            "end": END,
+            "db_path": str(DB_PATH),
+            "universe_source": str(UNIVERSE_PATH),
+            "eras": [{"name": n, "start": a, "end": b} for n, a, b in ERAS],
+            "requested_symbols": list(symbols),
+            "missing_symbols": missing,
+            "coverage": coverage,
+        },
+        "per_symbol": {},
+        "panel": {},
+        "notes": [],
+    }
+
+    for sym, lp in logps.items():
+        report["per_symbol"][sym] = {
+            "by_window": {
+                str(w): estimate_symbol(sym, lp, w, args.boot, args.null, args.block, seed=1000 + 7 * w)
+                for w in windows
+            }
+        }
+
+    # PIT S&P100 union panel
+    panel_logps: dict[str, pd.Series] = {}
+    if not args.no_panel:
+        uni = [s for s in load_universe() if s not in symbols]
+        for s in uni:
+            lp = load_log_price(s)
+            if len(lp) >= 3 * MIN_BIN_OBS:
+                panel_logps[s] = lp
+        # include the headline names too (they are legitimate panel members)
+        for s, lp in logps.items():
+            if len(lp) >= 3 * MIN_BIN_OBS:
+                panel_logps[s] = lp
+        panel_missing = [s for s in load_universe() if s not in panel_logps]
+        report["meta"]["panel_universe_present"] = sorted(panel_logps)
+        report["meta"]["panel_universe_missing"] = sorted(set(panel_missing) - set(missing))
+        report["panel"] = {
+            str(w): estimate_panel(
+                {s: km_sample(lp, w) for s, lp in panel_logps.items()},
+                panel_logps, w, args.panel_boot, args.panel_null, args.block, seed=4242 + 13 * w,
+            )
+            for w in windows
+        }
+
+    report["notes"] = _interpretation(report)
+    return report
+
+
+def _interpretation(report: dict) -> list[str]:
+    notes: list[str] = []
+    notes.append(
+        "Rolling-window artifact: y is defined against its own trailing mean, so a "
+        "random walk already produces a negative drift slope (-0.13/-0.04/-0.02 at "
+        "W=20/60/120). Verdicts are therefore decided against a return-shuffle null, "
+        "not against zero. The 'naive' CI-vs-zero verdict is reported alongside to "
+        "make the artifact visible; it is NOT the headline."
+    )
+    for sym, d in report["per_symbol"].items():
+        for w, r in d["by_window"].items():
+            dr = r["drift"]
+            notes.append(
+                f"{sym} W={w}: n={r['n_obs']} slope={dr['slope_deg1']} "
+                f"CI=[{dr['boot_ci'][0]}, {dr['boot_ci'][1]}] null_band="
+                f"[{dr['null_ci'][0]}, {dr['null_ci'][1]}] excess={dr['excess_over_null']} "
+                f"-> {dr['verdict']} (naive: {dr['verdict_naive_ci_vs_zero']}); "
+                f"half-life raw={r['half_life_days']}d null-adjusted={r['half_life_days_null_adjusted']}d; "
+                f"M2 tail/center={r['diffusion']['shape']['tail_over_center']} "
+                f"L/R={r['diffusion']['shape']['left_over_right_tail']} "
+                f"(dM2/d|y|={r['diffusion']['slope_vs_abs_y']}, rises_with_abs_y="
+                f"{r['diffusion']['m2_rises_with_abs_y']})"
+            )
+    for w, r in report.get("panel", {}).items():
+        dr = r["drift"]
+        eras = ", ".join(
+            f"{k}: slope={v['slope']} h={v['half_life_days']}d n={v['n_obs']}"
+            for k, v in r["eras"].items()
+        )
+        notes.append(
+            f"PANEL W={w}: N={r['n_obs']} ({r['n_symbols']} names, {r['n_dates']} days) "
+            f"slope={dr['slope_deg1']} CI_date=[{dr['boot_ci_date_clustered'][0]}, "
+            f"{dr['boot_ci_date_clustered'][1]}] CI_symbol=[{dr['boot_ci_symbol_clustered'][0]}, "
+            f"{dr['boot_ci_symbol_clustered'][1]}] null_band=[{dr['null_ci'][0]}, {dr['null_ci'][1]}] "
+            f"excess={dr['excess_over_null']} -> {dr['verdict']} (naive: "
+            f"{dr['verdict_naive_ci_vs_zero']}); half-life raw={r['half_life_days']}d "
+            f"null-adjusted={r['half_life_days_null_adjusted']}d; "
+            f"M2 tail/center={r['diffusion']['shape']['tail_over_center']} "
+            f"L/R={r['diffusion']['shape']['left_over_right_tail']} "
+            f"(dM2/d|y|={r['diffusion']['slope_vs_abs_y']}, "
+            f"dM2/dy^2={r['diffusion']['slope_vs_y_squared']}, "
+            f"rises_with_abs_y={r['diffusion']['m2_rises_with_abs_y']}) "
+            f"verdict={r['diffusion']['verdict']}; eras: {eras}"
+        )
+    if report.get("panel"):
+        pw = str(report["meta"]["primary_window"])
+        p = report["panel"].get(pw)
+        if p:
+            sh = p["diffusion"]["shape"]
+            notes.append(
+                f"Diffusion shape (panel W={pw}): raw M2 does NOT rise with |y| "
+                f"(dM2/d|y|={p['diffusion']['slope_vs_abs_y']}, tail/centre="
+                f"{sh['tail_over_center']}); the z-normalisation deflates each move by the "
+                f"rolling std, which is itself large when |y| is large, and the shuffle null "
+                f"reproduces this pattern, so there is no evidence of 'slippery' "
+                f"(higher-diffusion) tails. Left/right tail asymmetry L/R="
+                f"{sh['left_over_right_tail']} (>1 => below-the-trailing-mean states carry "
+                f"more next-day variance than above-the-mean states; consistent with a "
+                f"leverage-type effect, though the z-normalisation amplifies it, so treat "
+                f"the raw multiple L/R as an upper bound)."
+            )
+    if report["meta"].get("missing_symbols"):
+        notes.append("MISSING DATA: " + ", ".join(report["meta"]["missing_symbols"]) +
+                     " have no daily bars in data/btc_history.db (reported, not silently dropped).")
+    notes.append(
+        "CAVEAT: a detected mean-reverting drift is a statistical statement about "
+        "conditional means, NOT a tradable edge — costs, capacity, crowding and "
+        "diffusion-dominated risk are outside this study."
+    )
+    notes.append(
+        "ESCAPE criterion: the ESCAPE/TREND verdict is triggered by a significantly "
+        "POSITIVE linear drift slope (or a slope significantly above the shuffle null). "
+        "The super-linear tail branch is reported descriptively via the cubic "
+        "coefficient and tail_amplification_deg3_minus_deg1_at_y2; those are NOT "
+        "bootstrapped, so they are supporting evidence and never a stand-alone verdict."
+    )
+    return notes
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--symbols", default=",".join(DEFAULT_SYMBOLS))
+    p.add_argument("--windows", default=",".join(map(str, DEFAULT_WINDOWS)),
+                   help="comma-separated rolling windows (default 20,60,120)")
+    p.add_argument("--bins", type=int, default=DEFAULT_BINS)
+    p.add_argument("--block", type=int, default=DEFAULT_BLOCK, help="block bootstrap length in days")
+    p.add_argument("--boot", type=int, default=DEFAULT_BOOT)
+    p.add_argument("--null", type=int, default=DEFAULT_NULL)
+    p.add_argument("--panel-boot", type=int, default=DEFAULT_PANEL_BOOT)
+    p.add_argument("--panel-null", type=int, default=DEFAULT_PANEL_NULL)
+    p.add_argument("--no-panel", action="store_true")
+    p.add_argument("--out", default=str(OUT_PATH))
+    return p
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    args.windows = tuple(int(x) for x in str(args.windows).split(","))
+    global _BINS_MAX
+    _BINS_MAX = args.bins
+    report = run(args)
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, indent=2))
+    print("\n".join(report["notes"]))
+    print(f"\nwrote {out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

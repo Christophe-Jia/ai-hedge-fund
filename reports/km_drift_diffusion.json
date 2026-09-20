@@ -1,0 +1,2309 @@
+{
+  "meta": {
+    "generated_by": "scripts/econophysics_km_drift.py",
+    "state_variable": "y_t = (log P_t - trailing_mean_W(log P)_t) / trailing_std_W(log P)_t",
+    "tau_days": 1,
+    "windows": [
+      20,
+      60,
+      120
+    ],
+    "primary_window": 60,
+    "window_days": 60,
+    "bins_max": 20,
+    "min_bin_obs": 100,
+    "block_days": 21,
+    "n_boot": 1000,
+    "n_null": 200,
+    "n_panel_null": 100,
+    "alpha": 0.05,
+    "start": "2016-09-01",
+    "end": "2026-12-31",
+    "db_path": "/Users/jeffryjia/Vibe/ai-hedge-fund/data/btc_history.db",
+    "universe_source": "/Users/jeffryjia/Vibe/ai-hedge-fund/data/universe/sp100_union.json",
+    "eras": [
+      {
+        "name": "2016-19",
+        "start": "2016-09-01",
+        "end": "2019-12-31"
+      },
+      {
+        "name": "2020-22",
+        "start": "2020-01-01",
+        "end": "2022-12-31"
+      },
+      {
+        "name": "2023-26",
+        "start": "2023-01-01",
+        "end": "2026-12-31"
+      }
+    ],
+    "requested_symbols": [
+      "MU",
+      "MRVL",
+      "COIN",
+      "SPY"
+    ],
+    "missing_symbols": [
+      "MRVL"
+    ],
+    "coverage": {
+      "MU": {
+        "n_days": 2513,
+        "first": "2016-09-12",
+        "last": "2026-09-10"
+      },
+      "COIN": {
+        "n_days": 1360,
+        "first": "2021-04-14",
+        "last": "2026-09-11"
+      },
+      "SPY": {
+        "n_days": 2512,
+        "first": "2016-09-12",
+        "last": "2026-09-10"
+      }
+    },
+    "panel_universe_present": [
+      "AAPL",
+      "ABBV",
+      "ABT",
+      "ACN",
+      "ADBE",
+      "AIG",
+      "ALL",
+      "AMD",
+      "AMGN",
+      "AMT",
+      "AMZN",
+      "AVGO",
+      "AXP",
+      "BA",
+      "BAC",
+      "BIIB",
+      "BKNG",
+      "BLK",
+      "BMY",
+      "BRK.B",
+      "C",
+      "CAT",
+      "CHTR",
+      "CL",
+      "CMCSA",
+      "COF",
+      "COIN",
+      "COP",
+      "COST",
+      "CRM",
+      "CSCO",
+      "CVS",
+      "CVX",
+      "DD",
+      "DE",
+      "DHR",
+      "DIS",
+      "DOW",
+      "DUK",
+      "EMR",
+      "EXC",
+      "F",
+      "FDX",
+      "FOX",
+      "FOXA",
+      "GD",
+      "GE",
+      "GILD",
+      "GM",
+      "GOOG",
+      "GOOGL",
+      "GS",
+      "HAL",
+      "HD",
+      "HON",
+      "IBM",
+      "INTC",
+      "INTU",
+      "ISRG",
+      "JNJ",
+      "JPM",
+      "KHC",
+      "KMI",
+      "KO",
+      "LIN",
+      "LLY",
+      "LMT",
+      "LOW",
+      "MA",
+      "MCD",
+      "MDLZ",
+      "MDT",
+      "MET",
+      "META",
+      "MMM",
+      "MO",
+      "MRK",
+      "MS",
+      "MSFT",
+      "MU",
+      "NEE",
+      "NFLX",
+      "NKE",
+      "NOW",
+      "NVDA",
+      "ORCL",
+      "OXY",
+      "PEP",
+      "PFE",
+      "PG",
+      "PLTR",
+      "PM",
+      "PYPL",
+      "QCOM",
+      "RTX",
+      "SBUX",
+      "SCHW",
+      "SLB",
+      "SO",
+      "SPG",
+      "SPY",
+      "T",
+      "TGT",
+      "TMO",
+      "TMUS",
+      "TSLA",
+      "TXN",
+      "UBER",
+      "UNH",
+      "UNP",
+      "UPS",
+      "USB",
+      "V",
+      "VZ",
+      "WFC",
+      "WMT",
+      "XOM"
+    ],
+    "panel_universe_missing": [
+      "AGN",
+      "BK",
+      "CELG",
+      "DWDP",
+      "FB",
+      "MON",
+      "PCLN",
+      "RTN",
+      "TWX",
+      "UTX",
+      "WBA"
+    ]
+  },
+  "per_symbol": {
+    "MU": {
+      "by_window": {
+        "20": {
+          "n_obs": 2493,
+          "n_bins": 20,
+          "drift": {
+            "slope_deg1": -0.13059279037879198,
+            "intercept_deg1": 0.028677071325640527,
+            "slope_deg3_cubic_coef": -0.01376271269570502,
+            "tail_amplification_deg3_minus_deg1_at_y2": -0.012731115286495814,
+            "boot_ci": [
+              -0.14761583126798314,
+              -0.11418426228553402
+            ],
+            "boot_mean": -0.13083273555816327,
+            "null_mean": -0.13078098334896412,
+            "null_ci": [
+              -0.15082651690162976,
+              -0.11404429817800768
+            ],
+            "excess_over_null": 0.00018819297017214076,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 5.307698675780122,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 813,
+              "slope": -0.12072157604130353,
+              "half_life_days": 5.741700889680175
+            },
+            "2020-22": {
+              "n_obs": 756,
+              "slope": -0.16182473281895002,
+              "half_life_days": 4.283320407736686
+            },
+            "2023-26": {
+              "n_obs": 924,
+              "slope": -0.11359173178518407,
+              "half_life_days": 6.102091848293781
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": -0.09988174493293946,
+            "slope_vs_y_squared": -0.0338841835416775,
+            "m2_rises_with_abs_y": false,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.4244245364699643,
+              "median_m2_right_tail_y_ge_p1.5": 0.25447878085269443,
+              "median_m2_center_abs_y_le_0.5": 0.5060725327884279,
+              "tail_over_center": 0.6101087967195605,
+              "left_over_right_tail": 1.6678189633250535
+            },
+            "boot_ci": [
+              -0.15049101784898491,
+              -0.035212172999394976
+            ],
+            "null_mean": -0.0989503204548174,
+            "null_ci": [
+              -0.1530889008887527,
+              -0.029814526928384405
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.3172,
+              -1.754,
+              -1.423,
+              -1.1461,
+              -0.8788,
+              -0.6589,
+              -0.4308,
+              -0.2047,
+              0.0261,
+              0.2555,
+              0.4568,
+              0.634,
+              0.8121,
+              0.9883,
+              1.1708,
+              1.3485,
+              1.5211,
+              1.6963,
+              1.9178,
+              2.3788
+            ],
+            "counts": [
+              125,
+              125,
+              124,
+              125,
+              125,
+              124,
+              125,
+              124,
+              125,
+              125,
+              124,
+              125,
+              124,
+              125,
+              125,
+              124,
+              125,
+              124,
+              125,
+              125
+            ],
+            "m1": [
+              0.423496,
+              0.167637,
+              0.232196,
+              0.248297,
+              0.05685,
+              0.025889,
+              0.064708,
+              0.063962,
+              0.079451,
+              0.012837,
+              -0.080186,
+              -0.118259,
+              -0.035098,
+              -0.078774,
+              -0.123487,
+              -0.062952,
+              -0.070377,
+              -0.167515,
+              -0.295034,
+              -0.343432
+            ],
+            "m2": [
+              0.504497,
+              0.344352,
+              0.590731,
+              0.538356,
+              0.449022,
+              0.438844,
+              0.495585,
+              0.679429,
+              0.506073,
+              0.490945,
+              0.560323,
+              0.45291,
+              0.374237,
+              0.457111,
+              0.412448,
+              0.219624,
+              0.204589,
+              0.235791,
+              0.383641,
+              0.273167
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        },
+        "60": {
+          "n_obs": 2453,
+          "n_bins": 20,
+          "drift": {
+            "slope_deg1": -0.04315788551214374,
+            "intercept_deg1": 0.015980606116190635,
+            "slope_deg3_cubic_coef": -0.005328069746394171,
+            "tail_amplification_deg3_minus_deg1_at_y2": 0.0035154207759971745,
+            "boot_ci": [
+              -0.05417278038986813,
+              -0.035252114524528
+            ],
+            "boot_mean": -0.04344567475416561,
+            "null_mean": -0.04545859266407746,
+            "null_ci": [
+              -0.05736271039876021,
+              -0.035940721754694004
+            ],
+            "excess_over_null": 0.0023007071519337216,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 16.060730787306714,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 773,
+              "slope": -0.03619414552595842,
+              "half_life_days": 19.150809350170196
+            },
+            "2020-22": {
+              "n_obs": 756,
+              "slope": -0.04006981570371827,
+              "half_life_days": 17.298486863158313
+            },
+            "2023-26": {
+              "n_obs": 924,
+              "slope": -0.05478283024234428,
+              "half_life_days": 12.65263546066626
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": -0.016059958903357714,
+            "slope_vs_y_squared": -0.0004802615113501729,
+            "m2_rises_with_abs_y": false,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.23973185754505472,
+              "median_m2_right_tail_y_ge_p1.5": 0.11274201540914985,
+              "median_m2_center_abs_y_le_0.5": 0.19562565023830783,
+              "tail_over_center": 0.6356122919939046,
+              "left_over_right_tail": 2.126375483665504
+            },
+            "boot_ci": [
+              -0.056297314942882246,
+              0.019193079098357248
+            ],
+            "null_mean": -0.02609624825168186,
+            "null_ci": [
+              -0.057063411905163196,
+              0.0005745579572924947
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.6006,
+              -1.6865,
+              -1.3212,
+              -1.0157,
+              -0.7316,
+              -0.46,
+              -0.198,
+              0.04,
+              0.2971,
+              0.5043,
+              0.6809,
+              0.8399,
+              1.0072,
+              1.1697,
+              1.3156,
+              1.4746,
+              1.6324,
+              1.8089,
+              2.1017,
+              2.6921
+            ],
+            "counts": [
+              123,
+              123,
+              122,
+              123,
+              123,
+              122,
+              123,
+              122,
+              123,
+              123,
+              122,
+              123,
+              122,
+              123,
+              123,
+              122,
+              123,
+              122,
+              123,
+              123
+            ],
+            "m1": [
+              0.175379,
+              0.07449,
+              0.020823,
+              0.023578,
+              0.108646,
+              0.024655,
+              0.040702,
+              -0.089511,
+              -0.015542,
+              0.034535,
+              0.055907,
+              -0.045549,
+              -0.026197,
+              -0.054314,
+              0.002636,
+              -0.040807,
+              -0.042975,
+              -0.044112,
+              -0.067765,
+              -0.14143
+            ],
+            "m2": [
+              0.316213,
+              0.16325,
+              0.24067,
+              0.131952,
+              0.191575,
+              0.214531,
+              0.1578,
+              0.310387,
+              0.17672,
+              0.167712,
+              0.154587,
+              0.140155,
+              0.135834,
+              0.14672,
+              0.078233,
+              0.090092,
+              0.111244,
+              0.11424,
+              0.090309,
+              0.134444
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        },
+        "120": {
+          "n_obs": 2393,
+          "n_bins": 20,
+          "drift": {
+            "slope_deg1": -0.02167124993859458,
+            "intercept_deg1": 0.01089582630743237,
+            "slope_deg3_cubic_coef": -0.006443453502964155,
+            "tail_amplification_deg3_minus_deg1_at_y2": 0.006513331113636486,
+            "boot_ci": [
+              -0.029856503505378686,
+              -0.014676841315792397
+            ],
+            "boot_mean": -0.022044539522985938,
+            "null_mean": -0.023377715326045836,
+            "null_ci": [
+              -0.033218956828559125,
+              -0.015526188500890733
+            ],
+            "excess_over_null": 0.0017064653874512559,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 31.984642442128425,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 713,
+              "slope": -0.01831899787547859,
+              "half_life_days": 37.837614550290276
+            },
+            "2020-22": {
+              "n_obs": 756,
+              "slope": -0.019741608652777708,
+              "half_life_days": 35.110977669107896
+            },
+            "2023-26": {
+              "n_obs": 924,
+              "slope": -0.02906567775742038,
+              "half_life_days": 23.847618016854497
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": -0.012967539754832452,
+            "slope_vs_y_squared": -0.00336310784011821,
+            "m2_rises_with_abs_y": false,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.11940394199291546,
+              "median_m2_right_tail_y_ge_p1.5": 0.05702984177400071,
+              "median_m2_center_abs_y_le_0.5": 0.1080920427050365,
+              "tail_over_center": 0.6304409868542894,
+              "left_over_right_tail": 2.0937098592363697
+            },
+            "boot_ci": [
+              -0.02966292392816765,
+              0.010608480886395696
+            ],
+            "null_mean": -0.011715082637330641,
+            "null_ci": [
+              -0.030797237254709113,
+              0.0047878796369898785
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.2573,
+              -1.6235,
+              -1.3362,
+              -0.9993,
+              -0.6356,
+              -0.3277,
+              -0.0062,
+              0.2725,
+              0.4928,
+              0.6728,
+              0.833,
+              1.0172,
+              1.1917,
+              1.3453,
+              1.4863,
+              1.6217,
+              1.7902,
+              1.9797,
+              2.1995,
+              2.7561
+            ],
+            "counts": [
+              120,
+              120,
+              119,
+              120,
+              120,
+              119,
+              120,
+              119,
+              120,
+              120,
+              119,
+              120,
+              119,
+              120,
+              120,
+              119,
+              120,
+              119,
+              120,
+              120
+            ],
+            "m1": [
+              0.1179,
+              0.017164,
+              0.023225,
+              0.002806,
+              -0.011166,
+              0.029268,
+              -0.024031,
+              0.047796,
+              0.016251,
+              0.004381,
+              -0.035535,
+              -0.008674,
+              0.026981,
+              -0.032355,
+              0.003822,
+              -0.026246,
+              -0.019638,
+              -0.00779,
+              -0.057587,
+              -0.07501
+            ],
+            "m2": [
+              0.139227,
+              0.099581,
+              0.137208,
+              0.093935,
+              0.109081,
+              0.085529,
+              0.134626,
+              0.072471,
+              0.130655,
+              0.060076,
+              0.069471,
+              0.067445,
+              0.085246,
+              0.037568,
+              0.04328,
+              0.056105,
+              0.071334,
+              0.034987,
+              0.05703,
+              0.068146
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        }
+      }
+    },
+    "COIN": {
+      "by_window": {
+        "20": {
+          "n_obs": 1340,
+          "n_bins": 13,
+          "drift": {
+            "slope_deg1": -0.12169646498145066,
+            "intercept_deg1": -0.012312888550986757,
+            "slope_deg3_cubic_coef": -0.01593014371610879,
+            "tail_amplification_deg3_minus_deg1_at_y2": -0.011718133855138757,
+            "boot_ci": [
+              -0.142638321206425,
+              -0.1037362595356682
+            ],
+            "boot_mean": -0.12204590525494415,
+            "null_mean": -0.12855077729602163,
+            "null_ci": [
+              -0.15698321103982754,
+              -0.1069828858216208
+            ],
+            "excess_over_null": 0.006854312314570968,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 5.695705135441665,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 0,
+              "slope": null,
+              "half_life_days": null,
+              "note": "insufficient observations"
+            },
+            "2020-22": {
+              "n_obs": 415,
+              "slope": -0.12728174583349192,
+              "half_life_days": 5.445770530730385
+            },
+            "2023-26": {
+              "n_obs": 925,
+              "slope": -0.12369273322021343,
+              "half_life_days": 5.603782554678593
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": -0.10318935589680359,
+            "slope_vs_y_squared": -0.03589016051807127,
+            "m2_rises_with_abs_y": false,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.29927739471457226,
+              "median_m2_right_tail_y_ge_p1.5": 0.33950775355199025,
+              "median_m2_center_abs_y_le_0.5": 0.5046302674212737,
+              "tail_over_center": 0.6452981868682743,
+              "left_over_right_tail": 0.8815038584052327
+            },
+            "boot_ci": [
+              -0.1696709441961663,
+              -0.02877492115259737
+            ],
+            "null_mean": -0.1007619418867029,
+            "null_ci": [
+              -0.16386697455086285,
+              -0.020812953265716267
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.229,
+              -1.6771,
+              -1.372,
+              -1.0793,
+              -0.7839,
+              -0.501,
+              -0.1831,
+              0.1317,
+              0.4949,
+              0.864,
+              1.1976,
+              1.6011,
+              2.2495
+            ],
+            "counts": [
+              104,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103
+            ],
+            "m1": [
+              0.357538,
+              0.100483,
+              0.103898,
+              0.148819,
+              0.136197,
+              -0.070779,
+              0.067585,
+              -0.079977,
+              -0.096393,
+              -0.00694,
+              -0.169209,
+              -0.154178,
+              -0.34151
+            ],
+            "m2": [
+              0.361762,
+              0.236793,
+              0.284483,
+              0.424452,
+              0.539009,
+              0.532319,
+              0.50463,
+              0.506131,
+              0.432988,
+              0.513109,
+              0.340269,
+              0.289512,
+              0.389503
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        },
+        "60": {
+          "n_obs": 1300,
+          "n_bins": 13,
+          "drift": {
+            "slope_deg1": -0.03889062938132571,
+            "intercept_deg1": -0.002243722726074224,
+            "slope_deg3_cubic_coef": -0.006379450029302414,
+            "tail_amplification_deg3_minus_deg1_at_y2": 0.007769920555869836,
+            "boot_ci": [
+              -0.055942190811916856,
+              -0.020680302422477856
+            ],
+            "boot_mean": -0.03967325666954636,
+            "null_mean": -0.044281909244678265,
+            "null_ci": [
+              -0.059996817227741854,
+              -0.032602704264854246
+            ],
+            "excess_over_null": 0.005391279863352555,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 17.822986965923903,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 0,
+              "slope": null,
+              "half_life_days": null,
+              "note": "insufficient observations"
+            },
+            "2020-22": {
+              "n_obs": 375,
+              "slope": -0.03261047264370128,
+              "half_life_days": 21.255355239195737
+            },
+            "2023-26": {
+              "n_obs": 925,
+              "slope": -0.03869312969381538,
+              "half_life_days": 17.913960076244138
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": 0.004145238278160798,
+            "slope_vs_y_squared": 0.0038338323250833315,
+            "m2_rises_with_abs_y": true,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.17301193506223808,
+              "median_m2_right_tail_y_ge_p1.5": 0.157120561325217,
+              "median_m2_center_abs_y_le_0.5": 0.170671813863923,
+              "tail_over_center": 0.9367989962037054,
+              "left_over_right_tail": 1.1011412739554067
+            },
+            "boot_ci": [
+              -0.024879975145228668,
+              0.046774757001484514
+            ],
+            "null_mean": -0.02490397905366913,
+            "null_ci": [
+              -0.05565430402531524,
+              0.007754249745132875
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.4889,
+              -1.7491,
+              -1.3829,
+              -1.0603,
+              -0.7916,
+              -0.4647,
+              -0.1491,
+              0.0905,
+              0.4165,
+              0.8463,
+              1.2827,
+              1.8154,
+              2.5512
+            ],
+            "counts": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ],
+            "m1": [
+              0.148387,
+              0.011924,
+              0.013545,
+              0.021526,
+              0.089731,
+              -0.019647,
+              0.017031,
+              -0.062357,
+              0.063306,
+              -0.037109,
+              -0.077784,
+              -0.019158,
+              -0.136407
+            ],
+            "m2": [
+              0.216501,
+              0.129523,
+              0.149962,
+              0.091349,
+              0.159863,
+              0.183853,
+              0.131937,
+              0.15749,
+              0.251429,
+              0.141938,
+              0.165712,
+              0.123994,
+              0.190247
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        },
+        "120": {
+          "n_obs": 1240,
+          "n_bins": 12,
+          "drift": {
+            "slope_deg1": -0.01747509736877181,
+            "intercept_deg1": -0.0006451211477028423,
+            "slope_deg3_cubic_coef": -0.004310472254875433,
+            "tail_amplification_deg3_minus_deg1_at_y2": 0.009798907776358529,
+            "boot_ci": [
+              -0.028236872365865192,
+              -0.007973689866559051
+            ],
+            "boot_mean": -0.017680681950297306,
+            "null_mean": -0.02243532150184088,
+            "null_ci": [
+              -0.0349899673348657,
+              -0.013138691734421802
+            ],
+            "excess_over_null": 0.004960224133069069,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 39.664853701966024,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 0,
+              "slope": null,
+              "half_life_days": null,
+              "note": "insufficient observations"
+            },
+            "2020-22": {
+              "n_obs": 315,
+              "slope": -0.012657217130784564,
+              "half_life_days": 54.76299990730902
+            },
+            "2023-26": {
+              "n_obs": 925,
+              "slope": -0.021514611438991322,
+              "half_life_days": 32.217508669654244
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": 0.006132906637806025,
+            "slope_vs_y_squared": 0.00394832052968868,
+            "m2_rises_with_abs_y": true,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.08588984752302599,
+              "median_m2_right_tail_y_ge_p1.5": 0.08318426922311106,
+              "median_m2_center_abs_y_le_0.5": 0.10056694723038447,
+              "tail_over_center": 0.8489521114249511,
+              "left_over_right_tail": 1.0325251195350194
+            },
+            "boot_ci": [
+              -0.010543327776920214,
+              0.02225507157959092
+            ],
+            "null_mean": -0.01011042079779492,
+            "null_ci": [
+              -0.030106863062387173,
+              0.009342559301501931
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.4259,
+              -1.8086,
+              -1.4523,
+              -1.058,
+              -0.6059,
+              -0.1815,
+              0.2285,
+              0.5202,
+              0.7256,
+              0.9899,
+              1.6103,
+              2.4911
+            ],
+            "counts": [
+              104,
+              103,
+              103,
+              104,
+              103,
+              103,
+              103,
+              104,
+              103,
+              103,
+              103,
+              104
+            ],
+            "m1": [
+              0.08096,
+              0.033901,
+              -0.007916,
+              -0.02134,
+              -0.014685,
+              0.051343,
+              0.030384,
+              -0.028377,
+              -0.027009,
+              -0.045786,
+              0.006951,
+              -0.049045
+            ],
+            "m2": [
+              0.097216,
+              0.074564,
+              0.075298,
+              0.07674,
+              0.07685,
+              0.112527,
+              0.088606,
+              0.05114,
+              0.039973,
+              0.030703,
+              0.070179,
+              0.096189
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        }
+      }
+    },
+    "SPY": {
+      "by_window": {
+        "20": {
+          "n_obs": 2492,
+          "n_bins": 20,
+          "drift": {
+            "slope_deg1": -0.12943815256937988,
+            "intercept_deg1": 0.05797130476247764,
+            "slope_deg3_cubic_coef": -0.02913841091220103,
+            "tail_amplification_deg3_minus_deg1_at_y2": -0.026462163129754163,
+            "boot_ci": [
+              -0.14962673017945816,
+              -0.11317457050585325
+            ],
+            "boot_mean": -0.12969624767968946,
+            "null_mean": -0.13386826660650042,
+            "null_ci": [
+              -0.15295540059073026,
+              -0.1191946544502388
+            ],
+            "excess_over_null": 0.004430114037120542,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 5.355045377277097,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 813,
+              "slope": -0.12551979391801552,
+              "half_life_days": 5.5222141378966985
+            },
+            "2020-22": {
+              "n_obs": 756,
+              "slope": -0.1170826322569598,
+              "half_life_days": 5.920153717066283
+            },
+            "2023-26": {
+              "n_obs": 923,
+              "slope": -0.13386924761526256,
+              "half_life_days": 5.1777924572493
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": -0.13205949069991738,
+            "slope_vs_y_squared": -0.026526582858082796,
+            "m2_rises_with_abs_y": false,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.6523686501088433,
+              "median_m2_right_tail_y_ge_p1.5": 0.16234079312142846,
+              "median_m2_center_abs_y_le_0.5": 0.6199277991501562,
+              "tail_over_center": 0.33572296804272994,
+              "left_over_right_tail": 4.0185133851162185
+            },
+            "boot_ci": [
+              -0.1896513654053136,
+              -0.07665135950321084
+            ],
+            "null_mean": -0.07710675380946849,
+            "null_ci": [
+              -0.15045163085999205,
+              -0.0048511701911558925
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.3922,
+              -1.7377,
+              -1.3136,
+              -0.9178,
+              -0.5555,
+              -0.2445,
+              0.0623,
+              0.3393,
+              0.5503,
+              0.7357,
+              0.8965,
+              1.0262,
+              1.1514,
+              1.2526,
+              1.366,
+              1.479,
+              1.5884,
+              1.709,
+              1.8813,
+              2.2045
+            ],
+            "counts": [
+              125,
+              125,
+              124,
+              125,
+              124,
+              125,
+              124,
+              125,
+              124,
+              125,
+              125,
+              124,
+              125,
+              124,
+              125,
+              124,
+              125,
+              124,
+              125,
+              125
+            ],
+            "m1": [
+              0.604272,
+              0.197528,
+              0.132564,
+              0.07536,
+              0.04119,
+              0.11251,
+              0.008057,
+              -0.034776,
+              0.034785,
+              -0.002907,
+              -0.096399,
+              -0.009092,
+              -0.06686,
+              -0.108206,
+              -0.101195,
+              -0.105625,
+              -0.111493,
+              -0.127359,
+              -0.146061,
+              -0.312738
+            ],
+            "m2": [
+              0.917814,
+              0.386924,
+              0.554276,
+              0.62411,
+              0.530358,
+              0.592654,
+              0.782091,
+              0.619928,
+              0.551962,
+              0.395451,
+              0.49586,
+              0.20744,
+              0.237712,
+              0.280794,
+              0.24246,
+              0.14741,
+              0.142786,
+              0.149228,
+              0.175454,
+              0.240794
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        },
+        "60": {
+          "n_obs": 2452,
+          "n_bins": 20,
+          "drift": {
+            "slope_deg1": -0.04556598912824899,
+            "intercept_deg1": 0.030335414638726906,
+            "slope_deg3_cubic_coef": -0.007753690308647462,
+            "tail_amplification_deg3_minus_deg1_at_y2": -0.014959937222370864,
+            "boot_ci": [
+              -0.0596111504527045,
+              -0.03602985783794284
+            ],
+            "boot_mean": -0.04639099370240385,
+            "null_mean": -0.04687919806786842,
+            "null_ci": [
+              -0.06084774265342559,
+              -0.036228884463932354
+            ],
+            "excess_over_null": 0.001313208939619434,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 15.211941929078487,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 773,
+              "slope": -0.04537670833454085,
+              "half_life_days": 15.27539581429533
+            },
+            "2020-22": {
+              "n_obs": 756,
+              "slope": -0.039005294503677485,
+              "half_life_days": 17.770592156267252
+            },
+            "2023-26": {
+              "n_obs": 923,
+              "slope": -0.05121912889922611,
+              "half_life_days": 13.532974797828283
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": -0.02120197556798862,
+            "slope_vs_y_squared": 0.0039477718858705905,
+            "m2_rises_with_abs_y": false,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.37256594036504675,
+              "median_m2_right_tail_y_ge_p1.5": 0.05990981945619434,
+              "median_m2_center_abs_y_le_0.5": 0.23115110182673443,
+              "tail_over_center": 0.2773105746908281,
+              "left_over_right_tail": 6.2187792209499895
+            },
+            "boot_ci": [
+              -0.06779973775412207,
+              0.04105424696322818
+            ],
+            "null_mean": -0.020591418915030732,
+            "null_ci": [
+              -0.05887633660498859,
+              0.023282267685916867
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.5675,
+              -1.5637,
+              -0.9918,
+              -0.4733,
+              -0.1292,
+              0.1549,
+              0.4523,
+              0.7108,
+              0.895,
+              1.0386,
+              1.1542,
+              1.2601,
+              1.3557,
+              1.4356,
+              1.5238,
+              1.6087,
+              1.6957,
+              1.8104,
+              1.9501,
+              2.286
+            ],
+            "counts": [
+              123,
+              123,
+              122,
+              123,
+              122,
+              123,
+              122,
+              123,
+              122,
+              123,
+              123,
+              122,
+              123,
+              122,
+              123,
+              122,
+              123,
+              122,
+              123,
+              123
+            ],
+            "m1": [
+              0.197025,
+              0.014808,
+              0.092751,
+              0.047318,
+              0.005637,
+              -0.00023,
+              0.037959,
+              0.059882,
+              0.000951,
+              0.009141,
+              -0.064171,
+              -0.021116,
+              -0.015704,
+              -0.036211,
+              -0.034495,
+              -0.054791,
+              -0.010246,
+              -0.088963,
+              -0.04823,
+              -0.104749
+            ],
+            "m2": [
+              0.479381,
+              0.265751,
+              0.252261,
+              0.234094,
+              0.228208,
+              0.275958,
+              0.169626,
+              0.17571,
+              0.124977,
+              0.070746,
+              0.149263,
+              0.103465,
+              0.056456,
+              0.072712,
+              0.06717,
+              0.09121,
+              0.061032,
+              0.051709,
+              0.049307,
+              0.058788
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        },
+        "120": {
+          "n_obs": 2392,
+          "n_bins": 20,
+          "drift": {
+            "slope_deg1": -0.024942297712537757,
+            "intercept_deg1": 0.019451759376621892,
+            "slope_deg3_cubic_coef": -0.008627085509270787,
+            "tail_amplification_deg3_minus_deg1_at_y2": -0.00828619477182925,
+            "boot_ci": [
+              -0.03524096096068617,
+              -0.015617910120519446
+            ],
+            "boot_mean": -0.025277323190586374,
+            "null_mean": -0.024155973820257803,
+            "null_ci": [
+              -0.03431186081836989,
+              -0.016015007238637212
+            ],
+            "excess_over_null": -0.0007863238922799533,
+            "verdict": "UNIDENTIFIABLE",
+            "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+          },
+          "half_life_days": 27.790029152427312,
+          "half_life_days_null_adjusted": null,
+          "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+          "eras": {
+            "2016-19": {
+              "n_obs": 713,
+              "slope": -0.03213363676698019,
+              "half_life_days": 21.570766657579448
+            },
+            "2020-22": {
+              "n_obs": 756,
+              "slope": -0.019266011284164324,
+              "half_life_days": 35.977721093191555
+            },
+            "2023-26": {
+              "n_obs": 923,
+              "slope": -0.028457771878142392,
+              "half_life_days": 24.357043254406435
+            }
+          },
+          "diffusion": {
+            "slope_vs_abs_y": 0.009874659646845058,
+            "slope_vs_y_squared": 0.01091886996622701,
+            "m2_rises_with_abs_y": true,
+            "shape": {
+              "median_m2_left_tail_y_le_m1.5": 0.38621413703502777,
+              "median_m2_right_tail_y_ge_p1.5": 0.032606056986670566,
+              "median_m2_center_abs_y_le_0.5": 0.1073275381764976,
+              "tail_over_center": 0.3060392864423658,
+              "left_over_right_tail": 11.844858677420365
+            },
+            "boot_ci": [
+              -0.032732607258863795,
+              0.07278851834256145
+            ],
+            "null_mean": -0.00984014607826706,
+            "null_ci": [
+              -0.039123270959099,
+              0.016905149401907436
+            ],
+            "verdict": "UNIDENTIFIABLE"
+          },
+          "bins": {
+            "centers": [
+              -2.5215,
+              -1.401,
+              -0.7462,
+              -0.2911,
+              0.1176,
+              0.4317,
+              0.6537,
+              0.855,
+              1.0035,
+              1.1367,
+              1.2609,
+              1.3573,
+              1.434,
+              1.5088,
+              1.5868,
+              1.6732,
+              1.7826,
+              1.8921,
+              2.0317,
+              2.2973
+            ],
+            "counts": [
+              120,
+              120,
+              119,
+              120,
+              119,
+              120,
+              119,
+              120,
+              119,
+              120,
+              120,
+              119,
+              120,
+              119,
+              120,
+              119,
+              120,
+              119,
+              120,
+              120
+            ],
+            "m1": [
+              0.145158,
+              -0.053577,
+              0.088836,
+              -0.037171,
+              0.040192,
+              -0.012007,
+              0.012662,
+              0.000745,
+              0.009176,
+              0.021204,
+              0.023512,
+              -0.016084,
+              -0.026607,
+              -0.018735,
+              -0.027983,
+              -0.013659,
+              -0.032635,
+              -0.02802,
+              -0.026039,
+              -0.059711
+            ],
+            "m2": [
+              0.386214,
+              0.235418,
+              0.140808,
+              0.129989,
+              0.107328,
+              0.095432,
+              0.093318,
+              0.066343,
+              0.051661,
+              0.041662,
+              0.035239,
+              0.045304,
+              0.036326,
+              0.038155,
+              0.033087,
+              0.035306,
+              0.021522,
+              0.032606,
+              0.022286,
+              0.030132
+            ],
+            "kept": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ]
+          }
+        }
+      }
+    }
+  },
+  "panel": {
+    "20": {
+      "n_obs": 285321,
+      "n_symbols": 117,
+      "n_dates": 2495,
+      "n_bins": 20,
+      "drift": {
+        "slope_deg1": -0.13305598233948832,
+        "slope_deg3_cubic_coef": -0.02037724644716506,
+        "tail_amplification_deg3_minus_deg1_at_y2": -0.024546391711893406,
+        "boot_ci_date_clustered": [
+          -0.1372348152485164,
+          -0.1287835687330475
+        ],
+        "boot_ci_symbol_clustered": [
+          -0.13502954088829494,
+          -0.13109876772591045
+        ],
+        "null_mean": -0.13205602445427925,
+        "null_ci": [
+          -0.13381565511403154,
+          -0.13014181247538556
+        ],
+        "null_se": 9.10040724512946e-05,
+        "excess_over_null": -0.0009999578852090685,
+        "verdict": "UNIDENTIFIABLE",
+        "verdict_date_clustered": "UNIDENTIFIABLE",
+        "verdict_symbol_clustered": "UNIDENTIFIABLE",
+        "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+      },
+      "half_life_days": 5.209440179783884,
+      "half_life_days_null_adjusted": null,
+      "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+      "eras": {
+        "2016-19": {
+          "n_obs": 89896,
+          "slope": -0.1344826299949184,
+          "boot_ci": [
+            -0.14120602494598292,
+            -0.12867308783926718
+          ],
+          "half_life_days": 5.1541762723270415
+        },
+        "2020-22": {
+          "n_obs": 87148,
+          "slope": -0.13151567442567758,
+          "boot_ci": [
+            -0.13985874799594814,
+            -0.12311431895143544
+          ],
+          "half_life_days": 5.270452997993468
+        },
+        "2023-26": {
+          "n_obs": 108277,
+          "slope": -0.13369446124530854,
+          "boot_ci": [
+            -0.14029111296208935,
+            -0.12746209142982076
+          ],
+          "half_life_days": 5.184561679695377
+        }
+      },
+      "diffusion": {
+        "slope_vs_abs_y": -0.07433031758703737,
+        "slope_vs_y_squared": -0.01671369411551818,
+        "m2_rises_with_abs_y": false,
+        "shape": {
+          "median_m2_left_tail_y_le_m1.5": 0.49258417014134337,
+          "median_m2_right_tail_y_ge_p1.5": 0.3288319374888343,
+          "median_m2_center_abs_y_le_0.5": 0.5873629056779226,
+          "tail_over_center": 0.718848465588741,
+          "left_over_right_tail": 1.49798153398062
+        },
+        "boot_ci_date_clustered": [
+          -0.08900953609062995,
+          -0.06062330201103418
+        ],
+        "null_mean": -0.07984527612035888,
+        "null_ci": [
+          -0.0876607821327925,
+          -0.0744987968621002
+        ],
+        "verdict": "UNIDENTIFIABLE"
+      },
+      "bins": {
+        "centers": [
+          -2.4132,
+          -1.8093,
+          -1.4888,
+          -1.2281,
+          -0.9903,
+          -0.7617,
+          -0.5325,
+          -0.2944,
+          -0.0516,
+          0.1869,
+          0.4105,
+          0.6188,
+          0.8065,
+          0.9793,
+          1.1384,
+          1.2962,
+          1.4606,
+          1.6468,
+          1.8868,
+          2.391
+        ],
+        "counts": [
+          14267,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266,
+          14266
+        ],
+        "m1": [
+          0.461507,
+          0.250153,
+          0.175652,
+          0.135181,
+          0.099857,
+          0.072189,
+          0.05602,
+          0.032291,
+          0.018574,
+          0.005363,
+          -0.017626,
+          -0.035706,
+          -0.049248,
+          -0.058309,
+          -0.078597,
+          -0.11155,
+          -0.139842,
+          -0.176101,
+          -0.234311,
+          -0.408653
+        ],
+        "m2": [
+          0.562943,
+          0.422225,
+          0.424975,
+          0.416454,
+          0.450246,
+          0.517861,
+          0.549972,
+          0.581572,
+          0.593154,
+          0.600238,
+          0.559637,
+          0.503963,
+          0.44815,
+          0.37675,
+          0.350033,
+          0.336463,
+          0.314074,
+          0.317748,
+          0.328832,
+          0.471912
+        ],
+        "kept": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "60": {
+      "n_obs": 280641,
+      "n_symbols": 117,
+      "n_dates": 2455,
+      "n_bins": 20,
+      "drift": {
+        "slope_deg1": -0.04669812144695708,
+        "slope_deg3_cubic_coef": -0.008612984954651468,
+        "tail_amplification_deg3_minus_deg1_at_y2": -0.0002896875997511761,
+        "boot_ci_date_clustered": [
+          -0.04964002410611848,
+          -0.043771911819780275
+        ],
+        "boot_ci_symbol_clustered": [
+          -0.04773891861251356,
+          -0.045576171083127594
+        ],
+        "null_mean": -0.04543933392416597,
+        "null_ci": [
+          -0.04637746550102784,
+          -0.044266517074037684
+        ],
+        "null_se": 5.600281309519039e-05,
+        "excess_over_null": -0.0012587875227911063,
+        "verdict": "UNIDENTIFIABLE",
+        "verdict_date_clustered": "UNIDENTIFIABLE",
+        "verdict_symbol_clustered": "POTENTIAL_WELL",
+        "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+      },
+      "half_life_days": 14.843149126400498,
+      "half_life_days_null_adjusted": null,
+      "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+      "eras": {
+        "2016-19": {
+          "n_obs": 85336,
+          "slope": -0.04692103311362231,
+          "boot_ci": [
+            -0.0516672271906169,
+            -0.04241031760087251
+          ],
+          "half_life_days": 14.772632539472111
+        },
+        "2020-22": {
+          "n_obs": 87068,
+          "slope": -0.04621347381256594,
+          "boot_ci": [
+            -0.052748248777873444,
+            -0.040554700596840465
+          ],
+          "half_life_days": 14.998811458563651
+        },
+        "2023-26": {
+          "n_obs": 108237,
+          "slope": -0.04707442546474028,
+          "boot_ci": [
+            -0.05081242635003914,
+            -0.04396341566980537
+          ],
+          "half_life_days": 14.724495810981844
+        }
+      },
+      "diffusion": {
+        "slope_vs_abs_y": -0.004290468032546373,
+        "slope_vs_y_squared": 0.0035108790684574565,
+        "m2_rises_with_abs_y": false,
+        "shape": {
+          "median_m2_left_tail_y_le_m1.5": 0.260353122101491,
+          "median_m2_right_tail_y_ge_p1.5": 0.12396217536715082,
+          "median_m2_center_abs_y_le_0.5": 0.21690941740477518,
+          "tail_over_center": 0.7292385361297493,
+          "left_over_right_tail": 2.100262610997087
+        },
+        "boot_ci_date_clustered": [
+          -0.019604303265374302,
+          0.016284343503338756
+        ],
+        "null_mean": -0.022788514073263752,
+        "null_ci": [
+          -0.02627508831132648,
+          -0.019384845102764836
+        ],
+        "verdict": "M2_SLOPE_ABOVE_NULL"
+      },
+      "bins": {
+        "centers": [
+          -2.615,
+          -1.833,
+          -1.4696,
+          -1.1841,
+          -0.9232,
+          -0.673,
+          -0.4251,
+          -0.1732,
+          0.0751,
+          0.3157,
+          0.5359,
+          0.7371,
+          0.9194,
+          1.0889,
+          1.2502,
+          1.4096,
+          1.577,
+          1.7661,
+          2.014,
+          2.5712
+        ],
+        "counts": [
+          14033,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032,
+          14032
+        ],
+        "m1": [
+          0.202148,
+          0.084717,
+          0.054288,
+          0.035422,
+          0.022266,
+          0.016661,
+          0.012841,
+          0.013712,
+          0.00355,
+          0.003812,
+          -0.006718,
+          -0.009716,
+          -0.013403,
+          -0.015475,
+          -0.025406,
+          -0.037465,
+          -0.038418,
+          -0.061609,
+          -0.079433,
+          -0.164556
+        ],
+        "m2": [
+          0.326839,
+          0.193867,
+          0.186224,
+          0.188628,
+          0.193659,
+          0.200579,
+          0.213976,
+          0.224861,
+          0.219843,
+          0.210177,
+          0.192799,
+          0.179496,
+          0.161305,
+          0.14687,
+          0.13315,
+          0.123395,
+          0.108974,
+          0.120304,
+          0.127621,
+          0.188737
+        ],
+        "kept": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "120": {
+      "n_obs": 273621,
+      "n_symbols": 117,
+      "n_dates": 2395,
+      "n_bins": 20,
+      "drift": {
+        "slope_deg1": -0.024367387347696747,
+        "slope_deg3_cubic_coef": -0.005073428177844805,
+        "tail_amplification_deg3_minus_deg1_at_y2": 0.002327913916127515,
+        "boot_ci_date_clustered": [
+          -0.027072324263427833,
+          -0.0217218946299998
+        ],
+        "boot_ci_symbol_clustered": [
+          -0.025151964441071675,
+          -0.023551457339935935
+        ],
+        "null_mean": -0.022706577739048564,
+        "null_ci": [
+          -0.023515198098269866,
+          -0.02201463241286316
+        ],
+        "null_se": 3.70795312010809e-05,
+        "excess_over_null": -0.0016608096086481831,
+        "verdict": "UNIDENTIFIABLE",
+        "verdict_date_clustered": "UNIDENTIFIABLE",
+        "verdict_symbol_clustered": "POTENTIAL_WELL",
+        "verdict_naive_ci_vs_zero": "POTENTIAL_WELL"
+      },
+      "half_life_days": 28.44569139356103,
+      "half_life_days_null_adjusted": null,
+      "half_life_note": "raw h uses the observed slope and is INFLATED by the rolling-window artifact; the null-adjusted value is only reported when the verdict is POTENTIAL_WELL",
+      "eras": {
+        "2016-19": {
+          "n_obs": 78496,
+          "slope": -0.02382814541872573,
+          "boot_ci": [
+            -0.02915745436524095,
+            -0.019388691467254908
+          ],
+          "half_life_days": 29.089430519222216
+        },
+        "2020-22": {
+          "n_obs": 86948,
+          "slope": -0.025299309865542494,
+          "boot_ci": [
+            -0.03222991198075231,
+            -0.01914612437337693
+          ],
+          "half_life_days": 27.397869121481747
+        },
+        "2023-26": {
+          "n_obs": 108177,
+          "slope": -0.0241855444805173,
+          "boot_ci": [
+            -0.02713828935590393,
+            -0.021259577362452736
+          ],
+          "half_life_days": 28.659564853638546
+        }
+      },
+      "diffusion": {
+        "slope_vs_abs_y": 0.007063821962203856,
+        "slope_vs_y_squared": 0.0057216286479418385,
+        "m2_rises_with_abs_y": true,
+        "shape": {
+          "median_m2_left_tail_y_le_m1.5": 0.17965967447306938,
+          "median_m2_right_tail_y_ge_p1.5": 0.060711230525564035,
+          "median_m2_center_abs_y_le_0.5": 0.10883219744459606,
+          "tail_over_center": 0.6811698189221158,
+          "left_over_right_tail": 2.95924943239981
+        },
+        "boot_ci_date_clustered": [
+          -0.008966924076233403,
+          0.036949552142274196
+        ],
+        "null_mean": -0.009294022783626727,
+        "null_ci": [
+          -0.011979263311953932,
+          -0.0067582367162644045
+        ],
+        "verdict": "M2_SLOPE_ABOVE_NULL"
+      },
+      "bins": {
+        "centers": [
+          -2.6316,
+          -1.8063,
+          -1.4281,
+          -1.1234,
+          -0.8418,
+          -0.5786,
+          -0.3232,
+          -0.0724,
+          0.1688,
+          0.3985,
+          0.6074,
+          0.799,
+          0.9816,
+          1.1519,
+          1.3098,
+          1.4671,
+          1.6276,
+          1.812,
+          2.0484,
+          2.5887
+        ],
+        "counts": [
+          13682,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681,
+          13681
+        ],
+        "m1": [
+          0.119108,
+          0.038452,
+          0.022726,
+          0.018802,
+          0.011181,
+          0.004901,
+          0.009034,
+          -0.002367,
+          -0.004072,
+          -0.001664,
+          0.00079,
+          -0.005575,
+          -0.004615,
+          -0.009974,
+          -0.009764,
+          -0.017242,
+          -0.023526,
+          -0.029391,
+          -0.040254,
+          -0.083927
+        ],
+        "m2": [
+          0.243336,
+          0.115983,
+          0.108077,
+          0.112174,
+          0.110645,
+          0.110567,
+          0.110805,
+          0.118128,
+          0.106859,
+          0.100297,
+          0.096206,
+          0.08046,
+          0.082089,
+          0.070713,
+          0.067044,
+          0.057596,
+          0.060624,
+          0.057655,
+          0.060798,
+          0.087468
+        ],
+        "kept": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      }
+    }
+  },
+  "notes": [
+    "Rolling-window artifact: y is defined against its own trailing mean, so a random walk already produces a negative drift slope (-0.13/-0.04/-0.02 at W=20/60/120). Verdicts are therefore decided against a return-shuffle null, not against zero. The 'naive' CI-vs-zero verdict is reported alongside to make the artifact visible; it is NOT the headline.",
+    "MU W=20: n=2493 slope=-0.13059279037879198 CI=[-0.14761583126798314, -0.11418426228553402] null_band=[-0.15082651690162976, -0.11404429817800768] excess=0.00018819297017214076 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=5.307698675780122d null-adjusted=Noned; M2 tail/center=0.6101087967195605 L/R=1.6678189633250535 (dM2/d|y|=-0.09988174493293946, rises_with_abs_y=False)",
+    "MU W=60: n=2453 slope=-0.04315788551214374 CI=[-0.05417278038986813, -0.035252114524528] null_band=[-0.05736271039876021, -0.035940721754694004] excess=0.0023007071519337216 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=16.060730787306714d null-adjusted=Noned; M2 tail/center=0.6356122919939046 L/R=2.126375483665504 (dM2/d|y|=-0.016059958903357714, rises_with_abs_y=False)",
+    "MU W=120: n=2393 slope=-0.02167124993859458 CI=[-0.029856503505378686, -0.014676841315792397] null_band=[-0.033218956828559125, -0.015526188500890733] excess=0.0017064653874512559 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=31.984642442128425d null-adjusted=Noned; M2 tail/center=0.6304409868542894 L/R=2.0937098592363697 (dM2/d|y|=-0.012967539754832452, rises_with_abs_y=False)",
+    "COIN W=20: n=1340 slope=-0.12169646498145066 CI=[-0.142638321206425, -0.1037362595356682] null_band=[-0.15698321103982754, -0.1069828858216208] excess=0.006854312314570968 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=5.695705135441665d null-adjusted=Noned; M2 tail/center=0.6452981868682743 L/R=0.8815038584052327 (dM2/d|y|=-0.10318935589680359, rises_with_abs_y=False)",
+    "COIN W=60: n=1300 slope=-0.03889062938132571 CI=[-0.055942190811916856, -0.020680302422477856] null_band=[-0.059996817227741854, -0.032602704264854246] excess=0.005391279863352555 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=17.822986965923903d null-adjusted=Noned; M2 tail/center=0.9367989962037054 L/R=1.1011412739554067 (dM2/d|y|=0.004145238278160798, rises_with_abs_y=True)",
+    "COIN W=120: n=1240 slope=-0.01747509736877181 CI=[-0.028236872365865192, -0.007973689866559051] null_band=[-0.0349899673348657, -0.013138691734421802] excess=0.004960224133069069 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=39.664853701966024d null-adjusted=Noned; M2 tail/center=0.8489521114249511 L/R=1.0325251195350194 (dM2/d|y|=0.006132906637806025, rises_with_abs_y=True)",
+    "SPY W=20: n=2492 slope=-0.12943815256937988 CI=[-0.14962673017945816, -0.11317457050585325] null_band=[-0.15295540059073026, -0.1191946544502388] excess=0.004430114037120542 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=5.355045377277097d null-adjusted=Noned; M2 tail/center=0.33572296804272994 L/R=4.0185133851162185 (dM2/d|y|=-0.13205949069991738, rises_with_abs_y=False)",
+    "SPY W=60: n=2452 slope=-0.04556598912824899 CI=[-0.0596111504527045, -0.03602985783794284] null_band=[-0.06084774265342559, -0.036228884463932354] excess=0.001313208939619434 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=15.211941929078487d null-adjusted=Noned; M2 tail/center=0.2773105746908281 L/R=6.2187792209499895 (dM2/d|y|=-0.02120197556798862, rises_with_abs_y=False)",
+    "SPY W=120: n=2392 slope=-0.024942297712537757 CI=[-0.03524096096068617, -0.015617910120519446] null_band=[-0.03431186081836989, -0.016015007238637212] excess=-0.0007863238922799533 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=27.790029152427312d null-adjusted=Noned; M2 tail/center=0.3060392864423658 L/R=11.844858677420365 (dM2/d|y|=0.009874659646845058, rises_with_abs_y=True)",
+    "PANEL W=20: N=285321 (117 names, 2495 days) slope=-0.13305598233948832 CI_date=[-0.1372348152485164, -0.1287835687330475] CI_symbol=[-0.13502954088829494, -0.13109876772591045] null_band=[-0.13381565511403154, -0.13014181247538556] excess=-0.0009999578852090685 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=5.209440179783884d null-adjusted=Noned; M2 tail/center=0.718848465588741 L/R=1.49798153398062 (dM2/d|y|=-0.07433031758703737, dM2/dy^2=-0.01671369411551818, rises_with_abs_y=False) verdict=UNIDENTIFIABLE; eras: 2016-19: slope=-0.1344826299949184 h=5.1541762723270415d n=89896, 2020-22: slope=-0.13151567442567758 h=5.270452997993468d n=87148, 2023-26: slope=-0.13369446124530854 h=5.184561679695377d n=108277",
+    "PANEL W=60: N=280641 (117 names, 2455 days) slope=-0.04669812144695708 CI_date=[-0.04964002410611848, -0.043771911819780275] CI_symbol=[-0.04773891861251356, -0.045576171083127594] null_band=[-0.04637746550102784, -0.044266517074037684] excess=-0.0012587875227911063 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=14.843149126400498d null-adjusted=Noned; M2 tail/center=0.7292385361297493 L/R=2.100262610997087 (dM2/d|y|=-0.004290468032546373, dM2/dy^2=0.0035108790684574565, rises_with_abs_y=False) verdict=M2_SLOPE_ABOVE_NULL; eras: 2016-19: slope=-0.04692103311362231 h=14.772632539472111d n=85336, 2020-22: slope=-0.04621347381256594 h=14.998811458563651d n=87068, 2023-26: slope=-0.04707442546474028 h=14.724495810981844d n=108237",
+    "PANEL W=120: N=273621 (117 names, 2395 days) slope=-0.024367387347696747 CI_date=[-0.027072324263427833, -0.0217218946299998] CI_symbol=[-0.025151964441071675, -0.023551457339935935] null_band=[-0.023515198098269866, -0.02201463241286316] excess=-0.0016608096086481831 -> UNIDENTIFIABLE (naive: POTENTIAL_WELL); half-life raw=28.44569139356103d null-adjusted=Noned; M2 tail/center=0.6811698189221158 L/R=2.95924943239981 (dM2/d|y|=0.007063821962203856, dM2/dy^2=0.0057216286479418385, rises_with_abs_y=True) verdict=M2_SLOPE_ABOVE_NULL; eras: 2016-19: slope=-0.02382814541872573 h=29.089430519222216d n=78496, 2020-22: slope=-0.025299309865542494 h=27.397869121481747d n=86948, 2023-26: slope=-0.0241855444805173 h=28.659564853638546d n=108177",
+    "Diffusion shape (panel W=60): raw M2 does NOT rise with |y| (dM2/d|y|=-0.004290468032546373, tail/centre=0.7292385361297493); the z-normalisation deflates each move by the rolling std, which is itself large when |y| is large, and the shuffle null reproduces this pattern, so there is no evidence of 'slippery' (higher-diffusion) tails. Left/right tail asymmetry L/R=2.100262610997087 (>1 => below-the-trailing-mean states carry more next-day variance than above-the-mean states; consistent with a leverage-type effect, though the z-normalisation amplifies it, so treat the raw multiple L/R as an upper bound).",
+    "MISSING DATA: MRVL have no daily bars in data/btc_history.db (reported, not silently dropped).",
+    "CAVEAT: a detected mean-reverting drift is a statistical statement about conditional means, NOT a tradable edge \u2014 costs, capacity, crowding and diffusion-dominated risk are outside this study.",
+    "ESCAPE criterion: the ESCAPE/TREND verdict is triggered by a significantly POSITIVE linear drift slope (or a slope significantly above the shuffle null). The super-linear tail branch is reported descriptively via the cubic coefficient and tail_amplification_deg3_minus_deg1_at_y2; those are NOT bootstrapped, so they are supporting evidence and never a stand-alone verdict."
+  ]
+}
