@@ -9,7 +9,6 @@ from hedge_fund.models import Signal
 from hedge_fund.pipeline.models import CycleRecord
 from hedge_fund.pipeline.run_cycle import run_cycle
 
-
 # ---------------------------------------------------------------------------
 # Fakes
 # ---------------------------------------------------------------------------
@@ -21,6 +20,9 @@ class FakeDataClient:
         self._closes = closes
 
     def get_prices(self, ticker, start_date, end_date, **kwargs):
+        if ticker == "SPY":
+            return [Price(open=100, close=100, high=100, low=100, volume=1000,
+                          time=f"{start_date}T00:00:00Z")]
         close = self._closes.get(ticker)
         if close is None:
             return []
@@ -30,6 +32,8 @@ class FakeDataClient:
 
 class FakeAnalyst:
     """Fixed conviction per ticker; counts predict calls."""
+
+    investment_approach = "long_short"
 
     def __init__(self, name, views=None, abstain=False, error=None):
         self._name = name
@@ -52,10 +56,19 @@ class FakeAnalyst:
                       value=value, metadata=metadata)
 
 
+@pytest.fixture(autouse=True)
+def registered_fakes(monkeypatch):
+    from hedge_fund.signals import ALPHA_MODEL_REGISTRY
+    for name in ("a", "b"):
+        monkeypatch.setitem(ALPHA_MODEL_REGISTRY, name, FakeAnalyst)
+
+
 def _spec(strategies=None, max_position_pct=0.25):
     if strategies is None:
         strategies = [{"name": "solo", "models": [{"name": "a"}]}]
+    strategies = [{"blend": {"mode": "long_short"}, **s} for s in strategies]
     return FundSpec(
+        schema_version=2,
         name="test-fund",
         strategies=strategies,
         risk={"max_position_pct": max_position_pct, "max_gross_exposure": 1.0},
@@ -87,6 +100,7 @@ def test_full_cycle_record_is_consistent():
                        UNIVERSE)
 
     assert record.fund == "test-fund"
+    assert record.schema_version == 2
     assert record.equity_before == pytest.approx(100_000.0)
     assert len(record.strategies) == 2
     assert all(len(sr.signals) == 3 for sr in record.strategies)  # 3 tickers x 1 analyst
@@ -251,3 +265,172 @@ def test_analyst_error_propagates():
     with pytest.raises(ConnectionError):
         run_cycle(fund, "2024-06-03", SimBroker(cash=100_000.0),
                   FakeDataClient(CLOSES), UNIVERSE)
+
+
+def test_changed_mode_is_enforced_on_next_cycle():
+    fund = Fund(_spec(), models={"solo": [FakeAnalyst("a", views={"AAPL": -.8})]})
+    fund.spec.strategies[0].blend.mode = "long_only"
+    record = run_cycle(fund, "2024-06-03", SimBroker(cash=100_000), FakeDataClient(CLOSES), UNIVERSE)
+    assert record.orders == []
+    assert record.final_weights == dict.fromkeys(UNIVERSE, 0)
+
+
+def _rule_fund(mode, names=("buffett", "druckenmiller"), views=None, **risk):
+    spec = FundSpec(
+        schema_version=2, name="rules", strategies=[{
+            "name": "team", "models": [{"name": name} for name in names],
+            "blend": {"mode": mode},
+        }], risk={"max_position_pct": .25, "max_gross_exposure": 1, **risk},
+    )
+    views = views or {name: {"A": .8, "B": -.6} for name in names}
+    return Fund(spec, models={"team": [FakeAnalyst(name, views[name]) for name in names]})
+
+
+@pytest.mark.parametrize("mode", ["long_only", "long_short", "dollar_neutral"])
+def test_all_modes_execute_and_preserve_complete_records(mode):
+    fund = _rule_fund(mode)
+    record = run_cycle(fund, "2024-06-03", SimBroker(100_000), FakeDataClient({"A": 100, "B": 200}), ["A", "B"])
+    strategy = record.strategies[0]
+    assert strategy.convictions == pytest.approx({"A": .8, "B": -.6})
+    assert strategy.eligible_scores == pytest.approx({"A": .8, "B": 0 if mode == "long_only" else -.3})
+    if mode == "long_only":
+        assert record.positions == {"A": 250}
+    else:
+        assert record.positions == {"A": 250, "B": -125}
+    assert strategy.final_contribution == record.final_weights
+    assert record.nav == 100_000
+    assert CycleRecord.model_validate_json(record.model_dump_json()) == record
+    old_fields = record.model_dump()
+    old_fields.pop("risk_scale_factor")
+    for sr in old_fields["strategies"]:
+        for field in ("eligible_scores", "flat_reason", "final_contribution"):
+            sr.pop(field)
+    readable = CycleRecord.model_validate(old_fields)
+    assert readable.strategies[0].eligible_scores == {}
+    assert readable.risk_scale_factor is None
+
+
+def test_neutral_flat_strategy_reserves_capital_and_closes_prior_exposure():
+    spec = _spec([
+        {"name": "neutral", "weight": 3, "models": [{"name": "a"}], "blend": {"mode": "dollar_neutral"}},
+        {"name": "owner", "weight": 1, "models": [{"name": "b"}], "blend": {"mode": "long_only"}},
+    ], max_position_pct=1)
+    model = FakeAnalyst("a", {"A": 1, "B": -1})
+    fund = Fund(spec, models={"neutral": [model], "owner": [FakeAnalyst("b", {"C": 1})]})
+    broker = SimBroker(100_000)
+    data = FakeDataClient({"A": 100, "B": 100, "C": 100})
+    first = run_cycle(fund, "2024-06-03", broker, data, ["A", "B", "C"])
+    assert first.positions == {"A": 375, "B": -375, "C": 250}
+    model._views = {"A": 1, "B": .2}
+    second = run_cycle(fund, "2024-06-04", broker, data, ["A", "B", "C"])
+    assert second.strategies[0].flat_reason == "missing_short_side"
+    assert second.positions == {"C": 250}
+    assert second.cash == 75_000
+    assert {o.ticker for o in second.orders} == {"A", "B"}
+
+
+def test_neutral_fund_scaling_preserves_sleeves_with_overlap():
+    spec = _spec([
+        {"name": "neutral", "weight": 3, "models": [{"name": "a"}], "blend": {"mode": "dollar_neutral"}},
+        {"name": "owner", "weight": 1, "models": [{"name": "b"}], "blend": {"mode": "long_only"}},
+    ])
+    fund = Fund(spec, models={"neutral": [FakeAnalyst("a", {"A": 1, "B": -1})],
+                            "owner": [FakeAnalyst("b", {"A": 1})]})
+    record = run_cycle(fund, "2024-06-03", SimBroker(100_000), FakeDataClient({"A": 100, "B": 100}), ["A", "B"])
+    assert record.target_weights == {"A": .625, "B": -.375}
+    assert record.risk_scale_factor == .4
+    neutral, owner = record.strategies
+    assert neutral.final_contribution == pytest.approx({"A": .15, "B": -.15})
+    assert owner.final_contribution == pytest.approx({"A": .1, "B": 0})
+    assert record.final_weights == pytest.approx({"A": .25, "B": -.15})
+    assert sum(record.final_weights.values()) == pytest.approx(.1)  # only the neutral strategy must balance
+
+
+def test_clipping_attribution_preserves_exactly_offset_contributions():
+    spec = _spec([
+        {"name": "s1", "models": [{"name": "a"}]},
+        {"name": "s2", "models": [{"name": "b"}]},
+    ], max_position_pct=.2)
+    fund = Fund(spec, models={"s1": [FakeAnalyst("a", {"A": 1, "B": 1})],
+                            "s2": [FakeAnalyst("b", {"A": -1, "B": 1})]})
+    record = run_cycle(fund, "2024-06-03", SimBroker(100_000), FakeDataClient({"A": 100, "B": 100}), ["A", "B"])
+    assert record.risk_scale_factor is None
+    assert record.final_weights == {"A": 0, "B": .2}
+    assert record.strategies[0].final_contribution == {"A": .25, "B": .1}
+    assert record.strategies[1].final_contribution == {"A": -.25, "B": .1}
+
+
+def test_whole_share_rounding_keeps_target_neutral_without_changing_orders():
+    fund = _rule_fund("dollar_neutral", max_position_pct=1)
+    record = run_cycle(fund, "2024-06-03", SimBroker(10_000), FakeDataClient({"A": 300, "B": 700}), ["A", "B"])
+    assert record.final_weights == {"A": .5, "B": -.5}
+    assert [(o.ticker, o.side, o.quantity) for o in record.orders] == [("B", "sell", 7), ("A", "buy", 16)]
+    assert sum(record.positions[t] * record.marks[t] for t in record.positions) == -100
+
+
+@pytest.mark.parametrize("case,expected", [
+    ("nonfinite", "finite"), ("neutrality", "dollar-neutral"),
+    ("position", "max_position_pct"), ("gross", "max_gross_exposure"),
+    ("contributions", "contributions do not sum"),
+])
+def test_invalid_risk_output_never_reaches_broker(monkeypatch, case, expected):
+    from importlib import import_module
+    from unittest.mock import Mock
+
+    from hedge_fund.risk.limits import RiskResult
+    pipeline = import_module("hedge_fund.pipeline.run_cycle")
+    mode = "dollar_neutral" if case in ("neutrality", "contributions") else "long_short"
+    fund = _rule_fund(mode, max_gross_exposure=.3 if case == "gross" else 1)
+    targets = {"A": .25, "B": -.25}
+    factor = None
+    if case == "nonfinite":
+        targets["A"] = float("nan")
+    elif case == "neutrality":
+        targets["B"] = -.1
+    elif case == "position":
+        targets["A"] = .4
+    elif case == "contributions":
+        factor = .4  # recorded contributions will disagree with final weights
+    monkeypatch.setattr(pipeline, "apply_limits", lambda *args, **kwargs: RiskResult(weights=targets, clamps=[], scale_factor=factor))
+    broker = SimBroker(100_000)
+    broker.place_order = Mock(side_effect=AssertionError("invalid orders reached broker"))
+    with pytest.raises(ValueError, match=expected):
+        run_cycle(fund, "2024-06-03", broker, FakeDataClient({"A": 100, "B": 100}), ["A", "B"])
+    broker.place_order.assert_not_called()
+
+
+@pytest.mark.parametrize("mode,expected", [("long_only", "long-only"), ("long_short", "short evidence")])
+def test_invalid_short_targets_never_reach_broker(monkeypatch, mode, expected):
+    from importlib import import_module
+    from unittest.mock import Mock
+    pipeline = import_module("hedge_fund.pipeline.run_cycle")
+    original = pipeline.blend_signals
+    def invalid_blend(*args, **kwargs):
+        result = original(*args, **kwargs)
+        result.weights["A"] = -1
+        return result
+    monkeypatch.setattr(pipeline, "blend_signals", invalid_blend)
+    fund = _rule_fund(mode, names=("buffett",), views={"buffett": {"A": -.8}})
+    broker = SimBroker(100_000)
+    broker.place_order = Mock(side_effect=AssertionError("invalid orders reached broker"))
+    with pytest.raises(ValueError, match=expected):
+        run_cycle(fund, "2024-06-03", broker, FakeDataClient({"A": 100}), ["A"])
+    broker.place_order.assert_not_called()
+
+
+def test_strategy_gross_violation_is_rejected_even_when_fund_risk_clips_it(monkeypatch):
+    from importlib import import_module
+    from unittest.mock import Mock
+    pipeline = import_module("hedge_fund.pipeline.run_cycle")
+    original = pipeline.blend_signals
+    def invalid_blend(*args, **kwargs):
+        result = original(*args, **kwargs)
+        result.weights = {"A": 1, "B": -1}
+        return result
+    monkeypatch.setattr(pipeline, "blend_signals", invalid_blend)
+    fund = _rule_fund("long_short")
+    broker = SimBroker(100_000)
+    broker.place_order = Mock(side_effect=AssertionError("invalid orders reached broker"))
+    with pytest.raises(ValueError, match="team.*strategy gross target"):
+        run_cycle(fund, "2024-06-03", broker, FakeDataClient({"A": 100, "B": 100}), ["A", "B"])
+    broker.place_order.assert_not_called()

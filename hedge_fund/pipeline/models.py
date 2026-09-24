@@ -8,11 +8,14 @@ these; `fund why AAPL` will answer from them alone.
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 from hedge_fund.brokers.models import Fill, Order
 from hedge_fund.fund.spec import FundSpec
 from hedge_fund.models import Signal
+from hedge_fund.portfolio.construction import FlatReason
 from hedge_fund.risk.limits import ClampEvent
 
 
@@ -31,6 +34,39 @@ class StrategyRecord(BaseModel):
     signals: list[Signal]               # this strategy's analysts x tradeable tickers
     convictions: dict[str, float]       # blended views, pre-scaling
     weights: dict[str, float]           # the sleeve, before netting across strategies
+    eligible_scores: dict[str, float] = Field(default_factory=dict)
+    flat_reason: FlatReason | None = None
+    final_contribution: dict[str, float] = Field(default_factory=dict)  # fraction of fund equity
+
+
+class DecisionRecord(BaseModel):
+    """An auditable assessment, without orders or broker accounting."""
+
+    schema_version: Literal[2] = 2
+    fund: str
+    as_of: str
+    spec: FundSpec
+    universe: list[str]
+    marks: dict[str, float]
+    skipped: list[TickerSkip]
+    strategies: list[StrategyRecord]
+    target_weights: dict[str, float]
+    clamps: list[ClampEvent]
+    final_weights: dict[str, float]
+    risk_scale_factor: float | None = None
+
+
+class PendingRunResult(BaseModel):
+    """A saved proposal awaiting an explicit run with completed session data."""
+
+    schema_version: Literal[2] = 2
+    status: Literal["pending"] = "pending"
+    execution_policy: Literal["next_close"] = "next_close"
+    fund: str
+    as_of: str
+    proposal: DecisionRecord
+    reason: str
+    scheduled_execution_date: str | None = None
 
 
 class CycleRecord(BaseModel):
@@ -38,6 +74,7 @@ class CycleRecord(BaseModel):
     outputs. `model_dump_json()` round-trips; nothing about a decision
     lives anywhere else."""
 
+    schema_version: Literal[2] = 2
     fund: str
     as_of: str
     spec: FundSpec                      # self-contained audit copy
@@ -55,3 +92,8 @@ class CycleRecord(BaseModel):
     positions: dict[str, int]           # signed shares after fills
     cash: float
     nav: float                          # cash + sum(shares * mark)
+    risk_scale_factor: float | None = None
+    original_assessment: DecisionRecord | None = None
+    refreshed_assessment: DecisionRecord | None = None
+    execution_as_of: str | None = None
+    execution_policy: Literal["next_close"] | None = None
