@@ -265,9 +265,9 @@ ModelPickerScreen {
 
 /* ---------------- confirm delete ---------------- */
 
-/* Red border, and only here: this is the one screen where something is
-   destroyed. The dimmed backdrop keeps the fund list visible behind it. */
-ConfirmDeleteScreen {
+/* Red border, and only here: these are the screens where something is
+   destroyed. The dimmed backdrop keeps the screen behind visible. */
+ConfirmDeleteScreen, ConfirmWipeScreen {
     align: center middle;
     background: #0b100e 70%;
 }
@@ -289,24 +289,59 @@ ConfirmDeleteScreen {
     margin-bottom: 1;
 }
 
-/* ---------------- run today ---------------- */
+/* ---------------- paper: run confirm ---------------- */
 
-#run-ready {
+/* Green border: this is where the user says yes to a run. Same shape as
+   the delete prompt, so the two approval steps feel like siblings. */
+RunConfirmScreen {
     align: center middle;
+    background: #0b100e 70%;
 }
 
-#run-hero {
-    width: auto;
-    margin-bottom: 3;
+#run-confirm {
+    width: 72;
+    max-width: 90%;
+    height: auto;
+    padding: 1 3;
+    background: #101613;
+    border: round #2bd97c;
 }
 
-#run-menu {
-    width: 40;
+#run-q {
+    margin-bottom: 1;
 }
 
-#run-menu .hint {
-    text-align: center;
+#run-body {
+    margin-bottom: 1;
 }
+
+/* ---------------- paper: one fund ---------------- */
+
+#pf {
+    padding: 1 2;
+}
+
+#pf-head {
+    margin-bottom: 1;
+}
+
+#pf-status {
+    margin-bottom: 1;
+}
+
+/* The sessions browser takes whatever the numbers and the curve leave. */
+#pf-panes {
+    height: 1fr;
+    min-height: 8;
+    margin-top: 1;
+}
+
+#pf-sessions {
+    height: 1fr;
+    max-height: 100%;
+}
+
+/* ---------------- paper: tick ---------------- */
 
 #run-phase {
     margin-bottom: 1;

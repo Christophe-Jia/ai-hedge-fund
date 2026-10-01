@@ -20,6 +20,7 @@ import hashlib
 from pydantic import BaseModel
 
 from hedge_fund.data.protocol import DataClient
+from hedge_fund.features.breakpoints import MEBreakpoints
 
 # An agent can't say anything defensible about a company with less history
 # than this (one year of ttm rows).
@@ -65,6 +66,13 @@ class FundamentalsSnapshot(BaseModel):
     bvps_cagr: float | None = None
     debt_to_equity_latest: float | None = None
     market_cap_latest: float | None = None
+    # t-0 EPS versus t-4 (one year of quarter-spaced ttm rows). None when
+    # either print is missing or the year-ago EPS is not positive.
+    eps_growth_yoy: float | None = None
+    # Size as a market-cap percentile of US stocks (steps of 5) as of the t-0
+    # filing. Set only when build_snapshot is given a breakpoints table; None
+    # means the blind prompt shows no size at all.
+    size_percentile: int | None = None
 
     @property
     def content_hash(self) -> str:
@@ -85,25 +93,25 @@ class FundamentalsSnapshot(BaseModel):
         could associate with post-date world events.
 
         `blind=True` goes one step further, and is what backtests use: the
-        ticker and industry are withheld (the sector stays) and the periods
-        are labelled t-0 (latest), t-1, ... instead of report and filing
-        dates. Without that, a model that remembers how a named company did
-        after a given quarter can recall the outcome it is being scored on.
-        Blind mode reduces that recall rather than removing it (distinctive
-        numbers can still give a large company away), and the personas lose
+        ticker, industry, calendar dates, absolute size, and per-share dollar
+        values are withheld (the sector stays). Periods are labelled t-0
+        (latest), t-1, ..., per-share series are indexed to the oldest
+        period shown (= 100), and size appears only as a market-cap
+        percentile when a breakpoints table was supplied. Without that, a
+        model that remembers how a named company did after a given quarter
+        can recall the outcome it is being scored on. Blind mode reduces
+        that recall rather than removing it (distinctive ratio profiles can
+        still give a large company away), and the personas lose
         company-specific knowledge. Live runs render unblinded.
         """
+        if blind:
+            return self._render_blind()
         lines = [
-            f"Company: {'(withheld)' if blind else self.ticker}"
+            f"Company: {self.ticker}"
             + (f"  |  Sector: {self.sector}" if self.sector else "")
-            + (f"  |  Industry: {self.industry}" if self.industry and not blind else ""),
-            (
-                "Periods are labelled relative to the latest filing (t-0); "
-                "calendar dates are withheld. Treat t-0 as the present."
-                if blind else
-                "All figures below were publicly filed by their filing dates. "
-                "Treat the most recent filing shown as the present."
-            ),
+            + (f"  |  Industry: {self.industry}" if self.industry else ""),
+            "All figures below were publicly filed by their filing dates. "
+            "Treat the most recent filing shown as the present.",
             "",
             "Summary:",
             f"  Market cap (latest filed): {_fmt(self.market_cap_latest)}",
@@ -113,14 +121,12 @@ class FundamentalsSnapshot(BaseModel):
             f"  Debt/equity (latest): {_fmt(self.debt_to_equity_latest)}",
             "",
             "History (trailing-twelve-month periods, newest first):",
-            ("period" if blind else "period | filed")
-            + " | mktcap | P/E | ROE | gross_m | op_m | net_m | D/E "
+            "period | filed | mktcap | P/E | ROE | gross_m | op_m | net_m | D/E "
             "| curr | rev_gr | EPS | BVPS | FCF/sh",
         ]
-        for i, p in enumerate(self.periods):
-            when = f"t-{i}" if blind else f"{p.report_period} | {p.filing_date or '?'}"
+        for p in self.periods:
             lines.append(
-                f"{when} | {_fmt(p.market_cap)} "
+                f"{p.report_period} | {p.filing_date or '?'} | {_fmt(p.market_cap)} "
                 f"| {_fmt(p.price_to_earnings_ratio)} | {_fmt(p.return_on_equity)} "
                 f"| {_fmt(p.gross_margin)} | {_fmt(p.operating_margin)} "
                 f"| {_fmt(p.net_margin)} | {_fmt(p.debt_to_equity)} "
@@ -130,14 +136,57 @@ class FundamentalsSnapshot(BaseModel):
             )
         return "\n".join(lines)
 
+    def _render_blind(self) -> str:
+        """Backtest prompt: ratios and indexed trends, no identifying dollars."""
+        oldest = self.periods[-1]
+        lines = [
+            f"Company: (withheld)"
+            + (f"  |  Sector: {self.sector}" if self.sector else ""),
+            "Periods are labelled relative to the latest filing (t-0). "
+            "Calendar dates, absolute size and per-share dollar values are withheld; "
+            "per-share figures are indexed to the oldest period shown (= 100). "
+            "Treat t-0 as the present.",
+            "",
+            "Summary:",
+        ]
+        if self.size_percentile is not None:
+            lines.append(f"  Size: {_size_label(self.size_percentile)}")
+        lines += [
+            f"  ROE avg: {_fmt(self.roe_avg)}  |  Net margin avg: {_fmt(self.net_margin_avg)}",
+            f"  Gross margin trend (latest-oldest): {_fmt(self.gross_margin_trend)}",
+            f"  Book value/share CAGR: {_fmt(self.bvps_cagr)}",
+            f"  Debt/equity (latest): {_fmt(self.debt_to_equity_latest)}",
+            "",
+            "History (trailing-twelve-month periods, newest first):",
+            "period | P/E | ROE | gross_m | op_m | net_m | D/E "
+            "| curr | rev_gr | eps_idx | bvps_idx | fcf_idx | eps_yoy",
+        ]
+        for i, p in enumerate(self.periods):
+            lines.append(
+                f"t-{i} | {_fmt(p.price_to_earnings_ratio)} | {_fmt(p.return_on_equity)} "
+                f"| {_fmt(p.gross_margin)} | {_fmt(p.operating_margin)} "
+                f"| {_fmt(p.net_margin)} | {_fmt(p.debt_to_equity)} "
+                f"| {_fmt(p.current_ratio)} | {_fmt(p.revenue_growth)} "
+                f"| {_per_share_index(p.earnings_per_share, oldest.earnings_per_share)} "
+                f"| {_per_share_index(p.book_value_per_share, oldest.book_value_per_share)} "
+                f"| {_per_share_index(p.free_cash_flow_per_share, oldest.free_cash_flow_per_share)} "
+                f"| {_fmt(self.eps_growth_yoy) if i == 0 else '-'}"
+            )
+        return "\n".join(lines)
+
 
 def build_snapshot(
     ticker: str,
     as_of: str,
     data_client: DataClient,
     periods: int = 20,
+    breakpoints: MEBreakpoints | None = None,
 ) -> FundamentalsSnapshot:
     """Build the point-in-time snapshot for (ticker, as_of).
+
+    `breakpoints`, when given, places the t-0 filed market cap on the size
+    distribution of US stocks as of that filing (blind prompts show the
+    percentile instead of dollars). Without it `size_percentile` stays None.
 
     Raises InsufficientData if fewer than MIN_PERIODS filed periods exist.
     Data-layer failures propagate (fail loud) — a broken snapshot must never
@@ -162,6 +211,10 @@ def build_snapshot(
         for m in metrics
     ]
 
+    size_percentile = None
+    if breakpoints is not None and rows[0].filing_date is not None:
+        size_percentile = breakpoints.size_percentile(rows[0].market_cap, rows[0].filing_date)
+
     return FundamentalsSnapshot(
         ticker=ticker,
         as_of=as_of,
@@ -176,12 +229,43 @@ def build_snapshot(
         bvps_cagr=_cagr([m.book_value_per_share for m in metrics]),
         debt_to_equity_latest=metrics[0].debt_to_equity,
         market_cap_latest=metrics[0].market_cap,
+        eps_growth_yoy=_eps_growth_yoy(rows),
+        size_percentile=size_percentile,
     )
 
 
 # ---------------------------------------------------------------------------
 # Private helpers
 # ---------------------------------------------------------------------------
+
+def _size_label(percentile: int) -> str:
+    if percentile <= 0:
+        return "market cap below the 5th percentile of US stocks"
+    return f"market cap at or above the {percentile}th percentile of US stocks"
+
+
+def _per_share_index(value: float | None, base: float | None) -> str:
+    """Scale a per-share series to the oldest period (= 100).
+
+    A missing or non-positive base has no scale, so the whole column is
+    dashed rather than inventing one. The sign of `value` is kept, so a
+    swing through zero still shows up.
+    """
+    if value is None or base is None or base <= 0:
+        return "-"
+    return f"{value / base * 100:.1f}"
+
+
+def _eps_growth_yoy(periods: list[PeriodFundamentals]) -> float | None:
+    """t-0 EPS versus t-4. None when either is missing or t-4 EPS is not positive."""
+    if len(periods) < 5:
+        return None
+    latest = periods[0].earnings_per_share
+    prior = periods[4].earnings_per_share
+    if latest is None or prior is None or prior <= 0:
+        return None
+    return round(latest / prior - 1, 4)
+
 
 def _fmt(v: float | None) -> str:
     if v is None:

@@ -71,31 +71,12 @@ Keys exported in your shell always win over the saved file.
 aihf
 ```
 
-With no arguments, this launches the interactive terminal app. Build a fund — pick stocks, strategies, rebalance cadence — or backtest a saved fund and watch its equity curve draw against its benchmark. Funds you build are saved as mandate files in `~/.hedge-fund/mandates/`.
+With no arguments, this launches the interactive terminal app. It has two modes:
 
-### Non-interactive
+- **Paper trading** — your funds, each with a ledger of real market days and fake money. Highlight a fund to see what its next run will do; press enter to run it through the next completed session (an approval step shows the exact decision about to execute before anything trades), `s` for its full session history, `h`/`r` for the kill switch. Build a new fund from the same list: strategies, capital, cadence, tickers, and it is live. Every session is appended to a hash-chained ledger in `~/.hedge-fund/paper/<name>/`, so NAV is a track record, not a reset.
+- **Backtesting** — replay a fund over history and watch its equity curve draw against its benchmark. Results are saved to `~/.hedge-fund/research/`. Fund definitions live in `~/.hedge-fund/mandates/` and carry no tickers; you pick the universe per backtest.
 
-Run one fund cycle from a mandate file. The full cycle record prints to stdout as JSON; a short human summary goes to stderr:
 
-```bash
-aihf ~/.hedge-fund/mandates/example.yaml --tickers AAPL,MSFT
-```
-
-Run the same mandate with Jev after configuring `TYPESAFE_API_KEY`:
-
-```bash
-aihf ~/.hedge-fund/mandates/example.yaml --tickers AAPL,MSFT --model jev-1.13.0
-```
-
-Backtest the mandate over history at its rebalance cadence:
-
-```bash
-aihf ~/.hedge-fund/mandates/example.yaml --tickers AAPL,MSFT --backtest
-```
-
-An LLM trained after your backtest window may remember how those companies did, and that memory would score as skill. So a backtest withholds the ticker, industry and calendar dates from the investor agents' prompts; the personas see the fundamentals with periods labelled t-0, t-1, ... instead. This reduces the recall without removing it (distinctive numbers can still give a large company away), and a window after the model's training cutoff is the cleanest read. Live runs are unaffected and name the company.
-
-A mandate is the desk — strategies, staff, risk, capital, cadence — and never names tickers; `--tickers` says what to point it at for this run.
 
 ## Development
 
